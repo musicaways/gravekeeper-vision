@@ -30,7 +30,7 @@ const WorkOrderCard: React.FC<WorkOrderCardProps> = ({ workOrder, onClick }) => 
       case 'construction':
         return <Icons.Hammer className="h-5 w-5" />;
       case 'cleaning':
-        return <Icons.Spray className="h-5 w-5" />;
+        return <Icons.Droplets className="h-5 w-5" />; // Changed from Spray to Droplets
       default:
         return <Icons.Clipboard className="h-5 w-5" />;
     }
@@ -95,7 +95,7 @@ const WorkOrderCard: React.FC<WorkOrderCardProps> = ({ workOrder, onClick }) => 
         )}
         
         {workOrder.status === 'in_progress' && (
-          <Button size="sm" variant="success" className="text-xs h-8 bg-success text-white hover:bg-success/90">
+          <Button size="sm" variant="default" className="text-xs h-8 bg-success text-success-foreground hover:bg-success/90">
             <Icons.CheckCircle className="h-3.5 w-3.5 mr-1" />
             Complete
           </Button>
