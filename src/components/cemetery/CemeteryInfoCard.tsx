@@ -76,6 +76,8 @@ const CemeteryInfoCard = ({ cemetery }: CemeteryInfoCardProps) => {
 
   const handleSave = async (data: any) => {
     try {
+      console.log("Saving data:", data);
+      
       // Format the data for Supabase update
       const updateData = {
         Descrizione: data.Descrizione,
@@ -85,12 +87,12 @@ const CemeteryInfoCard = ({ cemetery }: CemeteryInfoCardProps) => {
         postal_code: data.postal_code,
         state: data.state,
         country: data.country,
-        established_date: data.established_date,
+        established_date: data.established_date || null,
         total_area_sqm: data.total_area_sqm ? parseFloat(data.total_area_sqm) : null,
         contact_info: {
-          phone: data.contact_info.phone,
-          email: data.contact_info.email,
-          website: data.contact_info.website
+          phone: data.contact_info.phone || "",
+          email: data.contact_info.email || "",
+          website: data.contact_info.website || ""
         },
         ricevimento_salme: data.ricevimento_salme,
         chiesa: data.chiesa,
@@ -99,13 +101,22 @@ const CemeteryInfoCard = ({ cemetery }: CemeteryInfoCardProps) => {
         impalcatura: data.impalcatura
       };
 
+      console.log("Formatted update data:", updateData);
+      console.log("Cemetery ID:", cemetery.Id);
+
       // Update the cemetery in Supabase
-      const { error } = await supabase
+      const { error, data: updatedData } = await supabase
         .from('Cimitero')
         .update(updateData)
-        .eq('Id', cemetery.Id);
+        .eq('Id', cemetery.Id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      console.log("Update successful:", updatedData);
 
       toast({
         title: "Modifiche salvate",
@@ -117,12 +128,12 @@ const CemeteryInfoCard = ({ cemetery }: CemeteryInfoCardProps) => {
       
       // Refresh the page to show updated data
       window.location.reload();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating cemetery:", error);
       toast({
         variant: "destructive",
         title: "Errore",
-        description: "Non è stato possibile salvare le modifiche. Riprova più tardi.",
+        description: `Non è stato possibile salvare le modifiche: ${error.message || 'Riprova più tardi'}`,
       });
     }
   };
