@@ -1,192 +1,189 @@
 
-import { useState, useEffect } from 'react';
-import Layout from '@/components/layout/Layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import NicheMap from '@/components/niche-map/NicheMap';
-import { mockNiches, mockCemeteries, mockSections, mockBlocks, mockPlots, mockWorkOrders } from '@/lib/mock-data';
-import WorkOrdersKanban from '@/components/work-orders/WorkOrdersKanban'; // Changed from named import to default import
+import { useEffect, useState } from "react";
+import Layout from "@/components/layout/Layout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Cemetery } from "@/types";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Grid, Users, Map, FileSpreadsheet } from "lucide-react";
+import { Link } from "react-router-dom";
 
-import * as Icons from 'lucide-react';
+export default function Dashboard() {
+  const [cemeteries, setCemeteries] = useState<Cemetery[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalCemeteries: 0,
+    totalSections: 0,
+    totalPlots: 0,
+    totalDeceased: 0,
+  });
+  const { toast } = useToast();
 
-const Dashboard = () => {
-  const [selectedCemetery, setSelectedCemetery] = useState(mockCemeteries[0]);
-  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch cemeteries
+        const { data: cemeteriesData, error: cemeteriesError } = await supabase
+          .from("Cimitero")
+          .select("*")
+          .limit(5);
+
+        if (cemeteriesError) {
+          throw cemeteriesError;
+        }
+
+        const mappedCemeteries = cemeteriesData.map((c) => ({
+          id: c.Id.toString(),
+          name: c.nome || c.Descrizione || "Unnamed Cemetery",
+          address: c.Indirizzo || "",
+          city: c.city || "",
+          state: c.state || "",
+          postal_code: c.postal_code || "",
+          country: c.country || "Italy",
+          established_date: c.established_date || "",
+          total_area_sqm: c.total_area_sqm || 0,
+          geo_location: c.geo_location || { lat: 0, lng: 0 },
+          contact_info: c.contact_info || { phone: "", email: "" },
+          operating_hours: c.operating_hours || {},
+          active: c.active ?? true,
+        }));
+
+        setCemeteries(mappedCemeteries);
+
+        // Fetch stats
+        const { data: settoriCount, error: settoriError } = await supabase
+          .from("Settore")
+          .select("Id", { count: "exact", head: true });
+
+        if (settoriError) throw settoriError;
+
+        const { data: defuntiCount, error: defuntiError } = await supabase
+          .from("Defunto")
+          .select("Id", { count: "exact", head: true });
+
+        if (defuntiError) throw defuntiError;
+
+        setStats({
+          totalCemeteries: cemeteriesData.length,
+          totalSections: settoriCount?.length || 0,
+          totalPlots: 0, // To be implemented
+          totalDeceased: defuntiCount?.length || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        toast({
+          variant: "destructive",
+          title: "Error loading dashboard",
+          description: "Failed to load dashboard data. Please try again.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="h-full flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
-    <Layout title="Dashboard" subtitle="Cemetery Management System">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-enter">
-        <StatsCard 
-          title="Total Cemeteries" 
-          value={mockCemeteries.length.toString()} 
-          description="Active cemetery locations"
-          icon={<Icons.Building2 className="h-12 w-12 text-blue-500/20" />}
-          trend={{ value: "+0%", positive: true }}
-        />
-        
-        <StatsCard 
-          title="Total Plots" 
-          value={mockPlots.length.toString()} 
-          description="Across all cemeteries"
-          icon={<Icons.Layers className="h-12 w-12 text-orange-500/20" />}
-          trend={{ value: "+2.5%", positive: true }}
-        />
-        
-        <StatsCard 
-          title="Available Plots" 
-          value={mockPlots.filter(p => p.status === 'available').length.toString()} 
-          description="Ready for assignment"
-          icon={<Icons.CheckSquare className="h-12 w-12 text-green-500/20" />}
-          trend={{ value: "-1%", positive: false }}
-        />
-        
-        <StatsCard 
-          title="Pending Work Orders" 
-          value={mockWorkOrders.filter(wo => wo.status === 'pending').length.toString()} 
-          description="Tasks waiting to be completed"
-          icon={<Icons.ClipboardList className="h-12 w-12 text-red-500/20" />}
-          trend={{ value: "+1", positive: false }}
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
-          <Card className="shadow-sm h-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Icons.BarChart3 className="h-5 w-5 text-primary" />
-                Work Order Status
-              </CardTitle>
-              <CardDescription>
-                Current work orders by status
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Chart would go here in a real implementation
-              </div>
-            </CardContent>
-          </Card>
+    <Layout>
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatCard
+            title="Cemeteries"
+            value={stats.totalCemeteries}
+            icon={<Map className="h-6 w-6" />}
+            description="Total cemeteries managed"
+          />
+          <StatCard
+            title="Sections"
+            value={stats.totalSections}
+            icon={<Grid className="h-6 w-6" />}
+            description="Total cemetery sections"
+          />
+          <StatCard
+            title="Plots"
+            value={stats.totalPlots}
+            icon={<FileSpreadsheet className="h-6 w-6" />}
+            description="Available burial plots"
+          />
+          <StatCard
+            title="Records"
+            value={stats.totalDeceased}
+            icon={<Users className="h-6 w-6" />}
+            description="Deceased person records"
+          />
         </div>
-        
-        <div>
-          <Card className="shadow-sm h-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Icons.CalendarClock className="h-5 w-5 text-primary" />
-                Upcoming Work Orders
-              </CardTitle>
-              <CardDescription>
-                Scheduled for the next 7 days
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockWorkOrders
-                  .filter(wo => wo.status === 'pending')
-                  .slice(0, 3)
-                  .map(wo => (
-                    <div key={wo.id} className="flex items-start gap-3 pb-4 border-b">
-                      <div className={`h-12 w-1 rounded-full ${wo.priority === 'urgent' ? 'bg-red-500' : wo.priority === 'high' ? 'bg-orange-500' : 'bg-blue-500'}`} />
-                      <div className="flex-1">
-                        <div className="font-medium">{wo.order_number}</div>
-                        <div className="text-sm text-muted-foreground">{wo.description.substring(0, 40)}...</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Scheduled: {new Date(wo.scheduled_date || wo.requested_date).toLocaleDateString()}
-                        </div>
-                      </div>
-                      <div className="text-xs capitalize px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                        {wo.order_type}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
+
+        <h2 className="text-2xl font-bold mb-4">Recent Cemeteries</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {cemeteries.map((cemetery) => (
+            <CemeteryCard key={cemetery.id} cemetery={cemetery} />
+          ))}
         </div>
-      </div>
-      
-      <div className="mb-6">
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Icons.Grid3X3 className="h-5 w-5 text-primary" />
-              Niche Visualization
-            </CardTitle>
-            <CardDescription>
-              Interactive map of columbarium niches
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <NicheMap 
-              blockId={mockBlocks[2].block_code}
-              rows={6}
-              columns={8}
-              niches={mockNiches}
-              onNicheClick={(nicheId) => console.log(`Clicked niche: ${nicheId}`)}
-            />
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Icons.Kanban className="h-5 w-5 text-primary" />
-              Work Orders Board
-            </CardTitle>
-            <CardDescription>
-              Manage work orders by status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[500px]">
-              <WorkOrdersKanban 
-                workOrders={mockWorkOrders}
-                onWorkOrderClick={(workOrder) => console.log('Clicked work order:', workOrder)}
-              />
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </Layout>
   );
-};
-
-interface StatsCardProps {
-  title: string;
-  value: string;
-  description: string;
-  icon: React.ReactNode;
-  trend?: {
-    value: string;
-    positive: boolean;
-  };
 }
 
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, description, icon, trend }) => (
-  <Card className="shadow-sm overflow-hidden">
-    <CardContent className="p-6 relative">
-      <div className="absolute top-0 right-0 p-4 opacity-70">
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <h3 className="text-3xl font-bold mt-1 mb-1">{value}</h3>
-        <p className="text-xs text-muted-foreground">{description}</p>
-        
-        {trend && (
-          <div className={`flex items-center mt-2 text-xs ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
-            {trend.positive ? (
-              <Icons.TrendingUp className="h-3 w-3 mr-1" />
-            ) : (
-              <Icons.TrendingDown className="h-3 w-3 mr-1" />
-            )}
-            {trend.value}
-          </div>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
+interface StatCardProps {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
+  description: string;
+}
 
-export default Dashboard;
+function StatCard({ title, value, icon, description }: StatCardProps) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CemeteryCard({ cemetery }: { cemetery: Cemetery }) {
+  return (
+    <Link to={`/cemetery/${cemetery.id}`}>
+      <Card className="hover:bg-accent transition-colors cursor-pointer">
+        <CardHeader className="pb-2">
+          <CardTitle>{cemetery.name}</CardTitle>
+          <CardDescription>
+            {cemetery.city}, {cemetery.state}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm">
+            <p>{cemetery.address}</p>
+            {cemetery.active ? (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">
+                Active
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-2">
+                Inactive
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
