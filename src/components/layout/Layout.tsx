@@ -63,9 +63,7 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
       {/* Main content area */}
       <div className="flex-1 flex flex-col w-full overflow-hidden">
         <Topbar 
-          title={title} 
-          subtitle={subtitle} 
-          onMenuClick={isMobile && !showBackButton ? toggleSidebar : undefined}
+          onMenuClick={toggleSidebar}
           showBackButton={showBackButton} 
         />
         <AppBreadcrumb />

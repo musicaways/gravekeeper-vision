@@ -1,17 +1,14 @@
 
 import { Bell, ChevronLeft, Menu, User2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface TopbarProps {
-  title?: string;
-  subtitle?: string;
   onMenuClick?: () => void;
   showBackButton?: boolean;
 }
 
-const Topbar = ({ title, subtitle, onMenuClick, showBackButton = false }: TopbarProps) => {
+const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   const navigate = useNavigate();
   
   const handleBack = () => {
@@ -21,19 +18,16 @@ const Topbar = ({ title, subtitle, onMenuClick, showBackButton = false }: Topbar
   return (
     <header className="sticky top-0 z-10 border-b bg-card h-16 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
       <div className="flex items-center gap-4">
-        {showBackButton ? (
+        {showBackButton && (
           <Button onClick={handleBack} variant="ghost" size="icon" aria-label="Torna indietro">
             <ChevronLeft className="h-5 w-5" />
           </Button>
-        ) : onMenuClick && (
-          <Button onClick={onMenuClick} variant="ghost" size="icon" className="md:hidden">
+        )}
+        {onMenuClick && (
+          <Button onClick={onMenuClick} variant="ghost" size="icon">
             <Menu className="h-5 w-5" />
           </Button>
         )}
-        <div>
-          <h1 className="text-xl font-semibold text-card-foreground">{title}</h1>
-          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
-        </div>
       </div>
       
       <div className="flex items-center gap-3">
