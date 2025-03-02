@@ -62,7 +62,7 @@ export const CemeteryTabs = ({ cemetery, cemeteryId }: CemeteryTabsProps) => {
       </TabsContent>
       
       <TabsContent value="niches" className="space-y-6">
-        <CemeteryNicheMap blockId={undefined} />
+        <CemeteryNicheMap />
       </TabsContent>
 
       <TabsContent value="map" className="space-y-6">

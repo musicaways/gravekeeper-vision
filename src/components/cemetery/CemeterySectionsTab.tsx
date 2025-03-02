@@ -3,7 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { MapIcon } from "lucide-react";
 
-export const CemeterySectionsTab = () => {
+export interface CemeterySectionsTabProps {
+  cemeteryId: string;
+}
+
+export const CemeterySectionsTab = ({ cemeteryId }: CemeterySectionsTabProps) => {
   return (
     <Card>
       <CardHeader>

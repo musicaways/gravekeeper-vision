@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
 
 interface Photo {
@@ -9,21 +10,54 @@ interface Photo {
   Descrizione?: string;
 }
 
-interface CemeteryGalleryProps {
-  photos: Photo[];
+export interface CemeteryGalleryProps {
+  cemeteryId: string;
   columns?: 1 | 2 | 3 | 4;
   aspect?: "square" | "video" | "wide";
   className?: string;
 }
 
 const CemeteryGallery = ({ 
-  photos, 
+  cemeteryId, 
   columns = 3, 
   aspect = "square",
   className = "" 
 }: CemeteryGalleryProps) => {
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const numericId = parseInt(cemeteryId, 10);
+        
+        if (isNaN(numericId)) {
+          console.error("ID cimitero non valido");
+          setPhotos([]);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('CimiteroFoto')
+          .select('*')
+          .eq('IdCimitero', numericId);
+          
+        if (error) {
+          console.error("Errore nel caricamento delle foto:", error);
+        } else {
+          setPhotos(data || []);
+        }
+      } catch (err) {
+        console.error("Errore nel caricamento delle foto:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPhotos();
+  }, [cemeteryId]);
 
   // Transform the cemetery photos to the lightbox format
   const lightboxImages: LightboxImage[] = photos.map(photo => ({
@@ -62,6 +96,14 @@ const CemeteryGallery = ({
       default: return "aspect-square";
     }
   };
+
+  if (loading) {
+    return <div className="py-10 text-center">Caricamento foto...</div>;
+  }
+
+  if (photos.length === 0) {
+    return <div className="py-10 text-center text-muted-foreground">Nessuna foto disponibile</div>;
+  }
 
   return (
     <div className={className}>

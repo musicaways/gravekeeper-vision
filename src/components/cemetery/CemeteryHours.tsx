@@ -2,11 +2,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
-interface CemeteryHoursProps {
-  operatingHours: Record<string, { open: string; close: string }> | undefined;
+export interface CemeteryHoursProps {
+  cemetery: any;
 }
 
-const CemeteryHours = ({ operatingHours }: CemeteryHoursProps) => {
+const CemeteryHours = ({ cemetery }: CemeteryHoursProps) => {
   const formatOperatingHours = (hours: Record<string, { open: string; close: string }> | undefined) => {
     if (!hours) return "Orari non disponibili";
     
@@ -44,8 +44,8 @@ const CemeteryHours = ({ operatingHours }: CemeteryHoursProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {operatingHours ? 
-          formatOperatingHours(operatingHours) :
+        {cemetery?.operating_hours ? 
+          formatOperatingHours(cemetery.operating_hours) :
           <p className="text-muted-foreground text-center py-4">Orari non disponibili</p>
         }
       </CardContent>
