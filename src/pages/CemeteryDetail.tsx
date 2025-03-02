@@ -59,20 +59,20 @@ const CemeteryDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Cover photo with semi-transparent overlay for text */}
-      <div className="w-full h-48 md:h-64 relative overflow-hidden">
+      <div className="w-full h-40 md:h-56 relative overflow-hidden">
         <img 
           src={coverPhotoUrl} 
           alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
           className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
           <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.nome || "Cimitero"}</h2>
           <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
         </div>
       </div>
         
       {/* Tab content with improved mobile layout */}
-      <div className="px-4 py-4 w-full max-w-7xl mx-auto">
+      <div className="w-full max-w-full mx-auto">
         <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
       </div>
     </div>

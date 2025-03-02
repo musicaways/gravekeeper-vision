@@ -47,8 +47,8 @@ export const CemeteryNicheMap: React.FC<CemeteryNicheMapProps> = ({ cemeteryId }
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+      <CardHeader className="px-3 sm:px-6 pb-2">
+        <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
           <Grid3X3 className="h-5 w-5" />
           Mappa delle Nicchie
         </CardTitle>
@@ -56,10 +56,10 @@ export const CemeteryNicheMap: React.FC<CemeteryNicheMapProps> = ({ cemeteryId }
           Visualizza e gestisci le nicchie presenti nel cimitero
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between gap-4">
-            <div className="flex items-center gap-2 flex-wrap">
+      <CardContent className="px-3 sm:px-6">
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row justify-between gap-3">
+            <div className="flex items-center gap-1 flex-wrap">
               <Button 
                 variant={!selectedSection ? "secondary" : "outline"} 
                 size="sm" 
@@ -74,27 +74,27 @@ export const CemeteryNicheMap: React.FC<CemeteryNicheMapProps> = ({ cemeteryId }
                   size="sm"
                   onClick={() => setSelectedSection(section)}
                 >
-                  Sezione {section}
+                  Sez. {section}
                 </Button>
               ))}
             </div>
             
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-1 w-full sm:w-auto">
               <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Cerca nicchia o defunto..."
+                  placeholder="Cerca nicchia..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 w-full"
+                  className="pl-8 w-full h-9"
                 />
               </div>
               
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="h-9 w-9">
                 <Filter className="h-4 w-4" />
               </Button>
               
-              <Button size="icon">
+              <Button size="icon" className="h-9 w-9">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -102,46 +102,48 @@ export const CemeteryNicheMap: React.FC<CemeteryNicheMapProps> = ({ cemeteryId }
           
           {filteredNiches.length > 0 ? (
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Sezione</TableHead>
-                    <TableHead>Numero</TableHead>
-                    <TableHead>Stato</TableHead>
-                    <TableHead>Occupante</TableHead>
-                    <TableHead>Data</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredNiches.map((niche) => (
-                    <TableRow key={niche.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell>{niche.section}</TableCell>
-                      <TableCell>{niche.number}</TableCell>
-                      <TableCell>
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                          niche.status === "Occupata" ? "bg-red-100 text-red-800" : 
-                          niche.status === "Libera" ? "bg-green-100 text-green-800" : 
-                          niche.status === "Riservata" ? "bg-blue-100 text-blue-800" : 
-                          "bg-yellow-100 text-yellow-800"
-                        }`}>
-                          {niche.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{niche.occupant || "-"}</TableCell>
-                      <TableCell>{niche.date || "-"}</TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Sez.</TableHead>
+                      <TableHead>N°</TableHead>
+                      <TableHead>Stato</TableHead>
+                      <TableHead>Occupante</TableHead>
+                      <TableHead>Data</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredNiches.map((niche) => (
+                      <TableRow key={niche.id} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell>{niche.section}</TableCell>
+                        <TableCell>{niche.number}</TableCell>
+                        <TableCell>
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs ${
+                            niche.status === "Occupata" ? "bg-red-100 text-red-800" : 
+                            niche.status === "Libera" ? "bg-green-100 text-green-800" : 
+                            niche.status === "Riservata" ? "bg-blue-100 text-blue-800" : 
+                            "bg-yellow-100 text-yellow-800"
+                          }`}>
+                            {niche.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>{niche.occupant || "-"}</TableCell>
+                        <TableCell>{niche.date || "-"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           ) : (
-            <div className="text-center py-8">
+            <div className="text-center py-6">
               <p className="text-muted-foreground">Nessuna nicchia trovata con i criteri selezionati</p>
             </div>
           )}
           
-          <div className="text-center pt-4">
-            <p className="text-sm text-muted-foreground">Visualizzazione di {filteredNiches.length} nicchie su {mockNiches.length} totali</p>
+          <div className="text-center pt-2">
+            <p className="text-xs text-muted-foreground">Visualizzazione di {filteredNiches.length} nicchie su {mockNiches.length} totali</p>
           </div>
         </div>
       </CardContent>

@@ -16,7 +16,7 @@ export const DeceasedSearch: React.FC<DeceasedSearchProps> = ({
   onAddClick,
 }) => {
   return (
-    <div className="mb-4 space-y-3">
+    <div className="mb-3 space-y-2">
       <div className="relative w-full">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -37,10 +37,12 @@ export const DeceasedSearch: React.FC<DeceasedSearchProps> = ({
         )}
       </div>
       
-      <Button onClick={onAddClick} className="w-full sm:w-auto flex items-center justify-center gap-2 h-10">
-        <PlusCircle className="h-4 w-4" />
-        <span>Aggiungi defunto</span>
-      </Button>
+      <div className="flex justify-end">
+        <Button onClick={onAddClick} className="w-full h-9 sm:w-auto flex items-center justify-center gap-2">
+          <PlusCircle className="h-4 w-4" />
+          <span>Aggiungi defunto</span>
+        </Button>
+      </div>
     </div>
   );
 };

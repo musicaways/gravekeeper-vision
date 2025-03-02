@@ -81,8 +81,8 @@ export const CemeteryDeceasedTab: React.FC<CemeteryDeceasedTabProps> = ({ cemete
 
   return (
     <Card className="w-full shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+      <CardHeader className="pb-2 px-3 sm:px-6">
+        <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
           <Users className="h-5 w-5" />
           Defunti nel cimitero
         </CardTitle>
@@ -90,7 +90,7 @@ export const CemeteryDeceasedTab: React.FC<CemeteryDeceasedTabProps> = ({ cemete
           Visualizza e gestisci l'elenco dei defunti sepolti in questo cimitero
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 sm:px-6">
         <DeceasedSearch 
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
