@@ -46,37 +46,41 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
         <ScrollArea className="h-[calc(100vh-220px)]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSave)} className="space-y-6 pr-4">
-              <FormField
-                control={form.control}
-                name="Descrizione"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrizione</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        className="min-h-24 bg-white dark:bg-slate-900 resize-vertical"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <div className="max-w-3xl mx-auto">
+                <FormField
+                  control={form.control}
+                  name="Descrizione"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-center block">Descrizione</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          className="min-h-24 bg-white dark:bg-slate-900 resize-vertical w-full"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="Note"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Note</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        className="min-h-24 bg-white dark:bg-slate-900 resize-vertical"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <div className="max-w-3xl mx-auto">
+                <FormField
+                  control={form.control}
+                  name="Note"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-center block">Note</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          className="min-h-24 bg-white dark:bg-slate-900 resize-vertical w-full"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-4">

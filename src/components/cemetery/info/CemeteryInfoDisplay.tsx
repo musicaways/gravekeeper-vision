@@ -56,18 +56,18 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
         <ScrollArea className="h-[calc(100vh-220px)]">
           <div className="pr-4 space-y-6">
             {cemetery.Descrizione && (
-              <div>
-                <h3 className="text-lg font-medium mb-2">Descrizione</h3>
-                <div className="bg-white dark:bg-slate-900 p-3 rounded-md">
+              <div className="w-full">
+                <h3 className="text-lg font-medium mb-2 text-center">Descrizione</h3>
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-md mx-auto max-w-3xl">
                   {formatMultilineText(cemetery.Descrizione)}
                 </div>
               </div>
             )}
             
             {cemetery.Note && (
-              <div>
-                <h3 className="text-lg font-medium mb-2">Note</h3>
-                <div className="bg-white dark:bg-slate-900 p-3 rounded-md">
+              <div className="w-full">
+                <h3 className="text-lg font-medium mb-2 text-center">Note</h3>
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-md mx-auto max-w-3xl">
                   {formatMultilineText(cemetery.Note)}
                 </div>
               </div>
