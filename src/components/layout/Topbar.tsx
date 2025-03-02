@@ -13,6 +13,7 @@ const Topbar = ({ title, subtitle, onMenuClick }: TopbarProps) => {
   return (
     <header className="border-b bg-card h-16 px-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
+        {/* Only show the menu button when onMenuClick is provided */}
         {onMenuClick && (
           <Button onClick={onMenuClick} variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />

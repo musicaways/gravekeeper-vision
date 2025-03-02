@@ -38,7 +38,9 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   const toggleSidebar = () => {
     const newState = !sidebarOpen;
     setSidebarOpen(newState);
-    localStorage.setItem('sidebarOpen', String(newState));
+    if (!isMobile) {
+      localStorage.setItem('sidebarOpen', String(newState));
+    }
   };
 
   return (
