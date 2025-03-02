@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto py-8 px-4">
+      <main className="mx-auto w-full max-w-6xl px-4 py-8">
         <section className="mb-12">
           <Card className="w-full">
             <CardHeader>
@@ -59,7 +60,7 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:justify-center">
                 <Button className="flex items-center gap-2">
                   <MapPin size={18} />
                   Cimiteri
@@ -100,9 +101,9 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredCimiteri.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
               {filteredCimiteri.map((cimitero) => (
-                <Card key={cimitero.Id} className="hover:shadow-lg transition-shadow duration-300">
+                <Card key={cimitero.Id} className="w-full hover:shadow-lg transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <MapPin className="h-5 w-5 text-primary" />
@@ -144,7 +145,7 @@ const Index = () => {
                       )}
                     </div>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex justify-center">
                     <Button variant="outline" asChild className="w-full flex items-center gap-2">
                       <Link to={`/cemetery/${cimitero.Id}`}>
                         <Info size={16} />

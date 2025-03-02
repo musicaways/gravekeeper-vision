@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Phone, Mail, Globe, Map, Check, X, Edit } from "lucide-react";
 import { formatDate } from "@/lib/utils";
@@ -47,7 +48,7 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
                        cemetery.impalcatura !== null;
 
   return (
-    <Card className="w-full shadow-sm relative">
+    <Card className="w-full shadow-sm relative mx-auto">
       <CardContent className="space-y-6 pt-6">
         <ScrollArea className="h-[calc(100vh-220px)]">
           <div className="pr-4 space-y-6">

@@ -30,7 +30,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto w-full max-w-6xl px-4">
       <DashboardHeader />
       <DashboardStats stats={data.stats} />
       <DashboardCharts 

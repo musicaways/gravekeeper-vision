@@ -66,13 +66,15 @@ const CemeteryDetail = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
-          <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
-          <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
+            <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
+          </div>
         </div>
       </div>
         
-      {/* Tab content with improved mobile layout */}
-      <div className="w-full max-w-full mx-auto">
+      {/* Tab content with improved mobile layout and centering */}
+      <div className="w-full max-w-5xl mx-auto px-2 sm:px-4">
         <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
       </div>
     </div>

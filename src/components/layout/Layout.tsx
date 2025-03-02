@@ -60,7 +60,7 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
         isMobile={isMobile}
       />
 
-      {/* Main content area with improved spacing */}
+      {/* Main content area with improved spacing and centering */}
       <div className="flex-1 flex flex-col w-full overflow-hidden">
         <Topbar 
           onMenuClick={toggleSidebar}
@@ -68,7 +68,7 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
         />
         <AppBreadcrumb />
         <main className="flex-1 overflow-auto px-2 py-3 sm:px-4 md:px-6 md:py-6">
-          <div className="w-full max-w-full mx-auto">
+          <div className="w-full max-w-5xl mx-auto">
             {children}
           </div>
         </main>
