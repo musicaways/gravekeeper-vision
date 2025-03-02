@@ -115,7 +115,10 @@ export default function WorkOrders() {
         </TabsContent>
         
         <TabsContent value="calendar">
-          <WorkOrderCalendarView />
+          <WorkOrderCalendarView 
+            workOrders={filteredWorkOrders}
+            isLoading={isLoading}
+          />
         </TabsContent>
       </Tabs>
     </div>
