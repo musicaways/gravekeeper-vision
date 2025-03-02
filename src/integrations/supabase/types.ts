@@ -155,6 +155,9 @@ export type Database = {
       Cimitero: {
         Row: {
           active: boolean | null
+          camera_mortuaria: boolean | null
+          cavalletti: boolean | null
+          chiesa: boolean | null
           city: string | null
           Codice: string | null
           contact_info: Json | null
@@ -164,6 +167,7 @@ export type Database = {
           FotoCopertina: string | null
           geo_location: Json | null
           Id: number
+          impalcatura: boolean | null
           Indirizzo: string | null
           Latitudine: number | null
           Longitudine: number | null
@@ -172,11 +176,15 @@ export type Database = {
           Note: string | null
           operating_hours: Json | null
           postal_code: string | null
+          ricevimento_salme: boolean | null
           state: string | null
           total_area_sqm: number | null
         }
         Insert: {
           active?: boolean | null
+          camera_mortuaria?: boolean | null
+          cavalletti?: boolean | null
+          chiesa?: boolean | null
           city?: string | null
           Codice?: string | null
           contact_info?: Json | null
@@ -186,6 +194,7 @@ export type Database = {
           FotoCopertina?: string | null
           geo_location?: Json | null
           Id: number
+          impalcatura?: boolean | null
           Indirizzo?: string | null
           Latitudine?: number | null
           Longitudine?: number | null
@@ -194,11 +203,15 @@ export type Database = {
           Note?: string | null
           operating_hours?: Json | null
           postal_code?: string | null
+          ricevimento_salme?: boolean | null
           state?: string | null
           total_area_sqm?: number | null
         }
         Update: {
           active?: boolean | null
+          camera_mortuaria?: boolean | null
+          cavalletti?: boolean | null
+          chiesa?: boolean | null
           city?: string | null
           Codice?: string | null
           contact_info?: Json | null
@@ -208,6 +221,7 @@ export type Database = {
           FotoCopertina?: string | null
           geo_location?: Json | null
           Id?: number
+          impalcatura?: boolean | null
           Indirizzo?: string | null
           Latitudine?: number | null
           Longitudine?: number | null
@@ -216,6 +230,7 @@ export type Database = {
           Note?: string | null
           operating_hours?: Json | null
           postal_code?: string | null
+          ricevimento_salme?: boolean | null
           state?: string | null
           total_area_sqm?: number | null
         }
