@@ -6,6 +6,8 @@ import { WorkOrderDetailDialog } from "./WorkOrderDetailDialog";
 import { WorkOrderFilterPanel } from "./WorkOrderFilterPanel";
 import { CalendarSection } from "./CalendarSection";
 import { OrdersDisplaySection } from "./OrdersDisplaySection";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 
 interface WorkOrderCalendarViewProps {
   workOrders?: WorkOrder[];
@@ -110,6 +112,21 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
     );
   };
   
+  // Remove a single type filter
+  const removeTypeFilter = (type: WorkOrderType) => {
+    setTypeFilter(prev => prev.filter(t => t !== type));
+  };
+  
+  // Remove a single status filter
+  const removeStatusFilter = (status: WorkOrderStatus) => {
+    setStatusFilter(prev => prev.filter(s => s !== status));
+  };
+  
+  // Remove a single priority filter
+  const removePriorityFilter = (priority: WorkOrderPriority) => {
+    setPriorityFilter(prev => prev.filter(p => p !== priority));
+  };
+  
   // Clear all filters
   const clearFilters = () => {
     setTypeFilter([]);
@@ -121,6 +138,9 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
   const toggleFilterPanel = () => {
     setShowFilters(prev => !prev);
   };
+  
+  // Check if any filters are applied
+  const hasActiveFilters = typeFilter.length > 0 || statusFilter.length > 0 || priorityFilter.length > 0;
   
   if (isLoading) {
     return (
@@ -148,6 +168,57 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
         togglePriorityFilter={togglePriorityFilter}
         clearFilters={clearFilters}
       />
+      
+      {/* Active Filters Display */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {typeFilter.map(type => (
+            <Badge key={`type-${type}`} variant="outline" className="flex items-center gap-1 px-2 py-1">
+              Type: {type}
+              <button 
+                onClick={() => removeTypeFilter(type)}
+                className="ml-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          
+          {statusFilter.map(status => (
+            <Badge key={`status-${status}`} variant="outline" className="flex items-center gap-1 px-2 py-1">
+              Status: {status.replace('_', ' ')}
+              <button 
+                onClick={() => removeStatusFilter(status)}
+                className="ml-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          
+          {priorityFilter.map(priority => (
+            <Badge key={`priority-${priority}`} variant="outline" className="flex items-center gap-1 px-2 py-1">
+              Priority: {priority}
+              <button 
+                onClick={() => removePriorityFilter(priority)}
+                className="ml-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          
+          {hasActiveFilters && (
+            <Badge 
+              variant="secondary" 
+              className="cursor-pointer" 
+              onClick={clearFilters}
+            >
+              Clear all filters
+            </Badge>
+          )}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <CalendarSection
