@@ -1,12 +1,12 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CemeteryInfoCard } from "./CemeteryInfoCard";
+import CemeteryInfoCard from "./CemeteryInfoCard";
 import { CemeterySectionsTab } from "./CemeterySectionsTab";
 import { CemeteryDeceasedTab } from "./CemeteryDeceasedTab";
-import { CemeteryHours } from "./CemeteryHours";
+import CemeteryHours from "./CemeteryHours";
 import { CemeteryMapTab } from "./CemeteryMapTab";
-import { CemeteryGallery } from "./CemeteryGallery";
-import { CemeteryAdministration } from "./CemeteryAdministration";
+import CemeteryGallery from "./CemeteryGallery";
+import CemeteryAdministration from "./CemeteryAdministration";
 import { CemeteryNicheMap } from "./CemeteryNicheMap";
 import { Info, ListTodo, Map, Clock, Image, Building, Users } from "lucide-react";
 

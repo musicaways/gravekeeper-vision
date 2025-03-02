@@ -28,7 +28,7 @@ export function useNiches(blockId: string | null) {
         const { data: blockData, error: blockError } = await supabase
           .from('Blocco')
           .select('NumeroFile, NumeroLoculi')
-          .eq('Id', blockId)
+          .eq('Id', parseInt(blockId, 10))
           .single();
           
         if (blockError) throw blockError;
@@ -53,7 +53,7 @@ export function useNiches(blockId: string | null) {
               DataDecesso
             )
           `)
-          .eq('IdBlocco', blockId);
+          .eq('IdBlocco', parseInt(blockId, 10));
           
         if (loculiError) throw loculiError;
         

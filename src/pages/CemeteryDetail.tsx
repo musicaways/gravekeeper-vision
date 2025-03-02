@@ -6,7 +6,7 @@ import CemeteryHeader from "@/components/cemetery/CemeteryHeader";
 import CemeteryInfoCard from "@/components/cemetery/CemeteryInfoCard";
 import CemeteryHours from "@/components/cemetery/CemeteryHours";
 import CemeteryAdministration from "@/components/cemetery/CemeteryAdministration";
-import CemeteryTabs from "@/components/cemetery/CemeteryTabs";
+import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
 import CemeteryGallery from "@/components/cemetery/CemeteryGallery";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";

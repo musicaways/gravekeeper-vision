@@ -65,7 +65,7 @@ export const CemeteryNicheMap = ({ blockId }: { blockId?: string }) => {
         const { data: blockData, error: blockError } = await supabase
           .from('Blocco')
           .select('NumeroFile, NumeroLoculi')
-          .eq('Id', selectedBlock)
+          .eq('Id', parseInt(selectedBlock, 10))
           .single();
           
         if (blockError) throw blockError;
@@ -90,7 +90,7 @@ export const CemeteryNicheMap = ({ blockId }: { blockId?: string }) => {
               DataDecesso
             )
           `)
-          .eq('IdBlocco', selectedBlock);
+          .eq('IdBlocco', parseInt(selectedBlock, 10));
           
         if (loculiError) throw loculiError;
         
