@@ -3,20 +3,19 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import CemeteryHeader from "@/components/cemetery/CemeteryHeader";
-import CemeteryInfoCard from "@/components/cemetery/CemeteryInfoCard";
-import CemeteryHours from "@/components/cemetery/CemeteryHours";
-import CemeteryAdministration from "@/components/cemetery/CemeteryAdministration";
 import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
-import CemeteryGallery from "@/components/cemetery/CemeteryGallery";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { ChevronLeft, Calendar, Clipboard, Building } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 const CemeteryDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [cemetery, setCemetery] = useState(null);
-  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -40,18 +39,6 @@ const CemeteryDetail = () => {
           .single();
         
         if (error) throw error;
-        
-        // Fetch cemetery photos
-        const { data: photosData, error: photosError } = await supabase
-          .from('CimiteroFoto')
-          .select('*')
-          .eq('IdCimitero', numericId);
-          
-        if (photosError) {
-          console.error("Errore nel caricamento delle foto:", photosError);
-        } else {
-          setPhotos(photosData || []);
-        }
         
         setCemetery(data);
       } catch (err) {
@@ -77,41 +64,55 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <CemeteryHeader 
-        name={cemetery.nome || "Dettagli Cimitero"} 
-        location={locationString} 
-      />
-
-      <main className="container mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            {photos.length > 0 && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Camera className="h-5 w-5" />
-                    Galleria Foto
-                  </CardTitle>
-                  <CardDescription>
-                    Visualizza le immagini del cimitero
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CemeteryGallery cemeteryId={id || ''} />
-                </CardContent>
-              </Card>
-            )}
-
-            <CemeteryInfoCard cemetery={cemetery} />
-            <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
-          </div>
-
-          <div>
-            <CemeteryHours cemetery={cemetery} />
-            <CemeteryAdministration cemeteryId={id || ''} />
+      <div className="bg-card py-4 border-b px-4 sticky top-0 z-10">
+        <div className="container mx-auto">
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="mr-4"
+              onClick={() => navigate('/cemeteries')}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Indietro
+            </Button>
+            
+            <div>
+              <h1 className="text-2xl font-bold">{cemetery.nome || "Dettagli Cimitero"}</h1>
+              <p className="text-muted-foreground">{locationString}</p>
+            </div>
+            
+            <div className="ml-auto flex gap-2">
+              {cemetery.active ? (
+                <Badge className="bg-green-500" variant="default">Attivo</Badge>
+              ) : (
+                <Badge variant="secondary">Inattivo</Badge>
+              )}
+            </div>
           </div>
         </div>
-      </main>
+      </div>
+
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex flex-wrap gap-4 mb-6">
+          <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            Pianifica visita
+          </Button>
+          <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Clipboard className="h-4 w-4" />
+            Aggiungi operazione
+          </Button>
+          <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Building className="h-4 w-4" />
+            Aggiungi settore
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-6">
+          <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
+        </div>
+      </div>
 
       <footer className="bg-muted py-6 mt-auto">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
