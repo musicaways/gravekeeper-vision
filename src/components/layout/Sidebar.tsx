@@ -32,7 +32,7 @@ export default function Sidebar({ className, collapsed = false, onToggle }: Side
 
   return (
     <div className={cn(
-      "h-screen border-r pb-12 transition-all duration-300", 
+      "h-screen border-r pb-12 transition-all duration-300 bg-background", 
       collapsed ? "w-[70px]" : "w-[240px]", 
       className
     )}>

@@ -31,10 +31,10 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
       <Sidebar 
         collapsed={sidebarCollapsed} 
         onToggle={handleToggleSidebar} 
-        className="shrink-0 border-r"
+        className="shrink-0 border-r fixed md:relative z-20"
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'md:ml-[70px]' : 'md:ml-[240px]'}`}>
         <Topbar title={title} subtitle={subtitle} />
         
         <main className="flex-1 overflow-auto p-6">
