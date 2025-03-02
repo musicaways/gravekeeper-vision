@@ -2,8 +2,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { 
-  Plot, NicheInfo, WorkOrderStatus, 
-  WorkOrderPriority, WorkOrderType 
+  Plot, NicheInfo
 } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
@@ -70,53 +69,6 @@ export function getNicheColorFromStatus(status: NicheInfo["status"]): string {
       return "#ef4444"; // error
     default:
       return "#94a3b8"; // gray
-  }
-}
-
-export function getWorkOrderStatusBadgeClass(status: WorkOrderStatus): string {
-  switch (status) {
-    case "pending":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case "in_progress":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-    case "completed":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-    case "cancelled":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
-  }
-}
-
-export function getWorkOrderPriorityBadgeClass(priority: WorkOrderPriority): string {
-  switch (priority) {
-    case "low":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
-    case "medium":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-    case "high":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case "urgent":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
-  }
-}
-
-export function getWorkOrderTypeIcon(type: WorkOrderType): string {
-  switch (type) {
-    case "burial":
-      return "shovel";
-    case "maintenance":
-      return "wrench";
-    case "landscaping":
-      return "flower";
-    case "construction":
-      return "hammer";
-    case "cleaning":
-      return "spray-can";
-    default:
-      return "clipboard-list";
   }
 }
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import { 
+  formatStatus, 
+  formatOrderType,
+  getWorkOrderStatusBadgeClass,
+  getWorkOrderPriorityBadgeClass
+} from "@/lib/work-order-utils";
 
 export default function WorkOrders() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
@@ -240,46 +245,16 @@ export default function WorkOrders() {
 }
 
 function WorkOrderStatusBadge({ status }: { status: WorkOrderStatus }) {
-  const getStatusClasses = () => {
-    switch(status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses()}`}>
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getWorkOrderStatusBadgeClass(status)}`}>
       {formatStatus(status)}
     </span>
   );
 }
 
 function WorkOrderPriorityBadge({ priority }: { priority: string }) {
-  const getPriorityClasses = () => {
-    switch(priority) {
-      case 'low':
-        return 'bg-gray-100 text-gray-800';
-      case 'medium':
-        return 'bg-blue-100 text-blue-800';
-      case 'high':
-        return 'bg-orange-100 text-orange-800';
-      case 'urgent':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityClasses()}`}>
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getWorkOrderPriorityBadgeClass(priority as any)}`}>
       {priority.charAt(0).toUpperCase() + priority.slice(1)}
     </span>
   );
@@ -337,17 +312,4 @@ function WorkOrderCard({ order }: { order: WorkOrder }) {
       </CardFooter>
     </Card>
   );
-}
-
-function formatStatus(status: string): string {
-  switch(status) {
-    case 'in_progress':
-      return 'In Progress';
-    default:
-      return status.charAt(0).toUpperCase() + status.slice(1);
-  }
-}
-
-function formatOrderType(type: string): string {
-  return type.charAt(0).toUpperCase() + type.slice(1);
 }

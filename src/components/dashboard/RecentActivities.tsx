@@ -1,11 +1,15 @@
 
 import React from "react";
 import { format } from "date-fns";
-import { Clock, Workflow, Check, Users, Building } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { 
+  getWorkOrderStatusColor, 
+  getWorkOrderStatusIcon, 
+  getWorkOrderTypeLabel 
+} from "@/lib/work-order-utils";
 
 interface WorkOrder {
   id: string;
@@ -30,8 +34,8 @@ export function RecentActivities({ workOrders }: RecentActivitiesProps) {
               <div key={order.id} className="p-4 hover:bg-accent transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
-                    <div className={`mt-0.5 rounded-full p-1.5 ${getWorkOrderStatusColor(order.status)}`}>
-                      {getWorkOrderStatusIcon(order.status)}
+                    <div className={`mt-0.5 rounded-full p-1.5 ${getWorkOrderStatusColor(order.status as any)}`}>
+                      {getWorkOrderStatusIcon(order.status as any)}
                     </div>
                     <div>
                       <p className="font-medium">{getWorkOrderTypeLabel(order.order_type)}</p>
@@ -71,36 +75,4 @@ export function RecentActivities({ workOrders }: RecentActivitiesProps) {
       </CardFooter>
     </Card>
   );
-}
-
-// Helper functions for work order displays
-function getWorkOrderStatusColor(status: string) {
-  switch (status) {
-    case 'pending': return 'bg-yellow-100 text-yellow-600';
-    case 'in_progress': return 'bg-blue-100 text-blue-600';
-    case 'completed': return 'bg-green-100 text-green-600';
-    case 'cancelled': return 'bg-red-100 text-red-600';
-    default: return 'bg-gray-100 text-gray-600';
-  }
-}
-
-function getWorkOrderStatusIcon(status: string) {
-  switch (status) {
-    case 'pending': return <Clock className="h-4 w-4" />;
-    case 'in_progress': return <Workflow className="h-4 w-4" />;
-    case 'completed': return <Check className="h-4 w-4" />;
-    case 'cancelled': return <Users className="h-4 w-4" />;
-    default: return <Building className="h-4 w-4" />;
-  }
-}
-
-function getWorkOrderTypeLabel(type: string) {
-  switch (type) {
-    case 'maintenance': return 'Maintenance';
-    case 'burial': return 'Burial Service';
-    case 'landscaping': return 'Landscaping';
-    case 'cleaning': return 'Cleaning';
-    case 'construction': return 'Construction';
-    default: return 'Other Work';
-  }
 }
