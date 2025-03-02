@@ -41,7 +41,7 @@ const App = () => (
               path="/cemeteries" 
               element={
                 <ProtectedRoute>
-                  <Layout title="Gestione Cimiteri">
+                  <Layout title="Cemeteries">
                     <Index />
                   </Layout>
                 </ProtectedRoute>
@@ -51,7 +51,7 @@ const App = () => (
               path="/cemetery/:id" 
               element={
                 <ProtectedRoute>
-                  <Layout title="Dettaglio Cimitero">
+                  <Layout title="Cemetery Details">
                     <CemeteryDetail />
                   </Layout>
                 </ProtectedRoute>
@@ -61,7 +61,7 @@ const App = () => (
               path="/profile" 
               element={
                 <ProtectedRoute>
-                  <Layout title="Profilo Utente">
+                  <Layout title="User Profile">
                     <UserProfile />
                   </Layout>
                 </ProtectedRoute>
@@ -71,7 +71,7 @@ const App = () => (
               path="/work-orders" 
               element={
                 <ProtectedRoute>
-                  <Layout title="Ordini di Lavoro">
+                  <Layout title="Work Orders">
                     <WorkOrders />
                   </Layout>
                 </ProtectedRoute>
@@ -81,7 +81,7 @@ const App = () => (
               path="/settings" 
               element={
                 <ProtectedRoute>
-                  <Layout title="Impostazioni">
+                  <Layout title="Settings">
                     <Settings />
                   </Layout>
                 </ProtectedRoute>
