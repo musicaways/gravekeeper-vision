@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { WorkOrder, WorkOrderStatus } from "@/types";
@@ -72,55 +71,53 @@ export default function WorkOrders() {
   const cancelledOrders = filteredWorkOrders.filter(order => order.status === "cancelled");
   
   return (
-    <Layout title="Work Orders" subtitle="Manage and track maintenance tasks">
-      <div className="container mx-auto p-4">
-        <WorkOrdersToolbar 
-          searchQuery={searchQuery} 
-          onSearchChange={setSearchQuery} 
-        />
+    <div className="container mx-auto p-4">
+      <WorkOrdersToolbar 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery} 
+      />
+      
+      <Tabs defaultValue="kanban" className="w-full" onValueChange={(value) => setView(value as any)}>
+        <div className="flex justify-between items-center mb-4">
+          <TabsList>
+            <TabsTrigger value="kanban" className="flex items-center">
+              <Kanban className="mr-2 h-4 w-4" />
+              Kanban
+            </TabsTrigger>
+            <TabsTrigger value="list" className="flex items-center">
+              <List className="mr-2 h-4 w-4" />
+              List
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center">
+              <Calendar className="mr-2 h-4 w-4" />
+              Calendar
+            </TabsTrigger>
+          </TabsList>
+          
+          <WorkOrdersFilter />
+        </div>
         
-        <Tabs defaultValue="kanban" className="w-full" onValueChange={(value) => setView(value as any)}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="kanban" className="flex items-center">
-                <Kanban className="mr-2 h-4 w-4" />
-                Kanban
-              </TabsTrigger>
-              <TabsTrigger value="list" className="flex items-center">
-                <List className="mr-2 h-4 w-4" />
-                List
-              </TabsTrigger>
-              <TabsTrigger value="calendar" className="flex items-center">
-                <Calendar className="mr-2 h-4 w-4" />
-                Calendar
-              </TabsTrigger>
-            </TabsList>
-            
-            <WorkOrdersFilter />
-          </div>
-          
-          <TabsContent value="kanban" className="mt-0">
-            <WorkOrdersKanban
-              pendingOrders={pendingOrders}
-              inProgressOrders={inProgressOrders}
-              completedOrders={completedOrders}
-              cancelledOrders={cancelledOrders}
-              isLoading={isLoading}
-            />
-          </TabsContent>
-          
-          <TabsContent value="list">
-            <WorkOrderList 
-              workOrders={filteredWorkOrders}
-              isLoading={isLoading}
-            />
-          </TabsContent>
-          
-          <TabsContent value="calendar">
-            <WorkOrderCalendarView />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </Layout>
+        <TabsContent value="kanban" className="mt-0">
+          <WorkOrdersKanban
+            pendingOrders={pendingOrders}
+            inProgressOrders={inProgressOrders}
+            completedOrders={completedOrders}
+            cancelledOrders={cancelledOrders}
+            isLoading={isLoading}
+          />
+        </TabsContent>
+        
+        <TabsContent value="list">
+          <WorkOrderList 
+            workOrders={filteredWorkOrders}
+            isLoading={isLoading}
+          />
+        </TabsContent>
+        
+        <TabsContent value="calendar">
+          <WorkOrderCalendarView />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

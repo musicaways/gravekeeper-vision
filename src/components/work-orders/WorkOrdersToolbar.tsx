@@ -19,7 +19,6 @@ export function WorkOrdersToolbar({ searchQuery, onSearchChange }: WorkOrdersToo
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
       <div>
-        <h1 className="text-3xl font-bold">Work Orders</h1>
         <p className="text-muted-foreground">Manage and track maintenance tasks</p>
       </div>
       
