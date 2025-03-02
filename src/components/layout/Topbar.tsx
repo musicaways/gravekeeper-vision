@@ -16,10 +16,10 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-card h-16 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-10 border-b bg-card h-14 md:h-16 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
+      <div className="flex items-center gap-2">
         {onMenuClick && (
-          <Button onClick={onMenuClick} variant="ghost" size="icon">
+          <Button onClick={onMenuClick} variant="ghost" size="icon" aria-label="Menu">
             <Menu className="h-5 w-5" />
           </Button>
         )}
@@ -30,7 +30,7 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
         )}
       </div>
       
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5 text-muted-foreground" />
         </Button>

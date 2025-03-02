@@ -53,22 +53,24 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
 
   return (
     <div className={`flex h-screen bg-background overflow-hidden transition-colors duration-300 ${theme === 'dark' ? 'dark' : ''}`}>
-      {/* Single sidebar for both mobile and desktop */}
+      {/* Sidebar with improved mobile handling */}
       <Sidebar 
         open={sidebarOpen} 
         onToggle={toggleSidebar}
         isMobile={isMobile}
       />
 
-      {/* Main content area */}
+      {/* Main content area with improved spacing */}
       <div className="flex-1 flex flex-col w-full overflow-hidden">
         <Topbar 
           onMenuClick={toggleSidebar}
           showBackButton={showBackButton} 
         />
         <AppBreadcrumb />
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          {children}
+        <main className="flex-1 overflow-auto px-4 py-4 md:px-6 md:py-6">
+          <div className="w-full max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -23,12 +23,12 @@ const CemeteryHours: React.FC<CemeteryHoursProps> = ({ cemetery }) => {
     };
     
     return (
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
         {daysOfWeek.map(day => (
           hours[day] ? (
-            <div key={day} className="flex justify-between">
-              <span className="font-medium">{dayNames[day]}:</span>
-              <span>{hours[day].open} - {hours[day].close}</span>
+            <div key={day} className="flex justify-between py-1 border-b border-muted/60 last:border-0">
+              <span className="font-medium text-sm md:text-base">{dayNames[day]}:</span>
+              <span className="text-sm md:text-base">{hours[day].open} - {hours[day].close}</span>
             </div>
           ) : null
         ))}
@@ -37,17 +37,19 @@ const CemeteryHours: React.FC<CemeteryHoursProps> = ({ cemetery }) => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="w-full shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           <Clock className="h-5 w-5" />
           Orari di apertura
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 md:px-6">
         {cemetery?.operating_hours ? 
           formatOperatingHours(cemetery.operating_hours) :
-          <p className="text-muted-foreground text-center py-4">Orari non disponibili</p>
+          <div className="text-center py-6">
+            <p className="text-muted-foreground text-sm md:text-base">Orari non disponibili</p>
+          </div>
         }
       </CardContent>
     </Card>

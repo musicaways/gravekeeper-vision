@@ -80,9 +80,9 @@ export const CemeteryDeceasedTab: React.FC<CemeteryDeceasedTabProps> = ({ cemete
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="w-full shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           <Users className="h-5 w-5" />
           Defunti nel cimitero
         </CardTitle>
