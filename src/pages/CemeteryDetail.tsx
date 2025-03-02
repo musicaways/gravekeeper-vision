@@ -60,21 +60,23 @@ const CemeteryDetail = () => {
     <div className="min-h-screen bg-background">
       {/* Cover photo with semi-transparent overlay for text */}
       <div className="w-full h-40 md:h-56 relative overflow-hidden">
-        <img 
-          src={coverPhotoUrl} 
-          alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
-          className="w-full h-full object-cover"
-        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img 
+            src={coverPhotoUrl} 
+            alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
+            className="w-full h-full object-cover"
+          />
+        </div>
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
-          <div className="mx-auto max-w-5xl px-4">
+          <div className="mx-auto max-w-screen-xl px-4">
             <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
             <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
           </div>
         </div>
       </div>
         
-      {/* Tab content with improved mobile layout and centering */}
-      <div className="w-full max-w-5xl mx-auto px-2 sm:px-4">
+      {/* Tab content with improved alignment to match the cover photo width */}
+      <div className="w-full mx-auto max-w-screen-xl px-4 py-4">
         <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
       </div>
     </div>
