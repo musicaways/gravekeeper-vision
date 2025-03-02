@@ -5,7 +5,6 @@ import { SettingsTabs } from "@/components/settings/SettingsTabs";
 
 export default function Settings() {
   const [language, setLanguage] = useState("it");
-  const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
 
@@ -15,8 +14,6 @@ export default function Settings() {
       <SettingsTabs 
         language={language}
         setLanguage={setLanguage}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
         emailNotifications={emailNotifications}
         setEmailNotifications={setEmailNotifications}
         pushNotifications={pushNotifications}

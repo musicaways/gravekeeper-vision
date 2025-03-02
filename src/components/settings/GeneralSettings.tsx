@@ -6,21 +6,21 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface GeneralSettingsProps {
   language: string;
   setLanguage: (value: string) => void;
-  darkMode: boolean;
-  setDarkMode: (value: boolean) => void;
 }
 
 export function GeneralSettings({ 
   language, 
-  setLanguage, 
-  darkMode, 
-  setDarkMode 
+  setLanguage 
 }: GeneralSettingsProps) {
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
+  
+  const isDarkMode = theme === "dark";
 
   const handleSaveGeneralSettings = () => {
     toast({
@@ -68,9 +68,9 @@ export function GeneralSettings({
           <div className="flex items-center space-x-2">
             <div className="flex-1 space-y-1">
               <div className="flex items-center gap-2">
-                {darkMode ? 
-                  <Moon className="h-4 w-4 text-muted-foreground" /> : 
-                  <Sun className="h-4 w-4 text-muted-foreground" />
+                {isDarkMode ? 
+                  <Moon className="h-4 w-4 text-blue-400" /> : 
+                  <Sun className="h-4 w-4 text-amber-500" />
                 }
                 <Label htmlFor="dark-mode">Modalità scura</Label>
               </div>
@@ -80,8 +80,9 @@ export function GeneralSettings({
             </div>
             <Switch 
               id="dark-mode" 
-              checked={darkMode}
-              onCheckedChange={setDarkMode}
+              checked={isDarkMode}
+              onCheckedChange={toggleTheme}
+              aria-label="Toggle theme"
             />
           </div>
         </div>
