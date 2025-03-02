@@ -13,6 +13,7 @@ import WorkOrders from "./pages/WorkOrders";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Layout from "./components/layout/Layout";
 
@@ -21,76 +22,78 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route 
-              path="/" 
-              element={
-                <ProtectedRoute>
-                  <Layout title="Dashboard">
-                    <Dashboard />
-                  </Layout>
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/cemeteries" 
-              element={
-                <ProtectedRoute>
-                  <Layout title="Cemeteries">
-                    <Index />
-                  </Layout>
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/cemetery/:id" 
-              element={
-                <ProtectedRoute>
-                  <Layout title="Cemetery Details">
-                    <CemeteryDetail />
-                  </Layout>
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <Layout title="User Profile">
-                    <UserProfile />
-                  </Layout>
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/work-orders" 
-              element={
-                <ProtectedRoute>
-                  <Layout title="Work Orders">
-                    <WorkOrders />
-                  </Layout>
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <Layout title="Settings">
-                    <Settings />
-                  </Layout>
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Layout title="Dashboard">
+                      <Dashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/cemeteries" 
+                element={
+                  <ProtectedRoute>
+                    <Layout title="Cemeteries">
+                      <Index />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/cemetery/:id" 
+                element={
+                  <ProtectedRoute>
+                    <Layout title="Cemetery Details">
+                      <CemeteryDetail />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Layout title="User Profile">
+                      <UserProfile />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/work-orders" 
+                element={
+                  <ProtectedRoute>
+                    <Layout title="Work Orders">
+                      <WorkOrders />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Layout title="Settings">
+                      <Settings />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

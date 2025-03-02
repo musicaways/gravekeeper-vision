@@ -17,6 +17,8 @@ import {
   X,
   LucideIcon
 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useEffect } from "react";
 
 interface SidebarProps {
   open: boolean;
@@ -26,6 +28,14 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
   const location = useLocation();
+  const { theme } = useTheme();
+
+  // Close sidebar on navigation for mobile
+  useEffect(() => {
+    if (isMobile && open) {
+      onToggle();
+    }
+  }, [location.pathname, isMobile]);
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -45,7 +55,7 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
       {/* Backdrop for mobile */}
       {isMobile && open && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
           onClick={onToggle}
         />
       )}
@@ -58,7 +68,7 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
             </span>
           )}
           <Button variant="ghost" size="sm" onClick={onToggle} className="ml-auto">
-            {isMobile ? <X size={18} /> : <ChevronLeft size={18} />}
+            {isMobile ? <X size={18} /> : <ChevronLeft size={18} className={!open ? "rotate-180" : ""} />}
           </Button>
         </div>
         

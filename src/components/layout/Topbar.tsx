@@ -1,17 +1,21 @@
 
-import { BellIcon, User2 } from "lucide-react";
+import { Bell, Menu, Moon, Sun, User2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Menu } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Switch } from "../ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 interface TopbarProps {
   title?: string;
   subtitle?: string;
-  onMenuClick?: () => void; // Added for mobile menu toggle
+  onMenuClick?: () => void;
 }
 
 const Topbar = ({ title, subtitle, onMenuClick }: TopbarProps) => {
+  const { theme, toggleTheme } = useTheme();
+
   return (
-    <header className="border-b bg-card h-16 px-4 flex items-center justify-between">
+    <header className="sticky top-0 z-10 border-b bg-card h-16 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
       <div className="flex items-center gap-4">
         {/* Only show the menu button when onMenuClick is provided */}
         {onMenuClick && (
@@ -25,9 +29,28 @@ const Topbar = ({ title, subtitle, onMenuClick }: TopbarProps) => {
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2">
+                <Sun className={`h-4 w-4 ${theme === 'dark' ? 'text-muted-foreground' : 'text-amber-500'}`} />
+                <Switch 
+                  checked={theme === 'dark'}
+                  onCheckedChange={toggleTheme}
+                  aria-label="Toggle theme"
+                />
+                <Moon className={`h-4 w-4 ${theme === 'dark' ? 'text-blue-400' : 'text-muted-foreground'}`} />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Cambia tema</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <Button variant="ghost" size="icon">
-          <BellIcon className="h-5 w-5 text-muted-foreground" />
+          <Bell className="h-5 w-5 text-muted-foreground" />
         </Button>
         <Button variant="ghost" size="icon">
           <User2 className="h-5 w-5 text-muted-foreground" />

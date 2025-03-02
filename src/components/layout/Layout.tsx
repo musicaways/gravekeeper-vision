@@ -2,6 +2,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface LayoutProps {
 const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Check if we're on mobile
@@ -44,7 +46,7 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className={`flex h-screen bg-background overflow-hidden transition-colors duration-300 ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Single sidebar for both mobile and desktop */}
       <Sidebar 
         open={sidebarOpen} 
@@ -59,7 +61,7 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
           subtitle={subtitle} 
           onMenuClick={isMobile ? toggleSidebar : undefined} 
         />
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}
         </main>
       </div>
