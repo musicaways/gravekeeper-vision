@@ -46,13 +46,13 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
         <ScrollArea className="h-[calc(100vh-220px)]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSave)} className="space-y-6 pr-4">
-              <div className="max-w-3xl mx-auto">
+              <div className="w-full">
                 <FormField
                   control={form.control}
                   name="Descrizione"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-center block">Descrizione</FormLabel>
+                      <FormLabel>Descrizione</FormLabel>
                       <FormControl>
                         <Textarea 
                           {...field} 
@@ -64,13 +64,13 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
                 />
               </div>
 
-              <div className="max-w-3xl mx-auto">
+              <div className="w-full">
                 <FormField
                   control={form.control}
                   name="Note"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-center block">Note</FormLabel>
+                      <FormLabel>Note</FormLabel>
                       <FormControl>
                         <Textarea 
                           {...field} 
