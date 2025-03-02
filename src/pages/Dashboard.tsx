@@ -47,9 +47,9 @@ export default function Dashboard() {
             lng: c.Longitudine || 0
           },
           contact_info: {
-            phone: typeof c.contact_info === 'object' && c.contact_info ? String(c.contact_info.phone || '') : '',
-            email: typeof c.contact_info === 'object' && c.contact_info ? String(c.contact_info.email || '') : '',
-            website: typeof c.contact_info === 'object' && c.contact_info && c.contact_info.website ? String(c.contact_info.website) : undefined
+            phone: typeof c.contact_info === 'object' && c.contact_info && 'phone' in c.contact_info ? String(c.contact_info.phone || '') : '',
+            email: typeof c.contact_info === 'object' && c.contact_info && 'email' in c.contact_info ? String(c.contact_info.email || '') : '',
+            website: typeof c.contact_info === 'object' && c.contact_info && 'website' in c.contact_info ? String(c.contact_info.website) : undefined
           },
           operating_hours: typeof c.operating_hours === 'object' && c.operating_hours ? 
             (c.operating_hours as Record<string, { open: string; close: string }>) : 

@@ -13,7 +13,12 @@ import { CemeteryProLogo } from "@/components/CemeteryProLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, Settings, LogOut } from "lucide-react";
 
-export default function Topbar() {
+interface TopbarProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export default function Topbar({ title, subtitle }: TopbarProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
