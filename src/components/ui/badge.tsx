@@ -3,6 +3,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { Check, AlertCircle, Info, X } from "lucide-react"
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -37,23 +38,57 @@ const badgeVariants = cva(
         default: "px-2.5 py-0.5 text-xs",
         sm: "px-2 py-0.5 text-[10px]",
         lg: "px-3 py-1 text-sm",
+      },
+      withIcon: {
+        true: "pl-1.5",
+        false: "",
       }
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      withIcon: false,
     },
   }
 )
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+    VariantProps<typeof badgeVariants> {
+  icon?: boolean;
+}
 
-function Badge({ className, variant, size, ...props }: BadgeProps) {
+function Badge({ className, variant, size, withIcon, icon = false, ...props }: BadgeProps) {
+  const IconComponent = React.useMemo(() => {
+    if (!icon) return null;
+    
+    switch (variant) {
+      case 'success':
+      case 'active':
+      case 'completed':
+        return <Check className="h-3 w-3 mr-1" />;
+      case 'warning':
+      case 'pending':
+        return <AlertCircle className="h-3 w-3 mr-1" />;
+      case 'info':
+        return <Info className="h-3 w-3 mr-1" />;
+      case 'danger':
+      case 'destructive':
+      case 'inactive':
+        return <X className="h-3 w-3 mr-1" />;
+      default:
+        return null;
+    }
+  }, [variant, icon]);
+
+  const badgeWithIcon = icon ? true : withIcon;
+
   return (
-    <div className={cn(badgeVariants({ variant, size }), className)} {...props} />
-  )
+    <div className={cn(badgeVariants({ variant, size, withIcon: badgeWithIcon }), className)} {...props}>
+      {IconComponent}
+      {props.children}
+    </div>
+  );
 }
 
 export { Badge, badgeVariants }

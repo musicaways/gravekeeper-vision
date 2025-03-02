@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import UserProfile from "./pages/UserProfile";
 import WorkOrders from "./pages/WorkOrders";
 import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -62,6 +63,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <WorkOrders />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               } 
             />
