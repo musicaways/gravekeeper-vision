@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CemeteryTabTriggers: React.FC = () => {
   return (
-    <ScrollArea className="w-full mb-4" orientation="horizontal">
+    <ScrollArea className="w-full mb-4">
       <TabsList className="inline-flex p-1 mb-1 w-auto">
         <TabsTrigger value="info" className="flex items-center gap-1 px-3 py-1.5 text-xs">
           <Info className="h-3.5 w-3.5" />
