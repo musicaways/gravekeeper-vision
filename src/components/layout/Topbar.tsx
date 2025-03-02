@@ -1,20 +1,31 @@
 
-import { Bell, Menu, User2 } from "lucide-react";
+import { Bell, ChevronLeft, Menu, User2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface TopbarProps {
   title?: string;
   subtitle?: string;
   onMenuClick?: () => void;
+  showBackButton?: boolean;
 }
 
-const Topbar = ({ title, subtitle, onMenuClick }: TopbarProps) => {
+const Topbar = ({ title, subtitle, onMenuClick, showBackButton = false }: TopbarProps) => {
+  const navigate = useNavigate();
+  
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <header className="sticky top-0 z-10 border-b bg-card h-16 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
       <div className="flex items-center gap-4">
-        {/* Only show the menu button when onMenuClick is provided */}
-        {onMenuClick && (
+        {showBackButton ? (
+          <Button onClick={handleBack} variant="ghost" size="icon" aria-label="Torna indietro">
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        ) : onMenuClick && (
           <Button onClick={onMenuClick} variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
           </Button>

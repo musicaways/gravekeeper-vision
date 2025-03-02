@@ -2,7 +2,9 @@
 import { ReactNode, useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import AppBreadcrumb from './AppBreadcrumb';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,6 +16,10 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { theme } = useTheme();
+  const location = useLocation();
+  
+  // Determine if we should show back button
+  const showBackButton = location.pathname.includes('/cemetery/');
 
   useEffect(() => {
     // Check if we're on mobile
@@ -59,8 +65,10 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
         <Topbar 
           title={title} 
           subtitle={subtitle} 
-          onMenuClick={isMobile ? toggleSidebar : undefined} 
+          onMenuClick={isMobile && !showBackButton ? toggleSidebar : undefined}
+          showBackButton={showBackButton} 
         />
+        <AppBreadcrumb />
         <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}
         </main>

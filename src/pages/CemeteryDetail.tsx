@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
-import { ChevronLeft, Calendar, Clipboard, Building, MoreVertical } from "lucide-react";
+import { Calendar, Clipboard, Building, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +13,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const CemeteryDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [cemetery, setCemetery] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,40 +63,13 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header sticky ottimizzato per mobile */}
-      <div className="bg-card py-3 border-b px-3 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate('/cemeteries')}
-            aria-label="Torna indietro"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          
-          <div className="flex-1 mx-2 overflow-hidden">
-            <h1 className="text-lg font-bold truncate">{cemetery.nome || "Dettagli Cimitero"}</h1>
-            <p className="text-xs text-muted-foreground truncate">{locationString}</p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {cemetery.active ? (
-              <Badge className="bg-green-500 hidden sm:inline-flex" variant="default">Attivo</Badge>
-            ) : (
-              <Badge variant="secondary" className="hidden sm:inline-flex">Inattivo</Badge>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Contenuto principale */}
       <div className="px-3 py-4">
         {/* Card informazioni di base */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base font-semibold">Informazioni di base</h2>
+              <h2 className="text-base font-semibold">{cemetery.nome || "Dettagli Cimitero"}</h2>
               {cemetery.active ? (
                 <Badge className="bg-green-500 text-xs" variant="default">Attivo</Badge>
               ) : (
