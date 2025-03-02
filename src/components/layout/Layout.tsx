@@ -5,11 +5,11 @@ import Topbar from './Topbar';
 
 interface LayoutProps {
   children: ReactNode;
-  title: string;
+  title?: string;
   subtitle?: string;
 }
 
-const Layout = ({ children, title, subtitle }: LayoutProps) => {
+const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   return (

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +39,7 @@ export default function WorkOrders() {
           order_type: order.order_type,
           status: order.status as WorkOrderStatus,
           priority: order.priority,
-          related_entity_type: order.related_entity_type,
+          related_entity_type: order.related_entity_type as "plot" | "section" | "block" | "cemetery",
           related_entity_id: order.related_entity_id,
           description: order.description,
           requested_date: order.requested_date,
@@ -76,7 +75,7 @@ export default function WorkOrders() {
   const cancelledOrders = filteredWorkOrders.filter(order => order.status === "cancelled");
   
   return (
-    <Layout>
+    <Layout title="Work Orders" subtitle="Manage and track maintenance tasks">
       <div className="container mx-auto p-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
@@ -337,7 +336,6 @@ function WorkOrderCard({ order }: { order: WorkOrder }) {
   );
 }
 
-// Helper formatting functions
 function formatStatus(status: string): string {
   switch(status) {
     case 'in_progress':

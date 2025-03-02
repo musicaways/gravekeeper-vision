@@ -42,8 +42,15 @@ export default function Dashboard() {
           country: c.country || "Italy",
           established_date: c.established_date || "",
           total_area_sqm: c.total_area_sqm || 0,
-          geo_location: c.geo_location || { lat: 0, lng: 0 },
-          contact_info: c.contact_info || { phone: "", email: "" },
+          geo_location: {
+            lat: c.Latitudine || 0,
+            lng: c.Longitudine || 0
+          },
+          contact_info: {
+            phone: c.contact_info?.phone || "",
+            email: c.contact_info?.email || "",
+            website: c.contact_info?.website
+          },
           operating_hours: c.operating_hours || {},
           active: c.active ?? true,
         }));
@@ -86,7 +93,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <Layout>
+      <Layout title="Dashboard">
         <div className="h-full flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
@@ -95,7 +102,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout>
+    <Layout title="Dashboard">
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 

@@ -12,14 +12,18 @@ import {
   Settings, 
   Map, 
   Activity,
-  Bot
+  Bot,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   className?: string;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
-export default function Sidebar({ className }: SidebarNavProps) {
+export default function Sidebar({ className, collapsed = false, onToggle }: SidebarNavProps) {
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -27,12 +31,26 @@ export default function Sidebar({ className }: SidebarNavProps) {
   };
 
   return (
-    <div className={cn("pb-12", className)}>
+    <div className={cn(
+      "pb-12 transition-all duration-300", 
+      collapsed ? "w-[70px]" : "w-[240px]", 
+      className
+    )}>
+      {onToggle && (
+        <div className="flex justify-end p-2">
+          <Button variant="ghost" size="sm" onClick={onToggle}>
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </Button>
+        </div>
+      )}
+      
       <div className="space-y-4 py-4">
         <div className="px-4 py-2">
-          <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-            Navigation
-          </h2>
+          {!collapsed && (
+            <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
+              Navigation
+            </h2>
+          )}
           <ScrollArea className="h-[calc(100vh-8rem)]">
             <div className="space-y-1">
               <Link to="/">
@@ -41,7 +59,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Home className="mr-2 h-4 w-4" />
-                  Dashboard
+                  {!collapsed && "Dashboard"}
                 </Button>
               </Link>
               <Link to="/cemeteries">
@@ -50,7 +68,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Landmark className="mr-2 h-4 w-4" />
-                  Cemeteries
+                  {!collapsed && "Cemeteries"}
                 </Button>
               </Link>
               <Link to="/work-orders">
@@ -59,7 +77,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <ClipboardList className="mr-2 h-4 w-4" />
-                  Work Orders
+                  {!collapsed && "Work Orders"}
                 </Button>
               </Link>
               <Link to="/deceased">
@@ -68,7 +86,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Users className="mr-2 h-4 w-4" />
-                  Deceased Records
+                  {!collapsed && "Deceased Records"}
                 </Button>
               </Link>
               <Link to="/inventory">
@@ -77,7 +95,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Boxes className="mr-2 h-4 w-4" />
-                  Inventory
+                  {!collapsed && "Inventory"}
                 </Button>
               </Link>
               <Link to="/crews">
@@ -86,7 +104,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Activity className="mr-2 h-4 w-4" />
-                  Work Crews
+                  {!collapsed && "Work Crews"}
                 </Button>
               </Link>
               <Link to="/maps">
@@ -95,7 +113,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Map className="mr-2 h-4 w-4" />
-                  Cemetery Maps
+                  {!collapsed && "Cemetery Maps"}
                 </Button>
               </Link>
               <Link to="/ai-assistant">
@@ -104,36 +122,38 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   className="w-full justify-start"
                 >
                   <Bot className="mr-2 h-4 w-4" />
-                  AI Assistant
+                  {!collapsed && "AI Assistant"}
                 </Button>
               </Link>
             </div>
 
-            <div className="mt-6">
-              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-                Settings
-              </h2>
-              <div className="space-y-1">
-                <Link to="/profile">
-                  <Button
-                    variant={isActive("/profile") ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    Profile
-                  </Button>
-                </Link>
-                <Link to="/settings">
-                  <Button
-                    variant={isActive("/settings") ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Button>
-                </Link>
+            {!collapsed && (
+              <div className="mt-6">
+                <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+                  Settings
+                </h2>
+                <div className="space-y-1">
+                  <Link to="/profile">
+                    <Button
+                      variant={isActive("/profile") ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      Profile
+                    </Button>
+                  </Link>
+                  <Link to="/settings">
+                    <Button
+                      variant={isActive("/settings") ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </ScrollArea>
         </div>
       </div>
