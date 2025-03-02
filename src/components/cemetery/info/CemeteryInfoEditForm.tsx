@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ interface CemeteryInfoEditFormProps {
 }
 
 const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFormProps) => {
-  // Create form with the current cemetery data
   const form = useForm({
     defaultValues: {
       Descrizione: cemetery.Descrizione || "",
@@ -52,7 +50,7 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
                   name="Descrizione"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Descrizione</FormLabel>
+                      <FormLabel className="text-sm font-medium">Descrizione</FormLabel>
                       <FormControl>
                         <Textarea 
                           {...field} 
@@ -70,7 +68,7 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
                   name="Note"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Note</FormLabel>
+                      <FormLabel className="text-sm font-medium">Note</FormLabel>
                       <FormControl>
                         <Textarea 
                           {...field} 

@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Phone, Mail, Globe, Map, Check, X, Edit } from "lucide-react";
 import { formatDate } from "@/lib/utils";
@@ -15,7 +14,6 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
   const { user } = useAuth();
   const canEdit = !!user;
 
-  // Helper function to render boolean fields with Yes/No icons
   const renderBooleanField = (label: string, value: boolean | null | undefined) => {
     if (value === null || value === undefined) return null;
     
@@ -33,7 +31,6 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
     );
   };
 
-  // Format multiline text for display
   const formatMultilineText = (text: string) => {
     if (!text) return null;
     return text.split('\n').map((line, i) => (
@@ -43,7 +40,6 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
     ));
   };
 
-  // Check if any additional facilities exist to determine column layout
   const hasFacilities = cemetery.ricevimento_salme !== null || 
                        cemetery.chiesa !== null || 
                        cemetery.camera_mortuaria !== null || 
@@ -57,8 +53,8 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
           <div className="pr-4 space-y-6">
             {cemetery.Descrizione && (
               <div className="w-full">
-                <h3 className="text-lg font-medium mb-2 text-left">Descrizione</h3>
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-md w-full text-left">
+                <h3 className="text-sm font-medium mb-2">Descrizione</h3>
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-md w-full">
                   {formatMultilineText(cemetery.Descrizione)}
                 </div>
               </div>
@@ -66,8 +62,8 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
             
             {cemetery.Note && (
               <div className="w-full">
-                <h3 className="text-lg font-medium mb-2 text-left">Note</h3>
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-md w-full text-left">
+                <h3 className="text-sm font-medium mb-2">Note</h3>
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-md w-full">
                   {formatMultilineText(cemetery.Note)}
                 </div>
               </div>
@@ -142,7 +138,6 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
               </div>
             </div>
 
-            {/* Additional facilities section - only shown if at least one facility is defined */}
             {hasFacilities && (
               <div className="mt-6">
                 <h3 className="text-lg font-medium mb-3">Strutture e servizi</h3>
@@ -159,7 +154,6 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
         </ScrollArea>
       </CardContent>
       
-      {/* Floating edit button with updated color */}
       {canEdit && (
         <Button 
           onClick={onEditClick}
