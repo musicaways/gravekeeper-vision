@@ -8,7 +8,7 @@ import {
   fetchDeceasedByCemeteryId, 
   fetchPlotsByCemeteryId, 
   addDeceased 
-} from "./deceased/deceasedUtils";
+} from "./deceased/utils";
 import { DeceasedList } from "./deceased/DeceasedList";
 import { DeceasedSearch } from "./deceased/DeceasedSearch";
 import { AddDeceasedDialog } from "./deceased/AddDeceasedDialog";
