@@ -68,13 +68,13 @@ export function WorkOrderDayCard({ order, onClick }: WorkOrderDayCardProps) {
             <WorkOrderStatusBadge status={order.status} />
             
             {order.requested_date && (
-              <Badge variant="outline" size="sm" className="text-xs">
+              <Badge variant="outline" className="text-xs">
                 Requested: {format(new Date(order.requested_date), 'MMM dd')}
               </Badge>
             )}
             
             {order.scheduled_date && (
-              <Badge variant="secondary" size="sm" className="text-xs">
+              <Badge variant="secondary" className="text-xs">
                 Scheduled: {format(new Date(order.scheduled_date), 'MMM dd')}
               </Badge>
             )}
