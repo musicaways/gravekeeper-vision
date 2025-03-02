@@ -1,13 +1,14 @@
 
 import React, { useState, useMemo } from "react";
 import { WorkOrder, WorkOrderPriority, WorkOrderStatus, WorkOrderType } from "@/types";
-import { format, isSameDay, parseISO, startOfMonth } from "date-fns";
+import { startOfMonth } from "date-fns";
 import { WorkOrderDetailDialog } from "./WorkOrderDetailDialog";
 import { WorkOrderFilterPanel } from "./WorkOrderFilterPanel";
 import { CalendarSection } from "./CalendarSection";
 import { OrdersDisplaySection } from "./OrdersDisplaySection";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { WorkOrderLoadingState } from "./WorkOrderLoadingState";
+import { ActiveFiltersDisplay } from "./ActiveFiltersDisplay";
+import { useCalendarLogic } from "./useCalendarLogic";
 
 interface WorkOrderCalendarViewProps {
   workOrders?: WorkOrder[];
@@ -22,68 +23,30 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
   const [statusFilter, setStatusFilter] = useState<WorkOrderStatus[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<WorkOrderPriority[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Get all unique work order types
-  const orderTypes = useMemo(() => {
-    const types = new Set<WorkOrderType>();
-    workOrders.forEach(order => types.add(order.order_type));
-    return Array.from(types);
-  }, [workOrders]);
-  
-  // Get all unique work order statuses
-  const orderStatuses = useMemo(() => {
-    const statuses = new Set<WorkOrderStatus>();
-    workOrders.forEach(order => statuses.add(order.status));
-    return Array.from(statuses);
-  }, [workOrders]);
-  
-  // Get all unique work order priorities
-  const orderPriorities = useMemo(() => {
-    const priorities = new Set<WorkOrderPriority>();
-    workOrders.forEach(order => priorities.add(order.priority));
-    return Array.from(priorities);
-  }, [workOrders]);
+
+  const {
+    orderTypes,
+    orderStatuses,
+    orderPriorities,
+    filterWorkOrders,
+    getWorkOrderDates,
+    getOrdersForDate
+  } = useCalendarLogic(workOrders);
   
   // Filter work orders based on selected filters
   const filteredWorkOrders = useMemo(() => {
-    return workOrders.filter(order => {
-      const matchesType = typeFilter.length === 0 || typeFilter.includes(order.order_type);
-      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(order.status);
-      const matchesPriority = priorityFilter.length === 0 || priorityFilter.includes(order.priority);
-      return matchesType && matchesStatus && matchesPriority;
-    });
-  }, [workOrders, typeFilter, statusFilter, priorityFilter]);
+    return filterWorkOrders(workOrders, typeFilter, statusFilter, priorityFilter);
+  }, [workOrders, typeFilter, statusFilter, priorityFilter, filterWorkOrders]);
   
   // Get all dates that have work orders
   const workOrderDates = useMemo(() => {
-    return filteredWorkOrders.reduce((dates: Date[], order) => {
-      if (order.requested_date) {
-        const date = new Date(order.requested_date);
-        if (!dates.some(d => isSameDay(d, date))) {
-          dates.push(date);
-        }
-      }
-      
-      if (order.scheduled_date) {
-        const date = new Date(order.scheduled_date);
-        if (!dates.some(d => isSameDay(d, date))) {
-          dates.push(date);
-        }
-      }
-      
-      return dates;
-    }, []);
-  }, [filteredWorkOrders]);
+    return getWorkOrderDates(filteredWorkOrders);
+  }, [filteredWorkOrders, getWorkOrderDates]);
   
   // Get work orders for the selected date
   const ordersForSelectedDate = useMemo(() => {
-    return selectedDate 
-      ? filteredWorkOrders.filter(order => 
-          (order.requested_date && isSameDay(new Date(order.requested_date), selectedDate)) || 
-          (order.scheduled_date && isSameDay(new Date(order.scheduled_date), selectedDate))
-        )
-      : [];
-  }, [selectedDate, filteredWorkOrders]);
+    return getOrdersForDate(filteredWorkOrders, selectedDate);
+  }, [selectedDate, filteredWorkOrders, getOrdersForDate]);
   
   // Toggle type filter
   const toggleTypeFilter = (type: WorkOrderType) => {
@@ -139,20 +102,12 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
     setShowFilters(prev => !prev);
   };
   
-  // Check if any filters are applied
-  const hasActiveFilters = typeFilter.length > 0 || statusFilter.length > 0 || priorityFilter.length > 0;
-  
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        <p className="text-muted-foreground">Loading work orders...</p>
-      </div>
-    );
+    return <WorkOrderLoadingState />;
   }
   
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       {/* Filter Panel */}
       <WorkOrderFilterPanel
         isOpen={showFilters}
@@ -170,55 +125,15 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
       />
       
       {/* Active Filters Display */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {typeFilter.map(type => (
-            <Badge key={`type-${type}`} variant="outline" className="flex items-center gap-1 px-2 py-1">
-              Type: {type}
-              <button 
-                onClick={() => removeTypeFilter(type)}
-                className="ml-1 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          
-          {statusFilter.map(status => (
-            <Badge key={`status-${status}`} variant="outline" className="flex items-center gap-1 px-2 py-1">
-              Status: {status.replace('_', ' ')}
-              <button 
-                onClick={() => removeStatusFilter(status)}
-                className="ml-1 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          
-          {priorityFilter.map(priority => (
-            <Badge key={`priority-${priority}`} variant="outline" className="flex items-center gap-1 px-2 py-1">
-              Priority: {priority}
-              <button 
-                onClick={() => removePriorityFilter(priority)}
-                className="ml-1 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          
-          {hasActiveFilters && (
-            <Badge 
-              variant="secondary" 
-              className="cursor-pointer" 
-              onClick={clearFilters}
-            >
-              Clear all filters
-            </Badge>
-          )}
-        </div>
-      )}
+      <ActiveFiltersDisplay
+        typeFilter={typeFilter}
+        statusFilter={statusFilter}
+        priorityFilter={priorityFilter}
+        removeTypeFilter={removeTypeFilter}
+        removeStatusFilter={removeStatusFilter}
+        removePriorityFilter={removePriorityFilter}
+        clearFilters={clearFilters}
+      />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <CalendarSection
