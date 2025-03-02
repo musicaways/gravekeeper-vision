@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,7 +46,9 @@ export default function WorkOrders() {
           requested_date: order.requested_date,
           scheduled_date: order.scheduled_date,
           assigned_crew_id: order.assigned_crew_id,
-          materials_required: order.materials_required
+          materials_required: Array.isArray(order.materials_required) ? 
+            order.materials_required as { material_id: string; quantity: number }[] : 
+            []
         }));
         
         setWorkOrders(mappedWorkOrders);

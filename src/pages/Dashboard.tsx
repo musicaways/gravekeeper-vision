@@ -47,11 +47,13 @@ export default function Dashboard() {
             lng: c.Longitudine || 0
           },
           contact_info: {
-            phone: c.contact_info?.phone || "",
-            email: c.contact_info?.email || "",
-            website: c.contact_info?.website
+            phone: typeof c.contact_info === 'object' && c.contact_info ? String(c.contact_info.phone || '') : '',
+            email: typeof c.contact_info === 'object' && c.contact_info ? String(c.contact_info.email || '') : '',
+            website: typeof c.contact_info === 'object' && c.contact_info && c.contact_info.website ? String(c.contact_info.website) : undefined
           },
-          operating_hours: c.operating_hours || {},
+          operating_hours: typeof c.operating_hours === 'object' && c.operating_hours ? 
+            (c.operating_hours as Record<string, { open: string; close: string }>) : 
+            {},
           active: c.active ?? true,
         }));
 
