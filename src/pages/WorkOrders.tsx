@@ -1,20 +1,25 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { WorkOrder, WorkOrderStatus } from "@/types";
+import { WorkOrder, WorkOrderPriority, WorkOrderStatus, WorkOrderType } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Kanban, List, Calendar } from "lucide-react";
 import { WorkOrdersToolbar, WorkOrdersFilter } from "@/components/work-orders/WorkOrdersToolbar";
 import { WorkOrdersKanban } from "@/components/work-orders/WorkOrdersKanban";
 import { WorkOrderList } from "@/components/work-orders/WorkOrderList";
 import { WorkOrderCalendarView } from "@/components/work-orders/WorkOrderCalendarView";
+import { WorkOrderFilterPanel } from "@/components/work-orders/WorkOrderFilterPanel";
 
 export default function WorkOrders() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState<'kanban' | 'list' | 'calendar'>('kanban');
   const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<WorkOrderType[]>([]);
+  const [statusFilter, setStatusFilter] = useState<WorkOrderStatus[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<WorkOrderPriority[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -60,10 +65,78 @@ export default function WorkOrders() {
     fetchWorkOrders();
   }, [toast]);
   
-  const filteredWorkOrders = workOrders.filter(order => 
-    order.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.order_number.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Get all unique work order types
+  const orderTypes = useMemo(() => {
+    const types = new Set<WorkOrderType>();
+    workOrders.forEach(order => types.add(order.order_type));
+    return Array.from(types);
+  }, [workOrders]);
+  
+  // Get all unique work order statuses
+  const orderStatuses = useMemo(() => {
+    const statuses = new Set<WorkOrderStatus>();
+    workOrders.forEach(order => statuses.add(order.status));
+    return Array.from(statuses);
+  }, [workOrders]);
+  
+  // Get all unique work order priorities
+  const orderPriorities = useMemo(() => {
+    const priorities = new Set<WorkOrderPriority>();
+    workOrders.forEach(order => priorities.add(order.priority));
+    return Array.from(priorities);
+  }, [workOrders]);
+  
+  // Filter work orders based on search query and filters
+  const filteredWorkOrders = useMemo(() => {
+    return workOrders.filter(order => {
+      const matchesSearch = 
+        order.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.order_number.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = typeFilter.length === 0 || typeFilter.includes(order.order_type);
+      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(order.status);
+      const matchesPriority = priorityFilter.length === 0 || priorityFilter.includes(order.priority);
+      return matchesSearch && matchesType && matchesStatus && matchesPriority;
+    });
+  }, [workOrders, searchQuery, typeFilter, statusFilter, priorityFilter]);
+  
+  // Toggle type filter
+  const toggleTypeFilter = (type: WorkOrderType) => {
+    setTypeFilter(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type) 
+        : [...prev, type]
+    );
+  };
+  
+  // Toggle status filter
+  const toggleStatusFilter = (status: WorkOrderStatus) => {
+    setStatusFilter(prev => 
+      prev.includes(status) 
+        ? prev.filter(s => s !== status) 
+        : [...prev, status]
+    );
+  };
+  
+  // Toggle priority filter
+  const togglePriorityFilter = (priority: WorkOrderPriority) => {
+    setPriorityFilter(prev => 
+      prev.includes(priority) 
+        ? prev.filter(p => p !== priority) 
+        : [...prev, priority]
+    );
+  };
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setTypeFilter([]);
+    setStatusFilter([]);
+    setPriorityFilter([]);
+  };
+  
+  // Toggle filter panel visibility
+  const toggleFilterPanel = () => {
+    setShowFilters(prev => !prev);
+  };
   
   const pendingOrders = filteredWorkOrders.filter(order => order.status === "pending");
   const inProgressOrders = filteredWorkOrders.filter(order => order.status === "in_progress");
@@ -95,6 +168,24 @@ export default function WorkOrders() {
           </TabsList>
           
           <WorkOrdersFilter />
+        </div>
+        
+        {/* Common filter panel for all views */}
+        <div className="mb-4">
+          <WorkOrderFilterPanel
+            isOpen={showFilters}
+            onToggle={toggleFilterPanel}
+            typeFilter={typeFilter}
+            statusFilter={statusFilter}
+            priorityFilter={priorityFilter}
+            orderTypes={orderTypes}
+            orderStatuses={orderStatuses}
+            orderPriorities={orderPriorities}
+            toggleTypeFilter={toggleTypeFilter}
+            toggleStatusFilter={toggleStatusFilter}
+            togglePriorityFilter={togglePriorityFilter}
+            clearFilters={clearFilters}
+          />
         </div>
         
         <TabsContent value="kanban" className="mt-0">

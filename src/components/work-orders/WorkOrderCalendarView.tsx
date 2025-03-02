@@ -1,9 +1,9 @@
 
 import React, { useState, useMemo } from "react";
-import { WorkOrder, WorkOrderStatus, WorkOrderType } from "@/types";
+import { WorkOrder, WorkOrderPriority, WorkOrderStatus, WorkOrderType } from "@/types";
 import { format, isSameDay, parseISO, startOfMonth } from "date-fns";
 import { WorkOrderDetailDialog } from "./WorkOrderDetailDialog";
-import { WorkOrderFilters } from "./WorkOrderFilters";
+import { WorkOrderFilterPanel } from "./WorkOrderFilterPanel";
 import { CalendarSection } from "./CalendarSection";
 import { OrdersDisplaySection } from "./OrdersDisplaySection";
 
@@ -18,15 +18,8 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
   const [selectedOrder, setSelectedOrder] = useState<WorkOrder | null>(null);
   const [typeFilter, setTypeFilter] = useState<WorkOrderType[]>([]);
   const [statusFilter, setStatusFilter] = useState<WorkOrderStatus[]>([]);
-  
-  // Filter work orders based on selected filters
-  const filteredWorkOrders = useMemo(() => {
-    return workOrders.filter(order => {
-      const matchesType = typeFilter.length === 0 || typeFilter.includes(order.order_type);
-      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(order.status);
-      return matchesType && matchesStatus;
-    });
-  }, [workOrders, typeFilter, statusFilter]);
+  const [priorityFilter, setPriorityFilter] = useState<WorkOrderPriority[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
   
   // Get all unique work order types
   const orderTypes = useMemo(() => {
@@ -41,6 +34,23 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
     workOrders.forEach(order => statuses.add(order.status));
     return Array.from(statuses);
   }, [workOrders]);
+  
+  // Get all unique work order priorities
+  const orderPriorities = useMemo(() => {
+    const priorities = new Set<WorkOrderPriority>();
+    workOrders.forEach(order => priorities.add(order.priority));
+    return Array.from(priorities);
+  }, [workOrders]);
+  
+  // Filter work orders based on selected filters
+  const filteredWorkOrders = useMemo(() => {
+    return workOrders.filter(order => {
+      const matchesType = typeFilter.length === 0 || typeFilter.includes(order.order_type);
+      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(order.status);
+      const matchesPriority = priorityFilter.length === 0 || priorityFilter.includes(order.priority);
+      return matchesType && matchesStatus && matchesPriority;
+    });
+  }, [workOrders, typeFilter, statusFilter, priorityFilter]);
   
   // Get all dates that have work orders
   const workOrderDates = useMemo(() => {
@@ -91,10 +101,25 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
     );
   };
   
+  // Toggle priority filter
+  const togglePriorityFilter = (priority: WorkOrderPriority) => {
+    setPriorityFilter(prev => 
+      prev.includes(priority) 
+        ? prev.filter(p => p !== priority) 
+        : [...prev, priority]
+    );
+  };
+  
   // Clear all filters
   const clearFilters = () => {
     setTypeFilter([]);
     setStatusFilter([]);
+    setPriorityFilter([]);
+  };
+  
+  // Toggle filter panel visibility
+  const toggleFilterPanel = () => {
+    setShowFilters(prev => !prev);
   };
   
   if (isLoading) {
@@ -108,14 +133,19 @@ export function WorkOrderCalendarView({ workOrders = [], isLoading = false }: Wo
   
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <WorkOrderFilters
+      {/* Filter Panel */}
+      <WorkOrderFilterPanel
+        isOpen={showFilters}
+        onToggle={toggleFilterPanel}
         typeFilter={typeFilter}
         statusFilter={statusFilter}
+        priorityFilter={priorityFilter}
         orderTypes={orderTypes}
         orderStatuses={orderStatuses}
+        orderPriorities={orderPriorities}
         toggleTypeFilter={toggleTypeFilter}
         toggleStatusFilter={toggleStatusFilter}
+        togglePriorityFilter={togglePriorityFilter}
         clearFilters={clearFilters}
       />
       

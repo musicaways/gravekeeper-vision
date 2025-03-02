@@ -1,27 +1,32 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
-import { WorkOrderStatus, WorkOrderType } from "@/types";
+import { WorkOrderPriority, WorkOrderStatus, WorkOrderType } from "@/types";
+import { formatStatus } from "@/lib/work-order-utils";
 
 interface WorkOrderFiltersProps {
   typeFilter: WorkOrderType[];
   statusFilter: WorkOrderStatus[];
+  priorityFilter: WorkOrderPriority[];
   orderTypes: WorkOrderType[];
   orderStatuses: WorkOrderStatus[];
+  orderPriorities: WorkOrderPriority[];
   toggleTypeFilter: (type: WorkOrderType) => void;
   toggleStatusFilter: (status: WorkOrderStatus) => void;
+  togglePriorityFilter: (priority: WorkOrderPriority) => void;
   clearFilters: () => void;
 }
 
 export function WorkOrderFilters({
   typeFilter,
   statusFilter,
+  priorityFilter,
   orderTypes,
   orderStatuses,
+  orderPriorities,
   toggleTypeFilter,
   toggleStatusFilter,
-  clearFilters,
+  togglePriorityFilter,
 }: WorkOrderFiltersProps) {
   return (
     <div className="flex flex-col space-y-4">
@@ -51,22 +56,27 @@ export function WorkOrderFilters({
               className="cursor-pointer"
               onClick={() => toggleStatusFilter(status)}
             >
-              {status.charAt(0).toUpperCase() + status.replace("_", " ").slice(1)}
+              {formatStatus(status)}
             </Badge>
           ))}
         </div>
       </div>
 
-      {(typeFilter.length > 0 || statusFilter.length > 0) && (
-        <div>
-          <button
-            onClick={clearFilters}
-            className="text-sm text-muted-foreground flex items-center hover:text-foreground"
-          >
-            <X className="h-3 w-3 mr-1" /> Clear filters
-          </button>
+      <div>
+        <h3 className="text-sm font-medium mb-2">Filter by Priority:</h3>
+        <div className="flex flex-wrap gap-2">
+          {orderPriorities.map((priority) => (
+            <Badge
+              key={priority}
+              variant={priorityFilter.includes(priority) ? "default" : "outline"}
+              className="cursor-pointer"
+              onClick={() => togglePriorityFilter(priority)}
+            >
+              {priority.charAt(0).toUpperCase() + priority.slice(1)}
+            </Badge>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
