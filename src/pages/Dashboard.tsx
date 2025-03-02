@@ -4,7 +4,7 @@ import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import NicheMap from '@/components/niche-map/NicheMap';
 import { mockNiches, mockCemeteries, mockSections, mockBlocks, mockPlots, mockWorkOrders } from '@/lib/mock-data';
-import { WorkOrdersKanban } from '@/components/work-orders/WorkOrdersKanban'; // Fixed import path
+import WorkOrdersKanban from '@/components/work-orders/WorkOrdersKanban'; // Changed from named import to default import
 
 import * as Icons from 'lucide-react';
 
