@@ -2,47 +2,50 @@
 import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Info, ListTodo, Map, Clock, Image, Building, Users, FileText, Phone } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CemeteryTabTriggers: React.FC = () => {
   return (
-    <TabsList className="mb-6 flex flex-wrap gap-1">
-      <TabsTrigger value="info" className="flex items-center gap-1.5">
-        <Info className="h-4 w-4" />
-        <span>Informazioni</span>
-      </TabsTrigger>
-      <TabsTrigger value="sections" className="flex items-center gap-1.5">
-        <Building className="h-4 w-4" />
-        <span>Settori e Blocchi</span>
-      </TabsTrigger>
-      <TabsTrigger value="niches" className="flex items-center gap-1.5">
-        <ListTodo className="h-4 w-4" />
-        <span>Mappa Nicchie</span>
-      </TabsTrigger>
-      <TabsTrigger value="map" className="flex items-center gap-1.5">
-        <Map className="h-4 w-4" />
-        <span>Mappa</span>
-      </TabsTrigger>
-      <TabsTrigger value="deceased" className="flex items-center gap-1.5">
-        <Users className="h-4 w-4" />
-        <span>Defunti</span>
-      </TabsTrigger>
-      <TabsTrigger value="hours" className="flex items-center gap-1.5">
-        <Clock className="h-4 w-4" />
-        <span>Orari</span>
-      </TabsTrigger>
-      <TabsTrigger value="gallery" className="flex items-center gap-1.5">
-        <Image className="h-4 w-4" />
-        <span>Galleria</span>
-      </TabsTrigger>
-      <TabsTrigger value="administration" className="flex items-center gap-1.5">
-        <FileText className="h-4 w-4" />
-        <span>Amministrazione</span>
-      </TabsTrigger>
-      <TabsTrigger value="contact" className="flex items-center gap-1.5">
-        <Phone className="h-4 w-4" />
-        <span>Contatti</span>
-      </TabsTrigger>
-    </TabsList>
+    <ScrollArea className="w-full mb-4" orientation="horizontal">
+      <TabsList className="inline-flex p-1 mb-1 w-auto">
+        <TabsTrigger value="info" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Info className="h-3.5 w-3.5" />
+          <span>Info</span>
+        </TabsTrigger>
+        <TabsTrigger value="sections" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Building className="h-3.5 w-3.5" />
+          <span>Settori</span>
+        </TabsTrigger>
+        <TabsTrigger value="niches" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <ListTodo className="h-3.5 w-3.5" />
+          <span>Nicchie</span>
+        </TabsTrigger>
+        <TabsTrigger value="map" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Map className="h-3.5 w-3.5" />
+          <span>Mappa</span>
+        </TabsTrigger>
+        <TabsTrigger value="deceased" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Users className="h-3.5 w-3.5" />
+          <span>Defunti</span>
+        </TabsTrigger>
+        <TabsTrigger value="hours" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Clock className="h-3.5 w-3.5" />
+          <span>Orari</span>
+        </TabsTrigger>
+        <TabsTrigger value="gallery" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Image className="h-3.5 w-3.5" />
+          <span>Galleria</span>
+        </TabsTrigger>
+        <TabsTrigger value="administration" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <FileText className="h-3.5 w-3.5" />
+          <span>Admin</span>
+        </TabsTrigger>
+        <TabsTrigger value="contact" className="flex items-center gap-1 px-3 py-1.5 text-xs">
+          <Phone className="h-3.5 w-3.5" />
+          <span>Contatti</span>
+        </TabsTrigger>
+      </TabsList>
+    </ScrollArea>
   );
 };
 

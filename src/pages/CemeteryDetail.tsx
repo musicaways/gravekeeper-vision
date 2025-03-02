@@ -1,16 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import CemeteryHeader from "@/components/cemetery/CemeteryHeader";
 import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
-import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, Calendar, Clipboard, Building } from "lucide-react";
+import { ChevronLeft, Calendar, Clipboard, Building, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const CemeteryDetail = () => {
   const { id } = useParams();
@@ -18,6 +18,7 @@ const CemeteryDetail = () => {
   const [cemetery, setCemetery] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchCemeteryDetail = async () => {
@@ -64,61 +65,86 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-card py-4 border-b px-4 sticky top-0 z-10">
-        <div className="container mx-auto">
-          <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="mr-4"
-              onClick={() => navigate('/cemeteries')}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Indietro
-            </Button>
-            
-            <div>
-              <h1 className="text-2xl font-bold">{cemetery.nome || "Dettagli Cimitero"}</h1>
-              <p className="text-muted-foreground">{locationString}</p>
-            </div>
-            
-            <div className="ml-auto flex gap-2">
-              {cemetery.active ? (
-                <Badge className="bg-green-500" variant="default">Attivo</Badge>
-              ) : (
-                <Badge variant="secondary">Inattivo</Badge>
-              )}
-            </div>
+      {/* Header sticky ottimizzato per mobile */}
+      <div className="bg-card py-3 border-b px-3 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate('/cemeteries')}
+            aria-label="Torna indietro"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          
+          <div className="flex-1 mx-2 overflow-hidden">
+            <h1 className="text-lg font-bold truncate">{cemetery.nome || "Dettagli Cimitero"}</h1>
+            <p className="text-xs text-muted-foreground truncate">{locationString}</p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {cemetery.active ? (
+              <Badge className="bg-green-500 hidden sm:inline-flex" variant="default">Attivo</Badge>
+            ) : (
+              <Badge variant="secondary" className="hidden sm:inline-flex">Inattivo</Badge>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex flex-wrap gap-4 mb-6">
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            Pianifica visita
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Clipboard className="h-4 w-4" />
-            Aggiungi operazione
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Building className="h-4 w-4" />
-            Aggiungi settore
-          </Button>
+      {/* Contenuto principale */}
+      <div className="px-3 py-4">
+        {/* Card informazioni di base */}
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-base font-semibold">Informazioni di base</h2>
+              {cemetery.active ? (
+                <Badge className="bg-green-500 text-xs" variant="default">Attivo</Badge>
+              ) : (
+                <Badge variant="secondary" className="text-xs">Inattivo</Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">{cemetery.Descrizione || "Nessuna descrizione disponibile"}</p>
+            <p className="text-sm"><span className="font-medium">Indirizzo:</span> {cemetery.Indirizzo || "Non disponibile"}</p>
+          </CardContent>
+        </Card>
+
+        {/* Azioni ottimizzate per mobile */}
+        <div className="flex justify-between mb-5">
+          {/* Mostra solo 2 azioni principali su mobile e le altre in un menu dropdown */}
+          <div className="grid grid-cols-2 gap-2 flex-1 mr-2">
+            <Button variant="outline" size="sm" className="flex items-center gap-1 h-9">
+              <Calendar className="h-4 w-4" />
+              <span className="text-xs">Pianifica visita</span>
+            </Button>
+            <Button variant="outline" size="sm" className="flex items-center gap-1 h-9">
+              <Clipboard className="h-4 w-4" />
+              <span className="text-xs">Nuova operazione</span>
+            </Button>
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="h-9 w-9">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                <span>Aggiungi settore</span>
+              </DropdownMenuItem>
+              {/* Altre azioni qui */}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
-        <div className="grid grid-cols-1 gap-6">
+        {/* Tab content */}
+        <div className="mt-2">
           <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
         </div>
       </div>
-
-      <footer className="bg-muted py-6 mt-auto">
-        <div className="container mx-auto text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Sistema Gestione Cimiteriale - Tutti i diritti riservati
-        </div>
-      </footer>
     </div>
   );
 };
