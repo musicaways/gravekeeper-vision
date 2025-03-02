@@ -1,13 +1,19 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Calendar, Phone, Mail, Globe, Map, Check, X } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { MapPin, Calendar, Phone, Mail, Globe, Map, Check, X, Edit } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 interface CemeteryInfoCardProps {
   cemetery: any;
 }
 
 const CemeteryInfoCard = ({ cemetery }: CemeteryInfoCardProps) => {
+  const { user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  
   // Helper function to render boolean fields with Yes/No icons
   const renderBooleanField = (label: string, value: boolean | null | undefined) => {
     if (value === null || value === undefined) return null;
@@ -33,13 +39,29 @@ const CemeteryInfoCard = ({ cemetery }: CemeteryInfoCardProps) => {
                       cemetery.cavalletti !== null || 
                       cemetery.impalcatura !== null;
 
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    // In a real implementation, this would open an edit form
+    // For now, we're just toggling the state
+  };
+
+  // Only show edit button if user is logged in (we'd need more robust permission checks in a real app)
+  const canEdit = !!user;
+
   return (
-    <Card className="w-full shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl md:text-2xl">Informazioni Generali</CardTitle>
-        <CardDescription>Dati principali e informazioni sul cimitero</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <Card className="w-full shadow-sm relative">
+      {canEdit && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="absolute top-2 right-2 z-10" 
+          onClick={handleEditToggle}
+        >
+          <Edit className="h-4 w-4 mr-1" />
+          <span className="text-xs">Modifica</span>
+        </Button>
+      )}
+      <CardContent className="space-y-6 pt-6">
         {cemetery.Descrizione && (
           <div>
             <h3 className="text-lg font-medium mb-2">Descrizione</h3>
