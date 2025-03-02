@@ -1,26 +1,15 @@
+
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { WorkOrder, WorkOrderStatus } from "@/types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Filter, MoreHorizontal, Calendar, Kanban, List } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
-import { 
-  formatStatus, 
-  formatOrderType,
-  getWorkOrderStatusBadgeClass,
-  getWorkOrderPriorityBadgeClass
-} from "@/lib/work-order-utils";
+import { Kanban, List, Calendar } from "lucide-react";
+import { WorkOrdersToolbar, WorkOrdersFilter } from "@/components/work-orders/WorkOrdersToolbar";
+import { WorkOrdersKanban } from "@/components/work-orders/WorkOrdersKanban";
+import { WorkOrderList } from "@/components/work-orders/WorkOrderList";
+import { WorkOrderCalendarView } from "@/components/work-orders/WorkOrderCalendarView";
 
 export default function WorkOrders() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
@@ -85,25 +74,10 @@ export default function WorkOrders() {
   return (
     <Layout title="Work Orders" subtitle="Manage and track maintenance tasks">
       <div className="container mx-auto p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Work Orders</h1>
-            <p className="text-muted-foreground">Manage and track maintenance tasks</p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Input
-              placeholder="Search work orders..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-[250px]"
-            />
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Work Order
-            </Button>
-          </div>
-        </div>
+        <WorkOrdersToolbar 
+          searchQuery={searchQuery} 
+          onSearchChange={setSearchQuery} 
+        />
         
         <Tabs defaultValue="kanban" className="w-full" onValueChange={(value) => setView(value as any)}>
           <div className="flex justify-between items-center mb-4">
@@ -122,194 +96,31 @@ export default function WorkOrders() {
               </TabsTrigger>
             </TabsList>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>All Orders</DropdownMenuItem>
-                <DropdownMenuItem>High Priority</DropdownMenuItem>
-                <DropdownMenuItem>Assigned to Me</DropdownMenuItem>
-                <DropdownMenuItem>Created Today</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <WorkOrdersFilter />
           </div>
           
           <TabsContent value="kanban" className="mt-0">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <KanbanColumn 
-                  title="Pending" 
-                  count={pendingOrders.length} 
-                  orders={pendingOrders} 
-                  colorClass="bg-yellow-100"
-                />
-                <KanbanColumn 
-                  title="In Progress" 
-                  count={inProgressOrders.length} 
-                  orders={inProgressOrders} 
-                  colorClass="bg-blue-100"
-                />
-                <KanbanColumn 
-                  title="Completed" 
-                  count={completedOrders.length} 
-                  orders={completedOrders} 
-                  colorClass="bg-green-100"
-                />
-                <KanbanColumn 
-                  title="Cancelled" 
-                  count={cancelledOrders.length} 
-                  orders={cancelledOrders} 
-                  colorClass="bg-red-100"
-                />
-              </div>
-            )}
+            <WorkOrdersKanban
+              pendingOrders={pendingOrders}
+              inProgressOrders={inProgressOrders}
+              completedOrders={completedOrders}
+              cancelledOrders={cancelledOrders}
+              isLoading={isLoading}
+            />
           </TabsContent>
           
           <TabsContent value="list">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow">
-                <div className="grid grid-cols-7 p-4 font-medium border-b">
-                  <div className="col-span-2">Description</div>
-                  <div>Order #</div>
-                  <div>Type</div>
-                  <div>Status</div>
-                  <div>Priority</div>
-                  <div className="text-right">Actions</div>
-                </div>
-                
-                {filteredWorkOrders.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No work orders found matching your search criteria.
-                  </div>
-                ) : (
-                  filteredWorkOrders.map(order => (
-                    <div key={order.id} className="grid grid-cols-7 p-4 border-b hover:bg-gray-50">
-                      <div className="col-span-2">{order.description}</div>
-                      <div>{order.order_number}</div>
-                      <div>{formatOrderType(order.order_type)}</div>
-                      <div>
-                        <WorkOrderStatusBadge status={order.status} />
-                      </div>
-                      <div>
-                        <WorkOrderPriorityBadge priority={order.priority} />
-                      </div>
-                      <div className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Change Status</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+            <WorkOrderList 
+              workOrders={filteredWorkOrders}
+              isLoading={isLoading}
+            />
           </TabsContent>
           
           <TabsContent value="calendar">
-            <div className="min-h-[500px] flex items-center justify-center">
-              <div className="text-center p-8">
-                <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-medium mb-2">Calendar View</h3>
-                <p className="text-muted-foreground">
-                  Calendar view is not implemented yet. Check back soon!
-                </p>
-              </div>
-            </div>
+            <WorkOrderCalendarView />
           </TabsContent>
         </Tabs>
       </div>
     </Layout>
-  );
-}
-
-function WorkOrderStatusBadge({ status }: { status: WorkOrderStatus }) {
-  return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getWorkOrderStatusBadgeClass(status)}`}>
-      {formatStatus(status)}
-    </span>
-  );
-}
-
-function WorkOrderPriorityBadge({ priority }: { priority: string }) {
-  return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getWorkOrderPriorityBadgeClass(priority as any)}`}>
-      {priority.charAt(0).toUpperCase() + priority.slice(1)}
-    </span>
-  );
-}
-
-interface KanbanColumnProps {
-  title: string;
-  count: number;
-  orders: WorkOrder[];
-  colorClass: string;
-}
-
-function KanbanColumn({ title, count, orders, colorClass }: KanbanColumnProps) {
-  return (
-    <div className="flex flex-col h-full">
-      <div className={`px-4 py-3 ${colorClass} rounded-t-lg font-medium flex justify-between items-center`}>
-        <span>{title}</span>
-        <span className="bg-white px-2 py-1 rounded-full text-xs">{count}</span>
-      </div>
-      
-      <div className="bg-gray-50 rounded-b-lg flex-grow min-h-[500px] p-2">
-        {orders.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-muted-foreground text-sm p-4 text-center">
-            No work orders in this status
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {orders.map(order => (
-              <WorkOrderCard key={order.id} order={order} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function WorkOrderCard({ order }: { order: WorkOrder }) {
-  return (
-    <Card className="cursor-pointer hover:shadow-md transition-shadow">
-      <CardHeader className="p-4 pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-sm font-medium">{formatOrderType(order.order_type)}</CardTitle>
-          <WorkOrderPriorityBadge priority={order.priority} />
-        </div>
-        <CardDescription className="text-xs">{order.order_number}</CardDescription>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 pb-2">
-        <p className="text-sm line-clamp-2">{order.description}</p>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 text-xs text-muted-foreground">
-        {order.requested_date && 
-          <div>Requested: {format(new Date(order.requested_date), 'MMM dd, yyyy')}</div>
-        }
-      </CardFooter>
-    </Card>
   );
 }

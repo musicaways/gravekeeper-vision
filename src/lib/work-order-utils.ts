@@ -1,6 +1,7 @@
 
 import { WorkOrderPriority, WorkOrderStatus, WorkOrderType } from "@/types";
-import { Clock, Workflow, Check, Users, Building } from "lucide-react";
+import { Clock, Workflow, Check, X, Building } from "lucide-react";
+import React from "react";
 
 // Format work order status (e.g., "in_progress" -> "In Progress")
 export function formatStatus(status: WorkOrderStatus): string {
@@ -78,7 +79,7 @@ export function getWorkOrderStatusIcon(status: WorkOrderStatus) {
     case 'pending': return <Clock className="h-4 w-4" />;
     case 'in_progress': return <Workflow className="h-4 w-4" />;
     case 'completed': return <Check className="h-4 w-4" />;
-    case 'cancelled': return <Users className="h-4 w-4" />;
+    case 'cancelled': return <X className="h-4 w-4" />;
     default: return <Building className="h-4 w-4" />;
   }
 }
