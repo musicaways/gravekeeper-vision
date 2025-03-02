@@ -13,30 +13,42 @@ export type Database = {
         Row: {
           code: string
           created_at: string | null
+          created_by: string | null
           description: string | null
+          enabled: boolean | null
+          function_type: string | null
           id: string
           is_active: boolean | null
           name: string
+          parameters_schema: Json | null
           trigger_phrases: string[]
           updated_at: string | null
         }
         Insert: {
           code: string
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
+          enabled?: boolean | null
+          function_type?: string | null
           id?: string
           is_active?: boolean | null
           name: string
+          parameters_schema?: Json | null
           trigger_phrases: string[]
           updated_at?: string | null
         }
         Update: {
           code?: string
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
+          enabled?: boolean | null
+          function_type?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
+          parameters_schema?: Json | null
           trigger_phrases?: string[]
           updated_at?: string | null
         }
@@ -81,8 +93,11 @@ export type Database = {
       Blocco: {
         Row: {
           Annotazioni: string | null
+          available_plots: number | null
+          block_code: string | null
           Codice: string | null
           Descrizione: string | null
+          geo_boundary: Json | null
           Id: number
           IdSettore: number | null
           NumeroFile: number | null
@@ -91,11 +106,15 @@ export type Database = {
           NumeroPartenza: number | null
           PassoNumeri: number | null
           TipoNumerazione: number | null
+          total_plots: number | null
         }
         Insert: {
           Annotazioni?: string | null
+          available_plots?: number | null
+          block_code?: string | null
           Codice?: string | null
           Descrizione?: string | null
+          geo_boundary?: Json | null
           Id?: number
           IdSettore?: number | null
           NumeroFile?: number | null
@@ -104,11 +123,15 @@ export type Database = {
           NumeroPartenza?: number | null
           PassoNumeri?: number | null
           TipoNumerazione?: number | null
+          total_plots?: number | null
         }
         Update: {
           Annotazioni?: string | null
+          available_plots?: number | null
+          block_code?: string | null
           Codice?: string | null
           Descrizione?: string | null
+          geo_boundary?: Json | null
           Id?: number
           IdSettore?: number | null
           NumeroFile?: number | null
@@ -117,6 +140,7 @@ export type Database = {
           NumeroPartenza?: number | null
           PassoNumeri?: number | null
           TipoNumerazione?: number | null
+          total_plots?: number | null
         }
         Relationships: [
           {
@@ -130,31 +154,64 @@ export type Database = {
       }
       Cimitero: {
         Row: {
+          active: boolean | null
+          city: string | null
           Codice: string | null
+          contact_info: Json | null
+          country: string | null
           Descrizione: string | null
+          established_date: string | null
           FotoCopertina: string | null
+          geo_location: Json | null
           Id: number
           Indirizzo: string | null
           Latitudine: number | null
           Longitudine: number | null
+          nome: string | null
+          operating_hours: Json | null
+          postal_code: string | null
+          state: string | null
+          total_area_sqm: number | null
         }
         Insert: {
+          active?: boolean | null
+          city?: string | null
           Codice?: string | null
+          contact_info?: Json | null
+          country?: string | null
           Descrizione?: string | null
+          established_date?: string | null
           FotoCopertina?: string | null
+          geo_location?: Json | null
           Id: number
           Indirizzo?: string | null
           Latitudine?: number | null
           Longitudine?: number | null
+          nome?: string | null
+          operating_hours?: Json | null
+          postal_code?: string | null
+          state?: string | null
+          total_area_sqm?: number | null
         }
         Update: {
+          active?: boolean | null
+          city?: string | null
           Codice?: string | null
+          contact_info?: Json | null
+          country?: string | null
           Descrizione?: string | null
+          established_date?: string | null
           FotoCopertina?: string | null
+          geo_location?: Json | null
           Id?: number
           Indirizzo?: string | null
           Latitudine?: number | null
           Longitudine?: number | null
+          nome?: string | null
+          operating_hours?: Json | null
+          postal_code?: string | null
+          state?: string | null
+          total_area_sqm?: number | null
         }
         Relationships: []
       }
@@ -457,6 +514,118 @@ export type Database = {
           },
         ]
       }
+      materials: {
+        Row: {
+          category: string
+          cemetery_id: number | null
+          cost_per_unit: number
+          created_at: string | null
+          id: string
+          item_code: string
+          item_name: string
+          location: string | null
+          quantity_on_hand: number
+          reorder_point: number
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          cemetery_id?: number | null
+          cost_per_unit: number
+          created_at?: string | null
+          id?: string
+          item_code: string
+          item_name: string
+          location?: string | null
+          quantity_on_hand?: number
+          reorder_point?: number
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          cemetery_id?: number | null
+          cost_per_unit?: number
+          created_at?: string | null
+          id?: string
+          item_code?: string
+          item_name?: string
+          location?: string | null
+          quantity_on_hand?: number
+          reorder_point?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_materials_cimitero"
+            columns: ["cemetery_id"]
+            isOneToOne: false
+            referencedRelation: "Cimitero"
+            referencedColumns: ["Id"]
+          },
+        ]
+      }
+      plots: {
+        Row: {
+          block_id: number | null
+          capacity: number
+          created_at: string | null
+          current_occupancy: number | null
+          dimensions: Json
+          expiration_date: string | null
+          geo_location: Json | null
+          id: string
+          plot_number: string
+          plot_type: Database["public"]["Enums"]["plot_type"]
+          price: number | null
+          purchase_date: string | null
+          row_number: string | null
+          status: Database["public"]["Enums"]["plot_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          block_id?: number | null
+          capacity?: number
+          created_at?: string | null
+          current_occupancy?: number | null
+          dimensions: Json
+          expiration_date?: string | null
+          geo_location?: Json | null
+          id?: string
+          plot_number: string
+          plot_type: Database["public"]["Enums"]["plot_type"]
+          price?: number | null
+          purchase_date?: string | null
+          row_number?: string | null
+          status?: Database["public"]["Enums"]["plot_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          block_id?: number | null
+          capacity?: number
+          created_at?: string | null
+          current_occupancy?: number | null
+          dimensions?: Json
+          expiration_date?: string | null
+          geo_location?: Json | null
+          id?: string
+          plot_number?: string
+          plot_type?: Database["public"]["Enums"]["plot_type"]
+          price?: number | null
+          purchase_date?: string | null
+          row_number?: string | null
+          status?: Database["public"]["Enums"]["plot_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_plots_blocco"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "Blocco"
+            referencedColumns: ["Id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -549,22 +718,40 @@ export type Database = {
       }
       Settore: {
         Row: {
+          area_sqm: number | null
           Codice: string | null
+          current_occupancy: number | null
           Descrizione: string | null
+          geo_boundary: Json | null
           Id: number
           IdCimitero: number | null
+          max_capacity: number | null
+          section_code: string | null
+          section_type: string | null
         }
         Insert: {
+          area_sqm?: number | null
           Codice?: string | null
+          current_occupancy?: number | null
           Descrizione?: string | null
+          geo_boundary?: Json | null
           Id: number
           IdCimitero?: number | null
+          max_capacity?: number | null
+          section_code?: string | null
+          section_type?: string | null
         }
         Update: {
+          area_sqm?: number | null
           Codice?: string | null
+          current_occupancy?: number | null
           Descrizione?: string | null
+          geo_boundary?: Json | null
           Id?: number
           IdCimitero?: number | null
+          max_capacity?: number | null
+          section_code?: string | null
+          section_type?: string | null
         }
         Relationships: [
           {
@@ -647,6 +834,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          permissions: Json | null
+          role: Database["public"]["Enums"]["user_role"]
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       users_roles: {
         Row: {
           created_at: string | null
@@ -679,6 +902,112 @@ export type Database = {
           },
         ]
       }
+      work_crews: {
+        Row: {
+          cemetery_id: number | null
+          created_at: string | null
+          crew_type: Database["public"]["Enums"]["crew_type"]
+          equipment_access: Json | null
+          id: string
+          leader_name: string
+          members: Json
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          cemetery_id?: number | null
+          created_at?: string | null
+          crew_type: Database["public"]["Enums"]["crew_type"]
+          equipment_access?: Json | null
+          id?: string
+          leader_name: string
+          members: Json
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          cemetery_id?: number | null
+          created_at?: string | null
+          crew_type?: Database["public"]["Enums"]["crew_type"]
+          equipment_access?: Json | null
+          id?: string
+          leader_name?: string
+          members?: Json
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_work_crews_cimitero"
+            columns: ["cemetery_id"]
+            isOneToOne: false
+            referencedRelation: "Cimitero"
+            referencedColumns: ["Id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          assigned_crew_id: string | null
+          cemetery_id: number | null
+          created_at: string | null
+          description: string
+          id: string
+          materials_required: Json | null
+          order_number: string
+          order_type: Database["public"]["Enums"]["work_order_type"]
+          priority: Database["public"]["Enums"]["work_order_priority"]
+          related_entity_id: string
+          related_entity_type: string
+          requested_date: string
+          scheduled_date: string | null
+          status: Database["public"]["Enums"]["work_order_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_crew_id?: string | null
+          cemetery_id?: number | null
+          created_at?: string | null
+          description: string
+          id?: string
+          materials_required?: Json | null
+          order_number: string
+          order_type: Database["public"]["Enums"]["work_order_type"]
+          priority?: Database["public"]["Enums"]["work_order_priority"]
+          related_entity_id: string
+          related_entity_type: string
+          requested_date: string
+          scheduled_date?: string | null
+          status?: Database["public"]["Enums"]["work_order_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_crew_id?: string | null
+          cemetery_id?: number | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          materials_required?: Json | null
+          order_number?: string
+          order_type?: Database["public"]["Enums"]["work_order_type"]
+          priority?: Database["public"]["Enums"]["work_order_priority"]
+          related_entity_id?: string
+          related_entity_type?: string
+          requested_date?: string
+          scheduled_date?: string | null
+          status?: Database["public"]["Enums"]["work_order_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_work_orders_cimitero"
+            columns: ["cemetery_id"]
+            isOneToOne: false
+            referencedRelation: "Cimitero"
+            referencedColumns: ["Id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -696,8 +1025,26 @@ export type Database = {
       }
     }
     Enums: {
-      user_role: "admin" | "read_write" | "read_only"
+      crew_type:
+        | "maintenance"
+        | "burial"
+        | "landscaping"
+        | "cleaning"
+        | "construction"
+        | "other"
+      plot_status: "available" | "reserved" | "occupied" | "maintenance"
+      plot_type: "standard" | "family" | "cremation" | "mausoleum" | "niche"
+      user_role: "admin" | "read_write" | "read_only" | "viewer"
       user_status: "pending" | "active" | "banned"
+      work_order_priority: "low" | "medium" | "high" | "urgent"
+      work_order_status: "pending" | "in_progress" | "completed" | "cancelled"
+      work_order_type:
+        | "burial"
+        | "maintenance"
+        | "landscaping"
+        | "construction"
+        | "cleaning"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
