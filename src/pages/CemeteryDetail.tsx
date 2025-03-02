@@ -97,7 +97,7 @@ const CemeteryDetail = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CemeteryGallery photos={photos} />
+                  <CemeteryGallery photos={photos} columns={3} aspect="square" />
                 </CardContent>
               </Card>
             )}
