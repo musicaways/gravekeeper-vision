@@ -103,7 +103,7 @@ const CemeteryDetail = () => {
             )}
 
             <CemeteryInfoCard cemetery={cemetery} />
-            <CemeteryTabs />
+            <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
           </div>
 
           <div>

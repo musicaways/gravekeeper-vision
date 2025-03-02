@@ -1,30 +1,29 @@
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { NicheInfo } from "@/types";
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { NicheInfo } from '@/types';
 
-export function useNiches(blockId: string | null) {
+export const useNiches = (blockId: string | null) => {
   const [niches, setNiches] = useState<NicheInfo[]>([]);
-  const [rows, setRows] = useState(0);
-  const [columns, setColumns] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const [rows, setRows] = useState<number>(8);
+  const [columns, setColumns] = useState<number>(12);
   const { toast } = useToast();
-
+  
   useEffect(() => {
     if (!blockId) {
       setIsLoading(false);
-      setNiches([]);
       return;
     }
-
-    const fetchData = async () => {
+    
+    const fetchNiches = async () => {
       setIsLoading(true);
       setError(null);
-
+      
       try {
-        // Get block information
+        // Get the number of rows and columns for the selected block
         const { data: blockData, error: blockError } = await supabase
           .from('Blocco')
           .select('NumeroFile, NumeroLoculi')
@@ -34,11 +33,11 @@ export function useNiches(blockId: string | null) {
         if (blockError) throw blockError;
         
         if (blockData) {
-          setRows(blockData.NumeroFile || 0);
-          setColumns(blockData.NumeroLoculi || 0);
+          setRows(blockData.NumeroFile || 8);
+          setColumns(blockData.NumeroLoculi || 12);
         }
         
-        // Get loculo data with deceased information
+        // Get the loculo data
         const { data: loculiData, error: loculiError } = await supabase
           .from('Loculo')
           .select(`
@@ -64,7 +63,7 @@ export function useNiches(blockId: string | null) {
             row: loculo.Fila || 0,
             column: loculo.Numero || 0,
             status: loculo.Defunto ? "occupied" : "available",
-            deceasedName: loculo.Defunto ? loculo.Defunto.Nominativo : undefined,
+            deceasedName: loculo.Defunto?.Nominativo, // Usa l'operatore di optional chaining
             expirationDate: undefined
           };
         });
@@ -72,7 +71,7 @@ export function useNiches(blockId: string | null) {
         setNiches(nicheData);
       } catch (err) {
         console.error('Error fetching niches:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+        setError(err instanceof Error ? err : new Error('Failed to load niche data'));
         toast({
           variant: "destructive",
           title: "Error",
@@ -83,18 +82,8 @@ export function useNiches(blockId: string | null) {
       }
     };
     
-    fetchData();
+    fetchNiches();
   }, [blockId, toast]);
-
-  return {
-    niches,
-    rows,
-    columns,
-    isLoading,
-    error,
-    refetch: () => {
-      // Re-trigger the effect
-      setIsLoading(true);
-    }
-  };
-}
+  
+  return { niches, isLoading, error, rows, columns };
+};

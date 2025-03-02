@@ -10,7 +10,7 @@ import CemeteryAdministration from "./CemeteryAdministration";
 import { CemeteryNicheMap } from "./CemeteryNicheMap";
 import { Info, ListTodo, Map, Clock, Image, Building, Users } from "lucide-react";
 
-interface CemeteryTabsProps {
+export interface CemeteryTabsProps {
   cemetery: any;
   cemeteryId: string;
 }
@@ -62,7 +62,7 @@ export const CemeteryTabs = ({ cemetery, cemeteryId }: CemeteryTabsProps) => {
       </TabsContent>
       
       <TabsContent value="niches" className="space-y-6">
-        <CemeteryNicheMap />
+        <CemeteryNicheMap blockId={undefined} />
       </TabsContent>
 
       <TabsContent value="map" className="space-y-6">

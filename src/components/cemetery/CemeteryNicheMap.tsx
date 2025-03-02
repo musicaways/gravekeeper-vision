@@ -101,7 +101,7 @@ export const CemeteryNicheMap = ({ blockId }: { blockId?: string }) => {
             row: loculo.Fila || 0,
             column: loculo.Numero || 0,
             status: loculo.Defunto ? "occupied" : "available",
-            deceasedName: loculo.Defunto ? loculo.Defunto.Nominativo : undefined,
+            deceasedName: loculo.Defunto?.Nominativo, // Usa l'operatore di optional chaining
             expirationDate: undefined
           };
         });
