@@ -8,8 +8,6 @@ import { SecuritySettings } from "./SecuritySettings";
 interface SettingsTabsProps {
   language: string;
   setLanguage: (value: string) => void;
-  darkMode: boolean;
-  setDarkMode: (value: boolean) => void;
   emailNotifications: boolean;
   setEmailNotifications: (value: boolean) => void;
   pushNotifications: boolean;
@@ -19,8 +17,6 @@ interface SettingsTabsProps {
 export function SettingsTabs({
   language,
   setLanguage,
-  darkMode,
-  setDarkMode,
   emailNotifications,
   setEmailNotifications,
   pushNotifications,
@@ -47,8 +43,6 @@ export function SettingsTabs({
         <GeneralSettings 
           language={language}
           setLanguage={setLanguage}
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
         />
       </TabsContent>
 
