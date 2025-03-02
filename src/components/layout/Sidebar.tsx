@@ -14,7 +14,8 @@ import {
   Activity,
   Bot,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Menu
 } from "lucide-react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
@@ -32,13 +33,14 @@ export default function Sidebar({ className, collapsed = false, onToggle }: Side
 
   return (
     <div className={cn(
-      "h-screen border-r pb-12 transition-all duration-300 bg-background", 
+      "h-screen border-r pb-12 transition-all duration-300 bg-background shadow-lg", 
       collapsed ? "w-[70px]" : "w-[240px]", 
       className
     )}>
-      <div className="flex justify-end p-2">
+      <div className="flex justify-between p-2 items-center">
+        {!collapsed && <span className="font-semibold px-2">CemeteryPro</span>}
         <Button variant="ghost" size="sm" onClick={onToggle} className="ml-auto">
-          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {collapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
         </Button>
       </div>
       
