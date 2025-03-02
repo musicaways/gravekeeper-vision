@@ -18,14 +18,14 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   return (
     <header className="sticky top-0 z-10 border-b bg-card h-16 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
       <div className="flex items-center gap-4">
-        {showBackButton && (
-          <Button onClick={handleBack} variant="ghost" size="icon" aria-label="Torna indietro">
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-        )}
         {onMenuClick && (
           <Button onClick={onMenuClick} variant="ghost" size="icon">
             <Menu className="h-5 w-5" />
+          </Button>
+        )}
+        {showBackButton && (
+          <Button onClick={handleBack} variant="ghost" size="icon" aria-label="Torna indietro">
+            <ChevronLeft className="h-5 w-5" />
           </Button>
         )}
       </div>
