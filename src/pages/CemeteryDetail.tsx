@@ -97,7 +97,7 @@ const CemeteryDetail = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CemeteryGallery photos={photos} columns={3} aspect="square" />
+                  <CemeteryGallery cemeteryId={id || ''} />
                 </CardContent>
               </Card>
             )}
@@ -107,8 +107,8 @@ const CemeteryDetail = () => {
           </div>
 
           <div>
-            <CemeteryHours operatingHours={cemetery.operating_hours} />
-            <CemeteryAdministration />
+            <CemeteryHours cemetery={cemetery} />
+            <CemeteryAdministration cemeteryId={id || ''} />
           </div>
         </div>
       </main>

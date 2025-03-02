@@ -16,7 +16,11 @@ import {
 import { NicheInfo } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
-export const CemeteryNicheMap = ({ blockId }: { blockId?: string }) => {
+export interface CemeteryNicheMapProps {
+  blockId?: string;
+}
+
+export const CemeteryNicheMap = ({ blockId }: CemeteryNicheMapProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [niches, setNiches] = useState<NicheInfo[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,13 +99,13 @@ export const CemeteryNicheMap = ({ blockId }: { blockId?: string }) => {
         if (loculiError) throw loculiError;
         
         // Transform data to match NicheInfo type
-        const nicheData: NicheInfo[] = (loculiData || []).map((loculo) => {
+        const nicheData: NicheInfo[] = (loculiData || []).map((loculo: any) => {
           return {
             id: loculo.Id.toString(),
             row: loculo.Fila || 0,
             column: loculo.Numero || 0,
             status: loculo.Defunto ? "occupied" : "available",
-            deceasedName: loculo.Defunto?.Nominativo, // Usa l'operatore di optional chaining
+            deceasedName: loculo.Defunto ? loculo.Defunto.Nominativo : undefined,
             expirationDate: undefined
           };
         });
