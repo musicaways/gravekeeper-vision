@@ -17,7 +17,9 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId
   // Salva la tab attiva nel localStorage per mantenerla tra le navigazioni
   useEffect(() => {
     const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
-    if (savedTab) {
+    // Verifica che la tab salvata sia una di quelle disponibili
+    const availableTabs = ["info", "sections", "map", "hours", "gallery", "administration", "contact"];
+    if (savedTab && availableTabs.includes(savedTab)) {
       setActiveTab(savedTab);
     }
   }, [id]);

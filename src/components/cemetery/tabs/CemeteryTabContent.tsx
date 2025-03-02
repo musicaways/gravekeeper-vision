@@ -3,9 +3,7 @@ import React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import CemeteryInfoCard from "../CemeteryInfoCard";
 import { CemeterySectionsTab } from "../CemeterySectionsTab";
-import { CemeteryNicheMap } from "../CemeteryNicheMap";
 import { CemeteryMapTab } from "../CemeteryMapTab";
-import { CemeteryDeceasedTab } from "../CemeteryDeceasedTab";
 import CemeteryHours from "../CemeteryHours";
 import CemeteryGallery from "../CemeteryGallery";
 import CemeteryAdministration from "../CemeteryAdministration";
@@ -26,17 +24,9 @@ const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemet
       <TabsContent value="sections" className="space-y-6">
         <CemeterySectionsTab cemeteryId={cemeteryId} />
       </TabsContent>
-      
-      <TabsContent value="niches" className="space-y-6">
-        <CemeteryNicheMap cemeteryId={cemeteryId} />
-      </TabsContent>
 
       <TabsContent value="map" className="space-y-6">
         <CemeteryMapTab />
-      </TabsContent>
-
-      <TabsContent value="deceased" className="space-y-6">
-        <CemeteryDeceasedTab cemeteryId={cemeteryId} />
       </TabsContent>
 
       <TabsContent value="hours" className="space-y-6">
