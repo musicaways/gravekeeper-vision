@@ -63,7 +63,7 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId
       </TabsContent>
       
       <TabsContent value="niches" className="space-y-6">
-        <CemeteryNicheMap />
+        <CemeteryNicheMap cemeteryId={cemeteryId} />
       </TabsContent>
 
       <TabsContent value="map" className="space-y-6">
