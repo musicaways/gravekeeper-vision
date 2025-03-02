@@ -14,7 +14,8 @@ import {
   Activity,
   Bot,
   ChevronLeft,
-  X
+  X,
+  LucideIcon
 } from "lucide-react";
 
 interface SidebarProps {
@@ -100,7 +101,7 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
 
 interface NavItemProps {
   href: string;
-  icon: React.FC<{ className?: string; size?: number }>;
+  icon: LucideIcon;
   label: string;
   isActive: boolean;
   showLabel: boolean;
