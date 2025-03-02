@@ -26,12 +26,34 @@ const getPriorityColor = (priority: WorkOrderPriority): string => {
   }
 };
 
+// Function to get text color based on priority for better tooltip visibility
+const getPriorityTextColor = (priority: WorkOrderPriority): string => {
+  switch (priority) {
+    case "urgent":
+      return "text-red-600 font-medium";
+    case "high":
+      return "text-orange-600 font-medium";
+    case "medium":
+      return "text-blue-600 font-medium";
+    case "low":
+      return "text-green-600 font-medium";
+    default:
+      return "text-primary font-medium";
+  }
+};
+
 export function CalendarDayContent({ date, orderCount, orders, children }: CalendarDayContentProps) {
   // Group orders by priority
   const ordersByPriority = orders.reduce<Record<WorkOrderPriority, number>>((acc, order) => {
     acc[order.priority] = (acc[order.priority] || 0) + 1;
     return acc;
   }, {} as Record<WorkOrderPriority, number>);
+
+  // Group orders by type
+  const ordersByType = orders.reduce<Record<string, number>>((acc, order) => {
+    acc[order.order_type] = (acc[order.order_type] || 0) + 1;
+    return acc;
+  }, {});
 
   // Get priorities in descending order of importance
   const priorities: WorkOrderPriority[] = ["urgent", "high", "medium", "low"];
@@ -53,14 +75,33 @@ export function CalendarDayContent({ date, orderCount, orders, children }: Calen
                 ))}
               </div>
             </TooltipTrigger>
-            <TooltipContent>
-              {orderCount} work order{orderCount !== 1 ? 's' : ''}
+            <TooltipContent className="w-64">
+              <div className="font-medium mb-1.5">{orderCount} work order{orderCount !== 1 ? 's' : ''}</div>
+              
               {visiblePriorities.length > 0 && (
-                <div className="text-xs mt-1">
+                <div className="text-xs space-y-1">
+                  <div className="text-xs font-medium mb-1">By Priority:</div>
                   {visiblePriorities.map(priority => (
-                    <div key={priority} className="flex items-center">
-                      <span className={`inline-block h-1.5 w-1.5 rounded-full ${getPriorityColor(priority)} mr-1`}></span>
-                      {ordersByPriority[priority]} {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    <div key={priority} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className={`inline-block h-2 w-2 rounded-full ${getPriorityColor(priority)} mr-1.5`}></span>
+                        <span className={getPriorityTextColor(priority)}>
+                          {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                        </span>
+                      </div>
+                      <span>{ordersByPriority[priority]}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {Object.keys(ordersByType).length > 0 && (
+                <div className="text-xs mt-2 pt-2 border-t border-border">
+                  <div className="text-xs font-medium mb-1">By Type:</div>
+                  {Object.entries(ordersByType).map(([type, count]) => (
+                    <div key={type} className="flex justify-between">
+                      <span>{type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}</span>
+                      <span>{count}</span>
                     </div>
                   ))}
                 </div>
