@@ -1,6 +1,4 @@
-
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -132,72 +130,68 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <Layout title="Dashboard">
-        <div className="h-full flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </Layout>
+      <div className="h-full flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <Layout title="Dashboard">
-      <div className="container mx-auto p-4">
-        <DashboardHeader />
+    <div className="container mx-auto p-4">
+      <DashboardHeader />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            title="Cemeteries"
-            value={stats.totalCemeteries}
-            icon={<Map className="h-6 w-6" />}
-            description="Total cemeteries managed"
-          />
-          <StatCard
-            title="Sections"
-            value={stats.totalSections}
-            icon={<Grid className="h-6 w-6" />}
-            description="Total cemetery sections"
-          />
-          <StatCard
-            title="Plots"
-            value={stats.totalPlots}
-            icon={<FileSpreadsheet className="h-6 w-6" />}
-            description="Available burial plots"
-          />
-          <StatCard
-            title="Records"
-            value={stats.totalDeceased}
-            icon={<Users className="h-6 w-6" />}
-            description="Deceased person records"
-          />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard
+          title="Cemeteries"
+          value={stats.totalCemeteries}
+          icon={<Map className="h-6 w-6" />}
+          description="Total cemeteries managed"
+        />
+        <StatCard
+          title="Sections"
+          value={stats.totalSections}
+          icon={<Grid className="h-6 w-6" />}
+          description="Total cemetery sections"
+        />
+        <StatCard
+          title="Plots"
+          value={stats.totalPlots}
+          icon={<FileSpreadsheet className="h-6 w-6" />}
+          description="Available burial plots"
+        />
+        <StatCard
+          title="Records"
+          value={stats.totalDeceased}
+          icon={<Users className="h-6 w-6" />}
+          description="Deceased person records"
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <StatisticsChart data={pieData} />
+        <WorkOrderStatusChart data={workOrderStatusData} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <h2 className="text-2xl font-bold mb-4">Recent Cemeteries</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {cemeteries.map((cemetery) => (
+              <CemeteryCard key={cemetery.id} cemetery={cemetery} />
+            ))}
+          </div>
+          <div className="mt-4">
+            <Link to="/cemeteries">
+              <Button variant="outline" className="w-full">View All Cemeteries</Button>
+            </Link>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <StatisticsChart data={pieData} />
-          <WorkOrderStatusChart data={workOrderStatusData} />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">Recent Cemeteries</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {cemeteries.map((cemetery) => (
-                <CemeteryCard key={cemetery.id} cemetery={cemetery} />
-              ))}
-            </div>
-            <div className="mt-4">
-              <Link to="/cemeteries">
-                <Button variant="outline" className="w-full">View All Cemeteries</Button>
-              </Link>
-            </div>
-          </div>
-          
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Recent Activities</h2>
-            <RecentActivities workOrders={recentWorkOrders} />
-          </div>
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Recent Activities</h2>
+          <RecentActivities workOrders={recentWorkOrders} />
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
