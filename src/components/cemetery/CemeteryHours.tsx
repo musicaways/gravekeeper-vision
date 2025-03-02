@@ -1,12 +1,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
+import React from "react";
 
 export interface CemeteryHoursProps {
   cemetery: any;
 }
 
-const CemeteryHours = ({ cemetery }: CemeteryHoursProps) => {
+const CemeteryHours: React.FC<CemeteryHoursProps> = ({ cemetery }) => {
   const formatOperatingHours = (hours: Record<string, { open: string; close: string }> | undefined) => {
     if (!hours) return "Orari non disponibili";
     

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
+import React from "react";
 
 interface Photo {
   Id: string;
@@ -17,12 +18,12 @@ export interface CemeteryGalleryProps {
   className?: string;
 }
 
-const CemeteryGallery = ({ 
+const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({ 
   cemeteryId, 
   columns = 3, 
   aspect = "square",
   className = "" 
-}: CemeteryGalleryProps) => {
+}) => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);

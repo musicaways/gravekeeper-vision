@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building } from "lucide-react";
 
@@ -5,7 +6,7 @@ export interface CemeteryAdministrationProps {
   cemeteryId: string;
 }
 
-const CemeteryAdministration = ({ cemeteryId }: CemeteryAdministrationProps) => {
+const CemeteryAdministration: React.FC<CemeteryAdministrationProps> = ({ cemeteryId }) => {
   return (
     <Card>
       <CardHeader>

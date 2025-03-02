@@ -2,12 +2,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapIcon } from "lucide-react";
+import React from "react";
 
 export interface CemeterySectionsTabProps {
   cemeteryId: string;
 }
 
-export const CemeterySectionsTab = ({ cemeteryId }: CemeterySectionsTabProps) => {
+export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemeteryId }) => {
   return (
     <Card>
       <CardHeader>

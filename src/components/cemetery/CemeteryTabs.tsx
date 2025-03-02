@@ -9,13 +9,14 @@ import CemeteryGallery from "./CemeteryGallery";
 import CemeteryAdministration from "./CemeteryAdministration";
 import { CemeteryNicheMap } from "./CemeteryNicheMap";
 import { Info, ListTodo, Map, Clock, Image, Building, Users } from "lucide-react";
+import React from "react";
 
 export interface CemeteryTabsProps {
   cemetery: any;
   cemeteryId: string;
 }
 
-export const CemeteryTabs = ({ cemetery, cemeteryId }: CemeteryTabsProps) => {
+export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId }) => {
   return (
     <Tabs defaultValue="info" className="w-full">
       <TabsList className="mb-6 flex flex-wrap gap-1">
