@@ -168,6 +168,8 @@ export type Database = {
           Latitudine: number | null
           Longitudine: number | null
           nome: string | null
+          Nome: string | null
+          Note: string | null
           operating_hours: Json | null
           postal_code: string | null
           state: string | null
@@ -188,6 +190,8 @@ export type Database = {
           Latitudine?: number | null
           Longitudine?: number | null
           nome?: string | null
+          Nome?: string | null
+          Note?: string | null
           operating_hours?: Json | null
           postal_code?: string | null
           state?: string | null
@@ -208,6 +212,8 @@ export type Database = {
           Latitudine?: number | null
           Longitudine?: number | null
           nome?: string | null
+          Nome?: string | null
+          Note?: string | null
           operating_hours?: Json | null
           postal_code?: string | null
           state?: string | null

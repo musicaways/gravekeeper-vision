@@ -6,8 +6,6 @@ import { CemeterySectionsTab } from "../CemeterySectionsTab";
 import { CemeteryMapTab } from "../CemeteryMapTab";
 import CemeteryDocuments from "../CemeteryDocuments";
 import CemeteryGallery from "../CemeteryGallery";
-import CemeteryAdministration from "../CemeteryAdministration";
-import ContactTab from "../contact/ContactTab";
 
 interface CemeteryTabContentProps {
   cemetery: any;
@@ -35,14 +33,6 @@ const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemet
 
       <TabsContent value="gallery" className="space-y-6">
         <CemeteryGallery cemeteryId={cemeteryId} />
-      </TabsContent>
-
-      <TabsContent value="administration" className="space-y-6">
-        <CemeteryAdministration cemeteryId={cemeteryId} />
-      </TabsContent>
-      
-      <TabsContent value="contact" className="space-y-6">
-        <ContactTab cemetery={cemetery} />
       </TabsContent>
     </>
   );
