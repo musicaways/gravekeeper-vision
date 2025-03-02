@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,10 +21,16 @@ const CemeteryDetail = () => {
           throw new Error("ID cimitero non valido");
         }
 
+        const numericId = parseInt(id, 10);
+        
+        if (isNaN(numericId)) {
+          throw new Error("ID cimitero non valido: deve essere un numero");
+        }
+
         const { data, error } = await supabase
           .from('Cimitero')
           .select('*')
-          .eq('Id', id)
+          .eq('Id', numericId)
           .single();
         
         if (error) throw error;
