@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Layout from "./components/layout/Layout";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,9 @@ const App = () => (
               path="/" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Layout title="Dashboard">
+                    <Dashboard />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />
@@ -38,7 +41,9 @@ const App = () => (
               path="/cemeteries" 
               element={
                 <ProtectedRoute>
-                  <Index />
+                  <Layout title="Gestione Cimiteri">
+                    <Index />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />
@@ -46,7 +51,9 @@ const App = () => (
               path="/cemetery/:id" 
               element={
                 <ProtectedRoute>
-                  <CemeteryDetail />
+                  <Layout title="Dettaglio Cimitero">
+                    <CemeteryDetail />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />
@@ -54,7 +61,9 @@ const App = () => (
               path="/profile" 
               element={
                 <ProtectedRoute>
-                  <UserProfile />
+                  <Layout title="Profilo Utente">
+                    <UserProfile />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />
@@ -62,7 +71,9 @@ const App = () => (
               path="/work-orders" 
               element={
                 <ProtectedRoute>
-                  <WorkOrders />
+                  <Layout title="Ordini di Lavoro">
+                    <WorkOrders />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />
@@ -70,7 +81,9 @@ const App = () => (
               path="/settings" 
               element={
                 <ProtectedRoute>
-                  <Settings />
+                  <Layout title="Impostazioni">
+                    <Settings />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />

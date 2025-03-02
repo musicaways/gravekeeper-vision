@@ -50,13 +50,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-primary text-primary-foreground p-6 shadow-md">
-        <div className="container mx-auto">
-          <h1 className="text-3xl font-bold">Gestione Cimiteri</h1>
-          <p className="text-xl opacity-90">Sistema di gestione cimiteriale</p>
-        </div>
-      </header>
-
       <main className="container mx-auto py-8 px-4">
         <section className="mb-12">
           <Card className="w-full">
@@ -174,12 +167,6 @@ const Index = () => {
           )}
         </section>
       </main>
-
-      <footer className="bg-muted py-6 mt-auto">
-        <div className="container mx-auto text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Sistema Gestione Cimiteriale - Tutti i diritti riservati
-        </div>
-      </footer>
     </div>
   );
 };

@@ -10,13 +10,19 @@ interface LayoutProps {
 }
 
 const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(localStorage.getItem('sidebarCollapsed') === 'true');
+  
+  const handleToggleSidebar = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', String(newState));
+  };
   
   return (
     <div className="flex h-screen bg-background">
       <Sidebar 
         collapsed={sidebarCollapsed} 
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        onToggle={handleToggleSidebar} 
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
