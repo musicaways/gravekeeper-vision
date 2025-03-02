@@ -47,6 +47,11 @@ export const CemeteryDeceasedTab: React.FC<CemeteryDeceasedTabProps> = ({ cemete
 
   const handleAddDeceased = async () => {
     try {
+      if (!newDeceased.first_name || !newDeceased.last_name) {
+        toast.error("Nome e cognome sono campi obbligatori");
+        return;
+      }
+      
       const result = await addDeceased(newDeceased);
       
       if (result) {
