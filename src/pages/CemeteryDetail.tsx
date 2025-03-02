@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
-import { Badge } from "@/components/ui/badge";
 
 const CemeteryDetail = () => {
   const { id } = useParams();
@@ -54,27 +53,20 @@ const CemeteryDetail = () => {
     return <CemeteryErrorDisplay error={error} />;
   }
 
-  // Placeholder image for the cemetery cover photo
-  const coverPhotoUrl = cemetery.cover_photo_url || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&h=400&q=80";
+  // Use cemetery photo as cover photo, fallback to placeholder if not available
+  const coverPhotoUrl = cemetery.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&h=400&q=80";
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Cover photo */}
+      {/* Cover photo with semi-transparent overlay for text */}
       <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 
           src={coverPhotoUrl} 
           alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
           className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white text-xl font-semibold">{cemetery.nome || "Dettagli Cimitero"}</h2>
-            {cemetery.active ? (
-              <Badge className="bg-green-500 text-xs" variant="default">Attivo</Badge>
-            ) : (
-              <Badge variant="secondary" className="text-xs">Inattivo</Badge>
-            )}
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-4">
+          <h2 className="text-white text-xl font-semibold">{cemetery.nome || "Cimitero"}</h2>
           <p className="text-white/90 text-sm">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
         </div>
       </div>
