@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -111,133 +110,129 @@ export default function UserProfile() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !userProfile) {
     return (
-      <Layout title="User Profile">
-        <div className="flex justify-center items-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <Layout title="User Profile">
-      <div className="container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
+    <div className="container mx-auto px-4 py-6">
+      <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="md:col-span-1">
-            <Card>
-              <CardContent className="pt-6 flex flex-col items-center">
-                <Avatar className="w-32 h-32 mb-4">
-                  <AvatarImage src="/placeholder.svg" alt="User avatar" />
-                  <AvatarFallback>
-                    {userProfile?.first_name?.charAt(0)?.toUpperCase()}
-                    {userProfile?.last_name?.charAt(0)?.toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <h2 className="text-xl font-bold">
-                  {userProfile?.first_name} {userProfile?.last_name}
-                </h2>
-                <p className="text-muted-foreground">{userProfile?.email}</p>
-                <p className="mt-2 text-sm capitalize">{userProfile?.role} Role</p>
-                <Button variant="outline" className="mt-4 w-full">
-                  Change Avatar
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-1">
+          <Card>
+            <CardContent className="pt-6 flex flex-col items-center">
+              <Avatar className="w-32 h-32 mb-4">
+                <AvatarImage src="/placeholder.svg" alt="User avatar" />
+                <AvatarFallback>
+                  {userProfile?.first_name?.charAt(0)?.toUpperCase()}
+                  {userProfile?.last_name?.charAt(0)?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <h2 className="text-xl font-bold">
+                {userProfile?.first_name} {userProfile?.last_name}
+              </h2>
+              <p className="text-muted-foreground">{userProfile?.email}</p>
+              <p className="mt-2 text-sm capitalize">{userProfile?.role} Role</p>
+              <Button variant="outline" className="mt-4 w-full">
+                Change Avatar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
 
-          <div className="md:col-span-3">
-            <Tabs defaultValue="profile">
-              <TabsList className="mb-4">
-                <TabsTrigger value="profile">Profile</TabsTrigger>
-                <TabsTrigger value="security">Security</TabsTrigger>
-                <TabsTrigger value="preferences">Preferences</TabsTrigger>
-              </TabsList>
+        <div className="md:col-span-3">
+          <Tabs defaultValue="profile">
+            <TabsList className="mb-4">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="security">Security</TabsTrigger>
+              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="profile">
-                <Card>
-                  <CardContent className="pt-6">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input
-                            id="firstName"
-                            {...register("firstName")}
-                            placeholder="First Name"
-                          />
-                          {errors.firstName && (
-                            <p className="text-red-500 text-sm">{errors.firstName.message}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input
-                            id="lastName"
-                            {...register("lastName")}
-                            placeholder="Last Name"
-                          />
-                          {errors.lastName && (
-                            <p className="text-red-500 text-sm">{errors.lastName.message}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-6">
-                        <Label htmlFor="email">Email</Label>
+            <TabsContent value="profile">
+              <Card>
+                <CardContent className="pt-6">
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
                         <Input
-                          id="email"
-                          type="email"
-                          {...register("email")}
-                          placeholder="Email"
-                          disabled
+                          id="firstName"
+                          {...register("firstName")}
+                          placeholder="First Name"
                         />
-                        {errors.email && (
-                          <p className="text-red-500 text-sm">{errors.email.message}</p>
+                        {errors.firstName && (
+                          <p className="text-red-500 text-sm">{errors.firstName.message}</p>
                         )}
                       </div>
 
-                      <Separator className="my-6" />
-
-                      <div className="flex justify-end">
-                        <Button type="submit" disabled={isLoading}>
-                          {isLoading ? "Saving..." : "Save Changes"}
-                        </Button>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          {...register("lastName")}
+                          placeholder="Last Name"
+                        />
+                        {errors.lastName && (
+                          <p className="text-red-500 text-sm">{errors.lastName.message}</p>
+                        )}
                       </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    </div>
 
-              <TabsContent value="security">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h3 className="text-lg font-medium mb-4">Security Settings</h3>
-                    <p className="text-muted-foreground">
-                      Security settings will be implemented in a future update.
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    <div className="space-y-2 mb-6">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        {...register("email")}
+                        placeholder="Email"
+                        disabled
+                      />
+                      {errors.email && (
+                        <p className="text-red-500 text-sm">{errors.email.message}</p>
+                      )}
+                    </div>
 
-              <TabsContent value="preferences">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h3 className="text-lg font-medium mb-4">User Preferences</h3>
-                    <p className="text-muted-foreground">
-                      User preferences will be implemented in a future update.
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
+                    <Separator className="my-6" />
+
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={isLoading}>
+                        {isLoading ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="security">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-medium mb-4">Security Settings</h3>
+                  <p className="text-muted-foreground">
+                    Security settings will be implemented in a future update.
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="preferences">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-medium mb-4">User Preferences</h3>
+                  <p className="text-muted-foreground">
+                    User preferences will be implemented in a future update.
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
