@@ -1,5 +1,5 @@
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
@@ -10,7 +10,15 @@ interface LayoutProps {
 }
 
 const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(localStorage.getItem('sidebarCollapsed') === 'true');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  // Load sidebar state from localStorage on component mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
   
   const handleToggleSidebar = () => {
     const newState = !sidebarCollapsed;
