@@ -1,5 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import CemeteryInfoCard from "./CemeteryInfoCard";
 import { CemeterySectionsTab } from "./CemeterySectionsTab";
 import { CemeteryDeceasedTab } from "./CemeteryDeceasedTab";

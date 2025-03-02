@@ -43,10 +43,17 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
       try {
         if (!cemeteryId) return;
 
+        // Convert the string ID to a number
+        const numericCemeteryId = parseInt(cemeteryId, 10);
+        
+        if (isNaN(numericCemeteryId)) {
+          throw new Error("ID cimitero non valido");
+        }
+
         const { data, error } = await supabase
           .from('Settore')
           .select('*')
-          .eq('IdCimitero', cemeteryId);
+          .eq('IdCimitero', numericCemeteryId);
 
         if (error) throw error;
 

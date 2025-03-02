@@ -16,10 +16,17 @@ export const CemeteryMapTab = () => {
     const fetchCemeteryMap = async () => {
       try {
         // Ottieni l'id del cimitero dall'URL
-        const cemeteryId = window.location.pathname.split('/').pop();
+        const cemeteryIdStr = window.location.pathname.split('/').pop();
         
-        if (!cemeteryId) {
+        if (!cemeteryIdStr) {
           throw new Error("ID cimitero non trovato nell'URL");
+        }
+
+        // Convert the string ID to a number
+        const cemeteryId = parseInt(cemeteryIdStr, 10);
+        
+        if (isNaN(cemeteryId)) {
+          throw new Error("ID cimitero non valido");
         }
 
         const { data, error } = await supabase
