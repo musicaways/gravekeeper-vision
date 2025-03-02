@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -152,9 +153,11 @@ const Index = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full flex items-center gap-2">
-                      <Info size={16} />
-                      Visualizza dettagli
+                    <Button variant="outline" asChild className="w-full flex items-center gap-2">
+                      <Link to={`/cemetery/${cimitero.Id}`}>
+                        <Info size={16} />
+                        Visualizza dettagli
+                      </Link>
                     </Button>
                   </CardFooter>
                 </Card>
