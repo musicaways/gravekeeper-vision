@@ -27,10 +27,11 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   };
   
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar 
         collapsed={sidebarCollapsed} 
         onToggle={handleToggleSidebar} 
+        className="shrink-0 border-r"
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">

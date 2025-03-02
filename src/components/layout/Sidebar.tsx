@@ -32,17 +32,15 @@ export default function Sidebar({ className, collapsed = false, onToggle }: Side
 
   return (
     <div className={cn(
-      "pb-12 transition-all duration-300", 
+      "h-screen border-r pb-12 transition-all duration-300", 
       collapsed ? "w-[70px]" : "w-[240px]", 
       className
     )}>
-      {onToggle && (
-        <div className="flex justify-end p-2">
-          <Button variant="ghost" size="sm" onClick={onToggle}>
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end p-2">
+        <Button variant="ghost" size="sm" onClick={onToggle} className="ml-auto">
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </Button>
+      </div>
       
       <div className="space-y-4 py-4">
         <div className="px-4 py-2">
@@ -56,72 +54,72 @@ export default function Sidebar({ className, collapsed = false, onToggle }: Side
               <Link to="/">
                 <Button
                   variant={isActive("/") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Home className="mr-2 h-4 w-4" />
+                  <Home className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Dashboard"}
                 </Button>
               </Link>
               <Link to="/cemeteries">
                 <Button
                   variant={isActive("/cemeteries") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Landmark className="mr-2 h-4 w-4" />
+                  <Landmark className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Cemeteries"}
                 </Button>
               </Link>
               <Link to="/work-orders">
                 <Button
                   variant={isActive("/work-orders") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <ClipboardList className="mr-2 h-4 w-4" />
+                  <ClipboardList className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Work Orders"}
                 </Button>
               </Link>
               <Link to="/deceased">
                 <Button
                   variant={isActive("/deceased") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Users className="mr-2 h-4 w-4" />
+                  <Users className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Deceased Records"}
                 </Button>
               </Link>
               <Link to="/inventory">
                 <Button
                   variant={isActive("/inventory") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Boxes className="mr-2 h-4 w-4" />
+                  <Boxes className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Inventory"}
                 </Button>
               </Link>
               <Link to="/crews">
                 <Button
                   variant={isActive("/crews") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Activity className="mr-2 h-4 w-4" />
+                  <Activity className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Work Crews"}
                 </Button>
               </Link>
               <Link to="/maps">
                 <Button
                   variant={isActive("/maps") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Map className="mr-2 h-4 w-4" />
+                  <Map className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "Cemetery Maps"}
                 </Button>
               </Link>
               <Link to="/ai-assistant">
                 <Button
                   variant={isActive("/ai-assistant") ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
                 >
-                  <Bot className="mr-2 h-4 w-4" />
+                  <Bot className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
                   {!collapsed && "AI Assistant"}
                 </Button>
               </Link>
