@@ -10,50 +10,53 @@ interface LayoutProps {
 }
 
 const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(false);
-  
-  // Load sidebar state from localStorage on component mount
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    if (savedState !== null) {
-      setSidebarCollapsed(savedState === 'true');
-    }
-    
-    // Check if we're in mobile view
-    const checkMobileView = () => {
-      setIsMobileView(window.innerWidth < 768);
+    // Check if we're on mobile
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
     };
     
-    // Initial check
-    checkMobileView();
+    // Initialize
+    checkIsMobile();
     
-    // Add resize listener
-    window.addEventListener('resize', checkMobileView);
+    // Set initial sidebar state based on device and stored preference
+    const savedState = localStorage.getItem('sidebarOpen');
+    if (savedState !== null) {
+      setSidebarOpen(window.innerWidth >= 768 ? savedState === 'true' : false);
+    } else {
+      setSidebarOpen(window.innerWidth >= 768);
+    }
     
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobileView);
+    // Update on resize
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
-  
-  const handleToggleSidebar = () => {
-    const newState = !sidebarCollapsed;
-    setSidebarCollapsed(newState);
-    localStorage.setItem('sidebarCollapsed', String(newState));
+
+  const toggleSidebar = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    localStorage.setItem('sidebarOpen', String(newState));
   };
-  
+
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Only one sidebar that's fixed on all screen sizes but can be toggled */}
+    <div className="flex h-screen bg-background overflow-hidden">
+      {/* Single sidebar for both mobile and desktop */}
       <Sidebar 
-        collapsed={sidebarCollapsed} 
-        onToggle={handleToggleSidebar} 
-        className={`absolute md:relative z-30 h-full ${sidebarCollapsed ? 'translate-x-[-100%] md:translate-x-0' : ''}`}
+        open={sidebarOpen} 
+        onToggle={toggleSidebar}
+        isMobile={isMobile}
       />
-      
-      {/* Main content that adjusts based on sidebar state */}
-      <div className={`flex-1 flex flex-col overflow-hidden w-full transition-all duration-300 ${!sidebarCollapsed ? 'md:ml-[240px]' : 'md:ml-[70px]'}`}>
-        <Topbar title={title} subtitle={subtitle} />
-        
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col w-full overflow-hidden">
+        <Topbar 
+          title={title} 
+          subtitle={subtitle} 
+          onMenuClick={isMobile ? toggleSidebar : undefined} 
+        />
         <main className="flex-1 overflow-auto p-6">
           {children}
         </main>

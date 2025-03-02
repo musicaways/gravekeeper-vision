@@ -14,149 +14,112 @@ import {
   Activity,
   Bot,
   ChevronLeft,
-  ChevronRight,
-  Menu
+  X
 } from "lucide-react";
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  className?: string;
-  collapsed?: boolean;
-  onToggle?: () => void;
+interface SidebarProps {
+  open: boolean;
+  onToggle: () => void;
+  isMobile: boolean;
 }
 
-export default function Sidebar({ className, collapsed = false, onToggle }: SidebarNavProps) {
+export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
   const location = useLocation();
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
-  return (
-    <div className={cn(
-      "h-screen border-r pb-12 transition-all duration-300 bg-background shadow-lg", 
-      collapsed ? "w-[70px]" : "w-[240px]", 
-      className
-    )}>
-      <div className="flex justify-between p-2 items-center">
-        {!collapsed && <span className="font-semibold px-2">CemeteryPro</span>}
-        <Button variant="ghost" size="sm" onClick={onToggle} className="ml-auto">
-          {collapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
-        </Button>
-      </div>
-      
-      <div className="space-y-4 py-4">
-        <div className="px-4 py-2">
-          {!collapsed && (
-            <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-              Navigation
-            </h2>
-          )}
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="space-y-1">
-              <Link to="/">
-                <Button
-                  variant={isActive("/") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Home className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Dashboard"}
-                </Button>
-              </Link>
-              <Link to="/cemeteries">
-                <Button
-                  variant={isActive("/cemeteries") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Landmark className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Cemeteries"}
-                </Button>
-              </Link>
-              <Link to="/work-orders">
-                <Button
-                  variant={isActive("/work-orders") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <ClipboardList className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Work Orders"}
-                </Button>
-              </Link>
-              <Link to="/deceased">
-                <Button
-                  variant={isActive("/deceased") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Users className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Deceased Records"}
-                </Button>
-              </Link>
-              <Link to="/inventory">
-                <Button
-                  variant={isActive("/inventory") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Boxes className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Inventory"}
-                </Button>
-              </Link>
-              <Link to="/crews">
-                <Button
-                  variant={isActive("/crews") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Activity className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Work Crews"}
-                </Button>
-              </Link>
-              <Link to="/maps">
-                <Button
-                  variant={isActive("/maps") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Map className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "Cemetery Maps"}
-                </Button>
-              </Link>
-              <Link to="/ai-assistant">
-                <Button
-                  variant={isActive("/ai-assistant") ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", collapsed && "justify-center px-2")}
-                >
-                  <Bot className={cn("h-4 w-4", collapsed ? "mx-0" : "mr-2")} />
-                  {!collapsed && "AI Assistant"}
-                </Button>
-              </Link>
-            </div>
+  // For mobile: fixed position, full screen with overlay effect when open
+  // For desktop: always visible, can be collapsed to narrow width
+  const sidebarClasses = cn(
+    "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-background border-r transition-all duration-300",
+    isMobile 
+      ? open ? "translate-x-0 shadow-xl" : "-translate-x-full" 
+      : open ? "w-64 translate-x-0" : "w-20 translate-x-0"
+  );
 
-            {!collapsed && (
-              <div className="mt-6">
-                <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+  return (
+    <>
+      {/* Backdrop for mobile */}
+      {isMobile && open && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={onToggle}
+        />
+      )}
+      
+      <aside className={sidebarClasses}>
+        <div className="flex items-center justify-between p-4 border-b">
+          {(!isMobile || (isMobile && open)) && (
+            <span className={cn("font-semibold truncate", !open && !isMobile && "hidden")}>
+              CemeteryPro
+            </span>
+          )}
+          <Button variant="ghost" size="sm" onClick={onToggle} className="ml-auto">
+            {isMobile ? <X size={18} /> : <ChevronLeft size={18} />}
+          </Button>
+        </div>
+        
+        <ScrollArea className="flex-1">
+          <div className="px-3 py-4">
+            {(open || isMobile) && (
+              <h2 className="mb-2 px-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Navigation
+              </h2>
+            )}
+            
+            <nav className="space-y-1">
+              <NavItem href="/" icon={Home} label="Dashboard" isActive={isActive("/")} showLabel={open || isMobile} />
+              <NavItem href="/cemeteries" icon={Landmark} label="Cemeteries" isActive={isActive("/cemeteries")} showLabel={open || isMobile} />
+              <NavItem href="/work-orders" icon={ClipboardList} label="Work Orders" isActive={isActive("/work-orders")} showLabel={open || isMobile} />
+              <NavItem href="/deceased" icon={Users} label="Deceased Records" isActive={isActive("/deceased")} showLabel={open || isMobile} />
+              <NavItem href="/inventory" icon={Boxes} label="Inventory" isActive={isActive("/inventory")} showLabel={open || isMobile} />
+              <NavItem href="/crews" icon={Activity} label="Work Crews" isActive={isActive("/crews")} showLabel={open || isMobile} />
+              <NavItem href="/maps" icon={Map} label="Cemetery Maps" isActive={isActive("/maps")} showLabel={open || isMobile} />
+              <NavItem href="/ai-assistant" icon={Bot} label="AI Assistant" isActive={isActive("/ai-assistant")} showLabel={open || isMobile} />
+            </nav>
+            
+            {(open || isMobile) && (
+              <div className="mt-8">
+                <h2 className="mb-2 px-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Settings
                 </h2>
-                <div className="space-y-1">
-                  <Link to="/profile">
-                    <Button
-                      variant={isActive("/profile") ? "secondary" : "ghost"}
-                      className="w-full justify-start"
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      Profile
-                    </Button>
-                  </Link>
-                  <Link to="/settings">
-                    <Button
-                      variant={isActive("/settings") ? "secondary" : "ghost"}
-                      className="w-full justify-start"
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </Button>
-                  </Link>
-                </div>
+                <nav className="space-y-1">
+                  <NavItem href="/profile" icon={Users} label="Profile" isActive={isActive("/profile")} showLabel={true} />
+                  <NavItem href="/settings" icon={Settings} label="Settings" isActive={isActive("/settings")} showLabel={true} />
+                </nav>
               </div>
             )}
-          </ScrollArea>
-        </div>
-      </div>
-    </div>
+          </div>
+        </ScrollArea>
+      </aside>
+    </>
+  );
+}
+
+interface NavItemProps {
+  href: string;
+  icon: React.FC<{ className?: string; size?: number }>;
+  label: string;
+  isActive: boolean;
+  showLabel: boolean;
+}
+
+function NavItem({ href, icon: Icon, label, isActive, showLabel }: NavItemProps) {
+  return (
+    <Link to={href}>
+      <Button
+        variant={isActive ? "secondary" : "ghost"}
+        size="sm"
+        className={cn(
+          "w-full justify-start",
+          !showLabel && "justify-center px-0"
+        )}
+      >
+        <Icon className={cn("h-5 w-5", showLabel ? "mr-2" : "")} />
+        {showLabel && <span>{label}</span>}
+      </Button>
+    </Link>
   );
 }
