@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,11 +7,13 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDate } from "@/lib/utils";
-import { MapPin, Info, Users, Calendar, Phone, Mail, MapIcon, ArrowLeft, Clock, Globe, Home, Map } from "lucide-react";
+import { MapPin, Info, Users, Calendar, Phone, Mail, MapIcon, ArrowLeft, Clock, Globe, Home, Map, Camera } from "lucide-react";
+import CemeteryGallery from "@/components/cemetery/CemeteryGallery";
 
 const CemeteryDetail = () => {
   const { id } = useParams();
   const [cemetery, setCemetery] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -34,6 +37,18 @@ const CemeteryDetail = () => {
           .single();
         
         if (error) throw error;
+        
+        // Fetch cemetery photos
+        const { data: photosData, error: photosError } = await supabase
+          .from('CimiteroFoto')
+          .select('*')
+          .eq('IdCimitero', numericId);
+          
+        if (photosError) {
+          console.error("Errore nel caricamento delle foto:", photosError);
+        } else {
+          setPhotos(photosData || []);
+        }
         
         setCemetery(data);
       } catch (err) {
@@ -127,6 +142,23 @@ const CemeteryDetail = () => {
       <main className="container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
+            {photos.length > 0 && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Camera className="h-5 w-5" />
+                    Galleria Foto
+                  </CardTitle>
+                  <CardDescription>
+                    Visualizza le immagini del cimitero
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CemeteryGallery photos={photos} />
+                </CardContent>
+              </Card>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Informazioni Generali</CardTitle>
