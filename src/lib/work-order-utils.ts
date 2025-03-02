@@ -76,10 +76,15 @@ export function getWorkOrderStatusColor(status: WorkOrderStatus): string {
 // Get status icon for work orders
 export function getWorkOrderStatusIcon(status: WorkOrderStatus) {
   switch (status) {
-    case 'pending': return <Clock className="h-4 w-4" />;
-    case 'in_progress': return <Workflow className="h-4 w-4" />;
-    case 'completed': return <Check className="h-4 w-4" />;
-    case 'cancelled': return <X className="h-4 w-4" />;
-    default: return <Building className="h-4 w-4" />;
+    case 'pending': 
+      return <Clock className="h-4 w-4" />;
+    case 'in_progress': 
+      return <Workflow className="h-4 w-4" />;
+    case 'completed': 
+      return <Check className="h-4 w-4" />;
+    case 'cancelled': 
+      return <X className="h-4 w-4" />;
+    default: 
+      return <Building className="h-4 w-4" />;
   }
 }
