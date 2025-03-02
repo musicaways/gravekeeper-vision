@@ -55,7 +55,8 @@ export function WorkOrderViewTabs({
   clearFilters
 }: WorkOrderViewTabsProps) {
   const toggleFilterPanel = () => {
-    setShowFilters(prev => !prev);
+    // Fix: Pass a boolean value instead of a function
+    setShowFilters(!showFilters);
   };
 
   return (
