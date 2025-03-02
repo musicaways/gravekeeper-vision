@@ -58,25 +58,25 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Cover photo with semi-transparent overlay for text */}
+      {/* Cover photo container - full width with controlled height */}
       <div className="w-full h-40 md:h-56 relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <img 
-            src={coverPhotoUrl} 
-            alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        {/* Image container with absolute positioning to fill the entire space */}
+        <img 
+          src={coverPhotoUrl} 
+          alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Text overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
-          <div className="mx-auto max-w-screen-xl px-4">
+          <div className="container mx-auto px-4">
             <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
             <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
           </div>
         </div>
       </div>
         
-      {/* Tab content with improved alignment to match the cover photo width */}
-      <div className="w-full mx-auto max-w-screen-xl px-4 py-4">
+      {/* Tab content container with same width constraints as the cover image */}
+      <div className="container mx-auto px-4 py-4">
         <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
       </div>
     </div>

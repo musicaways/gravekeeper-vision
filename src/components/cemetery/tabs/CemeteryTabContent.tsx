@@ -15,23 +15,23 @@ interface CemeteryTabContentProps {
 const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemeteryId }) => {
   return (
     <>
-      <TabsContent value="info" className="space-y-6 mx-auto">
+      <TabsContent value="info" className="space-y-6 w-full">
         <CemeteryInfoCard cemetery={cemetery} />
       </TabsContent>
 
-      <TabsContent value="sections" className="space-y-6 mx-auto">
+      <TabsContent value="sections" className="space-y-6 w-full">
         <CemeterySectionsTab cemeteryId={cemeteryId} />
       </TabsContent>
 
-      <TabsContent value="map" className="space-y-6 mx-auto">
+      <TabsContent value="map" className="space-y-6 w-full">
         <CemeteryMapTab />
       </TabsContent>
 
-      <TabsContent value="documents" className="space-y-6 mx-auto">
+      <TabsContent value="documents" className="space-y-6 w-full">
         <CemeteryDocuments cemeteryId={cemeteryId} />
       </TabsContent>
 
-      <TabsContent value="gallery" className="space-y-6 mx-auto">
+      <TabsContent value="gallery" className="space-y-6 w-full">
         <CemeteryGallery cemeteryId={cemeteryId} />
       </TabsContent>
     </>
