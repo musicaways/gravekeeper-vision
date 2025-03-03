@@ -108,7 +108,8 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full left-0 md:right-0 w-full md:w-[350px]"
+            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full right-0 w-full md:w-[350px]"
+            style={{ maxWidth: "calc(100vw - 2rem)" }}
           >
             <div className="px-4 py-3">
               <div className="relative flex w-full items-center">
