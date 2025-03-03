@@ -71,7 +71,7 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredCimiteri.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
               {filteredCimiteri.map((cimitero) => (
                 <Card 
                   key={cimitero.Id} 
@@ -84,12 +84,12 @@ const Index = () => {
                       alt={cimitero.Nome || cimitero.nome || "Cimitero"} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {/* Enhanced overlay with stronger opacity for better text contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent"></div>
+                    {/* Gradient overlay for better text visibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                     
-                    {/* Text container with black bar */}
+                    {/* Semi-transparent black bar with similar opacity to the image */}
                     <div className="absolute bottom-0 left-0 w-full">
-                      <div className="bg-black/70 p-4 w-full backdrop-blur-sm">
+                      <div className="bg-black/80 p-4 w-full backdrop-blur-sm">
                         <h3 className="text-white text-xl font-medium truncate group-hover:text-primary-light transition-colors">
                           {cimitero.Nome || cimitero.nome || "Cimitero"}
                         </h3>
