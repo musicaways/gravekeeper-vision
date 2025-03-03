@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 // Import our components
 import { StatCard } from "@/components/dashboard/StatCard";
-import { CemeteryCard } from "@/components/dashboard/CemeteryCard";
+import CemeteryCard from "@/components/dashboard/CemeteryCard";
 import { StatisticsChart } from "@/components/dashboard/StatisticsChart";
 import { WorkOrderStatusChart } from "@/components/dashboard/WorkOrderStatusChart";
 import { RecentActivities } from "@/components/dashboard/RecentActivities";
