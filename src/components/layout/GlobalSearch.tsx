@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -109,7 +108,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full left-0 md:left-0 w-full md:w-[350px] md:max-w-[80vw]"
+            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full left-0 md:right-0 w-full md:w-[350px]"
           >
             <div className="px-4 py-3">
               <div className="relative flex w-full items-center">
@@ -123,42 +122,38 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
                   className="w-full pl-10 pr-10 h-10 text-sm rounded-md"
                   autoComplete="off"
                 />
-                <div className="absolute right-3 flex items-center gap-2">
-                  {searchTerm && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => {
-                        setSearchTerm("");
-                        if (onSearch) onSearch("");
-                        inputRef.current?.focus();
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={closeSearch}
-                    className="h-8 ml-1 md:hidden"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 h-8 w-8"
+                  onClick={() => {
+                    if (searchTerm) {
+                      setSearchTerm("");
+                      if (onSearch) onSearch("");
+                      inputRef.current?.focus();
+                    } else {
+                      closeSearch();
+                    }
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={closeSearch}
-                className="hidden md:flex h-9 px-3 ml-auto mt-2"
-              >
-                Chiudi
-              </Button>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-xs text-muted-foreground">
+                  {searchTerm ? "Premi Invio per cercare" : "Inizia a digitare per cercare"}
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={closeSearch}
+                  className="h-8 px-3 text-xs"
+                >
+                  Chiudi
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
