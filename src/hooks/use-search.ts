@@ -1,5 +1,5 @@
 
-import { useState, useEffect, RefObject, useRef } from "react";
+import { useState, useEffect, RefObject, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 
 interface UseSearchProps {
@@ -13,7 +13,7 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   const location = useLocation();
   const searchContainerRef = useRef<HTMLFormElement | null>(null);
   
-  const getPlaceholderText = () => {
+  const getPlaceholderText = useCallback(() => {
     if (location.pathname.includes("/cemetery/")) {
       return "Cerca settori, tombe o documenti...";
     } else if (location.pathname === "/cemeteries") {
@@ -27,19 +27,48 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
     } else {
       return "Cerca...";
     }
-  };
+  }, [location.pathname]);
   
-  const toggleSearch = () => {
-    setIsOpen(!isOpen);
-    
-    // Focus input after opening
-    if (!isOpen) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+  const toggleSearch = useCallback(() => {
+    setIsOpen(prevState => {
+      const newState = !prevState;
+      
+      // Focus input after opening
+      if (newState && inputRef.current) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+      }
+      
+      return newState;
+    });
+  }, [inputRef]);
+  
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (onSearch) {
+      onSearch(value);
     }
-  };
+  }, [onSearch]);
   
+  const clearSearch = useCallback(() => {
+    setSearchTerm("");
+    if (onSearch) {
+      onSearch("");
+    }
+    inputRef.current?.focus();
+  }, [inputRef, onSearch]);
+  
+  const closeSearch = useCallback(() => {
+    setIsOpen(false);
+    setSearchTerm("");
+    if (onSearch) {
+      onSearch("");
+    }
+  }, [onSearch]);
+  
+  // Focus input when opening search
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => {
@@ -47,30 +76,6 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
       }, 100);
     }
   }, [isOpen, inputRef]);
-  
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    if (onSearch) {
-      onSearch(value);
-    }
-  };
-  
-  const clearSearch = () => {
-    setSearchTerm("");
-    if (onSearch) {
-      onSearch("");
-    }
-    inputRef.current?.focus();
-  };
-  
-  const closeSearch = () => {
-    setIsOpen(false);
-    setSearchTerm("");
-    if (onSearch) {
-      onSearch("");
-    }
-  };
   
   // Close search on ESC key
   useEffect(() => {
@@ -84,7 +89,7 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, closeSearch]);
   
   // Handle clicks outside search bar
   useEffect(() => {
@@ -102,15 +107,14 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, closeSearch]);
   
-  // Don't reset search or close when location.pathname changes
-  // Only reset when the full route changes completely
+  // Reset search when route changes completely
   useEffect(() => {
-    const currentPath = location.pathname.split('/')[1];
+    const currentMainPath = location.pathname.split('/')[1];
     return () => {
-      const newPath = window.location.pathname.split('/')[1];
-      if (currentPath !== newPath) {
+      const newMainPath = window.location.pathname.split('/')[1];
+      if (currentMainPath !== newMainPath) {
         setSearchTerm("");
         setIsOpen(false);
         if (onSearch) {

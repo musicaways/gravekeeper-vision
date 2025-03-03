@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import GlobalSearch from "./GlobalSearch";
 import NavigationButtons from "./topbar/NavigationButtons";
 import UserControlButtons from "./topbar/UserControlButtons";
@@ -15,12 +15,21 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   
+  // Extract initial search term from URL if present
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, []);
+  
   // Handle search based on current route
-  const handleSearch = (term: string) => {
+  const handleSearch = useCallback((term: string) => {
     setSearchTerm(term);
     console.log("Search term in Topbar:", term);
     
-    // Add search term to query params for cemetery page
+    // Add search term to query params
     if (location.pathname === "/" || location.pathname === "/cemeteries") {
       // Add search term to URL query params
       const params = new URLSearchParams(location.search);
@@ -34,7 +43,7 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
       const newUrl = `${location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
       navigate(newUrl, { replace: true });
     }
-  };
+  }, [location.pathname, location.search, navigate]);
   
   // Reset search only when the main route path changes
   useEffect(() => {
@@ -47,9 +56,9 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     };
   }, [location.pathname]);
   
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     navigate(-1);
-  };
+  }, [navigate]);
 
   return (
     <header className="sticky top-0 z-10 border-b bg-card h-12 md:h-14 flex items-center justify-between shadow-sm transition-colors duration-200">

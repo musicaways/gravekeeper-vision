@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -67,10 +66,9 @@ const Index = () => {
     }
   }, [searchTerm, cimiteri]);
 
-  // Aggiornata per risolvere i problemi di navigazione
+  // Clear and direct navigation approach
   const handleCardClick = (id) => {
     console.log("Navigating to cemetery:", id);
-    // Utilizziamo navigate invece di Link per evitare problemi di navigazione
     navigate(`/cemetery/${id}`);
   };
 

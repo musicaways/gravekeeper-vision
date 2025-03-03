@@ -1,3 +1,4 @@
+
 import { useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,15 +29,12 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
     if (searchTerm.trim()) {
       toast.info(`Ricerca avviata: ${searchTerm}`);
       if (onSearch) onSearch(searchTerm);
-      
-      // Don't close the search after submitting - allow user to keep searching
-      // closeSearch();
     }
   };
 
   return (
     <div className="flex items-center">
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isOpen ? (
           <motion.form
             ref={searchContainerRef}

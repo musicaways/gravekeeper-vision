@@ -18,7 +18,7 @@ import {
   LucideIcon
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 interface SidebarProps {
   open: boolean;
@@ -30,22 +30,29 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
   const location = useLocation();
   const { theme } = useTheme();
 
-  // Modifichiamo questa funzione per prevenire il comportamento di chiusura automatica
-  // che causa lo sfarfallio e problemi di navigazione
+  // Only close sidebar on mobile when navigation changes
   useEffect(() => {
-    // Chiudi il sidebar solo su mobile dopo la navigazione
-    if (isMobile && open) {
-      onToggle();
-    }
-    // Rimuoviamo la dipendenza da location.pathname per evitare chiusure non desiderate
+    const handleRouteChange = () => {
+      if (isMobile && open) {
+        onToggle();
+      }
+    };
+
+    // Add event listener for route changes
+    window.addEventListener('popstate', handleRouteChange);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
   }, [isMobile, open, onToggle]);
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
-  // Per mobile: fixed position, full screen with overlay effect when open
-  // Per desktop: always visible, can be collapsed to narrow width
+  // For mobile: fixed position, full screen with overlay effect when open
+  // For desktop: always visible, can be collapsed to narrow width
   const sidebarClasses = cn(
     "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-background border-r transition-all duration-300",
     isMobile 
@@ -55,7 +62,7 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
 
   return (
     <>
-      {/* Backdrop per mobile */}
+      {/* Backdrop for mobile */}
       {isMobile && open && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
@@ -122,18 +129,19 @@ interface NavItemProps {
 
 function NavItem({ href, icon: Icon, label, isActive, showLabel }: NavItemProps) {
   return (
-    <Link to={href} className="block">
-      <Button
-        variant={isActive ? "secondary" : "ghost"}
-        size="sm"
-        className={cn(
-          "w-full justify-start",
-          !showLabel && "justify-center px-0"
-        )}
-      >
+    <Button
+      variant={isActive ? "secondary" : "ghost"}
+      size="sm"
+      className={cn(
+        "w-full justify-start",
+        !showLabel && "justify-center px-0"
+      )}
+      asChild
+    >
+      <Link to={href} className="flex items-center">
         <Icon className={cn("h-5 w-5", showLabel ? "mr-2" : "")} />
         {showLabel && <span>{label}</span>}
-      </Button>
-    </Link>
+      </Link>
+    </Button>
   );
 }

@@ -53,14 +53,14 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
 
   return (
     <div className={`flex h-screen bg-background overflow-hidden transition-colors duration-300 ${theme === 'dark' ? 'dark' : ''}`}>
-      {/* Sidebar with improved mobile handling */}
+      {/* Sidebar */}
       <Sidebar 
         open={sidebarOpen} 
         onToggle={toggleSidebar}
         isMobile={isMobile}
       />
 
-      {/* Main content area with improved spacing and centering */}
+      {/* Main content area */}
       <div className="flex-1 flex flex-col w-full overflow-hidden">
         <Topbar 
           onMenuClick={toggleSidebar}

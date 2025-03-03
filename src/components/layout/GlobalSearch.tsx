@@ -15,7 +15,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const [initialSyncDone, setInitialSyncDone] = useState(false);
   
   // Extract search term from URL to sync the search component state with URL
-  // But only do this once when the component mounts to avoid feedback loops
   useEffect(() => {
     if (!initialSyncDone) {
       const params = new URLSearchParams(location.search);

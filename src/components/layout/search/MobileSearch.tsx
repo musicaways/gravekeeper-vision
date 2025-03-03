@@ -54,7 +54,7 @@ const MobileSearch = ({ onSearch }: MobileSearchProps) => {
         <Search className="h-5 w-5 text-muted-foreground" />
       </Button>
       
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
