@@ -140,20 +140,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-muted-foreground">
-                  {searchTerm ? "Premi Invio per cercare" : "Inizia a digitare per cercare"}
-                </span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={closeSearch}
-                  className="h-8 px-3 text-xs"
-                >
-                  Chiudi
-                </Button>
-              </div>
             </div>
           </motion.div>
         )}
