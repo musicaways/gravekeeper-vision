@@ -96,13 +96,20 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, scaleY: 0 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 top-full mt-1 bg-card shadow-lg rounded-md border z-50 p-2 origin-top-right md:w-[280px] w-[calc(100vw-1rem)] -right-2 sm:right-0"
+            className="absolute left-0 top-full w-screen bg-card shadow-lg border-b z-50 origin-top"
+            style={{ 
+              marginTop: "0px", 
+              transform: "translateX(-50%)",
+              left: "50vw",
+              width: "100vw",
+              position: "fixed"
+            }}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-4 py-2 max-w-screen mx-auto">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
