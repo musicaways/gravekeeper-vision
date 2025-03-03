@@ -121,42 +121,53 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
               top: "48px", // Match the topbar height (12 * 4px)
             }}
           >
-            <div className="flex items-center gap-2 px-4 py-2 max-w-screen mx-auto">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="container max-w-4xl mx-auto px-4 py-3">
+              <div className="relative flex w-full items-center">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={inputRef}
                   type="search"
                   value={searchTerm}
                   onChange={handleSearch}
                   placeholder={getPlaceholderText()}
-                  className="w-full pl-9 pr-8 h-9 text-sm"
+                  className="w-full pl-10 pr-10 h-12 text-base rounded-md"
                   autoComplete="off"
                 />
-                {searchTerm && (
+                <div className="absolute right-3 flex items-center gap-2">
+                  {searchTerm && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => {
+                        setSearchTerm("");
+                        if (onSearch) onSearch("");
+                        inputRef.current?.focus();
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6"
-                    onClick={() => {
-                      setSearchTerm("");
-                      if (onSearch) onSearch("");
-                      inputRef.current?.focus();
-                    }}
+                    size="sm"
+                    onClick={closeSearch}
+                    className="h-8 ml-1 md:hidden"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-4 w-4" />
                   </Button>
-                )}
+                </div>
               </div>
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
                 onClick={closeSearch}
-                className="h-9 px-2"
+                className="hidden md:flex h-9 px-3 ml-2 absolute right-4 top-3"
               >
-                <X className="h-4 w-4" />
+                Chiudi
               </Button>
             </div>
           </motion.div>
