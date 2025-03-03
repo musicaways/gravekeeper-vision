@@ -1,5 +1,5 @@
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -28,24 +28,8 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme } = useTheme();
-
-  // Only close sidebar on mobile when navigation changes
-  useEffect(() => {
-    const handleRouteChange = () => {
-      if (isMobile && open) {
-        onToggle();
-      }
-    };
-
-    // Add event listener for route changes
-    window.addEventListener('popstate', handleRouteChange);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-    };
-  }, [isMobile, open, onToggle]);
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -59,6 +43,14 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
       ? open ? "translate-x-0 shadow-xl" : "-translate-x-full" 
       : open ? "w-64 translate-x-0" : "w-20 translate-x-0"
   );
+
+  const handleNavigate = (href: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    navigate(href);
+    if (isMobile && open) {
+      onToggle();
+    }
+  };
 
   return (
     <>
@@ -91,14 +83,14 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
             )}
             
             <nav className="space-y-1">
-              <NavItem href="/" icon={Home} label="Dashboard" isActive={isActive("/")} showLabel={open || isMobile} />
-              <NavItem href="/cemeteries" icon={Landmark} label="Cemeteries" isActive={isActive("/cemeteries")} showLabel={open || isMobile} />
-              <NavItem href="/work-orders" icon={ClipboardList} label="Work Orders" isActive={isActive("/work-orders")} showLabel={open || isMobile} />
-              <NavItem href="/deceased" icon={Users} label="Deceased Records" isActive={isActive("/deceased")} showLabel={open || isMobile} />
-              <NavItem href="/inventory" icon={Boxes} label="Inventory" isActive={isActive("/inventory")} showLabel={open || isMobile} />
-              <NavItem href="/crews" icon={Activity} label="Work Crews" isActive={isActive("/crews")} showLabel={open || isMobile} />
-              <NavItem href="/maps" icon={Map} label="Cemetery Maps" isActive={isActive("/maps")} showLabel={open || isMobile} />
-              <NavItem href="/ai-assistant" icon={Bot} label="AI Assistant" isActive={isActive("/ai-assistant")} showLabel={open || isMobile} />
+              <NavItem href="/" icon={Home} label="Dashboard" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/cemeteries" icon={Landmark} label="Cemeteries" isActive={isActive("/cemeteries")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/work-orders" icon={ClipboardList} label="Work Orders" isActive={isActive("/work-orders")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/deceased" icon={Users} label="Deceased Records" isActive={isActive("/deceased")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/inventory" icon={Boxes} label="Inventory" isActive={isActive("/inventory")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/crews" icon={Activity} label="Work Crews" isActive={isActive("/crews")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/maps" icon={Map} label="Cemetery Maps" isActive={isActive("/maps")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/ai-assistant" icon={Bot} label="AI Assistant" isActive={isActive("/ai-assistant")} showLabel={open || isMobile} onClick={handleNavigate} />
             </nav>
             
             {(open || isMobile) && (
@@ -107,8 +99,8 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
                   Settings
                 </h2>
                 <nav className="space-y-1">
-                  <NavItem href="/profile" icon={Users} label="Profile" isActive={isActive("/profile")} showLabel={true} />
-                  <NavItem href="/settings" icon={Settings} label="Settings" isActive={isActive("/settings")} showLabel={true} />
+                  <NavItem href="/profile" icon={Users} label="Profile" isActive={isActive("/profile")} showLabel={true} onClick={handleNavigate} />
+                  <NavItem href="/settings" icon={Settings} label="Settings" isActive={isActive("/settings")} showLabel={true} onClick={handleNavigate} />
                 </nav>
               </div>
             )}
@@ -125,9 +117,10 @@ interface NavItemProps {
   label: string;
   isActive: boolean;
   showLabel: boolean;
+  onClick: (href: string, event: React.MouseEvent) => void;
 }
 
-function NavItem({ href, icon: Icon, label, isActive, showLabel }: NavItemProps) {
+function NavItem({ href, icon: Icon, label, isActive, showLabel, onClick }: NavItemProps) {
   return (
     <Button
       variant={isActive ? "secondary" : "ghost"}
@@ -136,12 +129,12 @@ function NavItem({ href, icon: Icon, label, isActive, showLabel }: NavItemProps)
         "w-full justify-start",
         !showLabel && "justify-center px-0"
       )}
-      asChild
+      onClick={(e) => onClick(href, e)}
     >
-      <Link to={href} className="flex items-center">
+      <div className="flex items-center">
         <Icon className={cn("h-5 w-5", showLabel ? "mr-2" : "")} />
         {showLabel && <span>{label}</span>}
-      </Link>
+      </div>
     </Button>
   );
 }

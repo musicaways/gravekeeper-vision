@@ -1,78 +1,56 @@
 
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Map, Users, Calendar } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Cemetery } from "@/types";
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Landmark, Users, MapPin } from "lucide-react";
 
 interface CemeteryCardProps {
-  cemetery: Cemetery;
+  id: string;
+  name: string;
+  location: string;
+  deceased?: number;
+  className?: string;
 }
 
-export function CemeteryCard({ cemetery }: CemeteryCardProps) {
-  const hasContactInfo = cemetery.contact_info?.phone || cemetery.contact_info?.email;
+const CemeteryCard = ({ id, name, location, deceased = 0, className }: CemeteryCardProps) => {
   const navigate = useNavigate();
-  
-  // Simplified direct navigation approach
-  const handleCardClick = () => {
-    console.log(`Navigating to cemetery/${cemetery.id}`);
-    navigate(`/cemetery/${cemetery.id}`);
+
+  const handleClick = () => {
+    navigate(`/cemetery/${id}`);
   };
-  
+
   return (
     <Card 
-      className="hover:bg-accent transition-colors cursor-pointer h-full"
-      onClick={handleCardClick}
+      className={`h-full overflow-hidden hover:shadow-md transition-shadow ${className}`}
+      onClick={handleClick}
     >
       <CardHeader className="pb-2">
-        <CardTitle>{cemetery.name}</CardTitle>
-        <CardDescription>
-          {cemetery.city || cemetery.state ? 
-            `${cemetery.city}${cemetery.state ? `, ${cemetery.state}` : ''}` : 
-            cemetery.address}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="text-sm space-y-2">
-          {cemetery.address && (
-            <div className="flex items-start">
-              <Map className="h-4 w-4 mr-2 mt-0.5 text-muted-foreground" />
-              <span>{cemetery.address}</span>
-            </div>
-          )}
-          
-          {hasContactInfo && (
-            <div className="border-t pt-2 mt-2">
-              {cemetery.contact_info?.phone && (
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <Users className="h-3 w-3 mr-1" />
-                  <span>{cemetery.contact_info.phone}</span>
-                </div>
-              )}
-            </div>
-          )}
-          
-          <div className="pt-1 flex items-center justify-between">
-            {cemetery.established_date && (
-              <div className="flex items-center text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3 mr-1" />
-                <span>Est. {cemetery.established_date}</span>
-              </div>
-            )}
-            
-            {cemetery.active ? (
-              <Badge variant="outline" className="bg-green-50 text-green-600 hover:bg-green-50">
-                Active
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-red-50 text-red-600 hover:bg-red-50">
-                Inactive
-              </Badge>
-            )}
-          </div>
+        <div className="flex items-start justify-between">
+          <CardTitle className="text-lg font-semibold line-clamp-2">
+            {name}
+          </CardTitle>
+          <Landmark className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
         </div>
+      </CardHeader>
+      <CardContent className="pb-0 text-sm text-muted-foreground">
+        <div className="flex items-start mb-2">
+          <MapPin className="h-4 w-4 shrink-0 mr-1 mt-0.5" />
+          <span className="line-clamp-2">{location}</span>
+        </div>
+        {deceased > 0 && (
+          <div className="flex items-center">
+            <Users className="h-4 w-4 shrink-0 mr-1" />
+            <span>{deceased.toLocaleString()} deceased</span>
+          </div>
+        )}
       </CardContent>
+      <CardFooter className="pt-4">
+        <Button variant="secondary" size="sm" className="w-full" onClick={handleClick}>
+          View Details
+        </Button>
+      </CardFooter>
     </Card>
   );
-}
+};
+
+export default CemeteryCard;

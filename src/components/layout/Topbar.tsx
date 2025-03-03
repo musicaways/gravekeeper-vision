@@ -21,15 +21,16 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     const searchParam = params.get('search');
     if (searchParam) {
       setSearchTerm(searchParam);
+    } else {
+      setSearchTerm("");
     }
-  }, []);
+  }, [location.search]);
   
   // Handle search based on current route
   const handleSearch = useCallback((term: string) => {
     setSearchTerm(term);
-    console.log("Search term in Topbar:", term);
     
-    // Add search term to query params
+    // Add search term to query params for specific routes
     if (location.pathname === "/" || location.pathname === "/cemeteries") {
       // Add search term to URL query params
       const params = new URLSearchParams(location.search);
@@ -44,17 +45,6 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
       navigate(newUrl, { replace: true });
     }
   }, [location.pathname, location.search, navigate]);
-  
-  // Reset search only when the main route path changes
-  useEffect(() => {
-    const currentMainPath = location.pathname.split('/')[1];
-    return () => {
-      const newMainPath = window.location.pathname.split('/')[1];
-      if (currentMainPath !== newMainPath) {
-        setSearchTerm("");
-      }
-    };
-  }, [location.pathname]);
   
   const handleBack = useCallback(() => {
     navigate(-1);

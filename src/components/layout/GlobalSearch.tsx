@@ -13,6 +13,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [initialSyncDone, setInitialSyncDone] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   
   // Extract search term from URL to sync the search component state with URL
   useEffect(() => {
@@ -21,18 +22,28 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
       const searchParam = params.get('search');
       
       // If there's a search term in the URL and we have a search handler
-      if (searchParam && onSearch) {
-        onSearch(searchParam);
+      if (searchParam) {
+        setSearchValue(searchParam);
+        if (onSearch) {
+          onSearch(searchParam);
+        }
       }
       setInitialSyncDone(true);
     }
   }, [location.search, onSearch, initialSyncDone]);
   
+  const handleSearch = (term: string) => {
+    setSearchValue(term);
+    if (onSearch) {
+      onSearch(term);
+    }
+  };
+  
   return (
     <div className="flex items-center justify-end">
       {isMobile ? 
-        <MobileSearch onSearch={onSearch} /> : 
-        <DesktopSearch onSearch={onSearch} />
+        <MobileSearch onSearch={handleSearch} value={searchValue} /> : 
+        <DesktopSearch onSearch={handleSearch} value={searchValue} />
       }
     </div>
   );
