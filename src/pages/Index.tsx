@@ -75,7 +75,7 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredCimiteri.length > 0 ? (
-            <div className="w-full max-w-none px-0">
+            <div className="container px-0 mx-auto">
               {filteredCimiteri.map((cimitero) => (
                 <Card 
                   key={cimitero.Id} 
