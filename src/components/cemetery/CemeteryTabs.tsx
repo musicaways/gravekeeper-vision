@@ -8,9 +8,10 @@ import CemeteryTabContent from "./tabs/CemeteryTabContent";
 export interface CemeteryTabsProps {
   cemetery: any;
   cemeteryId: string;
+  searchTerm?: string; // Added searchTerm as an optional prop
 }
 
-export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId }) => {
+export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId, searchTerm = "" }) => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("info");
   
@@ -35,7 +36,7 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId
         <CemeteryTabTriggers />
       </div>
       <div className="bg-card rounded-md border shadow-sm mt-2 mb-6 w-full max-w-none">
-        <CemeteryTabContent cemetery={cemetery} cemeteryId={cemeteryId} />
+        <CemeteryTabContent cemetery={cemetery} cemeteryId={cemeteryId} searchTerm={searchTerm} />
       </div>
     </Tabs>
   );

@@ -10,9 +10,10 @@ import CemeteryGallery from "../CemeteryGallery";
 interface CemeteryTabContentProps {
   cemetery: any;
   cemeteryId: string;
+  searchTerm?: string; // Added searchTerm as an optional prop
 }
 
-const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemeteryId }) => {
+const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemeteryId, searchTerm = "" }) => {
   return (
     <>
       <TabsContent value="info" className="space-y-6 w-full">
