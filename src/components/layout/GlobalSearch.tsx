@@ -36,7 +36,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   
   const toggleSearch = () => {
     console.log("Toggle search clicked, current state:", isOpen);
-    setIsOpen(prevState => !prevState);
+    setIsOpen(!isOpen);
   };
   
   // Focus input when search is opened
@@ -71,15 +71,18 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        closeSearch();
       }
     };
     
-    document.addEventListener("mousedown", handleClickOutside);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
   
   // Reset search when route changes
   useEffect(() => {
@@ -110,13 +113,12 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ opacity: 1, scaleY: 1 }}
             exit={{ opacity: 0, scaleY: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 top-full w-screen bg-card shadow-lg border-b z-50 origin-top"
+            className="absolute left-0 top-full mt-0 w-screen bg-card shadow-lg border-b z-50 origin-top"
             style={{ 
-              marginTop: "0px", 
-              transform: "translateX(-50%)",
-              left: "50vw",
-              width: "100vw",
-              position: "fixed"
+              position: "fixed",
+              left: "0",
+              width: "100%",
+              top: "48px", // Match the topbar height (12 * 4px)
             }}
           >
             <div className="flex items-center gap-2 px-4 py-2 max-w-screen mx-auto">
