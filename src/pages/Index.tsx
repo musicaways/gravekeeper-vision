@@ -68,8 +68,8 @@ const Index = () => {
   }, [searchTerm, cimiteri]);
 
   const handleCardClick = (id) => {
-    // Use the correct path format and ensure id is properly passed
     console.log("Navigating to cemetery:", id);
+    // Using navigate instead of Link component for programmatic navigation
     navigate(`/cemetery/${id}`);
   };
 
