@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const { toast } = useToast();
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
   
-  // Handle window resize to detect desktop/mobile
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 1024);
@@ -100,20 +98,8 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
     }
   }, [location.pathname, onSearch]);
   
-  // Desktop search bar component
   const DesktopSearch = () => (
-    <>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSearch}
-        aria-label="Cerca"
-        className="relative transition-all duration-200 hover:bg-accent"
-        type="button"
-      >
-        <Search className="h-5 w-5 text-muted-foreground" />
-      </Button>
-      
+    <div className="relative flex items-center">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -121,16 +107,16 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ width: "250px", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute right-12 top-1/2 -translate-y-1/2 h-9"
+            className="absolute right-[40px] top-1/2 -translate-y-1/2"
           >
-            <div className="relative w-full h-full">
+            <div className="relative w-full">
               <Input
                 ref={inputRef}
                 type="search"
                 value={searchTerm}
                 onChange={handleSearch}
                 placeholder={getPlaceholderText()}
-                className="w-full h-full pr-10 rounded-md"
+                className="h-9 pr-8"
                 autoComplete="off"
               />
               {searchTerm && (
@@ -152,10 +138,19 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSearch}
+        aria-label="Cerca"
+        className="relative transition-all duration-200 hover:bg-accent"
+        type="button"
+      >
+        <Search className="h-5 w-5 text-muted-foreground" />
+      </Button>
+    </div>
   );
   
-  // Mobile search bar component - preserved from original implementation
   const MobileSearch = () => (
     <div ref={searchRef} className="relative">
       <Button
@@ -215,7 +210,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
     </div>
   );
   
-  // Render desktop or mobile search based on screen width
   return isDesktop ? <DesktopSearch /> : <MobileSearch />;
 };
 
