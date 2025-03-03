@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
@@ -8,9 +8,22 @@ import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
 
 const CemeteryDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [cemetery, setCemetery] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Extract search term from query params (from global search)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const globalSearch = params.get('search');
+    if (globalSearch) {
+      setSearchTerm(globalSearch);
+    } else {
+      setSearchTerm("");
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchCemeteryDetail = async () => {
@@ -72,7 +85,7 @@ const CemeteryDetail = () => {
       </div>
         
       <div className="w-full max-w-none px-0">
-        <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
+        <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} searchTerm={searchTerm} />
       </div>
     </div>
   );

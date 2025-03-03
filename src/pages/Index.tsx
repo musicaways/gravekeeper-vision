@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,16 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCimiteri, setFilteredCimiteri] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if search term is in query params (from global search)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const globalSearch = params.get('search');
+    if (globalSearch) {
+      setSearchTerm(globalSearch);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchCimiteri = async () => {

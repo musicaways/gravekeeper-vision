@@ -1,7 +1,9 @@
 
 import { Bell, ChevronLeft, Menu, User2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import GlobalSearch from "./GlobalSearch";
+import { useState, useEffect } from "react";
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -10,6 +12,21 @@ interface TopbarProps {
 
 const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Handle search based on current route
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    
+    // Add any global search behavior here
+    // We'll let each page component handle the actual filtering
+  };
+  
+  // Reset search when route changes
+  useEffect(() => {
+    setSearchTerm("");
+  }, [location.pathname]);
   
   const handleBack = () => {
     navigate(-1);
@@ -31,6 +48,7 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
       </div>
       
       <div className="flex items-center gap-1 mr-1">
+        <GlobalSearch onSearch={handleSearch} />
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5 text-muted-foreground" />
         </Button>
