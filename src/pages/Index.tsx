@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -80,13 +81,13 @@ const Index = () => {
                   <div className="relative h-48 w-full overflow-hidden">
                     <img 
                       src={cimitero.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80"} 
-                      alt={cimitero.nome || "Cimitero"} 
+                      alt={cimitero.Nome || cimitero.nome || "Cimitero"} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 w-full p-4">
                       <h3 className="text-white text-xl font-medium truncate group-hover:text-primary-light transition-colors">
-                        {cimitero.nome || "Cimitero"}
+                        {cimitero.Nome || cimitero.nome || "Cimitero"}
                       </h3>
                     </div>
                   </div>
