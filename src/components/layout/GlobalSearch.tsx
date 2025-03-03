@@ -96,6 +96,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
         onClick={toggleSearch}
         aria-label="Cerca"
         className="relative transition-all duration-200 hover:bg-accent"
+        type="button"
       >
         <Search className="h-5 w-5 text-muted-foreground" />
       </Button>
