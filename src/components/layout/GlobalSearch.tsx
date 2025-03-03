@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -109,17 +108,9 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed md:absolute bg-card shadow-md border rounded-lg z-50 
-                      origin-top-right 
-                      top-12 right-2 left-2
-                      md:top-[calc(100%+0.5rem)] md:right-0 md:left-auto
-                      lg:w-[350px] xl:w-[400px]
-                      lg:rounded-xl lg:shadow-lg lg:border-2"
-            style={{
-              maxWidth: "calc(100vw - 1rem)"
-            }}
+            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full left-0 md:right-0 w-full md:w-[350px]"
           >
-            <div className="px-4 py-3 lg:py-4">
+            <div className="px-4 py-3">
               <div className="relative flex w-full items-center">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -128,7 +119,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
                   value={searchTerm}
                   onChange={handleSearch}
                   placeholder={getPlaceholderText()}
-                  className="w-full pl-10 pr-10 h-10 text-sm rounded-md lg:h-11 lg:text-base"
+                  className="w-full pl-10 pr-10 h-10 text-sm rounded-md"
                   autoComplete="off"
                 />
                 <Button
