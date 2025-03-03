@@ -9,6 +9,7 @@ export interface Cemetery {
   country: string;
   established_date: string;
   total_area_sqm: number;
+  current_occupancy?: number; // Add this property
   geo_location: {
     lat: number;
     lng: number;
