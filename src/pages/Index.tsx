@@ -1,9 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Search } from "lucide-react";
 
 const Index = () => {
   const [cimiteri, setCimiteri] = useState([]);
@@ -72,42 +71,11 @@ const Index = () => {
     navigate(`/cemetery/${id}`);
   };
 
-  // Update searchTerm state when local search input changes
-  const handleLocalSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    
-    // Update URL params to keep in sync with local search
-    const params = new URLSearchParams(location.search);
-    if (value) {
-      params.set('search', value);
-    } else {
-      params.delete('search');
-    }
-    
-    // Update URL without reloading the page
-    const newUrl = `${location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-    navigate(newUrl, { replace: true });
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <main className="w-full max-w-none px-0">
         <section className="container mx-auto px-4 py-8">
-          <div className="flex justify-end mb-8">
-            <div className="w-full md:w-1/3 relative">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  type="search"
-                  placeholder="Cerca per nome, città o indirizzo..."
-                  value={searchTerm}
-                  onChange={handleLocalSearchChange}
-                  className="w-full pl-10 focus:ring-2 focus:ring-primary/30 transition-all duration-300"
-                />
-              </div>
-            </div>
-          </div>
+          {/* La search bar locale è stata rimossa da qui */}
           
           {loading ? (
             <div className="flex justify-center p-12">
