@@ -1,18 +1,17 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Info, Users, Calendar, Phone, Mail, Map } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { MapPin } from "lucide-react";
 
 const Index = () => {
   const [cimiteri, setCimiteri] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCimiteri, setFilteredCimiteri] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCimiteri = async () => {
@@ -48,12 +47,15 @@ const Index = () => {
     }
   }, [searchTerm, cimiteri]);
 
+  const handleCardClick = (id) => {
+    navigate(`/cemetery/${id}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto w-full max-w-6xl px-4 py-8">
         <section>
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold mb-4 md:mb-0">Elenco Cimiteri</h2>
+          <div className="flex justify-end mb-6">
             <div className="w-full md:w-1/3">
               <Input
                 type="search"
@@ -70,58 +72,32 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredCimiteri.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCimiteri.map((cimitero) => (
-                <Card key={cimitero.Id} className="w-full hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-primary" />
-                      {cimitero.nome || "Cimitero"}
-                    </CardTitle>
-                    <CardDescription className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      <span>{cimitero.Indirizzo || "Indirizzo non disponibile"}{cimitero.city && `, ${cimitero.city}`}{cimitero.state && `, ${cimitero.state}`}</span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <p className="text-sm text-muted-foreground">
-                        {cimitero.Descrizione || "Nessuna descrizione disponibile"}
-                      </p>
-                      
-                      {cimitero.established_date && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>Fondato: {formatDate(cimitero.established_date, "short")}</span>
-                        </div>
-                      )}
-                      
-                      {cimitero.contact_info && (
-                        <div className="space-y-1">
-                          {cimitero.contact_info.phone && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <span>{cimitero.contact_info.phone}</span>
-                            </div>
-                          )}
-                          {cimitero.contact_info.email && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Mail className="h-4 w-4 text-muted-foreground" />
-                              <span>{cimitero.contact_info.email}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                <Card 
+                  key={cimitero.Id} 
+                  className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                  onClick={() => handleCardClick(cimitero.Id)}
+                >
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <img 
+                      src={cimitero.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80"} 
+                      alt={cimitero.nome || "Cimitero"} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 w-full p-4">
+                      <h3 className="text-white text-xl font-medium truncate group-hover:text-primary-light transition-colors">
+                        {cimitero.nome || "Cimitero"}
+                      </h3>
+                      <div className="flex items-center gap-1 text-white/90 text-sm mt-1">
+                        <MapPin className="h-3.5 w-3.5" />
+                        <span className="truncate">
+                          {cimitero.city || ""}{cimitero.city && cimitero.state ? ", " : ""}{cimitero.state || ""}
+                        </span>
+                      </div>
                     </div>
-                  </CardContent>
-                  <CardFooter className="flex justify-center">
-                    <Button variant="outline" asChild className="w-full flex items-center gap-2">
-                      <Link to={`/cemetery/${cimitero.Id}`}>
-                        <Info size={16} />
-                        Visualizza dettagli
-                      </Link>
-                    </Button>
-                  </CardFooter>
+                  </div>
                 </Card>
               ))}
             </div>
@@ -141,3 +117,4 @@ const Index = () => {
 };
 
 export default Index;
+
