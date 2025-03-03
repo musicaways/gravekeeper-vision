@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 interface GlobalSearchProps {
   onSearch?: (searchTerm: string) => void;
@@ -16,6 +17,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
+  const { toast } = useToast();
   
   // Get placeholder text based on current route
   const getPlaceholderText = () => {
@@ -33,13 +35,18 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   };
   
   const toggleSearch = () => {
-    setIsOpen(prev => !prev);
-    if (!isOpen && inputRef.current) {
+    const newState = !isOpen;
+    setIsOpen(newState);
+    
+    if (newState && inputRef.current) {
       // Focus input when opening
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
+    
+    // For debugging
+    console.log("Search toggled:", newState);
   };
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

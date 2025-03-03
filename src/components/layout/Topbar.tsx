@@ -18,7 +18,7 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   // Handle search based on current route
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    
+    console.log("Search term in Topbar:", term);
     // Add any global search behavior here
     // We'll let each page component handle the actual filtering
   };
