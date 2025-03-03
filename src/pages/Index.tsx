@@ -53,8 +53,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
-        <section>
+      <main className="w-full max-w-none px-0">
+        <section className="container mx-auto px-4 py-8">
           <div className="flex justify-end mb-8">
             <div className="w-full md:w-1/3 relative">
               <div className="relative">
@@ -75,11 +75,11 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredCimiteri.length > 0 ? (
-            <div className="grid grid-cols-1 gap-8 max-w-none">
+            <div className="w-full max-w-none px-0">
               {filteredCimiteri.map((cimitero) => (
                 <Card 
                   key={cimitero.Id} 
-                  className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer w-full border-0"
+                  className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer w-full border-0 mb-8"
                   onClick={() => handleCardClick(cimitero.Id)}
                 >
                   <div className="relative h-48 md:h-64 w-full overflow-hidden">
