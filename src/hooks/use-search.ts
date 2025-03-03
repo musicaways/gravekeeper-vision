@@ -21,6 +21,8 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
       return "Cerca ordini di lavoro...";
     } else if (location.pathname.includes("/documents")) {
       return "Cerca documenti...";
+    } else if (location.pathname === "/settings") {
+      return "Cerca impostazioni...";
     } else {
       return "Cerca...";
     }
@@ -28,6 +30,13 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   
   const toggleSearch = () => {
     setIsOpen(!isOpen);
+    
+    // Focus input after opening
+    if (!isOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
   };
   
   useEffect(() => {
@@ -61,6 +70,20 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
       onSearch("");
     }
   };
+  
+  // Close search on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        closeSearch();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
   
   // Reset search when location changes
   useEffect(() => {
