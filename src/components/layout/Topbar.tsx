@@ -19,8 +19,21 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     console.log("Search term in Topbar:", term);
-    // Add any global search behavior here
-    // We'll let each page component handle the actual filtering
+    
+    // Add search term to query params for cemetery page
+    if (location.pathname === "/" || location.pathname === "/cemeteries") {
+      // Add search term to URL query params
+      const params = new URLSearchParams(location.search);
+      if (term) {
+        params.set('search', term);
+      } else {
+        params.delete('search');
+      }
+      
+      // Update URL without reloading the page
+      const newUrl = `${location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+      navigate(newUrl, { replace: true });
+    }
   };
   
   // Reset search when route changes

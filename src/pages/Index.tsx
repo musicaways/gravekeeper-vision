@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -20,6 +19,9 @@ const Index = () => {
     const globalSearch = params.get('search');
     if (globalSearch) {
       setSearchTerm(globalSearch);
+    } else {
+      // Reset search if no search param
+      setSearchTerm("");
     }
   }, [location.search]);
 
@@ -33,7 +35,6 @@ const Index = () => {
         
         if (error) throw error;
         setCimiteri(data || []);
-        setFilteredCimiteri(data || []);
       } catch (error) {
         console.error("Errore nel caricamento dei cimiteri:", error);
       } finally {
@@ -44,14 +45,22 @@ const Index = () => {
     fetchCimiteri();
   }, []);
 
+  // Filter cemeteries based on search term
   useEffect(() => {
+    if (!cimiteri.length) {
+      setFilteredCimiteri([]);
+      return;
+    }
+    
     if (searchTerm.trim() === "") {
       setFilteredCimiteri(cimiteri);
     } else {
+      const normalizedSearch = searchTerm.toLowerCase().trim();
       const filtered = cimiteri.filter((cimitero) => 
-        cimitero.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cimitero.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cimitero.Indirizzo?.toLowerCase().includes(searchTerm.toLowerCase())
+        (cimitero.nome?.toLowerCase() || "").includes(normalizedSearch) ||
+        (cimitero.Nome?.toLowerCase() || "").includes(normalizedSearch) ||
+        (cimitero.city?.toLowerCase() || "").includes(normalizedSearch) ||
+        (cimitero.Indirizzo?.toLowerCase() || "").includes(normalizedSearch)
       );
       setFilteredCimiteri(filtered);
     }
@@ -59,6 +68,24 @@ const Index = () => {
 
   const handleCardClick = (id) => {
     navigate(`/cemetery/${id}`);
+  };
+
+  // Update searchTerm state when local search input changes
+  const handleLocalSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    // Update URL params to keep in sync with local search
+    const params = new URLSearchParams(location.search);
+    if (value) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
+    
+    // Update URL without reloading the page
+    const newUrl = `${location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    navigate(newUrl, { replace: true });
   };
 
   return (
@@ -73,7 +100,7 @@ const Index = () => {
                   type="search"
                   placeholder="Cerca per nome, città o indirizzo..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleLocalSearchChange}
                   className="w-full pl-10 focus:ring-2 focus:ring-primary/30 transition-all duration-300"
                 />
               </div>
