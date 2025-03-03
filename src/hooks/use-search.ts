@@ -1,4 +1,3 @@
-
 import { useState, useEffect, RefObject, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -11,7 +10,7 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
-  const searchContainerRef = useRef<HTMLDivElement | null>(null);
+  const searchContainerRef = useRef<HTMLFormElement | null>(null);
   
   const getPlaceholderText = () => {
     if (location.pathname.includes("/cemetery/")) {
