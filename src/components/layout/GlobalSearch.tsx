@@ -3,7 +3,7 @@ import DesktopSearch from "./search/DesktopSearch";
 import MobileSearch from "./search/MobileSearch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface GlobalSearchProps {
   onSearch?: (searchTerm: string) => void;
@@ -12,17 +12,22 @@ interface GlobalSearchProps {
 const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const [initialSyncDone, setInitialSyncDone] = useState(false);
   
   // Extract search term from URL to sync the search component state with URL
+  // But only do this once when the component mounts to avoid feedback loops
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const searchParam = params.get('search');
-    
-    // If there's a search term in the URL and we have a search handler
-    if (searchParam && onSearch) {
-      onSearch(searchParam);
+    if (!initialSyncDone) {
+      const params = new URLSearchParams(location.search);
+      const searchParam = params.get('search');
+      
+      // If there's a search term in the URL and we have a search handler
+      if (searchParam && onSearch) {
+        onSearch(searchParam);
+      }
+      setInitialSyncDone(true);
     }
-  }, [location.search, onSearch]);
+  }, [location.search, onSearch, initialSyncDone]);
   
   return (
     <div className="flex items-center justify-end">

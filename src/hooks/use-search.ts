@@ -1,3 +1,4 @@
+
 import { useState, useEffect, RefObject, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -103,13 +104,20 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
     };
   }, [isOpen]);
   
-  // Reset search when location changes
+  // Don't reset search or close when location.pathname changes
+  // Only reset when the full route changes completely
   useEffect(() => {
-    setSearchTerm("");
-    setIsOpen(false);
-    if (onSearch) {
-      onSearch("");
-    }
+    const currentPath = location.pathname.split('/')[1];
+    return () => {
+      const newPath = window.location.pathname.split('/')[1];
+      if (currentPath !== newPath) {
+        setSearchTerm("");
+        setIsOpen(false);
+        if (onSearch) {
+          onSearch("");
+        }
+      }
+    };
   }, [location.pathname, onSearch]);
   
   return {

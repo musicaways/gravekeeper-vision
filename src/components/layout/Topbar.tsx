@@ -36,9 +36,15 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     }
   };
   
-  // Reset search when route changes
+  // Reset search only when the main route path changes
   useEffect(() => {
-    setSearchTerm("");
+    const currentMainPath = location.pathname.split('/')[1];
+    return () => {
+      const newMainPath = window.location.pathname.split('/')[1];
+      if (currentMainPath !== newMainPath) {
+        setSearchTerm("");
+      }
+    };
   }, [location.pathname]);
   
   const handleBack = () => {
