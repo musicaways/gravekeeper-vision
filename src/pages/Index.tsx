@@ -74,7 +74,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <main className="w-full max-w-none px-0">
-        <section className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-4">
           {/* La search bar locale è stata rimossa da qui */}
           
           {loading ? (
