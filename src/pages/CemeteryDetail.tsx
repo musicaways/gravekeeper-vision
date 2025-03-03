@@ -38,6 +38,7 @@ const CemeteryDetail = () => {
           throw new Error("ID cimitero non valido: deve essere un numero");
         }
 
+        console.log("Fetching cemetery with ID:", numericId);
         const { data, error } = await supabase
           .from('Cimitero')
           .select('*')
@@ -46,6 +47,7 @@ const CemeteryDetail = () => {
         
         if (error) throw error;
         
+        console.log("Cemetery data fetched:", data);
         setCemetery(data);
       } catch (err) {
         console.error("Errore nel caricamento dei dettagli del cimitero:", err);

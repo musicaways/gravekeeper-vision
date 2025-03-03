@@ -10,7 +10,7 @@ import CemeteryGallery from "../CemeteryGallery";
 interface CemeteryTabContentProps {
   cemetery: any;
   cemeteryId: string;
-  searchTerm?: string; // Added searchTerm as an optional prop
+  searchTerm?: string;
 }
 
 const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemeteryId, searchTerm = "" }) => {
@@ -21,7 +21,7 @@ const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({ cemetery, cemet
       </TabsContent>
 
       <TabsContent value="sections" className="space-y-6 w-full">
-        <CemeterySectionsTab cemeteryId={cemeteryId} />
+        <CemeterySectionsTab cemeteryId={cemeteryId} searchTerm={searchTerm} />
       </TabsContent>
 
       <TabsContent value="map" className="space-y-6 w-full">

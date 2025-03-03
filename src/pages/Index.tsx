@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,8 @@ const Index = () => {
   }, [searchTerm, cimiteri]);
 
   const handleCardClick = (id) => {
+    // Use the correct path format and ensure id is properly passed
+    console.log("Navigating to cemetery:", id);
     navigate(`/cemetery/${id}`);
   };
 

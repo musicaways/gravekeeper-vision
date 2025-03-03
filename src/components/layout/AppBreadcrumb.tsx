@@ -86,26 +86,28 @@ const AppBreadcrumb: React.FC = () => {
   return (
     <Breadcrumb className="border-b">
       <BreadcrumbList>
-        {breadcrumbs.map((crumb, index) => (
-          <React.Fragment key={crumb.path}>
-            {index > 0 && <BreadcrumbSeparator />}
-            <BreadcrumbItem className="flex items-center">
-              {crumb.current ? (
-                <BreadcrumbPage className="flex items-center gap-1">
-                  {crumb.icon}
-                  <span>{crumb.label}</span>
-                </BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink asChild className="flex items-center gap-1">
-                  <Link to={crumb.path}>
+        {breadcrumbs.map((crumb, index) => {
+          return (
+            <React.Fragment key={crumb.path}>
+              {index > 0 && <BreadcrumbSeparator />}
+              <BreadcrumbItem className="flex items-center">
+                {crumb.current ? (
+                  <BreadcrumbPage className="flex items-center gap-1">
                     {crumb.icon}
                     <span>{crumb.label}</span>
-                  </Link>
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
-          </React.Fragment>
-        ))}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild className="flex items-center gap-1">
+                    <Link to={crumb.path}>
+                      {crumb.icon}
+                      <span>{crumb.label}</span>
+                    </Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </React.Fragment>
+          );
+        })}
       </BreadcrumbList>
     </Breadcrumb>
   );
