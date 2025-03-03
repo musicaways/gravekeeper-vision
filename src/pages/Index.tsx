@@ -51,37 +51,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto w-full max-w-6xl px-4 py-8">
-        <section className="mb-12">
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle>Benvenuto nel sistema di gestione cimiteriale</CardTitle>
-              <CardDescription>
-                Accedi a tutti i dati e le funzionalità per la gestione delle strutture cimiteriali
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:justify-center">
-                <Button className="flex items-center gap-2">
-                  <MapPin size={18} />
-                  Cimiteri
-                </Button>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Users size={18} />
-                  Defunti
-                </Button>
-                <Button variant="secondary" className="flex items-center gap-2">
-                  <Info size={18} />
-                  Loculi
-                </Button>
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Map size={18} />
-                  Mappa
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
         <section>
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold mb-4 md:mb-0">Elenco Cimiteri</h2>
