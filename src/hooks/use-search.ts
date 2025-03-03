@@ -27,13 +27,11 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   };
   
   const toggleSearch = () => {
-    console.log("Toggle search clicked, current state:", isOpen);
     setIsOpen(!isOpen);
   };
   
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      console.log("Search is open, focusing input");
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -43,7 +41,6 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    console.log("Search term updated:", value);
     if (onSearch) {
       onSearch(value);
     }
@@ -58,7 +55,6 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   };
   
   const closeSearch = () => {
-    console.log("Closing search");
     setIsOpen(false);
     setSearchTerm("");
     if (onSearch) {

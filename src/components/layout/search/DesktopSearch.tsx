@@ -30,7 +30,7 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
             animate={{ width: "250px", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute right-[40px] top-1/2 -translate-y-1/2"
+            className="relative"
           >
             <div className="relative w-full">
               <Input
