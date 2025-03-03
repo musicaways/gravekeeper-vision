@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -108,8 +109,8 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full right-0 w-full md:w-[350px]"
-            style={{ maxWidth: "calc(100vw - 2rem)" }}
+            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full right-0 w-[calc(100vw-2rem)] md:w-[350px] mx-auto md:mx-0"
+            style={{ maxWidth: "calc(100vw - 2rem)", left: "50%", transform: "translateX(-50%)", marginLeft: 0, marginRight: 0 }}
           >
             <div className="px-4 py-3">
               <div className="relative flex w-full items-center">
