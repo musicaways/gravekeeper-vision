@@ -20,7 +20,7 @@ export function RecentCemeteries({ cemeteries }: RecentCemeteriesProps) {
             id={cemetery.id}
             name={cemetery.name}
             location={`${cemetery.address}, ${cemetery.city}`}
-            deceased={cemetery.total_deceased}
+            deceased={cemetery.current_occupancy || 0}
           />
         ))}
       </div>

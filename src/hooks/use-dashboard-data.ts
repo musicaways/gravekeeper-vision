@@ -48,6 +48,13 @@ export function useDashboardData() {
           throw cemeteriesError;
         }
 
+        // Count deceased per cemetery
+        const { data: defuntiCount, error: defuntiError } = await supabase
+          .from("Defunto")
+          .select("Id", { count: "exact", head: true });
+        
+        if (defuntiError) throw defuntiError;
+
         const mappedCemeteries = cemeteriesData.map((c) => ({
           id: c.Id.toString(),
           name: c.nome || c.Descrizione || "Unnamed Cemetery",
@@ -58,6 +65,7 @@ export function useDashboardData() {
           country: c.country || "Italy",
           established_date: c.established_date || "",
           total_area_sqm: c.total_area_sqm || 0,
+          current_occupancy: defuntiCount?.length || 0,
           geo_location: {
             lat: c.Latitudine || 0,
             lng: c.Longitudine || 0
@@ -79,12 +87,6 @@ export function useDashboardData() {
           .select("Id", { count: "exact", head: true });
 
         if (settoriError) throw settoriError;
-
-        const { data: defuntiCount, error: defuntiError } = await supabase
-          .from("Defunto")
-          .select("Id", { count: "exact", head: true });
-
-        if (defuntiError) throw defuntiError;
         
         // Fetch recent work orders
         const { data: workOrdersData, error: workOrdersError } = await supabase
