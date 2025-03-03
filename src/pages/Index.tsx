@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,14 +11,12 @@ const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if search term is in query params (from global search)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const globalSearch = params.get('search');
     if (globalSearch) {
       setSearchTerm(globalSearch);
     } else {
-      // Reset search if no search param
       setSearchTerm("");
     }
   }, [location.search]);
@@ -44,7 +41,6 @@ const Index = () => {
     fetchCimiteri();
   }, []);
 
-  // Filter cemeteries based on search term
   useEffect(() => {
     if (!cimiteri.length) {
       setFilteredCimiteri([]);
@@ -65,7 +61,6 @@ const Index = () => {
     }
   }, [searchTerm, cimiteri]);
 
-  // Clear and direct navigation approach
   const handleCardClick = (id) => {
     console.log("Navigating to cemetery:", id);
     navigate(`/cemetery/${id}`);
@@ -74,9 +69,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <main className="w-full max-w-none px-0">
-        <section className="container mx-auto px-4 py-4">
-          {/* La search bar locale è stata rimossa da qui */}
-          
+        <section className="container mx-auto px-4 py-2">
           {loading ? (
             <div className="flex justify-center p-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -96,10 +89,8 @@ const Index = () => {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     
-                    {/* Black overlay with same transparency as detail page */}
                     <div className="absolute inset-0 bg-black/30"></div>
                     
-                    {/* Semi-transparent black bar at the bottom with same transparency as detail page */}
                     <div className="absolute bottom-0 left-0 w-full">
                       <div className="bg-gradient-to-t from-black/80 to-black/30 p-4 w-full backdrop-blur-sm">
                         <h3 className="text-white text-xl font-medium tracking-tight group-hover:text-primary-light transition-colors">
