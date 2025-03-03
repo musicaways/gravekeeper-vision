@@ -105,13 +105,13 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scaleY: 0 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            exit={{ opacity: 0, scaleY: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed md:absolute bg-card shadow-lg border-b z-50 origin-top top-12 md:top-full left-0 w-full md:w-[400px] md:max-w-[80vw]"
+            className="fixed md:absolute bg-card shadow-lg border rounded-lg z-50 origin-top-right top-12 md:top-full left-0 md:left-auto md:right-0 w-full md:w-[350px] md:max-w-[80vw]"
           >
-            <div className="px-4 py-3 mx-auto w-full md:max-w-md md:mx-0">
+            <div className="px-4 py-3">
               <div className="relative flex w-full items-center">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -155,7 +155,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
                 size="sm"
                 variant="ghost"
                 onClick={closeSearch}
-                className="hidden md:flex h-9 px-3 ml-2 absolute right-4 top-3"
+                className="hidden md:flex h-9 px-3 ml-auto mt-2"
               >
                 Chiudi
               </Button>
