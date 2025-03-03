@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin } from "lucide-react";
 
 const Index = () => {
   const [cimiteri, setCimiteri] = useState([]);
@@ -53,7 +51,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="mx-auto w-full max-w-6xl px-4 py-8">
+      <main className="w-full px-4 py-8">
         <section>
           <div className="flex justify-end mb-6">
             <div className="w-full md:w-1/3">
@@ -72,7 +70,7 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredCimiteri.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredCimiteri.map((cimitero) => (
                 <Card 
                   key={cimitero.Id} 
@@ -90,12 +88,6 @@ const Index = () => {
                       <h3 className="text-white text-xl font-medium truncate group-hover:text-primary-light transition-colors">
                         {cimitero.nome || "Cimitero"}
                       </h3>
-                      <div className="flex items-center gap-1 text-white/90 text-sm mt-1">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span className="truncate">
-                          {cimitero.city || ""}{cimitero.city && cimitero.state ? ", " : ""}{cimitero.state || ""}
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </Card>
@@ -117,4 +109,3 @@ const Index = () => {
 };
 
 export default Index;
-
