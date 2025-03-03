@@ -40,7 +40,7 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
         onBackClick={handleBack}
       />
       
-      <div className="flex items-center gap-1 mr-1">
+      <div className="flex items-center gap-1 mr-2">
         <GlobalSearch onSearch={handleSearch} />
         <UserControlButtons />
       </div>

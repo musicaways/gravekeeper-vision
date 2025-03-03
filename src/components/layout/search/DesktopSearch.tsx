@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSearch } from "@/hooks/use-search";
+import { toast } from "sonner";
 
 interface DesktopSearchProps {
   onSearch?: (searchTerm: string) => void;
@@ -17,20 +18,30 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
     searchTerm, 
     toggleSearch, 
     handleSearch, 
-    clearSearch, 
+    clearSearch,
+    closeSearch,
     getPlaceholderText 
   } = useSearch({ inputRef, onSearch });
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      toast.info(`Ricerca avviata: ${searchTerm}`);
+      if (onSearch) onSearch(searchTerm);
+    }
+  };
+
   return (
-    <div className="relative flex items-center">
+    <div className="flex items-center">
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <motion.form
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "250px", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="relative"
+            className="mr-1"
+            onSubmit={handleSubmit}
           >
             <div className="relative w-full">
               <Input
@@ -54,7 +65,7 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
                 </Button>
               )}
             </div>
-          </motion.div>
+          </motion.form>
         )}
       </AnimatePresence>
       <Button
@@ -62,7 +73,7 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
         size="icon"
         onClick={toggleSearch}
         aria-label="Cerca"
-        className="relative transition-all duration-200 hover:bg-accent"
+        className="hover:bg-accent"
         type="button"
       >
         <Search className="h-5 w-5 text-muted-foreground" />
