@@ -84,11 +84,16 @@ const Index = () => {
                       alt={cimitero.Nome || cimitero.nome || "Cimitero"} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 w-full p-4">
-                      <h3 className="text-white text-xl font-medium truncate group-hover:text-primary-light transition-colors">
-                        {cimitero.Nome || cimitero.nome || "Cimitero"}
-                      </h3>
+                    {/* Enhanced overlay with stronger opacity for better text contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent"></div>
+                    
+                    {/* Text container with black bar */}
+                    <div className="absolute bottom-0 left-0 w-full">
+                      <div className="bg-black/70 p-4 w-full backdrop-blur-sm">
+                        <h3 className="text-white text-xl font-medium truncate group-hover:text-primary-light transition-colors">
+                          {cimitero.Nome || cimitero.nome || "Cimitero"}
+                        </h3>
+                      </div>
                     </div>
                   </div>
                 </Card>
