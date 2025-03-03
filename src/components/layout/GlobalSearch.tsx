@@ -96,11 +96,11 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, width: "200px" }}
-            animate={{ opacity: 1, y: 0, width: "280px" }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 top-full mt-1 bg-card shadow-lg rounded-md border z-50 p-2 origin-top-right"
+            className="absolute right-0 top-full mt-1 bg-card shadow-lg rounded-md border z-50 p-2 origin-top-right md:w-[280px] w-[calc(100vw-1rem)] -right-2 sm:right-0"
           >
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
