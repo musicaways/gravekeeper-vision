@@ -67,9 +67,10 @@ const Index = () => {
     }
   }, [searchTerm, cimiteri]);
 
+  // Aggiornata per risolvere i problemi di navigazione
   const handleCardClick = (id) => {
     console.log("Navigating to cemetery:", id);
-    // Using navigate instead of Link component for programmatic navigation
+    // Utilizziamo navigate invece di Link per evitare problemi di navigazione
     navigate(`/cemetery/${id}`);
   };
 

@@ -30,19 +30,22 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
   const location = useLocation();
   const { theme } = useTheme();
 
-  // Close sidebar on navigation for mobile
+  // Modifichiamo questa funzione per prevenire il comportamento di chiusura automatica
+  // che causa lo sfarfallio e problemi di navigazione
   useEffect(() => {
+    // Chiudi il sidebar solo su mobile dopo la navigazione
     if (isMobile && open) {
       onToggle();
     }
-  }, [location.pathname, isMobile]);
+    // Rimuoviamo la dipendenza da location.pathname per evitare chiusure non desiderate
+  }, [isMobile, open, onToggle]);
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
-  // For mobile: fixed position, full screen with overlay effect when open
-  // For desktop: always visible, can be collapsed to narrow width
+  // Per mobile: fixed position, full screen with overlay effect when open
+  // Per desktop: always visible, can be collapsed to narrow width
   const sidebarClasses = cn(
     "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-background border-r transition-all duration-300",
     isMobile 
@@ -52,7 +55,7 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
 
   return (
     <>
-      {/* Backdrop for mobile */}
+      {/* Backdrop per mobile */}
       {isMobile && open && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
@@ -119,7 +122,7 @@ interface NavItemProps {
 
 function NavItem({ href, icon: Icon, label, isActive, showLabel }: NavItemProps) {
   return (
-    <Link to={href}>
+    <Link to={href} className="block">
       <Button
         variant={isActive ? "secondary" : "ghost"}
         size="sm"

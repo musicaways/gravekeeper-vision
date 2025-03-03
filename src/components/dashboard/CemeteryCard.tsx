@@ -14,8 +14,9 @@ export function CemeteryCard({ cemetery }: CemeteryCardProps) {
   const hasContactInfo = cemetery.contact_info?.phone || cemetery.contact_info?.email;
   const navigate = useNavigate();
   
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  // Assicuriamo che handleCardClick funzioni correttamente
+  const handleCardClick = () => {
+    console.log(`Navigating to cemetery/${cemetery.id}`);
     navigate(`/cemetery/${cemetery.id}`);
   };
   
