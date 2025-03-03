@@ -35,29 +35,31 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   };
   
   const toggleSearch = () => {
-    const newState = !isOpen;
-    setIsOpen(newState);
-    
-    if (newState && inputRef.current) {
-      // Focus input when opening
+    console.log("Toggle search clicked, current state:", isOpen);
+    setIsOpen(prevState => !prevState);
+  };
+  
+  // Focus input when search is opened
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      console.log("Search is open, focusing input");
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-    
-    // For debugging
-    console.log("Search toggled:", newState);
-  };
+  }, [isOpen]);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
+    console.log("Search term updated:", value);
     if (onSearch) {
       onSearch(value);
     }
   };
   
   const closeSearch = () => {
+    console.log("Closing search");
     setIsOpen(false);
     setSearchTerm("");
     if (onSearch) {
@@ -127,6 +129,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
                   onChange={handleSearch}
                   placeholder={getPlaceholderText()}
                   className="w-full pl-9 pr-8 h-9 text-sm"
+                  autoComplete="off"
                 />
                 {searchTerm && (
                   <Button
