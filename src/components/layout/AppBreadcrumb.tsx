@@ -9,7 +9,7 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
-import { HomeIcon, MapPin } from 'lucide-react';
+import { HomeIcon, MapPin, LayoutDashboard } from 'lucide-react';
 
 interface BreadcrumbMap {
   [key: string]: {
@@ -21,6 +21,7 @@ interface BreadcrumbMap {
 
 const breadcrumbMap: BreadcrumbMap = {
   '': { label: 'Home', icon: <HomeIcon className="h-3.5 w-3.5" /> },
+  'dashboard': { label: 'Dashboard', parent: '', icon: <LayoutDashboard className="h-3.5 w-3.5" /> },
   'cemeteries': { label: 'Cimiteri', parent: '' },
   'cemetery': { label: 'Dettaglio Cimitero', parent: 'cemeteries', icon: <MapPin className="h-3.5 w-3.5" /> },
   'profile': { label: 'Profilo Utente', parent: '' },
