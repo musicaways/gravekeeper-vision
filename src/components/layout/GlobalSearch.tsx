@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const location = useLocation();
   const { toast } = useToast();
   
-  // Get placeholder text based on current route
   const getPlaceholderText = () => {
     if (location.pathname.includes("/cemetery/")) {
       return "Cerca settori, tombe o documenti...";
@@ -39,7 +37,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
     setIsOpen(!isOpen);
   };
   
-  // Focus input when search is opened
   useEffect(() => {
     if (isOpen && inputRef.current) {
       console.log("Search is open, focusing input");
@@ -67,7 +64,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
     }
   };
   
-  // Close search when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -84,7 +80,6 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
     };
   }, [isOpen]);
   
-  // Reset search when route changes
   useEffect(() => {
     setSearchTerm("");
     setIsOpen(false);
@@ -113,15 +108,23 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
             animate={{ opacity: 1, scaleY: 1 }}
             exit={{ opacity: 0, scaleY: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 top-full mt-0 w-screen bg-card shadow-lg border-b z-50 origin-top"
+            className="absolute bg-card shadow-lg border-b z-50 origin-top"
             style={{ 
               position: "fixed",
-              left: "0",
               width: "100%",
-              top: "48px", // Match the topbar height (12 * 4px)
+              top: "48px",
+              left: "0",
+              maxWidth: "100%",
+              '@media (min-width: 768px)': {
+                position: "absolute",
+                left: "0",
+                top: "100%",
+                width: "400px",
+                maxWidth: "80vw"
+              }
             }}
           >
-            <div className="container max-w-4xl mx-auto px-4 py-3">
+            <div className="px-4 py-3 mx-auto w-full md:max-w-md md:mx-0">
               <div className="relative flex w-full items-center">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -130,7 +133,7 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
                   value={searchTerm}
                   onChange={handleSearch}
                   placeholder={getPlaceholderText()}
-                  className="w-full pl-10 pr-10 h-12 text-base rounded-md"
+                  className="w-full pl-10 pr-10 h-10 text-sm rounded-md"
                   autoComplete="off"
                 />
                 <div className="absolute right-3 flex items-center gap-2">
