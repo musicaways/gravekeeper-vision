@@ -1,9 +1,9 @@
 
-import { Bell, ChevronLeft, Menu, User2 } from "lucide-react";
-import { Button } from "../ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import GlobalSearch from "./GlobalSearch";
 import { useState, useEffect } from "react";
+import GlobalSearch from "./GlobalSearch";
+import NavigationButtons from "./topbar/NavigationButtons";
+import UserControlButtons from "./topbar/UserControlButtons";
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -32,31 +32,17 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     navigate(-1);
   };
 
-  console.log("Rendering Topbar component"); // Debug log
-
   return (
     <header className="sticky top-0 z-10 border-b bg-card h-12 md:h-14 flex items-center justify-between shadow-sm transition-colors duration-200">
-      <div className="flex items-center">
-        {onMenuClick && (
-          <Button onClick={onMenuClick} variant="ghost" size="icon" className="ml-1" aria-label="Menu" type="button">
-            <Menu className="h-5 w-5" />
-          </Button>
-        )}
-        {showBackButton && (
-          <Button onClick={handleBack} variant="ghost" size="icon" aria-label="Torna indietro" type="button">
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-        )}
-      </div>
+      <NavigationButtons 
+        onMenuClick={onMenuClick}
+        showBackButton={showBackButton}
+        onBackClick={handleBack}
+      />
       
       <div className="flex items-center gap-1 mr-1">
         <GlobalSearch onSearch={handleSearch} />
-        <Button variant="ghost" size="icon" type="button">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-        </Button>
-        <Button variant="ghost" size="icon" type="button">
-          <User2 className="h-5 w-5 text-muted-foreground" />
-        </Button>
+        <UserControlButtons />
       </div>
     </header>
   );
