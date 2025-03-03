@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 export interface CemeterySectionsTabProps {
   cemeteryId: string;
+  searchTerm?: string;
 }
 
 interface Section {
@@ -32,18 +32,23 @@ interface Block {
   total_plots: number;
 }
 
-export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemeteryId }) => {
+export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemeteryId, searchTerm = "" }) => {
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (searchTerm) {
+      setLocalSearchTerm(searchTerm);
+    }
+  }, [searchTerm]);
 
   useEffect(() => {
     const fetchSections = async () => {
       try {
         if (!cemeteryId) return;
 
-        // Convert the string ID to a number
         const numericCemeteryId = parseInt(cemeteryId, 10);
         
         if (isNaN(numericCemeteryId)) {
@@ -58,7 +63,6 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
         if (error) throw error;
 
         if (data) {
-          // Ottieni i blocchi per ogni settore
           const sectionsWithBlocks = await Promise.all(
             data.map(async (section) => {
               const { data: blocksData, error: blocksError } = await supabase
@@ -88,10 +92,16 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
     fetchSections();
   }, [cemeteryId]);
 
-  const filteredSections = sections.filter(section => 
-    section.Codice?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    section.Descrizione?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getFilteredSections = () => {
+    const searchTermToUse = localSearchTerm.toLowerCase();
+    
+    return sections.filter(section => 
+      section.Codice?.toLowerCase().includes(searchTermToUse) || 
+      section.Descrizione?.toLowerCase().includes(searchTermToUse)
+    );
+  };
+
+  const filteredSections = getFilteredSections();
 
   if (error) {
     return (
@@ -129,8 +139,8 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
             <Input
               placeholder="Cerca settori..."
               className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex gap-2">
@@ -220,7 +230,6 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
                     </div>
                   </div>
 
-                  {/* Blocchi */}
                   {section.blocchi && section.blocchi.length > 0 ? (
                     <div>
                       <h4 className="font-medium mb-2">Blocchi ({section.blocchi.length})</h4>
