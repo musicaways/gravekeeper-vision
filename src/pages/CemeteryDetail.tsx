@@ -64,14 +64,14 @@ const CemeteryDetail = () => {
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
-          <div className="container mx-auto">
+          <div className="w-full max-w-none px-0">
             <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
             <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
           </div>
         </div>
       </div>
         
-      <div className="container mx-auto">
+      <div className="w-full max-w-none px-0">
         <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} />
       </div>
     </div>
