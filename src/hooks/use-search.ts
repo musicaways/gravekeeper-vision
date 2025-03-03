@@ -1,5 +1,5 @@
 
-import { useState, useEffect, RefObject } from "react";
+import { useState, useEffect, RefObject, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 interface UseSearchProps {
@@ -11,6 +11,7 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
+  const searchContainerRef = useRef<HTMLDivElement | null>(null);
   
   const getPlaceholderText = () => {
     if (location.pathname.includes("/cemetery/")) {
@@ -85,6 +86,24 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
     };
   }, [isOpen]);
   
+  // Handle clicks outside search bar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen && 
+        searchContainerRef.current && 
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        closeSearch();
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+  
   // Reset search when location changes
   useEffect(() => {
     setSearchTerm("");
@@ -101,6 +120,7 @@ export const useSearch = ({ inputRef, onSearch }: UseSearchProps) => {
     handleSearch,
     clearSearch,
     closeSearch,
-    getPlaceholderText
+    getPlaceholderText,
+    searchContainerRef
   };
 };

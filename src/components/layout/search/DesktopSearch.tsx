@@ -20,7 +20,8 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
     handleSearch, 
     clearSearch,
     closeSearch,
-    getPlaceholderText 
+    getPlaceholderText,
+    searchContainerRef
   } = useSearch({ inputRef, onSearch });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,6 +30,8 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
       toast.info(`Ricerca avviata: ${searchTerm}`);
       if (onSearch) onSearch(searchTerm);
     }
+    // Close search after submitting
+    closeSearch();
   };
 
   return (
@@ -36,6 +39,7 @@ const DesktopSearch = ({ onSearch }: DesktopSearchProps) => {
       <AnimatePresence>
         {isOpen ? (
           <motion.form
+            ref={searchContainerRef}
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "300px", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
