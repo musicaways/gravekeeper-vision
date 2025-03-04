@@ -24,28 +24,65 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Routes>
-                      <Route index element={<Index />} />
-                      <Route path="dashboard" element={<Dashboard />} />
-                      <Route path="cemetery/:id" element={<CemeteryDetail />} />
-                      <Route path="block/:id" element={<BlockDetail />} />
-                      <Route path="work-orders" element={<WorkOrders />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="profile" element={<UserProfile />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Index />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/cemetery/:id" element={
+              <ProtectedRoute>
+                <Layout>
+                  <CemeteryDetail />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/block/:id" element={
+              <ProtectedRoute>
+                <Layout>
+                  <BlockDetail />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/work-orders" element={
+              <ProtectedRoute>
+                <Layout>
+                  <WorkOrders />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Layout>
+                  <UserProfile />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={
+              <ProtectedRoute>
+                <Layout>
+                  <NotFound />
+                </Layout>
+              </ProtectedRoute>
+            } />
           </Routes>
+          <Toaster />
         </BrowserRouter>
-        <Toaster />
       </AuthProvider>
     </ThemeProvider>
   );
