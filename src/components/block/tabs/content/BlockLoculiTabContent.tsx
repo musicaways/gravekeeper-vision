@@ -20,13 +20,20 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
         setLoading(true);
         
         // First, fetch the loculi for this block
+        // Convert blockId string to number
+        const numericBlockId = parseInt(blockId, 10);
+        
+        if (isNaN(numericBlockId)) {
+          throw new Error("ID blocco non valido: deve essere un numero");
+        }
+        
         let query = supabase
           .from('Loculo')
           .select(`
             *,
             Defunti:Defunto(*)
           `)
-          .eq('IdBlocco', blockId);
+          .eq('IdBlocco', numericBlockId);
         
         // Apply search filter if provided
         if (searchTerm) {
@@ -47,7 +54,7 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
               *,
               Loculo:Loculo!inner(*)
             `)
-            .eq('Loculo.IdBlocco', blockId)
+            .eq('Loculo.IdBlocco', numericBlockId)
             .ilike('Nominativo', `%${searchTerm}%`);
           
           if (defuntiError) throw defuntiError;

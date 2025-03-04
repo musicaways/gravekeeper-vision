@@ -5,7 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 import Auth from "@/pages/Auth";
 import Index from "@/pages/Index";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "@/pages/Dashboard";
 import CemeteryDetail from "@/pages/CemeteryDetail";
 import BlockDetail from "@/pages/BlockDetail";
@@ -19,7 +19,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 const App = () => {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="cemetery-pro-theme">
+    <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
@@ -28,25 +28,27 @@ const App = () => {
               path="/"
               element={
                 <ProtectedRoute>
-                  <Layout />
+                  <Layout>
+                    <Routes>
+                      <Route index element={<Index />} />
+                      <Route path="dashboard" element={<Dashboard />} />
+                      <Route path="cemetery/:id" element={<CemeteryDetail />} />
+                      <Route path="block/:id" element={<BlockDetail />} />
+                      <Route path="work-orders" element={<WorkOrders />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="profile" element={<UserProfile />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
                 </ProtectedRoute>
               }
-            >
-              <Route index element={<Index />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="cemetery/:id" element={<CemeteryDetail />} />
-              <Route path="block/:id" element={<BlockDetail />} />
-              <Route path="work-orders" element={<WorkOrders />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="profile" element={<UserProfile />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
+            />
           </Routes>
         </BrowserRouter>
         <Toaster />
       </AuthProvider>
     </ThemeProvider>
   );
-}
+};
 
 export default App;
