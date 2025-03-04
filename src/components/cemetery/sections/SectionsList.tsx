@@ -3,6 +3,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Section } from "./types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface SectionsListProps {
   sections: Section[];
@@ -46,16 +48,20 @@ export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, e
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {sections.map((section) => (
         <div key={section.Id} className="border rounded-md p-3 hover:bg-accent/5 transition-colors">
-          <h3 className="font-medium text-lg mb-1">{section.Nome || section.Codice || `Settore ${section.Id}`}</h3>
+          <div className="bg-primary/10 -mx-3 -mt-3 px-3 py-2 mb-2 border-b rounded-t-md">
+            <h3 className="font-medium text-lg text-primary-dark">
+              {section.Nome || section.Codice || `Settore ${section.Id}`}
+            </h3>
+          </div>
           
           {section.blocchi && section.blocchi.length > 0 ? (
-            <div className="space-y-2 mt-2">
+            <div className="space-y-2 mt-3">
               {section.blocchi.map((block) => (
                 <div key={block.Id} className="flex justify-between items-center border-t pt-2">
-                  <span className="text-sm">{block.Nome || block.Codice || `Blocco ${block.Id}`}</span>
-                  <span className="text-xs px-2 py-0.5 bg-muted rounded-full">
+                  <span className="text-sm font-medium">{block.Nome || block.Codice || `Blocco ${block.Id}`}</span>
+                  <Badge variant="outline" className="whitespace-nowrap ml-2 min-w-16 text-center">
                     {block.NumeroLoculi || 0} loculi
-                  </span>
+                  </Badge>
                 </div>
               ))}
             </div>
