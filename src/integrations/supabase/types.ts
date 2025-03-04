@@ -96,10 +96,10 @@ export type Database = {
           available_plots: number | null
           block_code: string | null
           Codice: string | null
-          Descrizione: string | null
           geo_boundary: Json | null
           Id: number
           IdSettore: number | null
+          Nome: string | null
           NumeroFile: number | null
           NumeroFileInterrate: number | null
           NumeroLoculi: number | null
@@ -113,10 +113,10 @@ export type Database = {
           available_plots?: number | null
           block_code?: string | null
           Codice?: string | null
-          Descrizione?: string | null
           geo_boundary?: Json | null
           Id?: number
           IdSettore?: number | null
+          Nome?: string | null
           NumeroFile?: number | null
           NumeroFileInterrate?: number | null
           NumeroLoculi?: number | null
@@ -130,10 +130,10 @@ export type Database = {
           available_plots?: number | null
           block_code?: string | null
           Codice?: string | null
-          Descrizione?: string | null
           geo_boundary?: Json | null
           Id?: number
           IdSettore?: number | null
+          Nome?: string | null
           NumeroFile?: number | null
           NumeroFileInterrate?: number | null
           NumeroLoculi?: number | null
@@ -742,11 +742,11 @@ export type Database = {
           area_sqm: number | null
           Codice: string | null
           current_occupancy: number | null
-          Descrizione: string | null
           geo_boundary: Json | null
           Id: number
           IdCimitero: number | null
           max_capacity: number | null
+          Nome: string | null
           section_code: string | null
           section_type: string | null
         }
@@ -754,11 +754,11 @@ export type Database = {
           area_sqm?: number | null
           Codice?: string | null
           current_occupancy?: number | null
-          Descrizione?: string | null
           geo_boundary?: Json | null
           Id: number
           IdCimitero?: number | null
           max_capacity?: number | null
+          Nome?: string | null
           section_code?: string | null
           section_type?: string | null
         }
@@ -766,11 +766,11 @@ export type Database = {
           area_sqm?: number | null
           Codice?: string | null
           current_occupancy?: number | null
-          Descrizione?: string | null
           geo_boundary?: Json | null
           Id?: number
           IdCimitero?: number | null
           max_capacity?: number | null
+          Nome?: string | null
           section_code?: string | null
           section_type?: string | null
         }

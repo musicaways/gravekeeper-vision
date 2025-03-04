@@ -31,7 +31,10 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     setSearchTerm(term);
     
     // Add search term to query params for specific routes
-    if (location.pathname === "/" || location.pathname === "/cemeteries") {
+    const isCemeteryDetailPage = location.pathname.includes('/cemetery/');
+    const isHomePage = location.pathname === "/" || location.pathname === "/cemeteries";
+    
+    if (isCemeteryDetailPage || isHomePage) {
       // Add search term to URL query params
       const params = new URLSearchParams(location.search);
       if (term) {

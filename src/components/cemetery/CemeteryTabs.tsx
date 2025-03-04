@@ -8,22 +8,34 @@ import CemeteryTabContent from "./tabs/CemeteryTabContent";
 export interface CemeteryTabsProps {
   cemetery: any;
   cemeteryId: string;
-  searchTerm?: string; // Added searchTerm as an optional prop
+  searchTerm?: string;
+  activeTab?: string | null;
+  onSearch?: (term: string) => void;
 }
 
-export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId, searchTerm = "" }) => {
+export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ 
+  cemetery, 
+  cemeteryId, 
+  searchTerm = "",
+  activeTab: externalActiveTab = null,
+  onSearch
+}) => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("info");
   
-  // Salva la tab attiva nel localStorage per mantenerla tra le navigazioni
+  // Use external tab if provided, otherwise load from localStorage
   useEffect(() => {
-    const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
-    // Verifica che la tab salvata sia una di quelle disponibili
-    const availableTabs = ["info", "sections", "map", "documents", "gallery"];
-    if (savedTab && availableTabs.includes(savedTab)) {
-      setActiveTab(savedTab);
+    if (externalActiveTab) {
+      setActiveTab(externalActiveTab);
+    } else {
+      const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
+      // Verify that the tab saved is one of those available
+      const availableTabs = ["info", "sections", "map", "documents", "gallery"];
+      if (savedTab && availableTabs.includes(savedTab)) {
+        setActiveTab(savedTab);
+      }
     }
-  }, [id]);
+  }, [id, externalActiveTab]);
   
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -36,7 +48,11 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({ cemetery, cemeteryId
         <CemeteryTabTriggers />
       </div>
       <div className="bg-card rounded-md border shadow-sm mt-2 mb-6 w-full max-w-none">
-        <CemeteryTabContent cemetery={cemetery} cemeteryId={cemeteryId} searchTerm={searchTerm} />
+        <CemeteryTabContent 
+          cemetery={cemetery} 
+          cemeteryId={cemeteryId} 
+          searchTerm={searchTerm} 
+        />
       </div>
     </Tabs>
   );

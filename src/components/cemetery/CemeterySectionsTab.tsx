@@ -1,14 +1,11 @@
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CemeterySectionsTabProps, Section } from "./sections/types";
-import { SectionSearchBar } from "./sections/SectionSearchBar";
+import { CemeterySectionsTabProps, Section, Block } from "./sections/types";
 import { SectionsList } from "./sections/SectionsList";
 
 export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemeteryId, searchTerm = "" }) => {
-  const [sections, setSections] = useState<Section[]>([]);
+  const [sectionsWithBlocks, setSectionsWithBlocks] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [localSearchTerm, setLocalSearchTerm] = useState("");
@@ -20,7 +17,7 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
   }, [searchTerm]);
 
   useEffect(() => {
-    const fetchSections = async () => {
+    const fetchSectionsAndBlocks = async () => {
       try {
         if (!cemeteryId) return;
 
@@ -30,16 +27,18 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
           throw new Error("ID cimitero non valido");
         }
 
-        const { data, error } = await supabase
+        // Fetch sections for this cemetery
+        const { data: sectionsData, error: sectionsError } = await supabase
           .from('Settore')
           .select('*')
           .eq('IdCimitero', numericCemeteryId);
 
-        if (error) throw error;
+        if (sectionsError) throw sectionsError;
 
-        if (data) {
-          const sectionsWithBlocks = await Promise.all(
-            data.map(async (section) => {
+        // For each section, fetch its blocks
+        if (sectionsData) {
+          const sectionsWithBlocksData = await Promise.all(
+            sectionsData.map(async (section) => {
               const { data: blocksData, error: blocksError } = await supabase
                 .from('Blocco')
                 .select('*')
@@ -54,67 +53,59 @@ export const CemeterySectionsTab: React.FC<CemeterySectionsTabProps> = ({ cemete
             })
           );
 
-          setSections(sectionsWithBlocks);
+          setSectionsWithBlocks(sectionsWithBlocksData);
         }
       } catch (err) {
-        console.error("Errore nel caricamento dei settori:", err);
-        setError(err instanceof Error ? err.message : "Errore nel caricamento dei settori");
+        console.error("Errore nel caricamento dei settori e blocchi:", err);
+        setError(err instanceof Error ? err.message : "Errore nel caricamento dei dati");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSections();
+    fetchSectionsAndBlocks();
   }, [cemeteryId]);
 
-  const getFilteredSections = () => {
-    const searchTermToUse = localSearchTerm.toLowerCase();
+  // Filter sections and blocks based on search term
+  const getFilteredSectionsAndBlocks = () => {
+    if (!localSearchTerm) return sectionsWithBlocks;
     
-    return sections.filter(section => 
-      section.Codice?.toLowerCase().includes(searchTermToUse) || 
-      section.Descrizione?.toLowerCase().includes(searchTermToUse)
-    );
+    const searchTermLower = localSearchTerm.toLowerCase();
+    
+    return sectionsWithBlocks
+      .map(section => {
+        // Check if section name matches
+        const sectionMatches = 
+          section.Nome?.toLowerCase().includes(searchTermLower) || 
+          section.Codice?.toLowerCase().includes(searchTermLower);
+        
+        // Filter blocks that match
+        const matchingBlocks = section.blocchi?.filter(block => 
+          block.Nome?.toLowerCase().includes(searchTermLower) ||
+          block.Codice?.toLowerCase().includes(searchTermLower)
+        ) || [];
+        
+        // If the section matches or has matching blocks, include it
+        if (sectionMatches || matchingBlocks.length > 0) {
+          // If section matches but no blocks match, return all blocks
+          // If specific blocks match, return only those blocks
+          return {
+            ...section,
+            blocchi: sectionMatches ? section.blocchi : matchingBlocks
+          };
+        }
+        
+        return null;
+      })
+      .filter(Boolean) as Section[];
   };
 
-  const filteredSections = getFilteredSections();
-
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapIcon className="h-5 w-5" />
-            Settori del cimitero
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-destructive/10 text-destructive rounded-md p-4">
-            {error}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const filteredSections = getFilteredSectionsAndBlocks();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MapIcon className="h-5 w-5" />
-          Settori del cimitero
-        </CardTitle>
-        <CardDescription>
-          Visualizza e gestisci le diverse aree e settori del cimitero
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <SectionSearchBar 
-          searchTerm={localSearchTerm} 
-          onSearchChange={setLocalSearchTerm} 
-        />
-        <SectionsList sections={filteredSections} loading={loading} />
-      </CardContent>
-    </Card>
+    <div className="w-full">
+      <SectionsList sections={filteredSections} loading={loading} error={error} />
+    </div>
   );
 };
 

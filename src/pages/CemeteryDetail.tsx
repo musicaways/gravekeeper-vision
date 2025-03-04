@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CemeteryTabs } from "@/components/cemetery/CemeteryTabs";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
@@ -9,21 +9,29 @@ import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
 const CemeteryDetail = () => {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [cemetery, setCemetery] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<string | null>(null);
 
   // Extract search term from query params (from global search)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const globalSearch = params.get('search');
+    
     if (globalSearch) {
       setSearchTerm(globalSearch);
+      // When search is active, switch to the sections tab
+      setActiveTab("sections");
     } else {
       setSearchTerm("");
+      // Get the saved tab from localStorage or default to null (don't force a tab when no search)
+      const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
+      setActiveTab(savedTab);
     }
-  }, [location.search]);
+  }, [location.search, id]);
 
   useEffect(() => {
     const fetchCemeteryDetail = async () => {
@@ -60,6 +68,22 @@ const CemeteryDetail = () => {
     fetchCemeteryDetail();
   }, [id]);
 
+  // Handle search within cemetery
+  const handleSearch = (term: string) => {
+    // Update the URL with the search term
+    const params = new URLSearchParams(location.search);
+    
+    if (term) {
+      params.set('search', term);
+      // Force viewing the sections tab when searching
+      setActiveTab("sections");
+    } else {
+      params.delete('search');
+    }
+    
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
   if (loading) {
     return <CemeteryLoading />;
   }
@@ -87,7 +111,13 @@ const CemeteryDetail = () => {
       </div>
         
       <div className="w-full max-w-none px-0">
-        <CemeteryTabs cemetery={cemetery} cemeteryId={id || ''} searchTerm={searchTerm} />
+        <CemeteryTabs 
+          cemetery={cemetery} 
+          cemeteryId={id || ''} 
+          searchTerm={searchTerm}
+          activeTab={activeTab}
+          onSearch={handleSearch}
+        />
       </div>
     </div>
   );
