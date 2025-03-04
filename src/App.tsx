@@ -1,101 +1,52 @@
 
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+
+import Auth from "@/pages/Auth";
+import Index from "@/pages/Index";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Dashboard from "@/pages/Dashboard";
+import CemeteryDetail from "@/pages/CemeteryDetail";
+import BlockDetail from "@/pages/BlockDetail";
+import NotFound from "@/pages/NotFound";
+import Layout from "@/components/layout/Layout";
+import WorkOrders from "@/pages/WorkOrders";
+import Settings from "@/pages/Settings";
+import UserProfile from "@/pages/UserProfile";
+
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Index from "./pages/Index";
-import CemeteryDetail from "./pages/CemeteryDetail";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import UserProfile from "./pages/UserProfile";
-import WorkOrders from "./pages/WorkOrders";
-import Dashboard from "./pages/Dashboard";
-import Settings from "./pages/Settings";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import Layout from "./components/layout/Layout";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <Layout title="Dashboard">
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/cemeteries" 
-                element={
-                  <ProtectedRoute>
-                    <Layout title="Cemeteries">
-                      <Index />
-                    </Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/cemetery/:id" 
-                element={
-                  <ProtectedRoute>
-                    <Layout title="Cemetery Details">
-                      <CemeteryDetail />
-                    </Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <Layout title="User Profile">
-                      <UserProfile />
-                    </Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/work-orders" 
-                element={
-                  <ProtectedRoute>
-                    <Layout title="Work Orders">
-                      <WorkOrders />
-                    </Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/settings" 
-                element={
-                  <ProtectedRoute>
-                    <Layout title="Settings">
-                      <Settings />
-                    </Layout>
-                  </ProtectedRoute>
-                } 
-              />
+const App = () => {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="cemetery-pro-theme">
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Index />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="cemetery/:id" element={<CemeteryDetail />} />
+              <Route path="block/:id" element={<BlockDetail />} />
+              <Route path="work-orders" element={<WorkOrders />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="profile" element={<UserProfile />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </ThemeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster />
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
 
 export default App;

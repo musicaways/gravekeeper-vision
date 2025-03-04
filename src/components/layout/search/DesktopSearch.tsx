@@ -29,7 +29,7 @@ const DesktopSearch = ({ onSearch, value = "" }: DesktopSearchProps) => {
       <Input
         type="search"
         placeholder="Cerca..."
-        className="pl-8 h-8 md:w-[180px] lg:w-[220px] rounded-lg border-muted focus:border-primary/50 transition-all duration-300 text-sm"
+        className="pl-8 h-9 md:w-[180px] lg:w-[220px] rounded-md border-muted focus:border-primary/50 transition-all duration-300 text-sm"
         value={searchTerm}
         onChange={handleSearch}
       />

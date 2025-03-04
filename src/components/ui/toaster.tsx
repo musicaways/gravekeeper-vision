@@ -15,7 +15,7 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts
-        .filter(toast => !toast.description?.toString().includes('connected')) // Filter out connection toasts
+        .filter(toast => !toast.description?.toString().includes('connected') && !toast.description?.toString().includes('Signed in'))
         .map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>

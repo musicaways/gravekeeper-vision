@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
 
 interface SectionsListProps {
   sections: Section[];
@@ -47,26 +48,30 @@ export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, e
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {sections.map((section) => (
-        <div key={section.Id} className="border rounded-md p-3 hover:bg-accent/5 transition-colors">
-          <div className="bg-primary/10 -mx-3 -mt-3 px-3 py-2 mb-2 border-b rounded-t-md">
+        <div key={section.Id} className="border rounded-md hover:bg-accent/5 transition-colors">
+          <div className="bg-primary/10 px-3 py-2 rounded-t-md border-b">
             <h3 className="font-medium text-base text-primary-dark">
               {section.Nome || section.Codice || `Settore ${section.Id}`}
             </h3>
           </div>
           
           {section.blocchi && section.blocchi.length > 0 ? (
-            <div className="space-y-2 mt-2">
+            <div className="space-y-0 divide-y">
               {section.blocchi.map((block) => (
-                <div key={block.Id} className="flex justify-between items-center border-t pt-2">
+                <Link 
+                  to={`/block/${block.Id}`} 
+                  key={block.Id} 
+                  className="flex justify-between items-center p-3 hover:bg-muted/50 transition-colors"
+                >
                   <span className="text-sm font-medium truncate mr-2">{block.Nome || block.Codice || `Blocco ${block.Id}`}</span>
-                  <Badge variant="outline" className="whitespace-nowrap ml-auto shrink-0 min-w-12 text-center text-xs">
+                  <Badge variant="outline" className="whitespace-nowrap ml-auto shrink-0 min-w-[70px] text-center text-xs">
                     {block.NumeroLoculi || 0} loculi
                   </Badge>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground mt-1">Nessun blocco disponibile</p>
+            <p className="text-xs text-muted-foreground p-3">Nessun blocco disponibile</p>
           )}
         </div>
       ))}

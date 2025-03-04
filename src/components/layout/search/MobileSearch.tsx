@@ -52,8 +52,8 @@ const MobileSearch = ({ onSearch, value = "" }: MobileSearchProps) => {
           <Search className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="top" className="max-h-40 pt-10 animate-slide-in-top">
-        <form onSubmit={handleSubmit} className="relative">
+      <SheetContent side="top" className="max-h-40 pt-10 animate-slide-in-top bg-background/95 backdrop-blur-md">
+        <form onSubmit={handleSubmit} className="relative max-w-md mx-auto">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input

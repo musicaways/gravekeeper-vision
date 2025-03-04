@@ -53,7 +53,7 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
           {cemetery.Descrizione && (
             <div className="w-full">
               <h3 className="text-sm font-medium mb-2">Descrizione</h3>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-md w-full">
+              <div className="p-4 rounded-md w-full">
                 {formatMultilineText(cemetery.Descrizione)}
               </div>
             </div>
@@ -62,7 +62,7 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
           {cemetery.Note && (
             <div className="w-full">
               <h3 className="text-sm font-medium mb-2">Note</h3>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-md w-full">
+              <div className="p-4 rounded-md w-full">
                 {formatMultilineText(cemetery.Note)}
               </div>
             </div>
