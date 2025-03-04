@@ -78,29 +78,29 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
           <div className="px-3 py-4">
             {(open || isMobile) && (
               <h2 className="mb-2 px-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Navigation
+                Navigazione
               </h2>
             )}
             
             <nav className="space-y-1">
               <NavItem href="/" icon={Home} label="Dashboard" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/cemeteries" icon={Landmark} label="Cemeteries" isActive={isActive("/cemeteries")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/work-orders" icon={ClipboardList} label="Work Orders" isActive={isActive("/work-orders")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/deceased" icon={Users} label="Deceased Records" isActive={isActive("/deceased")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/inventory" icon={Boxes} label="Inventory" isActive={isActive("/inventory")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/crews" icon={Activity} label="Work Crews" isActive={isActive("/crews")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/maps" icon={Map} label="Cemetery Maps" isActive={isActive("/maps")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/ai-assistant" icon={Bot} label="AI Assistant" isActive={isActive("/ai-assistant")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/cemeteries" icon={Landmark} label="Cimiteri" isActive={isActive("/cemeteries")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/work-orders" icon={ClipboardList} label="Ordini di lavoro" isActive={isActive("/work-orders")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/deceased" icon={Users} label="Registri defunti" isActive={isActive("/deceased")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/inventory" icon={Boxes} label="Inventario" isActive={isActive("/inventory")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/crews" icon={Activity} label="Squadre di lavoro" isActive={isActive("/crews")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/maps" icon={Map} label="Mappe cimitero" isActive={isActive("/maps")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/ai-assistant" icon={Bot} label="Assistente AI" isActive={isActive("/ai-assistant")} showLabel={open || isMobile} onClick={handleNavigate} />
             </nav>
             
             {(open || isMobile) && (
               <div className="mt-8">
                 <h2 className="mb-2 px-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Settings
+                  Impostazioni
                 </h2>
                 <nav className="space-y-1">
-                  <NavItem href="/profile" icon={Users} label="Profile" isActive={isActive("/profile")} showLabel={true} onClick={handleNavigate} />
-                  <NavItem href="/settings" icon={Settings} label="Settings" isActive={isActive("/settings")} showLabel={true} onClick={handleNavigate} />
+                  <NavItem href="/profile" icon={Users} label="Profilo" isActive={isActive("/profile")} showLabel={true} onClick={handleNavigate} />
+                  <NavItem href="/settings" icon={Settings} label="Impostazioni" isActive={isActive("/settings")} showLabel={true} onClick={handleNavigate} />
                 </nav>
               </div>
             )}

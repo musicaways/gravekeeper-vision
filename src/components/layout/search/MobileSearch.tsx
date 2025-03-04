@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -29,6 +30,13 @@ const MobileSearch = ({ onSearch, value = "" }: MobileSearchProps) => {
     }
   };
   
+  const handleClear = () => {
+    setSearchTerm("");
+    if (onSearch) {
+      onSearch("");
+    }
+  };
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) {
@@ -40,22 +48,33 @@ const MobileSearch = ({ onSearch, value = "" }: MobileSearchProps) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary/70 transition-colors">
           <Search className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="top" className="max-h-40 pt-10">
-        <form onSubmit={handleSubmit}>
+      <SheetContent side="top" className="max-h-40 pt-10 animate-slide-in-top">
+        <form onSubmit={handleSubmit} className="relative">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search..."
-              className="pl-9 w-full"
+              placeholder="Cerca..."
+              className="pl-9 pr-9 w-full rounded-lg border-muted focus:border-primary/50 transition-all duration-300 text-sm"
               value={searchTerm}
               onChange={handleSearch}
               autoFocus
             />
+            {searchTerm && (
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="sm" 
+                className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0 text-muted-foreground hover:text-foreground"
+                onClick={handleClear}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </form>
       </SheetContent>
