@@ -25,9 +25,9 @@ const BlockDocumentiTabContent: React.FC<BlockDocumentiTabContentProps> = ({ blo
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="px-4 py-4 space-y-6">
       <Card className="w-full shadow-sm">
-        <CardHeader className="pb-2">
+        <CardHeader className="px-4 md:px-6 pb-2">
           <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
             <FileText className="h-5 w-5" />
             Documenti
@@ -63,7 +63,7 @@ const BlockDocumentiTabContent: React.FC<BlockDocumentiTabContentProps> = ({ blo
 
       {/* Foto del blocco */}
       <Card className="w-full shadow-sm">
-        <CardHeader className="pb-2">
+        <CardHeader className="px-4 md:px-6 pb-2">
           <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
             <Image className="h-5 w-5" />
             Galleria fotografica

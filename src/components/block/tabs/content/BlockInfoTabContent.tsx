@@ -65,29 +65,38 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
   };
 
   return (
-    <Card className="w-full shadow-sm relative mx-auto">
-      <CardContent className="space-y-6 pt-6">
-        <div className="space-y-6">
-          {block.Descrizione && (
-            <div className="w-full">
-              <h3 className="text-sm font-medium mb-2">Descrizione</h3>
-              <div className="p-4 rounded-md w-full">
-                {formatMultilineText(block.Descrizione)}
-              </div>
+    <div className="px-4 py-4 space-y-6">
+      {block.Descrizione && (
+        <Card className="w-full shadow-sm">
+          <CardContent className="px-4 md:px-6 py-4 md:py-6">
+            <h3 className="text-xl font-medium mb-4">Descrizione</h3>
+            <div className="p-4 rounded-md w-full">
+              {formatMultilineText(block.Descrizione)}
             </div>
-          )}
-          
-          {block.Annotazioni && (
-            <div className="w-full">
-              <h3 className="text-sm font-medium mb-2">Annotazioni</h3>
-              <div className="p-4 rounded-md w-full">
-                {formatMultilineText(block.Annotazioni)}
-              </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {block.Annotazioni && (
+        <Card className="w-full shadow-sm">
+          <CardContent className="px-4 md:px-6 py-4 md:py-6">
+            <h3 className="text-xl font-medium mb-4">Note</h3>
+            <div className="p-4 rounded-md w-full">
+              {formatMultilineText(block.Annotazioni)}
             </div>
-          )}
+          </CardContent>
+        </Card>
+      )}
+      
+      <Card className="w-full shadow-sm">
+        <CardContent className="px-4 md:px-6 py-4 md:py-6">
+          <h3 className="text-xl font-medium mb-6 flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Dettagli
+          </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <div>
@@ -117,7 +126,7 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
               )}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {block.NumeroFile !== undefined && (
                 <div className="flex items-start gap-3">
                   <Calendar className="h-5 w-5 text-primary mt-0.5 shrink-0" />
@@ -139,34 +148,36 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
               )}
             </div>
           </div>
+        </CardContent>
+      </Card>
           
-          {/* Map section */}
-          <div className="mt-8">
-            <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
-              <Map className="h-5 w-5" />
-              Mappa del blocco
-            </h3>
-            {loading ? (
-              <div className="flex justify-center items-center py-10">
-                <span className="ml-2">Caricamento mappa...</span>
-              </div>
-            ) : mapUrl ? (
-              <div className="rounded-md overflow-hidden border border-border h-[400px] mt-4">
-                <img 
-                  src={mapUrl} 
-                  alt="Mappa del blocco" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            ) : (
-              <div className="text-center py-6 bg-muted/30 rounded-md">
-                <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
-                <p className="text-muted-foreground mb-2">Mappa non disponibile per questo blocco</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </CardContent>
+      {/* Map section */}
+      <Card className="w-full shadow-sm">
+        <CardContent className="px-4 md:px-6 py-4 md:py-6">
+          <h3 className="text-xl font-medium mb-4 flex items-center gap-2">
+            <Map className="h-5 w-5" />
+            Mappa del blocco
+          </h3>
+          {loading ? (
+            <div className="flex justify-center items-center py-10">
+              <span className="ml-2">Caricamento mappa...</span>
+            </div>
+          ) : mapUrl ? (
+            <div className="rounded-md overflow-hidden border border-border h-[400px] mt-4">
+              <img 
+                src={mapUrl} 
+                alt="Mappa del blocco" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="text-center py-6 bg-muted/30 rounded-md">
+              <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
+              <p className="text-muted-foreground mb-2">Mappa non disponibile per questo blocco</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
       
       {canEdit && (
         <Button 
@@ -178,7 +189,7 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
           <Edit className="h-5 w-5" />
         </Button>
       )}
-    </Card>
+    </div>
   );
 };
 
