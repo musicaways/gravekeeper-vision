@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { LoculiList } from "../../loculi/LoculiList";
+import { toast } from "sonner";
 
 interface BlockLoculiTabContentProps {
   blockId: string;
@@ -36,12 +37,12 @@ interface LoculoUppercase {
 type Loculo = LoculoLowercase | LoculoUppercase;
 
 // Type guard functions to check which type we're dealing with
-function isLoculoLowercase(loculo: Loculo): loculo is LoculoLowercase {
-  return 'id' in loculo;
+function isLoculoLowercase(loculo: any): loculo is LoculoLowercase {
+  return loculo && ('id' in loculo);
 }
 
-function isLoculoUppercase(loculo: Loculo): loculo is LoculoUppercase {
-  return 'Id' in loculo;
+function isLoculoUppercase(loculo: any): loculo is LoculoUppercase {
+  return loculo && ('Id' in loculo);
 }
 
 // Helper function to get the ID regardless of case
@@ -62,6 +63,7 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
     const fetchLoculi = async () => {
       try {
         setLoading(true);
+        setError(null);
         
         // Convert blockId string to number
         const numericBlockId = parseInt(blockId, 10);
@@ -72,109 +74,88 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
         
         console.log("Fetching loculi for block ID:", numericBlockId);
         
-        // Try fetching from both tables to see which one has data
-        let query = supabase
-          .from('loculi')
+        // Try the uppercase Loculo table first
+        const { data: loculoData, error: loculoError } = await supabase
+          .from('Loculo')
           .select(`
             *,
-            defunti(*)
+            Defunti:Defunto(*)
           `)
-          .eq('id_blocco', numericBlockId);
-        
-        // Apply search filter if provided
-        if (searchTerm) {
-          // Search for matching loculi by number or fila
-          query = query.or(`numero.ilike.%${searchTerm}%,fila.ilike.%${searchTerm}%`);
-        }
-        
-        const { data: loculiData, error: loculiError } = await query;
-        
-        if (loculiError) {
-          console.error("Error fetching from 'loculi' table:", loculiError);
+          .eq('IdBlocco', numericBlockId);
+            
+        if (!loculoError && loculoData && loculoData.length > 0) {
+          console.log("Loculi fetched from 'Loculo' table:", loculoData);
+          setLoculi(loculoData);
+        } else {
+          console.log("Error or no data from 'Loculo' table:", loculoError);
           
-          // Try the uppercase table as fallback
-          const { data: loculoData, error: loculoError } = await supabase
-            .from('Loculo')
+          // Try the lowercase loculi table
+          const { data: loculiData, error: loculiError } = await supabase
+            .from('loculi')
             .select(`
               *,
-              Defunti:Defunto(*)
+              defunti(*)
             `)
-            .eq('IdBlocco', numericBlockId);
-            
-          if (loculoError) {
-            console.error("Error also fetching from 'Loculo' table:", loculoError);
-            throw new Error("Impossibile caricare i loculi da entrambe le tabelle");
+            .eq('id_blocco', numericBlockId);
+          
+          if (loculiError) {
+            console.error("Error fetching from 'loculi' table:", loculiError);
+            throw new Error("Impossibile caricare i loculi: " + loculiError.message);
           }
           
-          console.log("Loculi fetched from 'Loculo' table:", loculoData);
-          setLoculi(loculoData || []);
-        } else {
           console.log("Loculi fetched from 'loculi' table:", loculiData);
-          
-          // If no data in lowercase table but we have uppercase table data, try that
-          if ((!loculiData || loculiData.length === 0)) {
-            const { data: loculoData, error: loculoError } = await supabase
-              .from('Loculo')
-              .select(`
-                *,
-                Defunti:Defunto(*)
-              `)
-              .eq('IdBlocco', numericBlockId);
-              
-            if (!loculoError && loculoData && loculoData.length > 0) {
-              console.log("Loculi fetched from 'Loculo' table:", loculoData);
-              setLoculi(loculoData);
-            } else {
-              setLoculi(loculiData || []);
-            }
-          } else {
-            setLoculi(loculiData || []);
-          }
+          setLoculi(loculiData || []);
         }
         
         // If we have a search term, also search for defunti by nominativo
         let additionalLoculi: Loculo[] = [];
         if (searchTerm) {
-          // Try with lowercase table first
-          const { data: defuntiData, error: defuntiError } = await supabase
-            .from('defunti')
+          // Try to search in Defunto (uppercase) first
+          const { data: defuntoData, error: defuntoError } = await supabase
+            .from('Defunto')
             .select(`
               *,
-              loculi!inner(*)
+              Loculo!inner(*)
             `)
-            .eq('loculi.id_blocco', numericBlockId)
-            .ilike('nominativo', `%${searchTerm}%`);
+            .eq('Loculo.IdBlocco', numericBlockId)
+            .ilike('Nominativo', `%${searchTerm}%`);
           
-          if (!defuntiError && defuntiData && defuntiData.length > 0) {
+          if (!defuntoError && defuntoData && defuntoData.length > 0) {
+            console.log("Defunti found in 'Defunto' table:", defuntoData);
+            
             // Extract unique loculi from defunti search results
-            const loculiFromDefunti = defuntiData.map(d => d.loculi);
+            const loculiFromDefunti = defuntoData.map(d => d.Loculo);
+            
             // Only include loculi that aren't already in the main results
             additionalLoculi = loculiFromDefunti.filter(
               l => !loculi.some(existingLoculo => {
-                const existingId = getLoculoId(existingLoculo);
-                const newId = isLoculoLowercase(l) ? l.id : (l as LoculoUppercase).Id;
+                const existingId = isLoculoUppercase(existingLoculo) ? existingLoculo.Id : existingLoculo.id;
+                const newId = isLoculoUppercase(l) ? l.Id : l.id;
                 return existingId === newId;
               })
             );
           } else {
-            // Try uppercase table
-            const { data: defuntoData, error: defuntoError } = await supabase
-              .from('Defunto')
+            // Try lowercase defunti table
+            const { data: defuntiData, error: defuntiError } = await supabase
+              .from('defunti')
               .select(`
                 *,
-                Loculo!inner(*)
+                loculi!inner(*)
               `)
-              .eq('Loculo.IdBlocco', numericBlockId)
-              .ilike('Nominativo', `%${searchTerm}%`);
+              .eq('loculi.id_blocco', numericBlockId)
+              .ilike('nominativo', `%${searchTerm}%`);
             
-            if (!defuntoError && defuntoData && defuntoData.length > 0) {
+            if (!defuntiError && defuntiData && defuntiData.length > 0) {
+              console.log("Defunti found in 'defunti' table:", defuntiData);
+              
               // Extract unique loculi from defunti search results
-              const loculiFromDefunti = defuntoData.map(d => d.Loculo);
+              const loculiFromDefunti = defuntiData.map(d => d.loculi);
+              
               // Only include loculi that aren't already in the main results
               additionalLoculi = loculiFromDefunti.filter(
                 l => !loculi.some(existingLoculo => {
-                  const existingId = getLoculoId(existingLoculo);
-                  const newId = isLoculoUppercase(l) ? l.Id : (l as LoculoLowercase).id;
+                  const existingId = isLoculoUppercase(existingLoculo) ? existingLoculo.Id : existingLoculo.id;
+                  const newId = isLoculoLowercase(l) ? l.id : l.Id;
                   return existingId === newId;
                 })
               );
@@ -183,12 +164,18 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
         }
         
         // Combine and set the results
-        const combinedResults = [...(loculi || []), ...additionalLoculi];
+        const combinedResults = [...loculi, ...additionalLoculi];
+        
+        if (combinedResults.length === 0) {
+          console.log("No loculi found for the specified block ID");
+          toast.info("Nessun loculo trovato per questo blocco");
+        }
+        
         setLoculi(combinedResults);
-        setError(null);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching loculi:", err);
         setError("Impossibile caricare i loculi. Riprova più tardi.");
+        toast.error("Errore nel caricamento dei loculi: " + err.message);
       } finally {
         setLoading(false);
       }

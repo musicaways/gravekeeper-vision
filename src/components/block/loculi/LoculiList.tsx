@@ -36,11 +36,11 @@ interface LoculiListProps {
 
 // Type guard functions to check which type we're dealing with
 function isLoculoLowercase(loculo: Loculo): loculo is LoculoLowercase {
-  return 'id' in loculo || 'numero' in loculo || 'fila' in loculo;
+  return loculo && ('id' in loculo || 'numero' in loculo || 'fila' in loculo);
 }
 
 function isLoculoUppercase(loculo: Loculo): loculo is LoculoUppercase {
-  return 'Id' in loculo || 'Numero' in loculo || 'Fila' in loculo;
+  return loculo && ('Id' in loculo || 'Numero' in loculo || 'Fila' in loculo);
 }
 
 export const LoculiList: React.FC<LoculiListProps> = ({ loculi, loading, error }) => {
@@ -76,7 +76,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi, loading, error }
   }
 
   const getNominativo = (defunto: any) => {
-    return defunto.Nominativo || defunto.nominativo;
+    return defunto.Nominativo || defunto.nominativo || "Nome non disponibile";
   };
 
   const getDefuntiCount = (loculo: Loculo) => {
