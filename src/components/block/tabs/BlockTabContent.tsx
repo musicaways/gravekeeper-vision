@@ -18,15 +18,15 @@ const BlockTabContent: React.FC<BlockTabContentProps> = ({
 }) => {
   return (
     <>
-      <TabsContent value="info" className="space-y-6 w-full">
+      <TabsContent value="info" className="space-y-6 w-full p-4">
         <BlockInfoTabContent block={block} />
       </TabsContent>
 
-      <TabsContent value="loculi" className="space-y-6 w-full">
+      <TabsContent value="loculi" className="space-y-6 w-full p-4">
         <BlockLoculiTabContent blockId={blockId} searchTerm={searchTerm} />
       </TabsContent>
       
-      <TabsContent value="documenti" className="space-y-6 w-full">
+      <TabsContent value="documenti" className="space-y-6 w-full p-4">
         <BlockDocumentiTabContent blockId={blockId} />
       </TabsContent>
     </>

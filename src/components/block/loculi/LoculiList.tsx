@@ -1,8 +1,9 @@
 
 import React from "react";
-import { User } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Loculo, isLoculoLowercase, isLoculoUppercase } from "./types";
+import { Link } from "react-router-dom";
 
 interface LoculiListProps {
   loculi: Loculo[];
@@ -28,7 +29,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {loculi.map((loculo, index) => {
         const numero = isLoculoUppercase(loculo) ? loculo.Numero : loculo.numero;
         const fila = isLoculoUppercase(loculo) ? loculo.Fila : loculo.fila;
@@ -44,22 +45,27 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
               </h3>
             </div>
             
-            <div className="p-3">
+            <div className="space-y-0 divide-y">
               {defuntiCount > 0 ? (
-                <div className="space-y-2">
-                  {defunti.map((defunto: any, index: number) => (
-                    <div key={index} className="flex items-center gap-2">
+                defunti.map((defunto: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center p-3 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-sm">{getNominativo(defunto)}</span>
+                      <span className="text-sm font-medium truncate">{getNominativo(defunto)}</span>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))
               ) : (
-                <p className="text-xs text-muted-foreground">Nessun defunto associato</p>
+                <div className="p-3">
+                  <p className="text-xs text-muted-foreground">Nessun defunto associato</p>
+                </div>
               )}
-              
-              <div className="mt-3 flex justify-end">
-                <Badge variant="outline" className="ml-auto">
+              <div className="flex justify-between items-center p-3 bg-muted/5">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-xs text-muted-foreground">Totale defunti</span>
+                </div>
+                <Badge variant="outline" className="ml-auto shrink-0 min-w-[70px] text-center text-xs">
                   {defuntiCount} defunt{defuntiCount === 1 ? 'o' : 'i'}
                 </Badge>
               </div>
