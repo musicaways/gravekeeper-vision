@@ -16,7 +16,7 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
   const { loculi, loading, error } = useLoculi({ blockId, searchTerm });
 
   return (
-    <div className="px-4 py-4 w-full space-y-6">
+    <div className="px-4 py-4 w-full">
       <Card className="w-full shadow-sm">
         <CardContent className="px-4 md:px-6 py-4 md:py-6">
           {loading && <LoculiLoading />}

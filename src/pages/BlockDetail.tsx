@@ -106,8 +106,8 @@ const BlockDetail = () => {
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/30 flex flex-col justify-end">
-          <div className="w-full max-w-none px-4 py-4">
-            <div className="w-full max-w-none px-0">
+          <div className="w-full px-4 py-4">
+            <div className="w-full">
               <h2 className="text-white text-xl md:text-2xl font-semibold">
                 {block.Nome || block.Codice || `Blocco ${block.Id}`}
               </h2>
@@ -119,7 +119,7 @@ const BlockDetail = () => {
         </div>
       </div>
         
-      <div className="w-full max-w-none px-0">
+      <div className="w-full">
         <BlockTabs 
           block={block} 
           blockId={id || ''} 

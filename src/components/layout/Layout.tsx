@@ -66,9 +66,8 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
           onMenuClick={toggleSidebar}
           showBackButton={showBackButton} 
         />
-        <AppBreadcrumb />
-        <main className="flex-1 overflow-auto px-2 py-3 sm:px-4 md:px-6 md:py-6">
-          <div className="w-full max-w-5xl mx-auto">
+        <main className="flex-1 overflow-auto">
+          <div className="w-full">
             {children}
           </div>
         </main>

@@ -24,11 +24,11 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
       try {
         if (!block || !block.Id) return;
 
-        // Query the CimiteroMappe table, not BloccoMappe which doesn't exist
+        // Query the CimiteroMappe table for the related cemetery map
         const { data, error } = await supabase
           .from('CimiteroMappe')
           .select('Url')
-          .eq('IdCimitero', block.IdSettore ? block.Settore?.IdCimitero : null)
+          .eq('IdCimitero', block.Settore?.IdCimitero || null)
           .order('DataInserimento', { ascending: false })
           .limit(1);
         
@@ -65,9 +65,9 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
   };
 
   return (
-    <div className="px-4 py-4 space-y-6">
+    <div className="px-4 py-4">
       {block.Descrizione && (
-        <Card className="w-full shadow-sm">
+        <Card className="w-full shadow-sm mb-6">
           <CardContent className="px-4 md:px-6 py-4 md:py-6">
             <h3 className="text-xl font-medium mb-4">Descrizione</h3>
             <div className="p-4 rounded-md w-full">
@@ -78,7 +78,7 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
       )}
       
       {block.Annotazioni && (
-        <Card className="w-full shadow-sm">
+        <Card className="w-full shadow-sm mb-6">
           <CardContent className="px-4 md:px-6 py-4 md:py-6">
             <h3 className="text-xl font-medium mb-4">Note</h3>
             <div className="p-4 rounded-md w-full">
@@ -88,7 +88,7 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
         </Card>
       )}
       
-      <Card className="w-full shadow-sm">
+      <Card className="w-full shadow-sm mb-6">
         <CardContent className="px-4 md:px-6 py-4 md:py-6">
           <h3 className="text-xl font-medium mb-6 flex items-center gap-2">
             <MapPin className="h-5 w-5" />

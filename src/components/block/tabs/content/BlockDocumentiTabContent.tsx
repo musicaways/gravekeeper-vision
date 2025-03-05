@@ -25,8 +25,8 @@ const BlockDocumentiTabContent: React.FC<BlockDocumentiTabContentProps> = ({ blo
   ];
 
   return (
-    <div className="px-4 py-4 space-y-6">
-      <Card className="w-full shadow-sm">
+    <div className="px-4 py-4">
+      <Card className="w-full shadow-sm mb-6">
         <CardHeader className="px-4 md:px-6 pb-2">
           <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
             <FileText className="h-5 w-5" />
