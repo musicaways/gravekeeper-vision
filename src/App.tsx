@@ -24,6 +24,8 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Home route (cemeteries list) */}
             <Route path="/" element={
               <ProtectedRoute>
                 <Layout>
@@ -31,6 +33,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* Dashboard route */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Layout>
@@ -38,6 +42,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* Cemetery detail route */}
             <Route path="/cemetery/:id" element={
               <ProtectedRoute>
                 <Layout>
@@ -45,6 +51,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* Block detail route */}
             <Route path="/block/:id" element={
               <ProtectedRoute>
                 <Layout>
@@ -52,6 +60,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* Work orders route */}
             <Route path="/work-orders" element={
               <ProtectedRoute>
                 <Layout>
@@ -59,6 +69,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* Settings route */}
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Layout>
@@ -66,6 +78,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* User profile route */}
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Layout>
@@ -73,6 +87,8 @@ const App = () => {
                 </Layout>
               </ProtectedRoute>
             } />
+            
+            {/* NotFound route (for any other route) */}
             <Route path="*" element={
               <ProtectedRoute>
                 <Layout>

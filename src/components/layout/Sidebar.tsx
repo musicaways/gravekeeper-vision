@@ -83,8 +83,9 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
             )}
             
             <nav className="space-y-1">
-              <NavItem href="/" icon={Home} label="Dashboard" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/cemeteries" icon={Landmark} label="Cimiteri" isActive={isActive("/cemeteries")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/" icon={Home} label="Home" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/dashboard" icon={Activity} label="Dashboard" isActive={isActive("/dashboard")} showLabel={open || isMobile} onClick={handleNavigate} />
+              <NavItem href="/" icon={Landmark} label="Cimiteri" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/work-orders" icon={ClipboardList} label="Ordini di lavoro" isActive={isActive("/work-orders")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/deceased" icon={Users} label="Registri defunti" isActive={isActive("/deceased")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/inventory" icon={Boxes} label="Inventario" isActive={isActive("/inventory")} showLabel={open || isMobile} onClick={handleNavigate} />
