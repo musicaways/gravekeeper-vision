@@ -4,6 +4,8 @@ import { MapPin, Calendar, Phone, Mail, Globe, Map, Check, X, Edit } from "lucid
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CemeteryInfoDisplayProps {
   cemetery: any;
@@ -13,6 +15,35 @@ interface CemeteryInfoDisplayProps {
 const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps) => {
   const { user } = useAuth();
   const canEdit = !!user;
+  const [mapUrl, setMapUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCemeteryMap = async () => {
+      try {
+        if (!cemetery || !cemetery.Id) return;
+
+        const { data, error } = await supabase
+          .from('CimiteroMappe')
+          .select('Url')
+          .eq('IdCimitero', cemetery.Id)
+          .order('DataInserimento', { ascending: false })
+          .limit(1);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setMapUrl(data[0].Url);
+        }
+      } catch (err) {
+        console.error("Errore nel caricamento della mappa:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCemeteryMap();
+  }, [cemetery]);
 
   const renderBooleanField = (label: string, value: boolean | null | undefined) => {
     if (value === null || value === undefined) return null;
@@ -149,6 +180,32 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
               </div>
             </div>
           )}
+          
+          {/* Map section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
+              <Map className="h-5 w-5" />
+              Mappa del cimitero
+            </h3>
+            {loading ? (
+              <div className="flex justify-center items-center py-10">
+                <span className="ml-2">Caricamento mappa...</span>
+              </div>
+            ) : mapUrl ? (
+              <div className="rounded-md overflow-hidden border border-border h-[400px] mt-4">
+                <img 
+                  src={mapUrl} 
+                  alt="Mappa del cimitero" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="text-center py-6 bg-muted/30 rounded-md">
+                <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
+                <p className="text-muted-foreground mb-2">Mappa non disponibile per questo cimitero</p>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
       

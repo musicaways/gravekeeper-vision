@@ -4,9 +4,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import {
   CemeteryInfoTabContent,
   CemeterySectionsTabContent,
-  CemeteryMapTabContent,
-  CemeteryDocumentsTabContent,
-  CemeteryGalleryTabContent
+  CemeteryDocumentsTabContent
 } from "./content";
 
 interface CemeteryTabContentProps {
@@ -30,16 +28,8 @@ const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({
         <CemeterySectionsTabContent cemeteryId={cemeteryId} searchTerm={searchTerm} />
       </TabsContent>
 
-      <TabsContent value="map" className="space-y-6 w-full">
-        <CemeteryMapTabContent />
-      </TabsContent>
-
       <TabsContent value="documents" className="space-y-6 w-full">
         <CemeteryDocumentsTabContent cemeteryId={cemeteryId} />
-      </TabsContent>
-
-      <TabsContent value="gallery" className="space-y-6 w-full">
-        <CemeteryGalleryTabContent cemeteryId={cemeteryId} />
       </TabsContent>
     </>
   );
