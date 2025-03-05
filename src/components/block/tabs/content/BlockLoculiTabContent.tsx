@@ -9,8 +9,52 @@ interface BlockLoculiTabContentProps {
   searchTerm?: string;
 }
 
+// Define interfaces for our different table structures
+interface LoculoLowercase {
+  id: string;
+  numero: number;
+  fila: number;
+  annotazioni?: string;
+  id_blocco: number;
+  tipo_tomba?: number;
+  created_at?: string;
+  updated_at?: string;
+  defunti?: any[];
+}
+
+interface LoculoUppercase {
+  Id: number;
+  Numero: number;
+  Fila: number;
+  Annotazioni?: string;
+  IdBlocco: number;
+  TipoTomba?: number;
+  Defunti?: any[];
+}
+
+// Union type to handle both structures
+type Loculo = LoculoLowercase | LoculoUppercase;
+
+// Type guard functions to check which type we're dealing with
+function isLoculoLowercase(loculo: Loculo): loculo is LoculoLowercase {
+  return 'id' in loculo;
+}
+
+function isLoculoUppercase(loculo: Loculo): loculo is LoculoUppercase {
+  return 'Id' in loculo;
+}
+
+// Helper function to get the ID regardless of case
+function getLoculoId(loculo: Loculo): string | number {
+  if (isLoculoLowercase(loculo)) {
+    return loculo.id;
+  } else {
+    return loculo.Id;
+  }
+}
+
 const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, searchTerm = "" }) => {
-  const [loculi, setLoculi] = useState([]);
+  const [loculi, setLoculi] = useState<Loculo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,7 +133,7 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
         }
         
         // If we have a search term, also search for defunti by nominativo
-        let additionalLoculi = [];
+        let additionalLoculi: Loculo[] = [];
         if (searchTerm) {
           // Try with lowercase table first
           const { data: defuntiData, error: defuntiError } = await supabase
@@ -107,9 +151,8 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
             // Only include loculi that aren't already in the main results
             additionalLoculi = loculiFromDefunti.filter(
               l => !loculi.some(existingLoculo => {
-                // Handle both uppercase and lowercase property names
-                const existingId = existingLoculo.id !== undefined ? existingLoculo.id : existingLoculo.Id;
-                const newId = l.id !== undefined ? l.id : l.Id;
+                const existingId = getLoculoId(existingLoculo);
+                const newId = isLoculoLowercase(l) ? l.id : (l as LoculoUppercase).Id;
                 return existingId === newId;
               })
             );
@@ -130,9 +173,8 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
               // Only include loculi that aren't already in the main results
               additionalLoculi = loculiFromDefunti.filter(
                 l => !loculi.some(existingLoculo => {
-                  // Handle both uppercase and lowercase property names
-                  const existingId = existingLoculo.id !== undefined ? existingLoculo.id : existingLoculo.Id;
-                  const newId = l.id !== undefined ? l.id : l.Id;
+                  const existingId = getLoculoId(existingLoculo);
+                  const newId = isLoculoUppercase(l) ? l.Id : (l as LoculoLowercase).id;
                   return existingId === newId;
                 })
               );

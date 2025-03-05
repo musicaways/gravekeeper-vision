@@ -6,27 +6,41 @@ import { AlertCircle, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // Support both uppercase and lowercase field names
-interface Loculo {
-  Id?: number;
+interface LoculoLowercase {
   id?: string;
-  Numero?: number;
   numero?: number;
-  Fila?: number;
   fila?: number;
-  Annotazioni?: string;
   annotazioni?: string;
-  IdBlocco?: number;
   id_blocco?: number;
-  TipoTomba?: number;
   tipo_tomba?: number;
-  Defunti?: any[];
   defunti?: any[];
 }
+
+interface LoculoUppercase {
+  Id?: number;
+  Numero?: number;
+  Fila?: number;
+  Annotazioni?: string;
+  IdBlocco?: number;
+  TipoTomba?: number;
+  Defunti?: any[];
+}
+
+type Loculo = LoculoLowercase | LoculoUppercase;
 
 interface LoculiListProps {
   loculi: Loculo[];
   loading: boolean;
   error: string | null;
+}
+
+// Type guard functions to check which type we're dealing with
+function isLoculoLowercase(loculo: Loculo): loculo is LoculoLowercase {
+  return 'id' in loculo || 'numero' in loculo || 'fila' in loculo;
+}
+
+function isLoculoUppercase(loculo: Loculo): loculo is LoculoUppercase {
+  return 'Id' in loculo || 'Numero' in loculo || 'Fila' in loculo;
 }
 
 export const LoculiList: React.FC<LoculiListProps> = ({ loculi, loading, error }) => {
@@ -66,26 +80,30 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi, loading, error }
   };
 
   const getDefuntiCount = (loculo: Loculo) => {
-    if (loculo.Defunti && loculo.Defunti.length > 0) return loculo.Defunti.length;
-    if (loculo.defunti && loculo.defunti.length > 0) return loculo.defunti.length;
+    if (isLoculoUppercase(loculo) && loculo.Defunti && loculo.Defunti.length > 0) 
+      return loculo.Defunti.length;
+    if (isLoculoLowercase(loculo) && loculo.defunti && loculo.defunti.length > 0) 
+      return loculo.defunti.length;
     return 0;
   };
 
   const getDefunti = (loculo: Loculo) => {
-    return loculo.Defunti || loculo.defunti || [];
+    if (isLoculoUppercase(loculo)) return loculo.Defunti || [];
+    if (isLoculoLowercase(loculo)) return loculo.defunti || [];
+    return [];
   };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-      {loculi.map((loculo) => {
-        const numero = loculo.Numero || loculo.numero;
-        const fila = loculo.Fila || loculo.fila;
-        const id = loculo.Id || loculo.id;
+      {loculi.map((loculo, index) => {
+        const numero = isLoculoUppercase(loculo) ? loculo.Numero : loculo.numero;
+        const fila = isLoculoUppercase(loculo) ? loculo.Fila : loculo.fila;
+        const id = isLoculoUppercase(loculo) ? loculo.Id : loculo.id;
         const defunti = getDefunti(loculo);
         const defuntiCount = getDefuntiCount(loculo);
         
         return (
-          <div key={id} className="border rounded-md hover:bg-accent/5 transition-colors">
+          <div key={id ?? index} className="border rounded-md hover:bg-accent/5 transition-colors">
             <div className="bg-primary/10 px-3 py-2 rounded-t-md border-b">
               <h3 className="font-medium text-base text-primary-dark">
                 Numero {numero}, Fila {fila}
