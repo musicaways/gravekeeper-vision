@@ -106,7 +106,12 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
             const loculiFromDefunti = defuntiData.map(d => d.loculi);
             // Only include loculi that aren't already in the main results
             additionalLoculi = loculiFromDefunti.filter(
-              l => !loculi.some(existingLoculo => existingLoculo.Id === l.Id || existingLoculo.id === l.id)
+              l => !loculi.some(existingLoculo => {
+                // Handle both uppercase and lowercase property names
+                const existingId = existingLoculo.Id || existingLoculo.id;
+                const newId = l.Id || l.id;
+                return existingId === newId;
+              })
             );
           } else {
             // Try uppercase table
@@ -124,7 +129,12 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
               const loculiFromDefunti = defuntoData.map(d => d.Loculo);
               // Only include loculi that aren't already in the main results
               additionalLoculi = loculiFromDefunti.filter(
-                l => !loculi.some(existingLoculo => existingLoculo.Id === l.Id || existingLoculo.id === l.id)
+                l => !loculi.some(existingLoculo => {
+                  // Handle both uppercase and lowercase property names
+                  const existingId = existingLoculo.Id || existingLoculo.id;
+                  const newId = l.Id || l.id;
+                  return existingId === newId;
+                })
               );
             }
           }
