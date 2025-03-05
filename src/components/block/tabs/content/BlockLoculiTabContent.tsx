@@ -38,20 +38,21 @@ type Loculo = LoculoLowercase | LoculoUppercase;
 
 // Type guard functions to check which type we're dealing with
 function isLoculoLowercase(loculo: any): loculo is LoculoLowercase {
-  return loculo && ('id' in loculo);
+  return loculo && ('id' in loculo || 'numero' in loculo || 'fila' in loculo);
 }
 
 function isLoculoUppercase(loculo: any): loculo is LoculoUppercase {
-  return loculo && ('Id' in loculo);
+  return loculo && ('Id' in loculo || 'Numero' in loculo || 'Fila' in loculo);
 }
 
-// Helper function to get the ID regardless of case
-function getLoculoId(loculo: Loculo): string | number {
+// Helper function to safely get the ID regardless of case
+function getLoculoId(loculo: Loculo): string | number | undefined {
   if (isLoculoLowercase(loculo)) {
     return loculo.id;
-  } else {
+  } else if (isLoculoUppercase(loculo)) {
     return loculo.Id;
   }
+  return undefined;
 }
 
 const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, searchTerm = "" }) => {
@@ -123,14 +124,24 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
           if (!defuntoError && defuntoData && defuntoData.length > 0) {
             console.log("Defunti found in 'Defunto' table:", defuntoData);
             
-            // Extract unique loculi from defunti search results
-            const loculiFromDefunti = defuntoData.map(d => d.Loculo);
+            // Extract unique loculi from defunti search results and ensure they're properly typed
+            const loculiFromDefunti = defuntoData
+              .filter(d => d.Loculo) // Ensure Loculo is defined
+              .map(d => d.Loculo as LoculoUppercase); // Explicitly cast to correct type
             
             // Only include loculi that aren't already in the main results
             additionalLoculi = loculiFromDefunti.filter(
-              l => !loculi.some(existingLoculo => {
-                const existingId = isLoculoUppercase(existingLoculo) ? existingLoculo.Id : existingLoculo.id;
-                const newId = isLoculoUppercase(l) ? l.Id : l.id;
+              newLoculo => !loculi.some(existingLoculo => {
+                const existingId = isLoculoLowercase(existingLoculo) 
+                  ? existingLoculo.id 
+                  : isLoculoUppercase(existingLoculo) 
+                    ? existingLoculo.Id 
+                    : undefined;
+                
+                const newId = isLoculoUppercase(newLoculo) 
+                  ? newLoculo.Id 
+                  : undefined;
+                
                 return existingId === newId;
               })
             );
@@ -148,14 +159,24 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
             if (!defuntiError && defuntiData && defuntiData.length > 0) {
               console.log("Defunti found in 'defunti' table:", defuntiData);
               
-              // Extract unique loculi from defunti search results
-              const loculiFromDefunti = defuntiData.map(d => d.loculi);
+              // Extract unique loculi from defunti search results and ensure they're properly typed
+              const loculiFromDefunti = defuntiData
+                .filter(d => d.loculi) // Ensure loculi is defined
+                .map(d => d.loculi as LoculoLowercase); // Explicitly cast to correct type
               
               // Only include loculi that aren't already in the main results
               additionalLoculi = loculiFromDefunti.filter(
-                l => !loculi.some(existingLoculo => {
-                  const existingId = isLoculoUppercase(existingLoculo) ? existingLoculo.Id : existingLoculo.id;
-                  const newId = isLoculoLowercase(l) ? l.id : l.Id;
+                newLoculo => !loculi.some(existingLoculo => {
+                  const existingId = isLoculoLowercase(existingLoculo) 
+                    ? existingLoculo.id 
+                    : isLoculoUppercase(existingLoculo) 
+                      ? existingLoculo.Id 
+                      : undefined;
+                  
+                  const newId = isLoculoLowercase(newLoculo) 
+                    ? newLoculo.id 
+                    : undefined;
+                  
                   return existingId === newId;
                 })
               );
