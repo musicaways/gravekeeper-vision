@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,15 +99,15 @@ const BlockDetail = () => {
     <div className="min-h-screen bg-background">
       <AppBreadcrumb />
       
-      <div className="w-full h-32 md:h-48 relative overflow-hidden">
+      <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 
           src={coverPhotoUrl} 
           alt={`${block.Nome || 'Blocco'} - immagine di copertina`}
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/30 flex flex-col justify-end">
-          <div className="w-full max-w-none px-4 py-4 flex justify-between items-end">
-            <div>
+          <div className="w-full max-w-none px-4 py-4">
+            <div className="w-full max-w-none px-0">
               <h2 className="text-white text-xl md:text-2xl font-semibold">
                 {block.Nome || block.Codice || `Blocco ${block.Id}`}
               </h2>
@@ -116,14 +115,11 @@ const BlockDetail = () => {
                 {block.Settore?.Nome ? `Settore: ${block.Settore.Nome}` : ""}
               </p>
             </div>
-            <div className="hidden md:block">
-              <GlobalSearch onSearch={handleSearch} />
-            </div>
           </div>
         </div>
       </div>
       
-      <div className="md:hidden w-full bg-background p-3 border-b">
+      <div className="w-full bg-background p-3 border-b">
         <GlobalSearch onSearch={handleSearch} />
       </div>
         
