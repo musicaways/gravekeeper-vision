@@ -7,13 +7,16 @@ import UserControlButtons from "./topbar/UserControlButtons";
 
 interface TopbarProps {
   onMenuClick?: () => void;
-  showBackButton?: boolean;
 }
 
-const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
+const Topbar = ({ onMenuClick }: TopbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Determine if we need to show the back button based on the current route
+  const showBackButton = location.pathname.includes('/cemetery/') || 
+                         location.pathname.includes('/block/');
   
   // Extract initial search term from URL if present
   useEffect(() => {
@@ -32,9 +35,10 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     
     // Add search term to query params for specific routes
     const isCemeteryDetailPage = location.pathname.includes('/cemetery/');
+    const isBlockDetailPage = location.pathname.includes('/block/');
     const isHomePage = location.pathname === "/" || location.pathname === "/cemeteries";
     
-    if (isCemeteryDetailPage || isHomePage) {
+    if (isCemeteryDetailPage || isHomePage || isBlockDetailPage) {
       // Add search term to URL query params
       const params = new URLSearchParams(location.search);
       if (term) {

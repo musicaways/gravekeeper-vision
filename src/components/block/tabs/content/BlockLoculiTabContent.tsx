@@ -19,13 +19,14 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
       try {
         setLoading(true);
         
-        // First, fetch the loculi for this block
         // Convert blockId string to number
         const numericBlockId = parseInt(blockId, 10);
         
         if (isNaN(numericBlockId)) {
           throw new Error("ID blocco non valido: deve essere un numero");
         }
+        
+        console.log("Fetching loculi for block ID:", numericBlockId);
         
         let query = supabase
           .from('Loculo')
@@ -43,7 +44,12 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
         
         const { data, error: loculiError } = await query;
         
-        if (loculiError) throw loculiError;
+        if (loculiError) {
+          console.error("Error fetching loculi:", loculiError);
+          throw loculiError;
+        }
+        
+        console.log("Loculi fetched:", data);
         
         // If we have a search term, also search for defunti by nominativo
         let additionalLoculi = [];

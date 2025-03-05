@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
 import { BlockTabs } from "@/components/block/BlockTabs";
+import AppBreadcrumb from "@/components/layout/AppBreadcrumb";
 
 const BlockDetail = () => {
   const { id } = useParams();
@@ -91,15 +92,25 @@ const BlockDetail = () => {
     return <CemeteryErrorDisplay error={error} />;
   }
 
+  // Usa un'immagine di fallback se non c'è una immagine di copertina specifica per il blocco
+  const coverPhotoUrl = block.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&h=400&q=80";
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="w-full h-32 md:h-48 relative overflow-hidden bg-gradient-to-r from-primary/20 to-primary/10">
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+      <AppBreadcrumb />
+      
+      <div className="w-full h-32 md:h-48 relative overflow-hidden">
+        <img 
+          src={coverPhotoUrl} 
+          alt={`${block.Nome || 'Blocco'} - immagine di copertina`}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
           <div className="w-full max-w-none px-0">
-            <h2 className="text-primary-dark text-xl md:text-2xl font-semibold">
+            <h2 className="text-white text-xl md:text-2xl font-semibold">
               {block.Nome || block.Codice || `Blocco ${block.Id}`}
             </h2>
-            <p className="text-muted-foreground text-sm md:text-base">
+            <p className="text-white/90 text-sm md:text-base">
               {block.Settore?.Nome ? `Settore: ${block.Settore.Nome}` : ""}
             </p>
           </div>
