@@ -6,6 +6,7 @@ import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
 import { BlockTabs } from "@/components/block/BlockTabs";
 import AppBreadcrumb from "@/components/layout/AppBreadcrumb";
+import GlobalSearch from "@/components/layout/GlobalSearch";
 
 const BlockDetail = () => {
   const { id } = useParams();
@@ -105,16 +106,25 @@ const BlockDetail = () => {
           alt={`${block.Nome || 'Blocco'} - immagine di copertina`}
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
-          <div className="w-full max-w-none px-0">
-            <h2 className="text-white text-xl md:text-2xl font-semibold">
-              {block.Nome || block.Codice || `Blocco ${block.Id}`}
-            </h2>
-            <p className="text-white/90 text-sm md:text-base">
-              {block.Settore?.Nome ? `Settore: ${block.Settore.Nome}` : ""}
-            </p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/30 flex flex-col justify-end">
+          <div className="w-full max-w-none px-4 py-4 flex justify-between items-end">
+            <div>
+              <h2 className="text-white text-xl md:text-2xl font-semibold">
+                {block.Nome || block.Codice || `Blocco ${block.Id}`}
+              </h2>
+              <p className="text-white/90 text-sm md:text-base">
+                {block.Settore?.Nome ? `Settore: ${block.Settore.Nome}` : ""}
+              </p>
+            </div>
+            <div className="hidden md:block">
+              <GlobalSearch onSearch={handleSearch} />
+            </div>
           </div>
         </div>
+      </div>
+      
+      <div className="md:hidden w-full bg-background p-3 border-b">
+        <GlobalSearch onSearch={handleSearch} />
       </div>
         
       <div className="w-full max-w-none px-0">

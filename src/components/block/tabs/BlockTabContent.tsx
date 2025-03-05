@@ -3,9 +3,7 @@ import React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import BlockInfoTabContent from "./content/BlockInfoTabContent";
 import BlockLoculiTabContent from "./content/BlockLoculiTabContent";
-import BlockMapTabContent from "./content/BlockMapTabContent";
 import BlockDocumentiTabContent from "./content/BlockDocumentiTabContent";
-import BlockFotoTabContent from "./content/BlockFotoTabContent";
 
 interface BlockTabContentProps {
   block: any;
@@ -30,14 +28,6 @@ const BlockTabContent: React.FC<BlockTabContentProps> = ({
       
       <TabsContent value="documenti" className="space-y-6 w-full">
         <BlockDocumentiTabContent blockId={blockId} />
-      </TabsContent>
-      
-      <TabsContent value="foto" className="space-y-6 w-full">
-        <BlockFotoTabContent blockId={blockId} />
-      </TabsContent>
-
-      <TabsContent value="map" className="space-y-6 w-full">
-        <BlockMapTabContent block={block} />
       </TabsContent>
     </>
   );

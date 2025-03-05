@@ -1,7 +1,7 @@
 
 import { Tabs } from "@/components/ui/tabs";
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import BlockTabTriggers from "./tabs/BlockTabTriggers";
 import BlockTabContent from "./tabs/BlockTabContent";
 
@@ -21,6 +21,7 @@ export const BlockTabs: React.FC<BlockTabsProps> = ({
   onSearch
 }) => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("info");
   
   // Use external tab if provided, otherwise load from localStorage
@@ -30,12 +31,19 @@ export const BlockTabs: React.FC<BlockTabsProps> = ({
     } else {
       const savedTab = localStorage.getItem(`block-${id}-tab`);
       // Verify that the tab saved is one of those available
-      const availableTabs = ["info", "loculi", "map"];
+      const availableTabs = ["info", "loculi", "documenti"];
       if (savedTab && availableTabs.includes(savedTab)) {
         setActiveTab(savedTab);
       }
     }
   }, [id, externalActiveTab]);
+  
+  // Se c'è un termine di ricerca, attiva il tab loculi
+  useEffect(() => {
+    if (searchTerm) {
+      setActiveTab("loculi");
+    }
+  }, [searchTerm]);
   
   const handleTabChange = (value: string) => {
     setActiveTab(value);
