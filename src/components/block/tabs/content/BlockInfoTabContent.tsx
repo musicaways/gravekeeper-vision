@@ -24,10 +24,11 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
       try {
         if (!block || !block.Id) return;
 
+        // Query the CimiteroMappe table, not BloccoMappe which doesn't exist
         const { data, error } = await supabase
-          .from('BloccoMappe')
+          .from('CimiteroMappe')
           .select('Url')
-          .eq('IdBlocco', block.Id)
+          .eq('IdCimitero', block.IdSettore ? block.Settore?.IdCimitero : null)
           .order('DataInserimento', { ascending: false })
           .limit(1);
         
