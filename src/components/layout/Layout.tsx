@@ -19,7 +19,7 @@ const Layout = ({ children, title = "CemeteryPro", subtitle }: LayoutProps) => {
   const location = useLocation();
   
   // Determine if we should show back button
-  const showBackButton = location.pathname.includes('/cemetery/');
+  const showBackButton = location.pathname.includes('/cemetery/') || location.pathname.includes('/block/');
 
   useEffect(() => {
     // Check if we're on mobile
