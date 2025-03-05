@@ -1,80 +1,14 @@
 
 import React from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, User } from "lucide-react";
+import { User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-// Support both uppercase and lowercase field names
-interface LoculoLowercase {
-  id?: string;
-  numero?: number;
-  fila?: number;
-  annotazioni?: string;
-  id_blocco?: number;
-  tipo_tomba?: number;
-  defunti?: any[];
-}
-
-interface LoculoUppercase {
-  Id?: number;
-  Numero?: number;
-  Fila?: number;
-  Annotazioni?: string;
-  IdBlocco?: number;
-  TipoTomba?: number;
-  Defunti?: any[];
-}
-
-type Loculo = LoculoLowercase | LoculoUppercase;
+import { Loculo, isLoculoLowercase, isLoculoUppercase } from "./types";
 
 interface LoculiListProps {
   loculi: Loculo[];
-  loading: boolean;
-  error: string | null;
 }
 
-// Type guard functions to check which type we're dealing with
-function isLoculoLowercase(loculo: Loculo): loculo is LoculoLowercase {
-  return loculo && ('id' in loculo || 'numero' in loculo || 'fila' in loculo);
-}
-
-function isLoculoUppercase(loculo: Loculo): loculo is LoculoUppercase {
-  return loculo && ('Id' in loculo || 'Numero' in loculo || 'Fila' in loculo);
-}
-
-export const LoculiList: React.FC<LoculiListProps> = ({ loculi, loading, error }) => {
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="border rounded-md p-4">
-            <Skeleton className="h-5 w-1/2 mb-2" />
-            <Skeleton className="h-4 w-3/4 mb-1" />
-            <Skeleton className="h-4 w-1/4" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive" className="m-4">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (!loculi || loculi.length === 0) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-muted-foreground">Nessun loculo trovato</p>
-      </div>
-    );
-  }
-
+export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   const getNominativo = (defunto: any) => {
     return defunto.Nominativo || defunto.nominativo || "Nome non disponibile";
   };
