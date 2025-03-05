@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,7 +6,6 @@ import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
 import { BlockTabs } from "@/components/block/BlockTabs";
 import AppBreadcrumb from "@/components/layout/AppBreadcrumb";
-import GlobalSearch from "@/components/layout/GlobalSearch";
 
 const BlockDetail = () => {
   const { id } = useParams();
@@ -117,10 +117,6 @@ const BlockDetail = () => {
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="w-full bg-background p-3 border-b">
-        <GlobalSearch onSearch={handleSearch} />
       </div>
         
       <div className="w-full max-w-none px-0">
