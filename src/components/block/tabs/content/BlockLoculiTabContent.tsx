@@ -108,8 +108,8 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
             additionalLoculi = loculiFromDefunti.filter(
               l => !loculi.some(existingLoculo => {
                 // Handle both uppercase and lowercase property names
-                const existingId = existingLoculo.Id || existingLoculo.id;
-                const newId = l.Id || l.id;
+                const existingId = existingLoculo.id !== undefined ? existingLoculo.id : existingLoculo.Id;
+                const newId = l.id !== undefined ? l.id : l.Id;
                 return existingId === newId;
               })
             );
@@ -131,8 +131,8 @@ const BlockLoculiTabContent: React.FC<BlockLoculiTabContentProps> = ({ blockId, 
               additionalLoculi = loculiFromDefunti.filter(
                 l => !loculi.some(existingLoculo => {
                   // Handle both uppercase and lowercase property names
-                  const existingId = existingLoculo.Id || existingLoculo.id;
-                  const newId = l.Id || l.id;
+                  const existingId = existingLoculo.id !== undefined ? existingLoculo.id : existingLoculo.Id;
+                  const newId = l.id !== undefined ? l.id : l.Id;
                   return existingId === newId;
                 })
               );
