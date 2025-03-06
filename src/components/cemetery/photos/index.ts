@@ -12,3 +12,5 @@ export * from './useCemeteryPhotos';
 export * from './hooks/usePhotoUpload';
 export { default as PhotoFileInput } from './components/PhotoFileInput';
 export { default as UploadProgressBar } from './components/UploadProgressBar';
+export * from './utils/photoUploadUtils';
+export * from './utils/imageCompression';
