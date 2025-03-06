@@ -86,12 +86,15 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         mapTypeControl: false,
         fullscreenControl: false,
         streetViewControl: false,
-        zoomControl: false, // Rimuove i controlli dello zoom
-        tilt: 0 // Vista piatta di default
+        zoomControl: false // Rimuove i controlli dello zoom
       };
       
       // Initialize the map
       const newMap = new google.maps.Map(mapRef.current, mapOptions);
+      
+      // Set the tilt to 0 after map initialization to ensure a flat view by default
+      // We do this separately because 'tilt' is not recognized in the MapOptions type
+      (newMap as any).setTilt(0);
       
       // Use the standard marker instead of a custom circle marker
       const markerOptions: google.maps.MarkerOptions = {
@@ -199,12 +202,12 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       isTilted = !isTilted;
       if (isTilted) {
         // Set to 45 degrees for 3D view
-        // Cast to any to bypass the TypeScript error
-        (map as any).setOptions({ tilt: 45 });
+        // Using setTilt instead of setOptions to avoid TypeScript errors
+        (map as any).setTilt(45);
       } else {
         // Set to 0 degrees for 2D view
-        // Cast to any to bypass the TypeScript error
-        (map as any).setOptions({ tilt: 0 });
+        // Using setTilt instead of setOptions to avoid TypeScript errors
+        (map as any).setTilt(0);
       }
       controlText.innerHTML = isTilted ? '2D' : '3D';
     });
