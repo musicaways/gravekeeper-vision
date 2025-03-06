@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
   const [startX, setStartX] = useState(0);
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  
+
   // Reset state when lightbox opens or image changes
   useEffect(() => {
     if (open) {
@@ -102,7 +101,6 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
-    // Prevent navigation when clicking on image
     e.stopPropagation();
     toggleControls();
   };
@@ -200,19 +198,17 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
   return (
     <Dialog open={open} onOpenChange={(newOpen) => !newOpen && onClose()}>
       <DialogContent 
-        className="sm:max-w-5xl max-h-[90vh] p-0 flex flex-col bg-transparent border-none"
+        className="fixed inset-0 p-0 w-screen h-screen max-w-none max-h-none bg-black/95 border-none overflow-hidden"
         onMouseLeave={handleMouseUp}
       >
-        {/* Hidden DialogTitle for accessibility - required by RadixUI Dialog */}
         <DialogTitle className="sr-only">Visualizzatore foto</DialogTitle>
         
         <div 
-          className="relative h-full flex flex-col bg-transparent overflow-hidden"
+          className="relative h-full flex flex-col bg-transparent overflow-auto"
           ref={contentRef}
         >
-          {/* Main image container */}
           <div 
-            className="relative w-full h-full flex-1 flex items-center justify-center bg-black/95"
+            className="relative w-full h-full flex items-center justify-center"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -225,16 +221,16 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
             <AnimatePresence>
               {showControls && (
                 <motion.div 
-                  className="absolute top-0 left-0 right-0 z-10 bg-black/75 backdrop-blur-sm p-3 flex justify-between items-center"
+                  className="absolute top-0 left-0 right-0 z-10 bg-black/75 backdrop-blur-sm p-4 flex justify-between items-center"
                   initial={{ opacity: 0, y: -50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -50 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="text-white">
-                    <span className="text-sm">{currentIndex + 1}/{images.length}</span>
+                  <div className="text-white text-sm md:text-base">
+                    <span>{currentIndex + 1}/{images.length}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -242,7 +238,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                         e.stopPropagation();
                         handleZoomOut();
                       }}
-                      className="text-white hover:bg-white/30"
+                      className="text-white hover:bg-white/20"
                       disabled={scale <= 1}
                     >
                       <ZoomOut className="h-5 w-5" />
@@ -254,7 +250,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                         e.stopPropagation();
                         handleZoomIn();
                       }}
-                      className="text-white hover:bg-white/30"
+                      className="text-white hover:bg-white/20"
                       disabled={scale >= 3}
                     >
                       <ZoomIn className="h-5 w-5" />
@@ -266,7 +262,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                         e.stopPropagation();
                         onClose();
                       }}
-                      className="text-white hover:bg-white/30"
+                      className="text-white hover:bg-white/20"
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -284,7 +280,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
-                    className="absolute left-2 z-20"
+                    className="absolute left-4 z-20"
                   >
                     <Button 
                       variant="default" 
@@ -293,9 +289,9 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                         e.stopPropagation();
                         goToPreviousImage();
                       }}
-                      className="bg-black/75 hover:bg-black/90 text-white h-10 w-10 rounded-full shadow-lg border border-white/20"
+                      className="bg-black/75 hover:bg-black/90 text-white h-12 w-12 rounded-full shadow-lg border-2 border-white/30"
                     >
-                      <ChevronLeft className="h-6 w-6" />
+                      <ChevronLeft className="h-8 w-8" />
                     </Button>
                   </motion.div>
                   
@@ -304,7 +300,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ duration: 0.3 }}
-                    className="absolute right-2 z-20"
+                    className="absolute right-4 z-20"
                   >
                     <Button 
                       variant="default" 
@@ -313,9 +309,9 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                         e.stopPropagation();
                         goToNextImage();
                       }}
-                      className="bg-black/75 hover:bg-black/90 text-white h-10 w-10 rounded-full shadow-lg border border-white/20"
+                      className="bg-black/75 hover:bg-black/90 text-white h-12 w-12 rounded-full shadow-lg border-2 border-white/30"
                     >
-                      <ChevronRight className="h-6 w-6" />
+                      <ChevronRight className="h-8 w-8" />
                     </Button>
                   </motion.div>
                 </>
@@ -327,7 +323,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
               ref={imageRef}
               src={currentImage.url} 
               alt={title || ""}
-              className={`max-h-full max-w-full object-contain select-none ${swipeDirection ? "transition-transform duration-300" : ""}`}
+              className="max-h-[90vh] max-w-[95vw] object-contain select-none"
               style={{ 
                 scale,
                 x: position.x,
@@ -351,22 +347,22 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
             <AnimatePresence>
               {showControls && (
                 <motion.div 
-                  className="absolute bottom-0 left-0 right-0 z-10 bg-black/75 backdrop-blur-sm p-3"
+                  className="absolute bottom-0 left-0 right-0 z-10 bg-black/75 backdrop-blur-sm p-4"
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 50 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="text-white space-y-1">
+                  <div className="text-white space-y-2 max-w-3xl mx-auto">
                     {title && (
-                      <p className="text-sm font-medium">{title}</p>
+                      <p className="text-base md:text-lg font-medium">{title}</p>
                     )}
                     {description && (
-                      <p className="text-sm text-white/90">{description}</p>
+                      <p className="text-sm md:text-base text-white/90">{description}</p>
                     )}
                     {dateInfo && (
-                      <p className="text-xs text-white/80 flex items-center gap-1">
-                        <Info className="h-3 w-3" />
+                      <p className="text-xs md:text-sm text-white/80 flex items-center gap-1">
+                        <Info className="h-4 w-4" />
                         {dateInfo}
                       </p>
                     )}
