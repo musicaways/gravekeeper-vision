@@ -130,6 +130,7 @@ const LocationSection = ({
       />
     </div>
 
+    {/* Il campo MarkerIdField ora riceverà automaticamente le coordinate tramite useWatch */}
     <MarkerIdField control={control} />
 
     <FormField

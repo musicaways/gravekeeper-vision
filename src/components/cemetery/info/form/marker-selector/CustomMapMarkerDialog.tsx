@@ -13,6 +13,10 @@ interface CustomMapMarkerDialogProps {
   onSelect: (markerId: string) => void;
   customMapId: string;
   initialMarkerId?: string;
+  cemeteryCoordinates?: {
+    latitude: number | null;
+    longitude: number | null;
+  };
 }
 
 const CustomMapMarkerDialog = ({
@@ -20,7 +24,8 @@ const CustomMapMarkerDialog = ({
   onClose,
   onSelect,
   customMapId,
-  initialMarkerId
+  initialMarkerId,
+  cemeteryCoordinates
 }: CustomMapMarkerDialogProps) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
@@ -42,8 +47,15 @@ const CustomMapMarkerDialog = ({
   const buildMapUrl = () => {
     if (!customMapId) return null;
     
-    // URL corretto per l'incorporamento di Google My Maps
-    return `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F`;
+    let url = `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F`;
+    
+    // Aggiungi le coordinate del cimitero se disponibili
+    if (cemeteryCoordinates?.latitude && cemeteryCoordinates?.longitude) {
+      url += `&ll=${cemeteryCoordinates.latitude},${cemeteryCoordinates.longitude}&z=16`;
+      console.log("Adding cemetery coordinates to map URL:", cemeteryCoordinates);
+    }
+    
+    return url;
   };
 
   const mapUrl = buildMapUrl();
@@ -54,6 +66,7 @@ const CustomMapMarkerDialog = ({
       try {
         const data = JSON.parse(event.data);
         if (data.type === "markerSelected" && data.markerId) {
+          console.log("Marker selected event received:", data.markerId);
           setSelectedMarkerId(data.markerId);
           toast.success("Marker selezionato con successo!");
         }
@@ -69,6 +82,7 @@ const CustomMapMarkerDialog = ({
   // Inietta lo script nell'iframe dopo che è stato caricato
   const injectScript = () => {
     setMapLoaded(true);
+    setMapError(null); // Reset error on successful load
     
     if (iframeRef.current && iframeRef.current.contentWindow) {
       try {
@@ -97,8 +111,18 @@ const CustomMapMarkerDialog = ({
     if (selectedMarkerId) {
       onSelect(selectedMarkerId);
       onClose();
+      toast.success("ID marker importato con successo");
     } else {
       toast.error("Seleziona prima un marker dalla mappa");
+    }
+  };
+
+  // Funzione per simulare una selezione manuale di marker (per situazioni di fallback)
+  const handleManualInput = () => {
+    const userInput = prompt("Inserisci manualmente l'ID del marker:");
+    if (userInput && userInput.trim()) {
+      setSelectedMarkerId(userInput.trim());
+      toast.success("ID marker impostato manualmente");
     }
   };
 
@@ -148,7 +172,16 @@ const CustomMapMarkerDialog = ({
           {mapError && (
             <Alert variant="destructive" className="m-4">
               <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{mapError}</AlertDescription>
+              <AlertDescription>
+                {mapError}
+                <Button
+                  variant="link"
+                  className="ml-2 p-0 h-auto text-destructive-foreground underline"
+                  onClick={handleManualInput}
+                >
+                  Inserisci ID manualmente
+                </Button>
+              </AlertDescription>
             </Alert>
           )}
           
@@ -184,10 +217,13 @@ const CustomMapMarkerDialog = ({
         </div>
         
         <div className="p-4 border-t flex items-center justify-between bg-muted/10">
-          <div className="text-sm">
+          <div className="text-sm flex-1">
             {selectedMarkerId ? (
               <span className="text-green-600 font-medium flex items-center gap-1">
-                <Check className="h-4 w-4" /> Marker selezionato
+                <Check className="h-4 w-4" /> Marker selezionato: 
+                <span className="text-xs bg-green-50 px-2 py-0.5 rounded border border-green-200 max-w-[200px] truncate">
+                  {selectedMarkerId}
+                </span>
               </span>
             ) : (
               <span className="text-muted-foreground">Nessun marker selezionato</span>

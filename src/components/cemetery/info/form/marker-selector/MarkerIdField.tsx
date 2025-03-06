@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Map } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Control } from "react-hook-form";
+import { Control, useWatch } from "react-hook-form";
 import CustomMapMarkerDialog from "./CustomMapMarkerDialog";
 import { toast } from "sonner";
 
@@ -17,6 +17,17 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [customMapId, setCustomMapId] = useState<string>("");
   
+  // Utilizza useWatch per ottenere le coordinate del cimitero dal form
+  const latitude = useWatch({
+    control,
+    name: "Latitudine",
+  });
+  
+  const longitude = useWatch({
+    control,
+    name: "Longitudine",
+  });
+  
   // Recupera l'ID della mappa personalizzata dalla configurazione o dal localStorage
   useEffect(() => {
     // Prima controlla se c'è un ID nel localStorage (impostato in precedenza)
@@ -25,8 +36,7 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
     if (storedMapId) {
       setCustomMapId(storedMapId);
     } else {
-      // Altrimenti usa un ID predefinito o un segnaposto
-      // Utilizziamo un ID valido di esempio che dovrebbe funzionare meglio
+      // Altrimenti usa un ID predefinito
       const defaultMapId = "1dzlxUTK3bz-7kChq1HASlXEpn6t5uQ8";
       setCustomMapId(defaultMapId);
       localStorage.setItem("customMapId", defaultMapId);
@@ -94,6 +104,10 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
             }}
             customMapId={customMapId}
             initialMarkerId={field.value}
+            cemeteryCoordinates={{
+              latitude: latitude || null,
+              longitude: longitude || null
+            }}
           />
         </FormItem>
       )}
