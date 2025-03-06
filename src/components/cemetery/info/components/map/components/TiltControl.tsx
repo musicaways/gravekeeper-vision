@@ -31,16 +31,29 @@ export const createTiltControl = (
 
   // Setup the click event listener
   let isTilted = false;
+  
+  // Custom event for tilt changes
+  const dispatchTiltChangeEvent = () => {
+    // Create and dispatch a custom event that can be listened to
+    const event = new CustomEvent('tiltchange', { detail: { tilt: isTilted ? 45 : 0 } });
+    document.dispatchEvent(event);
+  };
+  
   controlUI.addEventListener('click', () => {
     isTilted = !isTilted;
     if (isTilted) {
       // Set to 45 degrees for 3D view
       (map as any).setTilt(45);
+      // When activating 3D, reset heading to 0 to avoid confusion
+      (map as any).setHeading(0);
     } else {
       // Set to 0 degrees for 2D view
       (map as any).setTilt(0);
     }
     controlText.innerHTML = isTilted ? '2D' : '3D';
+    
+    // Notify other components about the tilt change
+    dispatchTiltChangeEvent();
   });
   
   return controlUI;
