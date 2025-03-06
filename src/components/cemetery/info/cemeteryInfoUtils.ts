@@ -11,8 +11,8 @@ export interface CemeteryUpdateData {
   country: string;
   established_date: string | null;
   total_area_sqm: number | null;
-  Latitudine: string | number | null; // Updated to accept both string and number
-  Longitudine: string | number | null; // Updated to accept both string and number
+  Latitudine: string | number | null;
+  Longitudine: string | number | null;
   contact_info: {
     phone: string;
     email: string;
@@ -36,7 +36,6 @@ export const formatCemeteryData = (formData: any): CemeteryUpdateData => {
     country: formData.country,
     established_date: formData.established_date || null,
     total_area_sqm: formData.total_area_sqm ? parseFloat(formData.total_area_sqm) : null,
-    // Convert string coordinates to numbers if they exist
     Latitudine: formData.Latitudine ? parseFloat(formData.Latitudine) : null,
     Longitudine: formData.Longitudine ? parseFloat(formData.Longitudine) : null,
     contact_info: {
@@ -55,9 +54,16 @@ export const formatCemeteryData = (formData: any): CemeteryUpdateData => {
 export const updateCemeteryInfo = async (cemeteryId: number, data: CemeteryUpdateData) => {
   console.log("Updating cemetery data:", data);
   
+  // Create a copy of the data and ensure Latitudine and Longitudine are numbers
+  const updateData = {
+    ...data,
+    Latitudine: data.Latitudine !== null ? parseFloat(String(data.Latitudine)) : null,
+    Longitudine: data.Longitudine !== null ? parseFloat(String(data.Longitudine)) : null
+  };
+  
   const { error, data: updatedData } = await supabase
     .from('Cimitero')
-    .update(data)
+    .update(updateData)
     .eq('Id', cemeteryId)
     .select();
 
