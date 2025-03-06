@@ -90,17 +90,19 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Container for the cover photo with consistent width */}
-      <div className="w-full h-48 md:h-64 relative overflow-hidden">
-        <img 
-          src={coverPhotoUrl} 
-          alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
-          <div className="w-full max-w-none px-1">
-            <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
-            <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
+      {/* Cover photo container with the same width constraints as the tab container */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-none px-1">
+          <div className="w-full h-48 md:h-64 relative overflow-hidden">
+            <img 
+              src={coverPhotoUrl} 
+              alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
+              <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
+              <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
+            </div>
           </div>
         </div>
       </div>
