@@ -66,7 +66,13 @@ const useMapInitialization = ({
       
       // Add tiles loaded event listener - use ref to store the listener for cleanup
       if (!mapLoaded) {
-        tilesLoadedListenerRef.current = google.maps.event.addListenerOnce(newMap, 'tilesloaded', () => {
+        // Use addListener with a one-time check instead of addListenerOnce which isn't available
+        tilesLoadedListenerRef.current = google.maps.event.addListener(newMap, 'tilesloaded', function onTilesLoaded() {
+          // Remove the listener to ensure it only fires once
+          if (tilesLoadedListenerRef.current) {
+            google.maps.event.removeListener(tilesLoadedListenerRef.current);
+            tilesLoadedListenerRef.current = null;
+          }
           setMapLoaded(true);
           toast.success("Mappa caricata con successo", { duration: 2000 });
         });
