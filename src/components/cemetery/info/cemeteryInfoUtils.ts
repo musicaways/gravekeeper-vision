@@ -11,6 +11,8 @@ export interface CemeteryUpdateData {
   country: string;
   established_date: string | null;
   total_area_sqm: number | null;
+  Latitudine: string | null;
+  Longitudine: string | null;
   contact_info: {
     phone: string;
     email: string;
@@ -34,6 +36,8 @@ export const formatCemeteryData = (formData: any): CemeteryUpdateData => {
     country: formData.country,
     established_date: formData.established_date || null,
     total_area_sqm: formData.total_area_sqm ? parseFloat(formData.total_area_sqm) : null,
+    Latitudine: formData.Latitudine || null,
+    Longitudine: formData.Longitudine || null,
     contact_info: {
       phone: formData.contact_info.phone || "",
       email: formData.contact_info.email || "",

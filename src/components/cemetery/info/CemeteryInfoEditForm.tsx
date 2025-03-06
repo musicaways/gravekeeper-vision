@@ -1,11 +1,13 @@
 
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Save } from "lucide-react";
+import { Save, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 interface CemeteryInfoEditFormProps {
   cemetery: any;
@@ -14,6 +16,9 @@ interface CemeteryInfoEditFormProps {
 }
 
 const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFormProps) => {
+  const { toast } = useToast();
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  
   const form = useForm({
     defaultValues: {
       Descrizione: cemetery.Descrizione || "",
@@ -25,6 +30,8 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
       country: cemetery.country || "",
       established_date: cemetery.established_date || "",
       total_area_sqm: cemetery.total_area_sqm || "",
+      Latitudine: cemetery.Latitudine || "",
+      Longitudine: cemetery.Longitudine || "",
       contact_info: {
         phone: cemetery.contact_info?.phone || "",
         email: cemetery.contact_info?.email || "",
@@ -37,6 +44,55 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
       impalcatura: cemetery.impalcatura
     }
   });
+
+  const getGPSCoordinates = () => {
+    if (!navigator.geolocation) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: "La geolocalizzazione non è supportata da questo browser."
+      });
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // Success - Update form with coordinates
+        form.setValue('Latitudine', position.coords.latitude.toString());
+        form.setValue('Longitudine', position.coords.longitude.toString());
+        setIsGettingLocation(false);
+        
+        toast({
+          title: "Posizione acquisita",
+          description: "Le coordinate GPS sono state aggiornate con successo."
+        });
+      },
+      (error) => {
+        // Error
+        setIsGettingLocation(false);
+        let errorMessage = "Impossibile ottenere la posizione";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Permesso di geolocalizzazione negato.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Informazioni sulla posizione non disponibili.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Richiesta di posizione scaduta.";
+            break;
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Errore di geolocalizzazione",
+          description: errorMessage
+        });
+      }
+    );
+  };
 
   return (
     <Card className="w-full shadow-sm relative">
@@ -145,6 +201,48 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <FormField
+                    control={form.control}
+                    name="Latitudine"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Latitudine</FormLabel>
+                        <FormControl>
+                          <div className="flex">
+                            <Input {...field} placeholder="Es. 41.9028" />
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="Longitudine"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Longitudine</FormLabel>
+                        <div className="flex space-x-2">
+                          <Input {...field} placeholder="Es. 12.4964" className="flex-1" />
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={getGPSCoordinates}
+                            disabled={isGettingLocation}
+                            title="Usa GPS"
+                            className="h-10 w-10 flex-shrink-0"
+                          >
+                            <MapPin className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
