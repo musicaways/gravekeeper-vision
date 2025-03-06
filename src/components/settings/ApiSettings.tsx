@@ -44,6 +44,7 @@ export function ApiSettings() {
         }
       } catch (error) {
         console.error("Error fetching API keys:", error);
+        toast.error("Errore nel recuperare l'API key");
       }
     };
 
