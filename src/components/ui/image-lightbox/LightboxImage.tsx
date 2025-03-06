@@ -1,7 +1,6 @@
 
 import { motion } from "framer-motion";
 import { LightboxImage as LightboxImageType } from "./types";
-import Image from "next/image";
 import React from "react";
 
 interface LightboxImageProps {

@@ -3,13 +3,15 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UseImageSwipeProps {
-  goToPreviousImage: (scale: number) => void;
-  goToNextImage: (scale: number) => void;
+  goPrevious: () => void;
+  goNext: () => void;
+  scale: number;
 }
 
 export const useImageSwipe = ({ 
-  goToPreviousImage, 
-  goToNextImage 
+  goPrevious, 
+  goNext,
+  scale
 }: UseImageSwipeProps) => {
   const [swipeDirection, setSwipeDirection] = useState<null | "left" | "right">(null);
   const [startX, setStartX] = useState(0);
@@ -19,7 +21,7 @@ export const useImageSwipe = ({
   // Use different threshold values for mobile vs desktop
   const swipeThreshold = isMobile ? 30 : 50;
   
-  const handleSwipeStart = (e: React.TouchEvent | React.MouseEvent, scale: number) => {
+  const handleSwipeStart = (e: React.TouchEvent | React.MouseEvent) => {
     if (scale > 1) return;
     
     if ('touches' in e) {
@@ -31,7 +33,7 @@ export const useImageSwipe = ({
     setDragging(true);
   };
   
-  const handleSwipeMove = (e: React.TouchEvent | React.MouseEvent, scale: number) => {
+  const handleSwipeMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (scale > 1 || !dragging) return;
     
     let currentX: number;
@@ -53,14 +55,14 @@ export const useImageSwipe = ({
     }
   };
   
-  const handleSwipeEnd = (scale: number) => {
+  const handleSwipeEnd = () => {
     if (scale > 1) return;
     
     if (dragging) {
       if (swipeDirection === "right") {
-        goToNextImage(scale);
+        goNext();
       } else if (swipeDirection === "left") {
-        goToPreviousImage(scale);
+        goPrevious();
       }
     }
     
@@ -70,7 +72,7 @@ export const useImageSwipe = ({
   
   return {
     swipeDirection,
-    dragging: dragging && swipeDirection !== null,
+    isSwipeDragging: dragging && swipeDirection !== null,
     handleSwipeStart,
     handleSwipeMove,
     handleSwipeEnd

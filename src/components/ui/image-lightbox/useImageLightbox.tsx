@@ -61,12 +61,12 @@ export const useImageLightbox = ({
   const {
     swipeDirection,
     isSwipeDragging,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd
+    handleSwipeStart,
+    handleSwipeMove,
+    handleSwipeEnd
   } = useImageSwipe({
-    goNext: () => goToNextImage(scale),
-    goPrevious: () => goToPreviousImage(scale),
+    goNext: () => goToNextImage(),
+    goPrevious: () => goToPreviousImage(),
     scale
   });
 
@@ -86,6 +86,22 @@ export const useImageLightbox = ({
   // Touch events with proper prevention of default behaviors
   const handleImageDoubleClick = (e: React.MouseEvent | React.TouchEvent) => {
     handleDoubleClick(e);
+  };
+
+  // Handle touch events
+  const handleTouchStart = (e: React.TouchEvent) => {
+    handleSwipeStart(e);
+    handleImageDragStart(e, scale, position);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    handleSwipeMove(e);
+    handleImageDrag(e, scale);
+  };
+
+  const handleTouchEnd = () => {
+    handleSwipeEnd();
+    handleImageDragEnd();
   };
 
   // Parse image details for display

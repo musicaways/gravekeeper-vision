@@ -19,8 +19,13 @@ export const useImageControls = () => {
     setShowControls((prev) => !prev);
   };
   
+  const handleImageClick = () => {
+    toggleControls();
+  };
+  
   return {
     showControls,
-    toggleControls
+    toggleControls,
+    handleImageClick
   };
 };

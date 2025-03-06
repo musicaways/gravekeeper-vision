@@ -24,27 +24,11 @@ export const useImageNavigation = ({
     }
   }, [initialIndex, open]);
   
-  const goToPreviousImage = (scale: number) => {
-    if (scale > 1) {
-      toast({
-        title: "Zoom attivo",
-        description: "Riduci lo zoom per navigare tra le foto",
-        variant: "default"
-      });
-      return;
-    }
+  const goToPreviousImage = () => {
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
-  const goToNextImage = (scale: number) => {
-    if (scale > 1) {
-      toast({
-        title: "Zoom attivo",
-        description: "Riduci lo zoom per navigare tra le foto",
-        variant: "default"
-      });
-      return;
-    }
+  const goToNextImage = () => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
   
