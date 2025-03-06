@@ -9,13 +9,15 @@ interface DocumentsListProps {
   loading: boolean;
   onDownload: (document: DocumentItemType) => void;
   onDelete: (document: DocumentItemType) => void;
+  onDocumentClick?: (index: number) => void;
 }
 
 const DocumentsList: React.FC<DocumentsListProps> = ({ 
   documents, 
   loading, 
   onDownload, 
-  onDelete 
+  onDelete,
+  onDocumentClick
 }) => {
   if (loading) {
     return (
@@ -31,12 +33,13 @@ const DocumentsList: React.FC<DocumentsListProps> = ({
 
   return (
     <div className="space-y-4">
-      {documents.map((doc) => (
+      {documents.map((doc, index) => (
         <DocumentItem 
           key={doc.id} 
           document={doc} 
           onDownload={onDownload} 
-          onDelete={onDelete} 
+          onDelete={onDelete}
+          onClick={() => onDocumentClick && onDocumentClick(index)}
         />
       ))}
     </div>
