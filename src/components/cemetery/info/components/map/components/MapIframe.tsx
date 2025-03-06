@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import LoadingIndicator from "./LoadingIndicator";
+import { injectSingleFingerPanScript } from "../mapUtils";
 
 interface MapIframeProps {
   mapUrl: string;
@@ -11,6 +12,7 @@ interface MapIframeProps {
 const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const iframeId = "cemetery-map-iframe";
   
   useEffect(() => {
     setIframeLoaded(false);
@@ -33,6 +35,9 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
     setIframeLoaded(true);
     console.log("Map iframe loaded successfully");
     
+    // Inject the single finger pan script
+    injectSingleFingerPanScript(iframeId);
+    
     // Attempt to inject styles into the iframe to customize the appearance
     try {
       if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -44,6 +49,16 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
         styleEl.textContent = `
           /* Hide Google logo and terms */
           .gmnoprint, .gm-style-cc, .gm-style a[href^="https://maps.google.com"] {
+            display: none !important;
+          }
+          
+          /* Hide the coordinate overlay */
+          .gm-iv-address, .gm-iv-short-address {
+            display: none !important;
+          }
+          
+          /* Hide the bottom-left panel */
+          .gm-style-mtc, .gm-bundled-control {
             display: none !important;
           }
           
@@ -63,6 +78,7 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
   return (
     <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative">
       <iframe 
+        id={iframeId}
         ref={iframeRef}
         src={mapUrl}
         width="100%" 

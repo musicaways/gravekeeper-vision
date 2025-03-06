@@ -17,8 +17,8 @@ export const buildMapUrl = (
     // - maptype=satellite: Uses satellite view
     // - zoom=18: Closer view of the location
     // - language=it: Italian language UI
-    // Note: The Embed API doesn't support custom marker icons like the JavaScript API
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it`;
+    // - disableDefaultUI=true: Hides most UI controls including zoom buttons
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it&disableDefaultUI=true`;
   } 
   
   if (address) {
@@ -30,7 +30,7 @@ export const buildMapUrl = (
       country
     ].filter(Boolean).join(', ');
     
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(fullAddress)}&zoom=16&maptype=satellite&language=it`;
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(fullAddress)}&zoom=16&maptype=satellite&language=it&disableDefaultUI=true`;
   }
   
   return '';
