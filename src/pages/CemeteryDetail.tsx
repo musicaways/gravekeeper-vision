@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,18 +15,15 @@ const CemeteryDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string | null>(null);
 
-  // Extract search term from query params (from global search)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const globalSearch = params.get('search');
     
     if (globalSearch) {
       setSearchTerm(globalSearch);
-      // When search is active, switch to the sections tab
       setActiveTab("sections");
     } else {
       setSearchTerm("");
-      // Get the saved tab from localStorage or default to null (don't force a tab when no search)
       const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
       setActiveTab(savedTab);
     }
@@ -68,14 +64,11 @@ const CemeteryDetail = () => {
     fetchCemeteryDetail();
   }, [id]);
 
-  // Handle search within cemetery
   const handleSearch = (term: string) => {
-    // Update the URL with the search term
     const params = new URLSearchParams(location.search);
     
     if (term) {
       params.set('search', term);
-      // Force viewing the sections tab when searching
       setActiveTab("sections");
     } else {
       params.delete('search');
@@ -96,7 +89,7 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="w-full h-48 md:h-64 relative overflow-hidden px-1">
+      <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 
           src={coverPhotoUrl} 
           alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
