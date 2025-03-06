@@ -17,8 +17,8 @@ export const buildMapUrl = (
     // - maptype=satellite: Uses satellite view
     // - zoom=18: Closer view of the location
     // - language=it: Italian language UI
-    // Using a custom marker icon with markercolor parameter and custom ID
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it&icon=https://maps.google.com/mapfiles/ms/icons/purple-dot.png`;
+    // Note: The Embed API doesn't support custom marker icons like the JavaScript API
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it`;
   } 
   
   if (address) {
@@ -67,10 +67,7 @@ export const openExternalMap = (
     console.log("Opening map URL:", url);
     window.open(url, '_blank');
   } else {
-    toast({
-      title: "Errore",
-      description: "Non ci sono abbastanza informazioni per aprire la mappa"
-    });
+    toast.error("Non ci sono abbastanza informazioni per aprire la mappa");
   }
 };
 
