@@ -15,8 +15,8 @@ const CemeteryContactInfo = ({ contactInfo }: CemeteryContactInfoProps) => {
   if (!contactInfo) return null;
 
   return (
-    <div className="w-full py-1">
-      <h3 className="text-base font-medium mb-2 text-foreground mt-0.5">Contatti</h3>
+    <div className="w-full py-0">
+      <h3 className="text-base font-medium mb-1 text-foreground">Contatti</h3>
       <div className="space-y-4">
         {contactInfo.phone && (
           <div className="flex items-start gap-4">
@@ -55,7 +55,7 @@ const CemeteryContactInfo = ({ contactInfo }: CemeteryContactInfoProps) => {
           </div>
         )}
       </div>
-      <Separator className="mt-3 bg-slate-200" />
+      <Separator className="mt-2 bg-slate-200" />
     </div>
   );
 };
