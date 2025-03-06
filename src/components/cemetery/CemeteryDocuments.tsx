@@ -82,10 +82,10 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
             <CardHeader className="px-4 md:px-6 pb-2">
               <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
                 <FileText className="h-5 w-5" />
-                Documenti
+                File
               </CardTitle>
               <CardDescription>
-                Documenti relativi al cimitero
+                File relativi al cimitero
               </CardDescription>
             </CardHeader>
             <CardContent className="px-4 md:px-6">
@@ -109,8 +109,8 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
               ) : (
                 <div className="text-center py-8">
                   <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-2" />
-                  <h3 className="font-medium text-lg mb-1">Nessun documento</h3>
-                  <p className="text-sm text-muted-foreground">Non ci sono documenti disponibili per questo cimitero.</p>
+                  <h3 className="font-medium text-lg mb-1">Nessun file</h3>
+                  <p className="text-sm text-muted-foreground">Non ci sono file disponibili per questo cimitero.</p>
                 </div>
               )}
             </CardContent>

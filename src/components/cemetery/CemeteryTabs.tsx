@@ -21,7 +21,7 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
   onSearch
 }) => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState("info");
+  const [activeTab, setActiveTab] = useState("sections");
   
   // Use external tab if provided, otherwise load from localStorage
   useEffect(() => {
@@ -30,9 +30,12 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
     } else {
       const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
       // Verify that the tab saved is one of those available
-      const availableTabs = ["info", "sections", "photos", "map", "documents"];
+      const availableTabs = ["info", "sections", "photos", "documents"];
       if (savedTab && availableTabs.includes(savedTab)) {
         setActiveTab(savedTab);
+      } else {
+        // Default to sections tab if no valid saved tab
+        setActiveTab("sections");
       }
     }
   }, [id, externalActiveTab]);
@@ -40,6 +43,8 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     localStorage.setItem(`cemetery-${id}-tab`, value);
+    // Scroll to top when changing tabs
+    window.scrollTo(0, 0);
   };
 
   return (

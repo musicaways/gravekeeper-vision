@@ -23,7 +23,7 @@ const CemeteryTabTriggers: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-1.5 px-4 py-2">
             <FileText className="h-4 w-4" />
-            <span>Documenti</span>
+            <span>File</span>
           </TabsTrigger>
         </TabsList>
       </ScrollArea>

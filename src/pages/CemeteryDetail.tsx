@@ -14,7 +14,12 @@ const CemeteryDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string | null>("sections");
+
+  // Ensure the page scrolls to the top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -25,8 +30,15 @@ const CemeteryDetail = () => {
       setActiveTab("sections");
     } else {
       setSearchTerm("");
+      // Only load from localStorage if we're not already setting to sections
       const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
-      setActiveTab(savedTab);
+      // Default to sections if no saved tab or invalid tab
+      const availableTabs = ["info", "sections", "photos", "documents"];
+      if (savedTab && availableTabs.includes(savedTab)) {
+        setActiveTab(savedTab);
+      } else {
+        setActiveTab("sections");
+      }
     }
   }, [location.search, id]);
 
@@ -89,7 +101,7 @@ const CemeteryDetail = () => {
   const coverPhotoUrl = cemetery.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&h=400&q=80";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col overflow-auto">
       {/* Container for the cover photo with consistent width */}
       <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 
