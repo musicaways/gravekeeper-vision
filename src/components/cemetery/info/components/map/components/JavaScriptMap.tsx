@@ -69,7 +69,7 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         }
       ];
       
-      // Custom map options - removing all UI controls
+      // Custom map options - enabling single finger panning with gestureHandling: 'greedy'
       const mapOptions: google.maps.MapOptions = {
         center: mapPosition,
         zoom: 17,
@@ -77,7 +77,8 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         disableDefaultUI: true,
         scrollwheel: false,
         clickableIcons: false,
-        styles: mapStyles
+        styles: mapStyles,
+        gestureHandling: 'greedy' // Abilita la navigazione con un dito (greedy mode)
       };
       
       // Initialize the map
@@ -161,6 +162,7 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       <div 
         ref={mapRef} 
         className="w-full h-full"
+        style={{touchAction: 'pan-x pan-y'}} // Migliora il touch handling
       />
       {!mapLoaded && <LoadingIndicator />}
     </div>

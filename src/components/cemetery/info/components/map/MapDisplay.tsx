@@ -77,7 +77,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         onError={(error) => setMapError(error)}
       />
       
-      <div className="flex justify-center mt-3">
+      <div className="flex justify-start mt-3">
         <MapControls 
           onOpenInGoogleMaps={handleOpenMapInNewTab} 
         />
