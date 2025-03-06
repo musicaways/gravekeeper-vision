@@ -34,20 +34,30 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
-      // Check file size (limit to 50MB)
-      const maxSize = 50 * 1024 * 1024; // 50MB
-      if (file.size > maxSize) {
+      try {
+        // Check file size (limit to 50MB)
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        if (file.size > maxSize) {
+          toast({
+            title: "File troppo grande",
+            description: "Il file selezionato è troppo grande. Il limite è di 50MB.",
+            variant: "destructive"
+          });
+          e.target.value = '';
+          return;
+        }
+        
+        setSelectedFile(file);
+        form.setValue("filename", file.name);
+      } catch (error) {
+        console.error("Errore durante la selezione del file:", error);
         toast({
-          title: "File troppo grande",
-          description: "Il file selezionato è troppo grande. Il limite è di 50MB.",
+          title: "Errore",
+          description: "Si è verificato un errore durante la selezione del file.",
           variant: "destructive"
         });
         e.target.value = '';
-        return;
       }
-      
-      setSelectedFile(file);
-      form.setValue("filename", file.name);
     }
   };
 
@@ -65,6 +75,11 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
       await onSubmit(values, selectedFile);
     } catch (error) {
       console.error("Error during form submission:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il caricamento del file.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -87,6 +102,7 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
             onChange={handleFileChange}
             className="cursor-pointer"
             disabled={isUploading}
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.bmp"
           />
           {selectedFile && (
             <p className="text-xs text-muted-foreground mt-1">

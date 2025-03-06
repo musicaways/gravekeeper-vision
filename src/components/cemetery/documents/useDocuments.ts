@@ -100,11 +100,22 @@ export const useDocuments = (cemeteryId: string) => {
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${cemeteryId}/${fileName}`;
       
+      console.log("Starting file upload...");
+      
+      // Set proper content type for the upload
+      let contentType = 'application/octet-stream'; // default
+      if (fileExt === 'pdf') contentType = 'application/pdf';
+      else if (['jpg', 'jpeg'].includes(fileExt)) contentType = 'image/jpeg';
+      else if (fileExt === 'png') contentType = 'image/png';
+      else if (fileExt === 'gif') contentType = 'image/gif';
+      else if (fileExt === 'bmp') contentType = 'image/bmp';
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('cemetery-documents')
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: contentType
         });
       
       if (uploadError) {
@@ -112,12 +123,16 @@ export const useDocuments = (cemeteryId: string) => {
         throw new Error(`Errore durante il caricamento del file: ${uploadError.message}`);
       }
       
+      console.log("File uploaded successfully, getting public URL...");
+      
       // 2. Get the URL of the uploaded file
       const { data: publicUrlData } = supabase.storage
         .from('cemetery-documents')
         .getPublicUrl(filePath);
       
       const fileUrl = publicUrlData.publicUrl;
+      
+      console.log("Public URL obtained:", fileUrl);
       
       // 3. Save metadata to the database
       const { error: dbError } = await supabase

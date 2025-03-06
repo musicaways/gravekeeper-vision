@@ -1,7 +1,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { DownloadCloud, Trash2, X } from "lucide-react";
+import { DownloadCloud, Trash2, ZoomIn, ZoomOut } from "lucide-react";
 
 interface ViewerControlsProps {
   showControls: boolean;
@@ -10,6 +10,9 @@ interface ViewerControlsProps {
   onDeleteRequest: () => void;
   onDownload: () => void;
   fileType?: string;
+  scale: number;
+  handleZoomIn: () => void;
+  handleZoomOut: () => void;
 }
 
 const ViewerControls = ({
@@ -18,7 +21,10 @@ const ViewerControls = ({
   filesLength,
   onDeleteRequest,
   onDownload,
-  fileType
+  fileType,
+  scale,
+  handleZoomIn,
+  handleZoomOut
 }: ViewerControlsProps) => {
   return (
     <AnimatePresence>
@@ -45,6 +51,30 @@ const ViewerControls = ({
               className="text-white hover:bg-white/20"
             >
               <DownloadCloud className="h-5 w-5 text-blue-400" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZoomOut();
+              }}
+              className="text-white hover:bg-white/20"
+              disabled={scale <= 1}
+            >
+              <ZoomOut className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZoomIn();
+              }}
+              className="text-white hover:bg-white/20"
+              disabled={scale >= 3}
+            >
+              <ZoomIn className="h-5 w-5" />
             </Button>
             <Button 
               variant="ghost" 
