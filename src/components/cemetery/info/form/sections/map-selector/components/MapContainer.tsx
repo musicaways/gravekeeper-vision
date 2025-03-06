@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useGoogleMapsApi } from "@/hooks/useGoogleMapsApi";
+import { ErrorDisplay } from ".";
 
 interface MapContainerProps {
   mapRef: React.RefObject<HTMLDivElement>;
@@ -94,15 +95,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
 
   // Handle errors
   if (isError) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-muted/40 rounded-md p-4">
-        <p className="text-center text-sm text-destructive mb-4">
-          Si è verificato un errore durante il caricamento dell'API di Google Maps:
-          <br />
-          {loadingError || "Controlla la chiave API nelle impostazioni."}
-        </p>
-      </div>
-    );
+    return <ErrorDisplay errorMessage={loadingError} />;
   }
 
   // Loading state

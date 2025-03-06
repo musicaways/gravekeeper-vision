@@ -66,6 +66,16 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
           .gm-control-active {
             touch-action: pan-x pan-y !important;
           }
+          
+          /* Additional selectors to hide more UI elements */
+          .gm-style .gm-style-iw, .gm-style-iw-c, .gm-style-iw-d {
+            display: none !important;
+          }
+          
+          /* Hide all control elements */
+          .gm-ui-hover-effect, .gm-fullscreen, .gm-svpc, .gm-control-active {
+            display: none !important;
+          }
         `;
         
         iframeDoc.head.appendChild(styleEl);
