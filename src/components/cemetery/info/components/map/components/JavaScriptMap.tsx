@@ -83,19 +83,16 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       // Initialize the map
       const newMap = new google.maps.Map(mapRef.current, mapOptions);
       
-      // Custom marker with improved visuals
+      // Use the standard marker instead of a custom circle marker
       const markerOptions: google.maps.MarkerOptions = {
         position: mapPosition,
         map: newMap,
         animation: google.maps.Animation.DROP,
         title: Nome || 'Cimitero',
+        // Use the standard Google Maps marker with purple color
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: '#3b82f6',
-          fillOpacity: 0.9,
-          strokeColor: '#ffffff',
-          strokeWeight: 2,
-          scale: 10
+          url: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+          scaledSize: new google.maps.Size(32, 32),
         }
       };
       
@@ -118,12 +115,12 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         maxWidth: 250
       });
       
-      // Show info window on marker click - fixed event listener
+      // Show info window on marker click
       google.maps.event.addListener(newMarker, 'click', () => {
         infoWindow.open(newMap, newMarker);
       });
       
-      // Add tiles loaded event listener - fixed event listener method
+      // Add tiles loaded event listener
       google.maps.event.addListener(newMap, 'tilesloaded', () => {
         if (!mapLoaded) {
           setMapLoaded(true);
