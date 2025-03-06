@@ -32,12 +32,6 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     openExternalMap(customMapId, false, cemetery);
   };
 
-  const reloadMap = () => {
-    console.log("Reloading map");
-    setForceRefresh(prev => prev + 1);
-    toast.success("Mappa aggiornata");
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
@@ -63,7 +57,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       <MapErrorState 
         message={`Errore nel caricamento della mappa: ${mapError}`}
         buttonText="Riprova"
-        buttonAction={reloadMap}
+        buttonAction={() => setForceRefresh(prev => prev + 1)}
       />
     );
   }
@@ -83,21 +77,10 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         onError={(error) => setMapError(error)}
       />
       
-      <div className="flex justify-between">
+      <div className="flex justify-end">
         <MapControls 
           onOpenInGoogleMaps={handleOpenMapInNewTab} 
         />
-        
-        <button 
-          onClick={reloadMap}
-          className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-            <path d="M3 3v5h5"></path>
-          </svg>
-          Aggiorna mappa
-        </button>
       </div>
     </div>
   );

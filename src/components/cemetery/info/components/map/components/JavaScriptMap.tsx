@@ -35,10 +35,10 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         lng: parseFloat(Longitudine) 
       };
       
-      // Enhanced map styling for better visuals
+      // Enhanced map styling for better visuals - minimal style without labels
       const mapStyles = [
         {
-          featureType: "poi",
+          featureType: "all",
           elementType: "labels",
           stylers: [{ visibility: "off" }]
         },
@@ -63,35 +63,20 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
           stylers: [{ color: "#ffffff" }]
         },
         {
-          featureType: "road",
-          elementType: "labels",
-          stylers: [{ visibility: "simplified" }]
-        },
-        {
-          featureType: "transit",
-          elementType: "all",
-          stylers: [{ visibility: "off" }]
-        },
-        {
           featureType: "administrative",
-          elementType: "labels.text.fill",
-          stylers: [{ color: "#3c4043" }]
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#c9c9c9" }, { weight: 0.8 }]
         }
       ];
       
-      // Custom map options
+      // Custom map options - removing all UI controls
       const mapOptions: google.maps.MapOptions = {
         center: mapPosition,
         zoom: 17,
         mapTypeId: google.maps.MapTypeId.HYBRID,
         disableDefaultUI: true,
-        zoomControl: true,
-        mapTypeControl: true,
-        streetViewControl: false,
-        fullscreenControl: false,
-        gestureHandling: 'greedy',
+        scrollwheel: false,
         clickableIcons: false,
-        scrollwheel: true,
         styles: mapStyles
       };
       
@@ -133,13 +118,13 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         maxWidth: 250
       });
       
-      // Show info window on marker click
-      newMarker.addListener('click', () => {
+      // Show info window on marker click - fix the addListener method error
+      google.maps.event.addListener(newMarker, 'click', () => {
         infoWindow.open(newMap, newMarker);
       });
       
-      // Add zoom controls with custom positioning if they're not enabled by default
-      newMap.addListener('tilesloaded', () => {
+      // Add tilesloaded event listener
+      google.maps.event.addListenerOnce(newMap, 'tilesloaded', () => {
         if (!mapLoaded) {
           setMapLoaded(true);
           toast.success("Mappa caricata con successo", { duration: 2000 });
@@ -165,7 +150,7 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       console.error("Errore nell'inizializzazione della mappa:", error);
       onError(error instanceof Error ? error.message : "Errore sconosciuto");
     }
-  }, [isLoaded, cemetery, forceRefresh, onError]);
+  }, [isLoaded, cemetery, forceRefresh, onError, mapLoaded]);
   
   // Handle Google Maps API errors
   useEffect(() => {
