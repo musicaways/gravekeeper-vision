@@ -236,6 +236,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cimiterodocumenti: {
+        Row: {
+          datainserimento: string | null
+          descrizione: string | null
+          id: string
+          idcimitero: number
+          nomefile: string
+          tipofile: string
+          url: string
+        }
+        Insert: {
+          datainserimento?: string | null
+          descrizione?: string | null
+          id?: string
+          idcimitero: number
+          nomefile: string
+          tipofile: string
+          url: string
+        }
+        Update: {
+          datainserimento?: string | null
+          descrizione?: string | null
+          id?: string
+          idcimitero?: number
+          nomefile?: string
+          tipofile?: string
+          url?: string
+        }
+        Relationships: []
+      }
       CimiteroDocumenti: {
         Row: {
           DataInserimento: string | null
