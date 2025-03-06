@@ -10,7 +10,7 @@ interface PhotoGalleryCardProps {
 
 const PhotoGalleryCard: React.FC<PhotoGalleryCardProps> = ({ cemeteryId, refreshKey }) => {
   return (
-    <Card className="shadow-md">
+    <Card className="shadow-md w-full">
       <CardContent className="p-2 sm:p-3">
         <CemeteryGallery 
           cemeteryId={cemeteryId} 

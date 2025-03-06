@@ -24,7 +24,7 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
   ];
 
   return (
-    <div className="px-4 py-4">
+    <div className="w-full">
       <Tabs defaultValue="files" className="w-full">
         <div className="flex justify-between items-center mb-4">
           <TabsList>

@@ -15,7 +15,7 @@ const CemeteryPhotosTabContent: React.FC<CemeteryPhotosTabContentProps> = ({ cem
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="px-1 w-full space-y-4">
       <PhotoGalleryCard 
         cemeteryId={cemeteryId}
         refreshKey={refreshKey}

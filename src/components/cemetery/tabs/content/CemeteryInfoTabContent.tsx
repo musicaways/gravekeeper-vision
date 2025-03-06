@@ -7,7 +7,11 @@ interface CemeteryInfoTabContentProps {
 }
 
 const CemeteryInfoTabContent: React.FC<CemeteryInfoTabContentProps> = ({ cemetery }) => {
-  return <CemeteryInfoCard cemetery={cemetery} />;
+  return (
+    <div className="px-1 w-full">
+      <CemeteryInfoCard cemetery={cemetery} />
+    </div>
+  );
 };
 
 export default CemeteryInfoTabContent;

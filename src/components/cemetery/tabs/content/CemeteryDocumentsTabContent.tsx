@@ -7,7 +7,11 @@ interface CemeteryDocumentsTabContentProps {
 }
 
 const CemeteryDocumentsTabContent: React.FC<CemeteryDocumentsTabContentProps> = ({ cemeteryId }) => {
-  return <CemeteryDocuments cemeteryId={cemeteryId} />;
+  return (
+    <div className="px-1 w-full">
+      <CemeteryDocuments cemeteryId={cemeteryId} />
+    </div>
+  );
 };
 
 export default CemeteryDocumentsTabContent;
