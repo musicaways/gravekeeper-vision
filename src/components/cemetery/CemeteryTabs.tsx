@@ -44,10 +44,10 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-      <div className="sticky z-10 bg-background/95 backdrop-blur-sm pb-1 pt-2 w-full max-w-none">
+      <div className="sticky z-10 bg-background/95 backdrop-blur-sm pb-1 pt-2 w-full rounded-md">
         <CemeteryTabTriggers />
       </div>
-      <div className="bg-background rounded-md mb-6 w-full max-w-none">
+      <div className="bg-background rounded-md mb-6 w-full">
         <CemeteryTabContent 
           cemetery={cemetery} 
           cemeteryId={cemeteryId} 
