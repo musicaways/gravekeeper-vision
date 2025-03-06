@@ -16,7 +16,7 @@ const CemeteryDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string | null>("sections");
 
-  // Ensure the page scrolls to the top when component mounts
+  // Ensure the page scrolls to the top when component mounts or ID changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
@@ -101,7 +101,7 @@ const CemeteryDetail = () => {
   const coverPhotoUrl = cemetery.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&h=400&q=80";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-auto">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Container for the cover photo with consistent width */}
       <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 

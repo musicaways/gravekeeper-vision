@@ -27,6 +27,8 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
   useEffect(() => {
     if (externalActiveTab) {
       setActiveTab(externalActiveTab);
+      // Scroll to top when tab is set externally
+      window.scrollTo(0, 0);
     } else {
       const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
       // Verify that the tab saved is one of those available
@@ -37,6 +39,8 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
         // Default to sections tab if no valid saved tab
         setActiveTab("sections");
       }
+      // Scroll to top when component mounts with initial tab
+      window.scrollTo(0, 0);
     }
   }, [id, externalActiveTab]);
   
