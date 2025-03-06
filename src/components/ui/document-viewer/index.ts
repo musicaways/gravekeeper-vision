@@ -10,6 +10,8 @@ import ViewerControls from "./ViewerControls";
 import ViewerInfoBar from "./ViewerInfoBar";
 import ViewerNavigation from "./ViewerNavigation";
 import DeleteFileDialog from "./DeleteFileDialog";
+import DocumentViewerOverlay from "./DocumentViewerOverlay";
+import DocumentViewerContent from "./DocumentViewerContent";
 import { useDocumentViewer } from "./useDocumentViewer";
 import { isImageFile, isPdfFile, getFileLoaderComponent } from "./fileViewerUtils";
 
@@ -23,6 +25,8 @@ export {
   ViewerInfoBar,
   ViewerNavigation,
   DeleteFileDialog,
+  DocumentViewerOverlay,
+  DocumentViewerContent,
   useDocumentViewer,
   isImageFile,
   isPdfFile,

@@ -1,15 +1,12 @@
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useDocumentViewer } from "./useDocumentViewer";
 import { DocumentViewerProps } from "./types";
-import ViewerControls from "./ViewerControls";
-import ViewerNavigation from "./ViewerNavigation";
-import ViewerInfoBar from "./ViewerInfoBar";
 import DeleteFileDialog from "./DeleteFileDialog";
-import CloseButton from "./CloseButton";
-import FilePreview from "./FilePreview";
+import DocumentViewerOverlay from "./DocumentViewerOverlay";
+import DocumentViewerContent from "./DocumentViewerContent";
 
 const DocumentViewer = ({ 
   files, 
@@ -87,85 +84,36 @@ const DocumentViewer = ({
 
   if (files.length === 0 || !open) return null;
 
-  const { title, description, dateInfo, fileType } = parseFileDetails();
+  const fileDetails = parseFileDetails();
   
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          className="fixed inset-0 z-50 bg-black/95 touch-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          aria-modal="true"
-          role="dialog"
-          aria-label="Visualizzatore documenti"
-          aria-describedby="document-viewer-description"
-        >
-          <span id="document-viewer-description" className="sr-only">Visualizzatore documenti a schermo intero</span>
-          
-          {/* Close button - always visible */}
-          <CloseButton onClose={onClose} />
-          
-          <div className="w-full h-full flex flex-col overflow-hidden touch-none">
-            <div 
-              className="relative w-full h-full flex items-center justify-center touch-none"
-              onClick={toggleControls}
-            >
-              {/* Top controls bar - always visible */}
-              <ViewerControls 
-                showControls={true}
-                currentIndex={currentIndex}
-                filesLength={files.length}
-                onDeleteRequest={handleDeleteRequest}
-                onDownload={handleDownload}
-                fileType={fileType}
-                scale={scale}
-                handleZoomIn={handleZoomIn}
-                handleZoomOut={handleZoomOut}
-              />
-              
-              {/* Navigation buttons - always visible for multiple files */}
-              {files.length > 1 && (
-                <ViewerNavigation 
-                  showControls={true}
-                  goToPreviousFile={goToPreviousFile}
-                  goToNextFile={goToNextFile}
-                />
-              )}
-              
-              {/* File Content */}
-              <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 h-full flex items-center overflow-hidden">
-                <FilePreview 
-                  currentFile={currentFile}
-                  fileType={fileType}
-                  title={title}
-                  scale={scale}
-                  handleDownload={handleDownload}
-                  handleZoomIn={handleZoomIn}
-                  toggleControls={toggleControls}
-                />
-              </div>
-              
-              {/* Bottom info bar - always visible */}
-              <ViewerInfoBar 
-                showControls={true}
-                title={title}
-                description={description}
-                dateInfo={dateInfo}
-                fileType={fileType}
-              />
-            </div>
-          </div>
+        <DocumentViewerOverlay open={open} onClose={onClose}>
+          <DocumentViewerContent
+            currentIndex={currentIndex}
+            showControls={showControls}
+            currentFile={currentFile}
+            scale={scale}
+            files={files}
+            fileDetails={fileDetails}
+            onClose={onClose}
+            onDeleteRequest={handleDeleteRequest}
+            goToPreviousFile={goToPreviousFile}
+            goToNextFile={goToNextFile}
+            toggleControls={toggleControls}
+            handleZoomIn={handleZoomIn}
+            handleZoomOut={handleZoomOut}
+            handleDownload={handleDownload}
+          />
           
           <DeleteFileDialog
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onConfirm={handleDeleteConfirm}
-            fileTitle={title}
+            fileTitle={fileDetails.title}
           />
-        </motion.div>
+        </DocumentViewerOverlay>
       )}
     </AnimatePresence>
   );
