@@ -73,7 +73,7 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         }
       ];
       
-      // Custom map options - enabling single finger panning and flat view by default
+      // Custom map options - enabling two-finger rotation and single finger panning with flat view by default
       const mapOptions: google.maps.MapOptions = {
         center: mapPosition,
         zoom: 17,
@@ -83,14 +83,10 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         clickableIcons: false,
         styles: mapStyles,
         gestureHandling: 'greedy', // Abilita la navigazione con un dito (greedy mode)
-        tilt: 0, // Imposta una vista piatta di default
         mapTypeControl: false,
         fullscreenControl: false,
         streetViewControl: false,
-        zoomControl: true,
-        zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_TOP
-        }
+        zoomControl: false // Rimuove i controlli dello zoom
       };
       
       // Initialize the map
@@ -197,7 +193,13 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
     let isTilted = false;
     controlUI.addEventListener('click', () => {
       isTilted = !isTilted;
-      map.setTilt(isTilted ? 45 : 0);
+      if (isTilted) {
+        // Set to 45 degrees for 3D view
+        map.setOptions({ tilt: 45 });
+      } else {
+        // Set to 0 degrees for 2D view
+        map.setOptions({ tilt: 0 });
+      }
       controlText.innerHTML = isTilted ? '2D' : '3D';
     });
     
