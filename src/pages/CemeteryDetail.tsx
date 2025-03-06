@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,6 +90,7 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Container for the cover photo with consistent width */}
       <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 
           src={coverPhotoUrl} 
