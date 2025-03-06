@@ -23,9 +23,11 @@ const useMapInitialization = ({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const tilesLoadedListenerRef = useRef<google.maps.MapsEventListener | null>(null);
+  const mapInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (!isLoaded || !mapRef.current || !window.google?.maps) return;
+    // Only initialize the map once when conditions are met
+    if (!isLoaded || !mapRef.current || !window.google?.maps || mapInitializedRef.current) return;
     
     // Cleanup function for event listeners
     const cleanup = () => {
@@ -88,6 +90,7 @@ const useMapInitialization = ({
       // Save references
       setMap(newMap);
       setMarker(newMarker);
+      mapInitializedRef.current = true;
       
       // Add listener for errors
       const errorListener = google.maps.event.addListener(newMap, 'error', () => {
@@ -106,7 +109,12 @@ const useMapInitialization = ({
       onError(error instanceof Error ? error.message : "Errore sconosciuto");
       return cleanup;
     }
-  }, [isLoaded, cemetery, forceRefresh, onError]);
+  }, [isLoaded, cemetery, forceRefresh, onError, mapLoaded]);
+
+  // Reset the initialization flag when cemetery or forceRefresh changes
+  useEffect(() => {
+    mapInitializedRef.current = false;
+  }, [cemetery, forceRefresh]);
 
   return { mapRef, mapLoaded, map, marker };
 };

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useMapDisplay } from "./hooks/useMapDisplay";
 import MapLoadingState from "./components/MapLoadingState";
 import MapErrorState from "./components/MapErrorState";
@@ -34,9 +34,11 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  const handleMapLoaded = (loadedMap: google.maps.Map) => {
+  // Use a stable callback with useCallback to prevent unnecessary re-renders
+  const handleMapLoaded = useCallback((loadedMap: google.maps.Map) => {
+    console.log("Map loaded successfully, setting map reference");
     setMap(loadedMap);
-  };
+  }, []);
 
   const handleOpenMapInNewTab = () => {
     console.log("Opening map in new tab");
