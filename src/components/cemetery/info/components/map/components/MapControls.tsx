@@ -12,7 +12,7 @@ const MapControls: React.FC<MapControlsProps> = ({
   onOpenInGoogleMaps 
 }) => {
   return (
-    <div className="flex justify-end items-center">
+    <div className="flex justify-start items-center">
       <Button 
         variant="outline" 
         size="sm" 

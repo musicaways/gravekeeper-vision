@@ -35,17 +35,11 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
     console.log("Map iframe loaded successfully");
   };
   
-  // Aggiungiamo parametri per nascondere elementi dell'interfaccia
-  // disableDefaultUI=true - rimuove tutti i controlli predefiniti
-  // maptype=satellite - mantiene la vista satellite
-  const cleanMapUrl = new URL(mapUrl);
-  cleanMapUrl.searchParams.set('disableDefaultUI', 'true');
-  
   return (
     <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative">
       <iframe 
         ref={iframeRef}
-        src={cleanMapUrl.toString()}
+        src={mapUrl}
         width="100%" 
         height="100%" 
         style={{ border: 0 }} 

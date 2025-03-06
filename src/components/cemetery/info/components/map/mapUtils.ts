@@ -14,8 +14,7 @@ export const buildMapUrl = (
   if (latitude && longitude) {
     // When using coordinates, Google Maps adds a marker at the specified location
     // Using satellite view (maptype=satellite) and zoom level 18 for closer view
-    // disableDefaultUI=true rimuove tutti i controlli di base
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&disableDefaultUI=true`;
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite`;
   } 
   
   if (address) {
@@ -28,7 +27,7 @@ export const buildMapUrl = (
     ].filter(Boolean).join(', ');
     
     // Using satellite view (maptype=satellite) for address-based maps too
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(fullAddress)}&zoom=16&maptype=satellite&disableDefaultUI=true`;
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(fullAddress)}&zoom=16&maptype=satellite`;
   }
   
   return '';
