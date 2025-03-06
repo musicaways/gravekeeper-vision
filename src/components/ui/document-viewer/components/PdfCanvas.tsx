@@ -25,11 +25,13 @@ const PdfCanvas = ({
   const touchMoveCount = useRef(0);
   const touchTimeout = useRef<NodeJS.Timeout | null>(null);
   const previousScale = useRef(scale);
+  const renderTimestamp = useRef(Date.now());
 
   // Force re-render and reset position when scale changes
   useEffect(() => {
     if (canvasRef.current) {
       canvasRef.current.setAttribute('data-scale', scale.toString());
+      renderTimestamp.current = Date.now();
       
       // If scale changed, log it
       if (previousScale.current !== scale) {
@@ -136,10 +138,12 @@ const PdfCanvas = ({
           ref={canvasRef} 
           className="max-w-full shadow-lg"
           style={{ 
-            opacity: initialRenderComplete ? 1 : 0.3, // Increased from 0.1 to 0.3 to make it more visible while loading
-            transition: 'opacity 0.3s ease' 
+            opacity: initialRenderComplete ? 1 : 0.5, // Increased opacity for better visibility
+            transition: 'opacity 0.3s ease',
+            border: !initialRenderComplete ? '1px dashed rgba(0,0,0,0.2)' : 'none' // Visual indicator while loading
           }}
           data-scale={scale}
+          data-render-timestamp={renderTimestamp.current}
         />
       </div>
     </div>
