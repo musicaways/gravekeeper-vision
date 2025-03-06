@@ -91,7 +91,7 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         document={documentToDelete}
-        onDelete={handleDelete}
+        onDelete={() => handleDelete(documentToDelete?.id)}
       />
 
       {/* Document Viewer */}

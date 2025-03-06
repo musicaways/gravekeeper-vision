@@ -46,10 +46,14 @@ export const usePdfRenderer = ({
       try {
         renderInProgress.current = true;
         
-        // Check if we're rendering the same page at the same scale
-        if (currentPage === lastPageRef.current && 
-            scale === lastScaleRef.current && 
-            initialRenderComplete) {
+        // Force render on scale change or page change, even if already rendered once
+        const shouldForceRender = 
+          currentPage !== lastPageRef.current || 
+          scale !== lastScaleRef.current;
+        
+        console.log(`Checking if PDF page needs rendering. Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}`);
+        
+        if (!shouldForceRender && initialRenderComplete) {
           renderInProgress.current = false;
           return;
         }
@@ -86,7 +90,9 @@ export const usePdfRenderer = ({
         lastPageRef.current = currentPage;
         lastScaleRef.current = scale;
         
+        // Set initial render complete if not already done
         if (!initialRenderComplete) {
+          console.log("Initial PDF render complete");
           setInitialRenderComplete(true);
         }
         
