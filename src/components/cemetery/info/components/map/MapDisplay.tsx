@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
+import React from "react";
+import { useMapDisplay } from "./hooks/useMapDisplay";
+import MapLoadingState from "./components/MapLoadingState";
 import MapErrorState from "./components/MapErrorState";
 import MapControls from "./components/MapControls";
-import { openExternalMap } from "./mapUtils";
 import JavaScriptMap from "./components/JavaScriptMap";
+import { openExternalMap } from "./mapUtils";
 
 interface MapDisplayProps {
   loading: boolean;
@@ -19,29 +20,28 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   cemetery,
   customMapId,
 }) => {
-  const [forceRefresh, setForceRefresh] = useState(0);
-  const [mapError, setMapError] = useState<string | null>(null);
-
-  // Reset map error when cemetery changes
-  useEffect(() => {
-    setMapError(null);
-  }, [cemetery]);
+  const {
+    forceRefresh,
+    mapError,
+    showLoadingState,
+    showApiKeyError,
+    showMapError,
+    showNoCoordinatesError,
+    showMap,
+    handleMapError,
+    refreshMap
+  } = useMapDisplay({ loading, apiKeyError, cemetery });
 
   const handleOpenMapInNewTab = () => {
     console.log("Opening map in new tab");
     openExternalMap(customMapId, false, cemetery);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-10">
-        <div className="h-8 w-8 rounded-full border-2 border-t-primary border-primary/30 animate-spin"></div>
-        <span className="ml-2">Caricamento mappa...</span>
-      </div>
-    );
+  if (showLoadingState) {
+    return <MapLoadingState />;
   }
 
-  if (apiKeyError) {
+  if (showApiKeyError) {
     console.log("Showing API key error state");
     return (
       <MapErrorState 
@@ -52,17 +52,17 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
-  if (mapError) {
+  if (showMapError) {
     return (
       <MapErrorState 
         message={`Errore nel caricamento della mappa: ${mapError}`}
         buttonText="Riprova"
-        buttonAction={() => setForceRefresh(prev => prev + 1)}
+        buttonAction={refreshMap}
       />
     );
   }
 
-  if (!cemetery?.Latitudine && !cemetery?.Longitudine) {
+  if (showNoCoordinatesError) {
     console.log("No coordinates available");
     return (
       <MapErrorState message="Posizione non disponibile per questo cimitero" />
@@ -74,7 +74,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       <JavaScriptMap 
         cemetery={cemetery}
         forceRefresh={forceRefresh}
-        onError={(error) => setMapError(error)}
+        onError={handleMapError}
       />
       
       <div className="flex justify-start mt-3">

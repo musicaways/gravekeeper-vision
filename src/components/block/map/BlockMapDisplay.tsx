@@ -1,63 +1,23 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Map, AlertTriangle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useBlockMap } from "./hooks/useBlockMap";
+import BlockMapImage from "./components/BlockMapImage";
+import BlockMapEmpty from "./components/BlockMapEmpty";
 
 interface BlockMapDisplayProps {
   block: any;
 }
 
 const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
-  const [mapUrl, setMapUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { mapUrl, loading, error } = useBlockMap(block);
+  const [imageError, setImageError] = useState(false);
 
-  useEffect(() => {
-    const fetchBlockMap = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        if (!block || !block.Id) {
-          setError("Dati del blocco non disponibili");
-          return;
-        }
-
-        console.log("Fetching map for block:", block.Id);
-
-        // Query the CimiteroMappe table for the related cemetery map
-        const { data, error } = await supabase
-          .from('CimiteroMappe')
-          .select('Url')
-          .eq('IdCimitero', block.Settore?.IdCimitero || null)
-          .order('DataInserimento', { ascending: false })
-          .limit(1);
-        
-        if (error) {
-          console.error("Error fetching cemetery map:", error);
-          setError(`Errore nel caricamento della mappa: ${error.message}`);
-          throw error;
-        }
-        
-        console.log("Map data result:", data);
-        
-        if (data && data.length > 0) {
-          setMapUrl(data[0].Url);
-        } else {
-          console.log("No map found for cemetery ID:", block.Settore?.IdCimitero);
-        }
-      } catch (err: any) {
-        console.error("Error loading map:", err);
-        setError(`Errore nel caricamento della mappa: ${err.message || "Errore sconosciuto"}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBlockMap();
-  }, [block]);
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <Card className="w-full shadow-sm">
@@ -78,24 +38,10 @@ const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
           <div className="flex justify-center items-center py-10">
             <span className="ml-2">Caricamento mappa...</span>
           </div>
-        ) : mapUrl ? (
-          <div className="rounded-md overflow-hidden border border-border h-[400px] mt-4">
-            <img 
-              src={mapUrl} 
-              alt="Mappa del blocco" 
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                console.error("Error loading map image:", e);
-                setError("Impossibile caricare l'immagine della mappa");
-                setMapUrl(null);
-              }}
-            />
-          </div>
+        ) : mapUrl && !imageError ? (
+          <BlockMapImage mapUrl={mapUrl} onError={handleImageError} />
         ) : (
-          <div className="text-center py-6 bg-muted/30 rounded-md">
-            <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
-            <p className="text-muted-foreground mb-2">Mappa non disponibile per questo blocco</p>
-          </div>
+          <BlockMapEmpty />
         )}
       </CardContent>
     </Card>
