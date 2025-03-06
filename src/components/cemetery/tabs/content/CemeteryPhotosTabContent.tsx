@@ -182,11 +182,11 @@ const CemeteryPhotosTabContent: React.FC<CemeteryPhotosTabContentProps> = ({ cem
         </CardContent>
       </Card>
 
-      {/* Floating Upload Button */}
+      {/* Floating Upload Button - moved to right side */}
       <Button 
         onClick={() => setUploadDialogOpen(true)}
         size="icon"
-        className="fixed left-6 bottom-6 w-14 h-14 rounded-full shadow-lg"
+        className="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-lg"
       >
         <Camera className="h-6 w-6" />
       </Button>

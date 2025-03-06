@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
@@ -125,6 +124,7 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
         ))}
       </div>
 
+      {/* Passing the correct initialIndex to ensure the lightbox shows the selected image */}
       <ImageLightbox 
         images={lightboxImages}
         open={lightboxOpen}

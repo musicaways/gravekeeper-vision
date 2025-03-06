@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -20,6 +20,13 @@ interface ImageLightboxProps {
 
 const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  
+  // Reset the currentIndex when initialIndex changes or when lightbox opens
+  useEffect(() => {
+    if (open) {
+      setCurrentIndex(initialIndex);
+    }
+  }, [initialIndex, open]);
 
   const goToPreviousImage = () => {
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
