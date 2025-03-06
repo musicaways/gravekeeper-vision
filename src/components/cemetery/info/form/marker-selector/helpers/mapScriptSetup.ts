@@ -1,5 +1,5 @@
 
-import { mapInteractionScript } from "../mapInteractionScript";
+import { mapInteractionScript } from "../map-interaction";
 
 // Make the map interaction script available globally for iframe injection
 declare global {
