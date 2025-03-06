@@ -1,7 +1,7 @@
 
 import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Info, Building, FileText } from "lucide-react";
+import { Info, Building, FileText, Images } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CemeteryTabTriggers: React.FC = () => {
@@ -16,6 +16,10 @@ const CemeteryTabTriggers: React.FC = () => {
           <TabsTrigger value="sections" className="flex items-center gap-1.5 px-4 py-2">
             <Building className="h-4 w-4" />
             <span>Settori</span>
+          </TabsTrigger>
+          <TabsTrigger value="photos" className="flex items-center gap-1.5 px-4 py-2">
+            <Images className="h-4 w-4" />
+            <span>Foto</span>
           </TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-1.5 px-4 py-2">
             <FileText className="h-4 w-4" />
