@@ -2,7 +2,8 @@
 import React, { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Save, Eye, EyeOff, CheckCircle2, Loader2 } from "lucide-react";
+import { Save, Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface GoogleMapsKeyInputProps {
   googleMapsKey: string;
@@ -15,6 +16,7 @@ interface GoogleMapsKeyInputProps {
   hasExistingKey: boolean;
   loading: boolean;
   testLoading: boolean;
+  testSuccess: boolean | null;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
@@ -29,6 +31,7 @@ export function GoogleMapsKeyInput({
   hasExistingKey,
   loading,
   testLoading,
+  testSuccess,
   onKeyDown
 }: GoogleMapsKeyInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,7 +49,7 @@ export function GoogleMapsKeyInput({
           value={googleMapsKey}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onKeyDown}
-          className="pr-24"
+          className="pr-28"
           ref={inputRef}
           disabled={loading || testLoading}
         />
@@ -59,6 +62,7 @@ export function GoogleMapsKeyInput({
               disabled={loading || testLoading}
               className="h-8 w-8 p-0"
               aria-label={showKey ? "Nascondi API key" : "Mostra API key"}
+              title={showKey ? "Nascondi API key" : "Mostra API key"}
             >
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               <span className="sr-only">{showKey ? "Nascondi" : "Mostra"}</span>
@@ -66,13 +70,22 @@ export function GoogleMapsKeyInput({
           )}
           <Button 
             size="sm"
-            variant="ghost"
+            variant={testSuccess === true ? "default" : testSuccess === false ? "destructive" : "ghost"}
             onClick={onTest}
             disabled={testLoading || loading}
             className="h-8 w-8 p-0"
             aria-label="Testa API key"
+            title="Testa API key"
           >
-            {testLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {testLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : testSuccess === true ? (
+              <CheckCircle2 className="h-4 w-4" />
+            ) : testSuccess === false ? (
+              <XCircle className="h-4 w-4" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
             <span className="sr-only">Testa</span>
           </Button>
           <Button 
@@ -82,14 +95,32 @@ export function GoogleMapsKeyInput({
             disabled={!googleMapsKey.trim() || loading || testLoading}
             className="h-8 w-8 p-0"
             aria-label="Salva API key"
+            title="Salva API key"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             <span className="sr-only">Salva</span>
           </Button>
         </div>
       </div>
+      
       {loading && <p className="text-xs text-muted-foreground">Salvando l'API key...</p>}
       {testLoading && <p className="text-xs text-muted-foreground">Testando l'API key...</p>}
+      
+      {testSuccess === true && !testLoading && (
+        <Alert variant="default" className="bg-green-50 text-green-800 border-green-200 py-2">
+          <AlertDescription>
+            La chiave API di Google Maps è stata testata con successo!
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {testSuccess === false && !testLoading && (
+        <Alert variant="destructive" className="py-2">
+          <AlertDescription>
+            Si è verificato un errore durante il test della chiave API di Google Maps. Verifica che la chiave sia corretta.
+          </AlertDescription>
+        </Alert>
+      )}
       
       <p className="text-xs text-muted-foreground mt-2">
         Questa chiave API è necessaria per il funzionamento delle mappe nei dettagli del cimitero.

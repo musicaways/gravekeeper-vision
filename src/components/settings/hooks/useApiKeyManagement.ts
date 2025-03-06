@@ -11,6 +11,7 @@ export function useApiKeyManagement() {
   const [testLoading, setTestLoading] = useState(false);
   const [keyId, setKeyId] = useState<string | null>(null);
   const [hasExistingKey, setHasExistingKey] = useState(false);
+  const [testSuccess, setTestSuccess] = useState<boolean | null>(null);
 
   // Fetch existing API key on component mount
   useEffect(() => {
@@ -93,15 +94,21 @@ export function useApiKeyManagement() {
       
       setGoogleMapsKey("");
       setShowKey(false);
-    } catch (error) {
+
+      // Update keyId if this was a new record
+      if (data && data.length > 0 && !keyId) {
+        setKeyId(data[0].id);
+      }
+    } catch (error: any) {
       console.error("Error saving API key:", error);
-      toast.error("Errore nel salvare l'API key");
+      toast.error("Errore nel salvare l'API key: " + (error?.message || "Errore sconosciuto"));
     } finally {
       setLoading(false);
     }
   };
 
   const testGoogleMapsApi = async () => {
+    setTestSuccess(null);
     try {
       setTestLoading(true);
       console.log("Testing Google Maps API...");
@@ -124,6 +131,7 @@ export function useApiKeyManagement() {
         if (!data?.googlemaps_key) {
           console.warn("No API key found for testing");
           toast.error("Nessuna API key di Google Maps trovata");
+          setTestSuccess(false);
           return;
         }
         
@@ -139,15 +147,20 @@ export function useApiKeyManagement() {
       console.log("Google Maps API test result:", result);
       
       if (result.status === "OK") {
-        toast.success("Test dell'API di Google Maps completato con successo");
+        setTestSuccess(true);
+        toast.success("Test dell'API di Google Maps completato con successo!");
+        console.log("Google Maps API test succeeded");
       } else if (result.error_message) {
+        setTestSuccess(false);
         console.error("Google Maps API test failed:", result.error_message);
         toast.error(`Errore nel test dell'API: ${result.error_message}`);
       } else {
+        setTestSuccess(false);
         console.error("Google Maps API test failed:", result.status);
         toast.error(`Errore nel test dell'API: ${result.status}`);
       }
     } catch (error: any) {
+      setTestSuccess(false);
       console.error("Error testing API key:", error);
       toast.error("Errore durante il test dell'API key: " + (error?.message || "Errore sconosciuto"));
     } finally {
@@ -167,6 +180,7 @@ export function useApiKeyManagement() {
     loading,
     testLoading,
     hasExistingKey,
+    testSuccess,
     handleSaveGoogleMapsKey,
     testGoogleMapsApi,
     toggleKeyVisibility
