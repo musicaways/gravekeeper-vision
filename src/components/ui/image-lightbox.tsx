@@ -1,9 +1,10 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 export interface LightboxImage {
   id: string;
@@ -20,11 +21,14 @@ interface ImageLightboxProps {
 }
 
 const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxProps) => {
+  const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showControls, setShowControls] = useState(true);
   const [dragging, setDragging] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState<null | "left" | "right">(null);
+  const [startX, setStartX] = useState(0);
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   
@@ -52,14 +56,28 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
   }, [showControls, dragging]);
 
   const goToPreviousImage = () => {
-    if (scale > 1) return; // Don't allow navigation when zoomed in
+    if (scale > 1) {
+      toast({
+        title: "Zoom attivo",
+        description: "Riduci lo zoom per navigare tra le foto",
+        variant: "default"
+      });
+      return;
+    }
     setScale(1);
     setPosition({ x: 0, y: 0 });
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
   const goToNextImage = () => {
-    if (scale > 1) return; // Don't allow navigation when zoomed in
+    if (scale > 1) {
+      toast({
+        title: "Zoom attivo",
+        description: "Riduci lo zoom per navigare tra le foto",
+        variant: "default"
+      });
+      return;
+    }
     setScale(1);
     setPosition({ x: 0, y: 0 });
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
@@ -89,62 +107,125 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
     toggleControls();
   };
 
-  // Swipe handlers
-  const handleDragStart = () => {
+  // Touch event handlers for swiping
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setStartX(e.touches[0].clientX);
     setDragging(true);
-    setShowControls(true); // Show controls when user interacts
+    setShowControls(true);
   };
 
-  const handleDragEnd = (e: any, info: any) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (scale > 1) return; // Don't allow swipe when zoomed in
+    
+    const currentX = e.touches[0].clientX;
+    const diff = startX - currentX;
+    
+    if (diff > 50) {
+      setSwipeDirection("right");
+    } else if (diff < -50) {
+      setSwipeDirection("left");
+    } else {
+      setSwipeDirection(null);
+    }
+  };
+
+  const handleTouchEnd = () => {
     setDragging(false);
     
-    if (scale > 1) {
-      // When zoomed in, handle panning limits
-      if (imageRef.current && contentRef.current) {
-        const imageBounds = imageRef.current.getBoundingClientRect();
-        const contentBounds = contentRef.current.getBoundingClientRect();
-        
-        const maxX = (imageBounds.width * scale - contentBounds.width) / 2;
-        const maxY = (imageBounds.height * scale - contentBounds.height) / 2;
-        
-        setPosition({
-          x: Math.max(Math.min(position.x + info.offset.x, maxX), -maxX),
-          y: Math.max(Math.min(position.y + info.offset.y, maxY), -maxY),
-        });
-      }
+    if (scale > 1) return; // Don't allow swipe when zoomed in
+    
+    if (swipeDirection === "right") {
+      goToNextImage();
+    } else if (swipeDirection === "left") {
+      goToPreviousImage();
+    }
+    
+    setSwipeDirection(null);
+  };
+
+  // Mouse event handlers for swipe simulation with mouse
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setStartX(e.clientX);
+    setDragging(true);
+    setShowControls(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragging || scale > 1) return;
+    
+    const currentX = e.clientX;
+    const diff = startX - currentX;
+    
+    if (diff > 50) {
+      setSwipeDirection("right");
+    } else if (diff < -50) {
+      setSwipeDirection("left");
     } else {
-      // When not zoomed, handle image swipe
-      if (Math.abs(info.offset.x) > 100) {
-        if (info.offset.x > 0) {
-          goToPreviousImage();
-        } else {
-          goToNextImage();
-        }
+      setSwipeDirection(null);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!dragging) return;
+    
+    if (scale <= 1) {
+      if (swipeDirection === "right") {
+        goToNextImage();
+      } else if (swipeDirection === "left") {
+        goToPreviousImage();
       }
     }
+    
+    setDragging(false);
+    setSwipeDirection(null);
   };
 
   if (images.length === 0) return null;
 
   const currentImage = images[currentIndex];
-  const formattedDate = currentImage.description?.includes("Date:")
-    ? currentImage.description.split("Date:")[1].trim()
-    : "";
+  
+  // Parse and format the description and date information
+  const title = currentImage.title || "";
+  let description = "";
+  let dateInfo = "";
+  
+  if (currentImage.description) {
+    const parts = currentImage.description.split("Date:");
+    description = parts[0].trim();
+    if (parts.length > 1) {
+      dateInfo = parts[1].trim();
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => !newOpen && onClose()}>
-      <DialogContent className="sm:max-w-5xl max-h-[90vh] p-0 flex flex-col bg-transparent border-none">
+      <DialogContent 
+        className="sm:max-w-5xl max-h-[90vh] p-0 flex flex-col bg-transparent border-none"
+        onMouseLeave={handleMouseUp}
+      >
+        {/* Hidden DialogTitle for accessibility - required by RadixUI Dialog */}
+        <DialogTitle className="sr-only">Visualizzatore foto</DialogTitle>
+        
         <div 
           className="relative h-full flex flex-col bg-transparent overflow-hidden"
           ref={contentRef}
         >
           {/* Main image container */}
-          <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black/95">
+          <div 
+            className="relative w-full h-full flex-1 flex items-center justify-center bg-black/95"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onClick={handleImageClick}
+          >
             {/* Top controls bar */}
             <AnimatePresence>
               {showControls && (
                 <motion.div 
-                  className="absolute top-0 left-0 right-0 z-10 bg-black/60 backdrop-blur-sm p-3 flex justify-between items-center"
+                  className="absolute top-0 left-0 right-0 z-10 bg-black/75 backdrop-blur-sm p-3 flex justify-between items-center"
                   initial={{ opacity: 0, y: -50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -50 }}
@@ -157,8 +238,11 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={handleZoomOut}
-                      className="text-white hover:bg-white/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleZoomOut();
+                      }}
+                      className="text-white hover:bg-white/30"
                       disabled={scale <= 1}
                     >
                       <ZoomOut className="h-5 w-5" />
@@ -166,8 +250,11 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={handleZoomIn}
-                      className="text-white hover:bg-white/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleZoomIn();
+                      }}
+                      className="text-white hover:bg-white/30"
                       disabled={scale >= 3}
                     >
                       <ZoomIn className="h-5 w-5" />
@@ -175,8 +262,11 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={onClose}
-                      className="text-white hover:bg-white/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                      }}
+                      className="text-white hover:bg-white/30"
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -197,13 +287,13 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     className="absolute left-2 z-20"
                   >
                     <Button 
-                      variant="ghost" 
+                      variant="default" 
                       size="icon" 
                       onClick={(e) => {
                         e.stopPropagation();
                         goToPreviousImage();
                       }}
-                      className="text-white hover:bg-white/20 h-10 w-10 rounded-full"
+                      className="bg-black/75 hover:bg-black/90 text-white h-10 w-10 rounded-full shadow-lg border border-white/20"
                     >
                       <ChevronLeft className="h-6 w-6" />
                     </Button>
@@ -217,13 +307,13 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                     className="absolute right-2 z-20"
                   >
                     <Button 
-                      variant="ghost" 
+                      variant="default" 
                       size="icon" 
                       onClick={(e) => {
                         e.stopPropagation();
                         goToNextImage();
                       }}
-                      className="text-white hover:bg-white/20 h-10 w-10 rounded-full"
+                      className="bg-black/75 hover:bg-black/90 text-white h-10 w-10 rounded-full shadow-lg border border-white/20"
                     >
                       <ChevronRight className="h-6 w-6" />
                     </Button>
@@ -232,72 +322,65 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
               )}
             </AnimatePresence>
             
-            {/* Draggable image */}
-            <motion.div
-              className="relative w-full h-full flex items-center justify-center"
-              onClick={handleImageClick}
-              drag={scale > 1}
-              dragConstraints={contentRef}
-              dragElastic={0.1}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
+            {/* Image */}
+            <motion.img 
+              ref={imageRef}
+              src={currentImage.url} 
+              alt={title || ""}
+              className={`max-h-full max-w-full object-contain select-none ${swipeDirection ? "transition-transform duration-300" : ""}`}
               style={{ 
-                touchAction: "none" 
+                scale,
+                x: position.x,
+                y: position.y,
+                cursor: dragging ? "grabbing" : (scale > 1 ? "grab" : "default"),
+                transform: swipeDirection ? `translateX(${swipeDirection === "right" ? "-50px" : "50px"})` : undefined
               }}
-            >
-              <motion.img 
-                ref={imageRef}
-                src={currentImage.url} 
-                alt={currentImage.title || ""}
-                className="max-h-full max-w-full object-contain select-none"
-                style={{ 
-                  scale,
-                  x: position.x,
-                  y: position.y,
-                  cursor: scale > 1 ? "grab" : "default",
-                }}
-                onDoubleClick={(e) => {
-                  e.stopPropagation();
-                  if (scale > 1) {
-                    setScale(1);
-                    setPosition({ x: 0, y: 0 });
-                  } else {
-                    setScale(2);
-                  }
-                }}
-                transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                drag={false}
-              />
-            </motion.div>
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                if (scale > 1) {
+                  setScale(1);
+                  setPosition({ x: 0, y: 0 });
+                } else {
+                  setScale(2);
+                }
+              }}
+              transition={{ type: "spring", damping: 20, stiffness: 200 }}
+            />
             
             {/* Bottom info bar */}
             <AnimatePresence>
               {showControls && (
                 <motion.div 
-                  className="absolute bottom-0 left-0 right-0 z-10 bg-black/60 backdrop-blur-sm p-3"
+                  className="absolute bottom-0 left-0 right-0 z-10 bg-black/75 backdrop-blur-sm p-3"
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 50 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {(currentImage.title || currentImage.description) && (
-                    <div className="text-white">
-                      {currentImage.title && (
-                        <p className="text-sm font-medium">{currentImage.title}</p>
-                      )}
-                      {formattedDate && (
-                        <p className="text-xs text-white/80 mt-1">
-                          <span className="inline-flex items-center gap-1">
-                            <Info className="h-3 w-3" />
-                            {formattedDate}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                  )}
+                  <div className="text-white space-y-1">
+                    {title && (
+                      <p className="text-sm font-medium">{title}</p>
+                    )}
+                    {description && (
+                      <p className="text-sm text-white/90">{description}</p>
+                    )}
+                    {dateInfo && (
+                      <p className="text-xs text-white/80 flex items-center gap-1">
+                        <Info className="h-3 w-3" />
+                        {dateInfo}
+                      </p>
+                    )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
+            
+            {/* Swipe indicator */}
+            {swipeDirection && (
+              <div className={`absolute inset-0 pointer-events-none flex items-center ${swipeDirection === "right" ? "justify-start" : "justify-end"}`}>
+                <div className={`bg-white/10 h-full w-20 ${swipeDirection === "right" ? "rounded-r-full" : "rounded-l-full"}`}></div>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

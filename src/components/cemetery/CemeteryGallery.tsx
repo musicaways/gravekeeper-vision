@@ -65,19 +65,24 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
   }, [cemeteryId]);
 
   const lightboxImages: LightboxImage[] = photos.map(photo => {
-    let description = photo.Descrizione || "";
+    // Create a more complete description that includes both the text and date
+    let fullDescription = photo.Descrizione || "";
     
     // Add date information to the description
     if (photo.DataInserimento) {
       const formattedDate = formatDate(photo.DataInserimento, "long");
-      description = description ? `${description}\nDate: ${formattedDate}` : `Date: ${formattedDate}`;
+      if (fullDescription) {
+        fullDescription = `${fullDescription}\nDate: ${formattedDate}`;
+      } else {
+        fullDescription = `Date: ${formattedDate}`;
+      }
     }
     
     return {
       id: photo.Id,
       url: photo.Url,
       title: photo.NomeFile || "",
-      description: description
+      description: fullDescription
     };
   });
 
