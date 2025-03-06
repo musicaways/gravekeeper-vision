@@ -1,12 +1,10 @@
 
-import { useEffect, useRef, useState } from "react";
-import { Loader2, FileText, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import * as pdfjsLib from "pdfjs-dist";
-import { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
-
-// Set the worker source from CDN
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import React from "react";
+import { usePdfViewer } from "./hooks/usePdfViewer";
+import PdfCanvas from "./components/PdfCanvas";
+import PdfPageNavigation from "./components/PdfPageNavigation";
+import PdfError from "./components/PdfError";
+import PdfLoading from "./components/PdfLoading";
 
 interface PdfViewerProps {
   url: string;
@@ -25,234 +23,44 @@ const PdfViewer = ({
   handleDoubleClick,
   toggleControls
 }: PdfViewerProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [pdfLoading, setPdfLoading] = useState(true);
-  const [pdfError, setPdfError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
-  const currentScaleRef = useRef<number>(scale);
-  const [initialRenderComplete, setInitialRenderComplete] = useState(false);
-  
-  useEffect(() => {
-    // Update the ref when scale changes
-    currentScaleRef.current = scale;
-  }, [scale]);
-  
-  // Function to render PDF page
-  const renderPage = async (page: PDFPageProxy, forceScale?: number) => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    // Use the provided scale or currentScaleRef
-    const scaleToUse = forceScale !== undefined ? forceScale : currentScaleRef.current;
-    
-    // Apply scaling factor
-    const viewport = page.getViewport({ scale: scaleToUse * 1.5 });
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-
-    try {
-      await page.render({
-        canvasContext: context,
-        viewport: viewport
-      }).promise;
-      console.log("Page rendered successfully with scale:", scaleToUse);
-      
-      if (!initialRenderComplete) {
-        setInitialRenderComplete(true);
-      }
-    } catch (error) {
-      console.error("Error rendering PDF page:", error);
-      setPdfError("Errore nel rendering della pagina PDF");
-    }
-  };
-
-  // Handle page navigation
-  const goToNextPage = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (pdfDocRef.current && currentPage < totalPages) {
-      setCurrentPage(prev => {
-        const nextPage = prev + 1;
-        loadPdfPage(nextPage);
-        return nextPage;
-      });
-    }
-  };
-
-  const goToPrevPage = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (pdfDocRef.current && currentPage > 1) {
-      setCurrentPage(prev => {
-        const prevPage = prev - 1;
-        loadPdfPage(prevPage);
-        return prevPage;
-      });
-    }
-  };
-
-  const loadPdfPage = async (pageNum: number) => {
-    if (!pdfDocRef.current) return;
-    
-    try {
-      console.log(`Loading page ${pageNum} with scale ${currentScaleRef.current}`);
-      const page = await pdfDocRef.current.getPage(pageNum);
-      await renderPage(page);
-    } catch (error) {
-      console.error("Error loading PDF page:", error);
-      setPdfError("Impossibile caricare la pagina del PDF");
-    }
-  };
-
-  // Load PDF document
-  useEffect(() => {
-    if (!url) return;
-
-    const loadPdf = async () => {
-      console.log("Loading PDF:", url);
-      try {
-        setPdfLoading(true);
-        setPdfError(null);
-        setInitialRenderComplete(false);
-        
-        // Load the PDF document
-        const loadingTask = pdfjsLib.getDocument({
-          url: url,
-          cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
-          cMapPacked: true,
-        });
-        
-        const pdf = await loadingTask.promise;
-        console.log("PDF loaded successfully, pages:", pdf.numPages);
-        
-        pdfDocRef.current = pdf;
-        setTotalPages(pdf.numPages);
-        
-        // Get the first page
-        const page = await pdf.getPage(1);
-        
-        // Force initial render with scale=1 to ensure visibility
-        await renderPage(page, 1);
-        setPdfLoading(false);
-      } catch (error) {
-        console.error("Error loading PDF:", error);
-        setPdfError("Impossibile caricare il PDF. Prova a scaricarlo.");
-        setPdfLoading(false);
-      }
-    };
-
-    loadPdf();
-    
-    // Cleanup function
-    return () => {
-      if (pdfDocRef.current) {
-        pdfDocRef.current.destroy().catch(err => {
-          console.error("Error destroying PDF document:", err);
-        });
-        pdfDocRef.current = null;
-      }
-    };
-  }, [url]);
-
-  // Update rendering when scale changes
-  useEffect(() => {
-    const updatePdfScale = async () => {
-      console.log("Scale changed to:", scale);
-      if (pdfDocRef.current && canvasRef.current) {
-        try {
-          const page = await pdfDocRef.current.getPage(currentPage);
-          await renderPage(page);
-        } catch (error) {
-          console.error("Error updating PDF scale:", error);
-        }
-      }
-    };
-
-    // Only update scale if initial render is complete
-    if (initialRenderComplete) {
-      updatePdfScale();
-    }
-  }, [scale, currentPage, initialRenderComplete]);
-
-  // Force a re-render after the component has mounted
-  useEffect(() => {
-    const forceRender = async () => {
-      if (!initialRenderComplete && pdfDocRef.current) {
-        try {
-          const page = await pdfDocRef.current.getPage(currentPage);
-          await renderPage(page, 1);
-        } catch (error) {
-          console.error("Error forcing render:", error);
-        }
-      }
-    };
-    
-    // Small delay to ensure component is fully mounted
-    const timer = setTimeout(forceRender, 500);
-    return () => clearTimeout(timer);
-  }, [initialRenderComplete, currentPage]);
+  const {
+    canvasRef,
+    pdfLoading,
+    pdfError,
+    currentPage,
+    totalPages,
+    initialRenderComplete,
+    goToNextPage,
+    goToPrevPage
+  } = usePdfViewer({
+    url,
+    scale,
+    initialPage: 1
+  });
 
   if (pdfLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-2">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-white text-sm">Caricamento PDF in corso...</p>
-      </div>
-    );
+    return <PdfLoading />;
   }
 
   if (pdfError) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 p-6 text-center bg-white/10 rounded-lg">
-        <FileText className="w-16 h-16 text-muted-foreground" />
-        <p className="text-muted-foreground">{pdfError}</p>
-        <Button variant="outline" onClick={handleDownload}>
-          <Download className="w-4 h-4 mr-1" /> Scarica PDF
-        </Button>
-      </div>
-    );
+    return <PdfError errorMessage={pdfError} handleDownload={handleDownload} />;
   }
 
   return (
     <>
-      <div 
-        className="flex-1 overflow-auto w-full flex items-center justify-center cursor-zoom-in"
-        onClick={toggleControls}
-        onDoubleClick={handleDoubleClick}
-      >
-        <canvas 
-          ref={canvasRef} 
-          className="max-w-full shadow-lg"
-          style={{ opacity: initialRenderComplete ? 1 : 0.99 }} // Trick to force re-render
-        />
-      </div>
+      <PdfCanvas 
+        canvasRef={canvasRef}
+        initialRenderComplete={initialRenderComplete}
+        handleDoubleClick={handleDoubleClick}
+        toggleControls={toggleControls}
+      />
       
-      {totalPages > 1 && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/80 text-white rounded-md px-4 py-2 text-sm z-10">
-          <button 
-            onClick={goToPrevPage} 
-            disabled={currentPage <= 1}
-            className="p-1.5 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:pointer-events-none"
-            aria-label="Pagina precedente"
-          >
-            ←
-          </button>
-          <span className="mx-2">
-            {currentPage} / {totalPages}
-          </span>
-          <button 
-            onClick={goToNextPage} 
-            disabled={currentPage >= totalPages}
-            className="p-1.5 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:pointer-events-none"
-            aria-label="Pagina successiva"
-          >
-            →
-          </button>
-        </div>
-      )}
+      <PdfPageNavigation 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        goToPrevPage={goToPrevPage}
+        goToNextPage={goToNextPage}
+      />
     </>
   );
 };
