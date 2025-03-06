@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import CemeteryInfoDisplay from "./info/CemeteryInfoDisplay";
-import CemeteryInfoEditForm from "./info/CemeteryInfoEditForm";
+import { CemeteryInfoEditForm } from "./info/form";
 import { formatCemeteryData, updateCemeteryInfo } from "./info/cemeteryInfoUtils";
 
 interface CemeteryInfoCardProps {
