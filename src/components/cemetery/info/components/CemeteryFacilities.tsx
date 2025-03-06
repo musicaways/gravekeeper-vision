@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Check, X, Building2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface CemeteryFacilitiesProps {
   cemetery: {
@@ -42,21 +42,20 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
   if (!hasFacilities) return null;
 
   return (
-    <Card className="w-full shadow-sm">
-      <CardContent className="p-6">
-        <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-foreground">
-          <Building2 className="h-5 w-5 text-primary" />
-          Strutture e servizi
-        </h3>
-        <div className="bg-muted/30 rounded-md p-4 divide-y divide-border">
-          {renderBooleanField("Ricevimento salme", cemetery.ricevimento_salme)}
-          {renderBooleanField("Chiesa", cemetery.chiesa)}
-          {renderBooleanField("Camera mortuaria", cemetery.camera_mortuaria)}
-          {renderBooleanField("Cavalletti", cemetery.cavalletti)}
-          {renderBooleanField("Impalcatura", cemetery.impalcatura)}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="w-full py-4">
+      <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-foreground">
+        <Building2 className="h-5 w-5 text-primary" />
+        Strutture e servizi
+      </h3>
+      <div className="space-y-1 divide-y divide-slate-200">
+        {renderBooleanField("Ricevimento salme", cemetery.ricevimento_salme)}
+        {renderBooleanField("Chiesa", cemetery.chiesa)}
+        {renderBooleanField("Camera mortuaria", cemetery.camera_mortuaria)}
+        {renderBooleanField("Cavalletti", cemetery.cavalletti)}
+        {renderBooleanField("Impalcatura", cemetery.impalcatura)}
+      </div>
+      <Separator className="mt-6 bg-slate-200" />
+    </div>
   );
 };
 
