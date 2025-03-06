@@ -5,13 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Key, CheckCircle2, Save } from "lucide-react";
+import { Key, CheckCircle2, Save, Eye, EyeOff } from "lucide-react";
 
 export function ApiSettings() {
   const [googleMapsKey, setGoogleMapsKey] = useState("");
+  const [maskedKey, setMaskedKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [testLoading, setTestLoading] = useState(false);
   const [keyId, setKeyId] = useState<string | null>(null);
+  const [hasExistingKey, setHasExistingKey] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Fetch existing API key on component mount
@@ -27,6 +30,17 @@ export function ApiSettings() {
         
         if (data) {
           setKeyId(data.id);
+          if (data.googlemaps_key) {
+            setHasExistingKey(true);
+            // Create masked version of the key (showing only last 4 characters)
+            const keyLength = data.googlemaps_key.length;
+            if (keyLength > 4) {
+              const masked = '•'.repeat(keyLength - 4) + data.googlemaps_key.slice(-4);
+              setMaskedKey(masked);
+            } else {
+              setMaskedKey('•'.repeat(keyLength));
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching API keys:", error);
@@ -53,8 +67,22 @@ export function ApiSettings() {
 
       if (error) throw error;
 
+      // Show toast notification
       toast.success("API key salvata con successo");
+      
+      // Update UI state
+      setHasExistingKey(true);
+      const keyLength = googleMapsKey.length;
+      if (keyLength > 4) {
+        const masked = '•'.repeat(keyLength - 4) + googleMapsKey.slice(-4);
+        setMaskedKey(masked);
+      } else {
+        setMaskedKey('•'.repeat(keyLength));
+      }
+      
       setGoogleMapsKey("");
+      setShowKey(false);
+      
       // Focus the input field again after success
       if (inputRef.current) inputRef.current.focus();
     } catch (error) {
@@ -112,6 +140,10 @@ export function ApiSettings() {
     }
   };
 
+  const toggleKeyVisibility = () => {
+    setShowKey(!showKey);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -131,8 +163,8 @@ export function ApiSettings() {
           <div className="relative">
             <Input
               id="googlemaps"
-              type="password"
-              placeholder="Inserisci la tua API key di Google Maps"
+              type={showKey ? "text" : "password"}
+              placeholder={hasExistingKey ? maskedKey : "Inserisci la tua API key di Google Maps"}
               value={googleMapsKey}
               onChange={(e) => setGoogleMapsKey(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -141,6 +173,19 @@ export function ApiSettings() {
               disabled={loading || testLoading}
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
+              {hasExistingKey && (
+                <Button 
+                  size="sm"
+                  variant="ghost"
+                  onClick={toggleKeyVisibility}
+                  disabled={loading || testLoading}
+                  className="h-8 w-8 p-0"
+                  aria-label={showKey ? "Nascondi API key" : "Mostra API key"}
+                >
+                  {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  <span className="sr-only">{showKey ? "Nascondi" : "Mostra"}</span>
+                </Button>
+              )}
               <Button 
                 size="sm"
                 variant="ghost"
