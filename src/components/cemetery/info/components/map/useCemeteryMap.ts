@@ -12,8 +12,8 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
   const [apiKeyError, setApiKeyError] = useState(false);
   const [useCustomMap, setUseCustomMap] = useState(false);
   
-  // ID della mappa personalizzata di Google My Maps
-  const customMapId = "1dzlxUTK3bz-7kChq1HASlXEpn6t5uQ8";
+  // Standard Google Maps ID (no longer using customized My Maps)
+  const customMapId = "";
 
   // Fetch API key
   useEffect(() => {
@@ -75,51 +75,8 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         console.log("Cemetery data retrieved:", data);
         setCemetery(data);
         
-        // Handle map URL based on custom map setting
-        if (useCustomMap) {
-          console.log("Using custom map view, generating URL...");
-          
-          // Extract the clean marker ID by removing any URL parameters
-          let cleanMarkerId = null;
-          if (data.custom_map_marker_id) {
-            // Extract just the marker ID without any URL parameters
-            cleanMarkerId = data.custom_map_marker_id.split(/[&?]/)[0];
-            console.log("Clean marker ID extracted:", cleanMarkerId);
-          }
-          
-          // Verifica se è stato configurato un ID di marker personalizzato
-          if (cleanMarkerId) {
-            console.log("Custom marker ID found:", cleanMarkerId);
-            
-            // Costruisci l'URL con l'ID del marker come parametro msid
-            // Aggiunto parametro z=18 per impostare uno zoom più elevato sul marker
-            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F&msid=${cleanMarkerId}&z=18`;
-            console.log("Custom map URL with marker ID:", customEmbedUrl);
-            setMapUrl(customEmbedUrl);
-            
-            toast.success(
-              "Marker personalizzato associato trovato e visualizzato nella mappa",
-              { duration: 3000 }
-            );
-          } else if (data.Latitudine && data.Longitudine) {
-            // Se non c'è un ID marker, ma ci sono le coordinate, centra solo la mappa
-            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ll=${data.Latitudine},${data.Longitudine}&z=16`;
-            console.log("Custom map URL with coordinates (no marker):", customEmbedUrl);
-            setMapUrl(customEmbedUrl);
-            
-            toast.info(
-              "La mappa personalizzata è centrata sulla posizione del cimitero. Per visualizzare il marker, aggiungi l'ID del marker nelle impostazioni del cimitero.",
-              { duration: 5000 }
-            );
-          } else {
-            // Non ci sono né ID marker né coordinate
-            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}`;
-            console.log("Custom map URL without coordinates or marker ID:", customEmbedUrl);
-            setMapUrl(customEmbedUrl);
-          }
-        } else if (data.Latitudine || data.Indirizzo) {
-          console.log("Using standard map view, generating URL...");
-          // Standard Google Maps view with marker
+        // Always use satellite view with embedded marker
+        if (data.Latitudine && data.Longitudine) {
           const standardMapUrl = buildMapUrl(
             apiKey, 
             data.Latitudine, 
@@ -130,8 +87,27 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
             data.state, 
             data.country
           );
-          console.log("Standard map URL:", standardMapUrl);
+          
+          console.log("Standard map URL with marker:", standardMapUrl);
           setMapUrl(standardMapUrl);
+        } else if (data.Indirizzo) {
+          // Fallback to address if no coordinates
+          const addressMapUrl = buildMapUrl(
+            apiKey,
+            null,
+            null,
+            data.Indirizzo,
+            data.city,
+            data.postal_code,
+            data.state,
+            data.country
+          );
+          
+          console.log("Address-based map URL:", addressMapUrl);
+          setMapUrl(addressMapUrl);
+        } else {
+          // No location data available
+          setMapUrl(null);
         }
       } catch (err) {
         console.error("Errore nel caricamento dei dati del cimitero:", err);
@@ -141,23 +117,20 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
     };
 
     fetchCemeteryData();
-  }, [cemeteryId, apiKey, apiKeyError, useCustomMap]);
+  }, [cemeteryId, apiKey, apiKeyError]);
 
-  // Function to extract a clean marker ID
-  const getCleanMarkerId = () => {
-    if (!cemetery?.custom_map_marker_id) return null;
-    return cemetery.custom_map_marker_id.split(/[&?]/)[0];
-  };
+  // Simplified as we're no longer using custom maps with marker IDs
+  const getCleanMarkerId = () => null;
 
   return {
     loading,
     cemetery,
     mapUrl,
     apiKeyError,
-    useCustomMap,
-    setUseCustomMap,
+    useCustomMap: false, // Always use standard map
+    setUseCustomMap: () => {}, // No-op as we're not toggling
     customMapId,
-    hasCustomMapMarker: !!cemetery?.custom_map_marker_id,
+    hasCustomMapMarker: false,
     getCleanMarkerId
   };
 };

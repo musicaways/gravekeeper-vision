@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Save } from "lucide-react";
@@ -35,7 +36,6 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
       total_area_sqm: cemetery.total_area_sqm || "",
       Latitudine: cemetery.Latitudine || "",
       Longitudine: cemetery.Longitudine || "",
-      custom_map_marker_id: cemetery.custom_map_marker_id || "",
       contact_info: {
         phone: cemetery.contact_info?.phone || "",
         email: cemetery.contact_info?.email || "",

@@ -1,11 +1,10 @@
 
 import React from "react";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import { Control } from "react-hook-form";
-import MarkerIdField from "../marker-selector/MarkerIdField";
 
 interface LocationSectionProps {
   control: Control<any>;
@@ -28,6 +27,9 @@ const LocationSection = ({
           <FormControl>
             <Input {...field} />
           </FormControl>
+          <FormDescription>
+            L'indirizzo viene utilizzato per posizionare il cimitero sulla mappa
+          </FormDescription>
         </FormItem>
       )}
     />
@@ -100,6 +102,9 @@ const LocationSection = ({
                 <Input {...field} placeholder="Es. 41.9028" />
               </div>
             </FormControl>
+            <FormDescription>
+              Più preciso dell'indirizzo per posizionare il marker sulla mappa
+            </FormDescription>
           </FormItem>
         )}
       />
@@ -129,9 +134,6 @@ const LocationSection = ({
         )}
       />
     </div>
-
-    {/* Il campo MarkerIdField ora riceverà automaticamente le coordinate tramite useWatch */}
-    <MarkerIdField control={control} />
 
     <FormField
       control={control}
