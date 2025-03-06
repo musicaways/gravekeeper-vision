@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DocumentViewerFile } from "./types";
 import CloseButton from "./CloseButton";
 import ViewerControls from "./ViewerControls";
@@ -46,7 +46,53 @@ const DocumentViewerContent = ({
   handleDownload
 }: DocumentViewerContentProps) => {
   const { title, description, dateInfo, fileType } = fileDetails;
-  console.log("Rendering document viewer content with file type:", fileType);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  
+  // Reset swipe direction
+  useEffect(() => {
+    setSwipeDirection(null);
+  }, [currentIndex]);
+
+  // Handle touch events for swipe navigation (when not zoomed in)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (scale > 1) return; // Don't capture swipes when zoomed in
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (scale > 1) return; // Don't capture swipes when zoomed in
+    setTouchEnd(e.touches[0].clientX);
+    
+    // Calculate direction for visual feedback
+    const diff = touchStart - e.touches[0].clientX;
+    if (diff > 50) {
+      setSwipeDirection("right");
+    } else if (diff < -50) {
+      setSwipeDirection("left");
+    } else {
+      setSwipeDirection(null);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (scale > 1) return; // Don't capture swipes when zoomed in
+    
+    const swipeThreshold = 100; // Minimum swipe distance
+    const diff = touchStart - touchEnd;
+    
+    if (diff > swipeThreshold && files.length > 1) {
+      // Swiped left, go to next file
+      goToNextFile();
+    } else if (diff < -swipeThreshold && files.length > 1) {
+      // Swiped right, go to previous file
+      goToPreviousFile();
+    }
+    
+    // Reset state
+    setSwipeDirection(null);
+  };
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden touch-none">
@@ -54,9 +100,24 @@ const DocumentViewerContent = ({
       <CloseButton onClose={onClose} />
       
       <div 
-        className="relative w-full h-full flex items-center justify-center touch-none"
+        className={`relative w-full h-full flex items-center justify-center ${scale <= 1 ? 'touch-auto' : 'touch-none'}`}
         onClick={toggleControls}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
+        {/* Swipe direction indicators */}
+        {swipeDirection === "left" && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full">
+            &lt;
+          </div>
+        )}
+        {swipeDirection === "right" && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full">
+            &gt;
+          </div>
+        )}
+        
         {/* Top controls bar - always visible */}
         <ViewerControls 
           showControls={true}

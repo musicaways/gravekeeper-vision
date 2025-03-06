@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { DocumentViewerProps, DocumentViewerFile } from "./types";
 
@@ -16,22 +17,26 @@ export const useDocumentViewer = ({
     if (open) {
       setCurrentIndex(initialIndex);
       setScale(1);
-      // Sempre mostrare i controlli quando si apre il visualizzatore
       setShowControls(true);
     }
   }, [initialIndex, open]);
   
-  // Non nascondere automaticamente i controlli - li manteniamo sempre visibili
-  // per migliorare l'usabilità
-  
   const goToPreviousFile = () => {
-    setCurrentIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
+    setCurrentIndex((prev) => {
+      const newIndex = prev === 0 ? files.length - 1 : prev - 1;
+      console.log("Going to previous file, new index:", newIndex);
+      return newIndex;
+    });
     // Reset zoom when changing file
     setScale(1);
   };
 
   const goToNextFile = () => {
-    setCurrentIndex((prev) => (prev === files.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => {
+      const newIndex = prev === files.length - 1 ? 0 : prev + 1;
+      console.log("Going to next file, new index:", newIndex);
+      return newIndex;
+    });
     // Reset zoom when changing file
     setScale(1);
   };
