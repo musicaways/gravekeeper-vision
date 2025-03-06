@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CemeteryGallery from "../CemeteryGallery";
 
 interface PhotoGalleryCardProps {
@@ -10,7 +10,10 @@ interface PhotoGalleryCardProps {
 
 const PhotoGalleryCard: React.FC<PhotoGalleryCardProps> = ({ cemeteryId, refreshKey }) => {
   return (
-    <Card>
+    <Card className="shadow-md">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">Galleria fotografica</CardTitle>
+      </CardHeader>
       <CardContent className="p-2 sm:p-3">
         <CemeteryGallery 
           cemeteryId={cemeteryId} 
