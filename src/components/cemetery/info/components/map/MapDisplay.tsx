@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import MapIframe from "./components/MapIframe";
 import MapErrorState from "./components/MapErrorState";
 import MapControls from "./components/MapControls";
 import { openExternalMap } from "./mapUtils";
@@ -9,35 +8,28 @@ import JavaScriptMap from "./components/JavaScriptMap";
 
 interface MapDisplayProps {
   loading: boolean;
-  mapUrl: string | null;
   apiKeyError: boolean;
   cemetery: any;
-  useCustomMap: boolean;
   customMapId: string;
-  hasCustomMapMarker?: boolean;
-  getCleanMarkerId?: () => string | null;
 }
 
 const MapDisplay: React.FC<MapDisplayProps> = ({
   loading,
-  mapUrl,
   apiKeyError,
   cemetery,
-  useCustomMap,
   customMapId,
 }) => {
   const [forceRefresh, setForceRefresh] = useState(0);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [useJavaScriptAPI, setUseJavaScriptAPI] = useState(true);
 
-  // Reset map error when mapUrl changes
+  // Reset map error when cemetery changes
   useEffect(() => {
     setMapError(null);
-  }, [mapUrl]);
+  }, [cemetery]);
 
   const handleOpenMapInNewTab = () => {
     console.log("Opening map in new tab");
-    openExternalMap(customMapId, useCustomMap, cemetery);
+    openExternalMap(customMapId, false, cemetery);
   };
 
   const reloadMap = () => {
@@ -49,6 +41,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
+        <div className="h-8 w-8 rounded-full border-2 border-t-primary border-primary/30 animate-spin"></div>
         <span className="ml-2">Caricamento mappa...</span>
       </div>
     );
@@ -75,8 +68,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
-  if (!mapUrl && !cemetery?.Latitudine && !cemetery?.Longitudine) {
-    console.log("No map URL or coordinates available");
+  if (!cemetery?.Latitudine && !cemetery?.Longitudine) {
+    console.log("No coordinates available");
     return (
       <MapErrorState message="Posizione non disponibile per questo cimitero" />
     );
@@ -84,18 +77,11 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 
   return (
     <div className="space-y-2">
-      {useJavaScriptAPI ? (
-        <JavaScriptMap 
-          cemetery={cemetery}
-          forceRefresh={forceRefresh}
-          onError={(error) => setMapError(error)}
-        />
-      ) : (
-        <MapIframe 
-          mapUrl={mapUrl || ''} 
-          forceRefresh={forceRefresh} 
-        />
-      )}
+      <JavaScriptMap 
+        cemetery={cemetery}
+        forceRefresh={forceRefresh}
+        onError={(error) => setMapError(error)}
+      />
       
       <div className="flex justify-between">
         <MapControls 
@@ -103,10 +89,14 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         />
         
         <button 
-          onClick={() => setUseJavaScriptAPI(!useJavaScriptAPI)}
-          className="text-xs text-muted-foreground hover:text-primary transition-colors"
+          onClick={reloadMap}
+          className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
         >
-          {useJavaScriptAPI ? "Passa a mappa iframe" : "Passa a mappa interattiva"}
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          Aggiorna mappa
         </button>
       </div>
     </div>

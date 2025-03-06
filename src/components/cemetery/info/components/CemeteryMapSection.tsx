@@ -12,22 +12,17 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
   const {
     loading,
     cemetery,
-    mapUrl,
     apiKeyError,
-    useCustomMap,
-    customMapId,
-    hasCustomMapMarker,
-    getCleanMarkerId
+    customMapId
   } = useCemeteryMap(cemeteryId);
 
   useEffect(() => {
     console.log("CemeteryMapSection - Current state:", { 
       loading, 
-      hasMapUrl: !!mapUrl, 
-      apiKeyError,
-      mapUrl
+      hasCoordinates: !!(cemetery?.Latitudine && cemetery?.Longitudine), 
+      apiKeyError
     });
-  }, [loading, mapUrl, apiKeyError]);
+  }, [loading, cemetery, apiKeyError]);
 
   return (
     <div className="w-full">
@@ -40,13 +35,9 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
       
       <MapDisplay
         loading={loading}
-        mapUrl={mapUrl}
         apiKeyError={apiKeyError}
         cemetery={cemetery}
-        useCustomMap={useCustomMap}
         customMapId={customMapId}
-        hasCustomMapMarker={hasCustomMapMarker}
-        getCleanMarkerId={getCleanMarkerId}
       />
     </div>
   );

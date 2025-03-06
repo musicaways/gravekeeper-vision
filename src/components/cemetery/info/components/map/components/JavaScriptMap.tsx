@@ -1,8 +1,8 @@
 
 import React, { useRef, useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import LoadingIndicator from "./LoadingIndicator";
 import { useGoogleMapsApi } from "@/hooks/useGoogleMapsApi";
+import { toast } from "sonner";
 
 interface JavaScriptMapProps {
   cemetery: any;
@@ -17,14 +17,14 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const { isLoaded, isError, loadingError } = useGoogleMapsApi();
   
-  // Configurazione della mappa
+  // Map configuration
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.google?.maps) return;
     
     try {
-      const { Latitudine, Longitudine } = cemetery;
+      const { Latitudine, Longitudine, Nome } = cemetery;
       
-      // Verifica se ci sono coordinate valide
+      // Check for valid coordinates
       if (!Latitudine || !Longitudine) {
         onError("Coordinate non disponibili per questo cimitero");
         return;
@@ -35,84 +35,128 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         lng: parseFloat(Longitudine) 
       };
       
-      // Opzioni della mappa personalizzate
+      // Enhanced map styling for better visuals
+      const mapStyles = [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "geometry",
+          stylers: [{ visibility: "on" }, { color: "#cbe8b9" }]
+        },
+        {
+          featureType: "landscape.natural",
+          elementType: "geometry",
+          stylers: [{ color: "#e8f5e9" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#bbdefb" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#ffffff" }]
+        },
+        {
+          featureType: "road",
+          elementType: "labels",
+          stylers: [{ visibility: "simplified" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "all",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "administrative",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#3c4043" }]
+        }
+      ];
+      
+      // Custom map options
       const mapOptions: google.maps.MapOptions = {
         center: mapPosition,
-        zoom: 18,
+        zoom: 17,
         mapTypeId: google.maps.MapTypeId.HYBRID,
-        disableDefaultUI: true, // Nasconde tutti i controlli UI di default
-        zoomControl: false,
-        mapTypeControl: false,
+        disableDefaultUI: true,
+        zoomControl: true,
+        mapTypeControl: true,
         streetViewControl: false,
         fullscreenControl: false,
-        gestureHandling: 'greedy', // Abilita pan con singolo dito
-        clickableIcons: false, // Disabilita POI cliccabili
-        scrollwheel: true, // Abilita zoom con rotella mouse
-        styles: [
-          {
-            // Nasconde POI e landmarks
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [{ visibility: 'off' }]
-          },
-          {
-            // Nasconde edifici 3D
-            featureType: 'poi',
-            elementType: 'geometry',
-            stylers: [{ visibility: 'on' }]
-          },
-          {
-            // Stile per strade
-            featureType: 'road',
-            elementType: 'all',
-            stylers: [{ saturation: -100 }, { lightness: 45 }]
-          },
-          {
-            // Stile per etichette di strade
-            featureType: 'road',
-            elementType: 'labels',
-            stylers: [{ visibility: 'simplified' }]
-          },
-          {
-            // Nasconde controlli
-            featureType: 'transit',
-            elementType: 'all',
-            stylers: [{ visibility: 'off' }]
-          }
-        ]
+        gestureHandling: 'greedy',
+        clickableIcons: false,
+        scrollwheel: true,
+        styles: mapStyles
       };
       
-      // Inizializza la mappa
-      const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
+      // Initialize the map
+      const newMap = new google.maps.Map(mapRef.current, mapOptions);
       
-      // Aggiungi marker personalizzato
-      const newMarker = new window.google.maps.Marker({
+      // Custom marker with improved visuals
+      const markerOptions: google.maps.MarkerOptions = {
         position: mapPosition,
         map: newMap,
         animation: google.maps.Animation.DROP,
+        title: Nome || 'Cimitero',
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: '#3b82f6', // colore primary
-          fillOpacity: 1,
+          fillColor: '#3b82f6',
+          fillOpacity: 0.9,
           strokeColor: '#ffffff',
           strokeWeight: 2,
-        },
-        title: cemetery.Nome || 'Cimitero'
+          scale: 10
+        }
+      };
+      
+      const newMarker = new google.maps.Marker(markerOptions);
+      
+      // Create info window with cemetery info
+      const infoContent = `
+        <div style="padding: 10px; max-width: 200px; font-family: 'Inter', sans-serif;">
+          <h3 style="margin: 0 0 5px; font-size: 16px; color: #3b82f6;">${Nome || 'Cimitero'}</h3>
+          <p style="margin: 5px 0; font-size: 13px; color: #4b5563;">
+            Lat: ${Latitudine.toFixed(6)}<br>
+            Lng: ${Longitudine.toFixed(6)}
+          </p>
+          ${cemetery.Indirizzo ? `<p style="margin: 5px 0; font-size: 13px;">${cemetery.Indirizzo}</p>` : ''}
+        </div>
+      `;
+      
+      const infoWindow = new google.maps.InfoWindow({
+        content: infoContent,
+        maxWidth: 250
       });
       
-      // Salva riferimenti
+      // Show info window on marker click
+      newMarker.addListener('click', () => {
+        infoWindow.open(newMap, newMarker);
+      });
+      
+      // Add zoom controls with custom positioning if they're not enabled by default
+      newMap.addListener('tilesloaded', () => {
+        if (!mapLoaded) {
+          setMapLoaded(true);
+          toast.success("Mappa caricata con successo", { duration: 2000 });
+        }
+      });
+      
+      // Save references
       setMap(newMap);
       setMarker(newMarker);
-      setMapLoaded(true);
       
-      // Aggiungi listener per eventuali errori della mappa
-      const errorListener = newMap.addListener('error', () => {
+      // Add listener for errors
+      const errorListener = google.maps.event.addListener(newMap, 'error', () => {
         onError("Errore durante il caricamento della mappa");
       });
       
       return () => {
-        // Pulizia listener quando il componente viene smontato
+        // Cleanup listeners on component unmount
         if (errorListener) {
           google.maps.event.removeListener(errorListener);
         }
@@ -123,20 +167,15 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
     }
   }, [isLoaded, cemetery, forceRefresh, onError]);
   
-  // Gestisci errori API Google Maps
+  // Handle Google Maps API errors
   useEffect(() => {
     if (isError && loadingError) {
       onError(loadingError);
     }
   }, [isError, loadingError, onError]);
   
-  // Se l'API Google Maps non è ancora caricata
-  if (!isLoaded) {
-    return <LoadingIndicator />;
-  }
-  
   return (
-    <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative">
+    <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative bg-gradient-to-b from-sky-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       <div 
         ref={mapRef} 
         className="w-full h-full"

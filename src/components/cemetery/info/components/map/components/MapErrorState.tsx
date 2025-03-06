@@ -15,15 +15,17 @@ const MapErrorState: React.FC<MapErrorStateProps> = ({
   buttonAction 
 }) => {
   return (
-    <div className="text-center py-6 bg-muted/30 rounded-md">
-      <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
-      <p className="text-muted-foreground mb-2">{message}</p>
+    <div className="flex flex-col items-center justify-center py-10 px-4 bg-muted/30 rounded-md border border-border">
+      <div className="bg-muted/50 p-4 rounded-full mb-3">
+        <Map className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <p className="text-muted-foreground mb-4 text-center max-w-md">{message}</p>
       {buttonText && buttonAction && (
         <Button 
           variant="outline" 
           size="sm" 
           onClick={buttonAction}
-          className="text-xs"
+          className="text-xs flex items-center gap-1.5"
         >
           {buttonText}
         </Button>

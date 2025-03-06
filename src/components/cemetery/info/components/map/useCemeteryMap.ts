@@ -1,16 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { buildMapUrl } from "./mapUtils";
 import { toast } from "sonner";
 
 export const useCemeteryMap = (cemeteryId: string | number) => {
   const [loading, setLoading] = useState(true);
   const [cemetery, setCemetery] = useState<any>(null);
-  const [mapUrl, setMapUrl] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string | null>(null);
   const [apiKeyError, setApiKeyError] = useState(false);
-  const [useCustomMap, setUseCustomMap] = useState(false);
   
   // Standard Google Maps ID (no longer using customized My Maps)
   const customMapId = "";
@@ -27,9 +23,8 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         
         if (!error && data?.googlemaps_key) {
           console.log("API key retrieved successfully");
-          setApiKey(data.googlemaps_key);
           
-          // Salva la chiave API in localStorage per essere utilizzata da useGoogleMapsApi hook
+          // Save the API key in localStorage for useGoogleMapsApi hook
           localStorage.setItem('googleMapsApiKey', data.googlemaps_key);
         } else {
           console.error("API key not found or error:", error);
@@ -44,7 +39,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
     fetchApiKey();
   }, []);
 
-  // Fetch cemetery data and set up map URL
+  // Fetch cemetery data
   useEffect(() => {
     const fetchCemeteryData = async () => {
       try {
@@ -65,7 +60,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         console.log("Fetching cemetery data for ID:", numericId);
         const { data, error } = await supabase
           .from('Cimitero')
-          .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country, custom_map_marker_id, Nome')
+          .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country, Nome')
           .eq('Id', numericId)
           .single();
         
@@ -73,67 +68,21 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         
         console.log("Cemetery data retrieved:", data);
         setCemetery(data);
-        
-        // Generiamo l'URL della mappa solo se abbiamo la API key
-        // (per retrocompatibilità con la visualizzazione iframe)
-        if (apiKey) {
-          // Always use satellite view with embedded marker
-          if (data.Latitudine && data.Longitudine) {
-            const standardMapUrl = buildMapUrl(
-              apiKey, 
-              data.Latitudine, 
-              data.Longitudine, 
-              data.Indirizzo, 
-              data.city, 
-              data.postal_code, 
-              data.state, 
-              data.country
-            );
-            
-            console.log("Standard map URL with marker:", standardMapUrl);
-            setMapUrl(standardMapUrl);
-          } else if (data.Indirizzo) {
-            // Fallback to address if no coordinates
-            const addressMapUrl = buildMapUrl(
-              apiKey,
-              null,
-              null,
-              data.Indirizzo,
-              data.city,
-              data.postal_code,
-              data.state,
-              data.country
-            );
-            
-            console.log("Address-based map URL:", addressMapUrl);
-            setMapUrl(addressMapUrl);
-          } else {
-            // No location data available
-            setMapUrl(null);
-          }
-        }
       } catch (err) {
         console.error("Errore nel caricamento dei dati del cimitero:", err);
+        toast.error("Impossibile caricare i dati del cimitero");
       } finally {
         setLoading(false);
       }
     };
 
     fetchCemeteryData();
-  }, [cemeteryId, apiKey]);
-
-  // Simplified as we're no longer using custom maps with marker IDs
-  const getCleanMarkerId = () => null;
+  }, [cemeteryId]);
 
   return {
     loading,
     cemetery,
-    mapUrl,
     apiKeyError,
-    useCustomMap: false, // Always use standard map
-    setUseCustomMap: () => {}, // No-op as we're not toggling
-    customMapId,
-    hasCustomMapMarker: false,
-    getCleanMarkerId
+    customMapId
   };
 };
