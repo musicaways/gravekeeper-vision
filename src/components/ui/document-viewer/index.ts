@@ -15,6 +15,9 @@ import DocumentViewerContent from "./DocumentViewerContent";
 import { useDocumentViewer } from "./useDocumentViewer";
 import { isImageFile, isPdfFile, getFileLoaderComponent } from "./fileViewerUtils";
 import { usePdfViewer } from "./hooks/usePdfViewer";
+import { usePdfDocument } from "./hooks/pdf/usePdfDocument";
+import { usePdfPageNavigation } from "./hooks/pdf/usePdfPageNavigation";
+import { usePdfRenderer } from "./hooks/pdf/usePdfRenderer";
 import PdfCanvas from "./components/PdfCanvas";
 import PdfPageNavigation from "./components/PdfPageNavigation";
 import PdfError from "./components/PdfError";
@@ -34,6 +37,9 @@ export {
   DocumentViewerContent,
   useDocumentViewer,
   usePdfViewer,
+  usePdfDocument,
+  usePdfPageNavigation,
+  usePdfRenderer,
   PdfCanvas,
   PdfPageNavigation,
   PdfError,
