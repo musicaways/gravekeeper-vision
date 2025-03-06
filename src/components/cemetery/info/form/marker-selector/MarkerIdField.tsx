@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Map } from "lucide-react";
@@ -26,7 +26,10 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
       setCustomMapId(storedMapId);
     } else {
       // Altrimenti usa un ID predefinito o un segnaposto
-      setCustomMapId("1Kd5EpcPnLnGAcBfZJl1u3cMyRplZqoWI"); // ID di esempio
+      // Utilizziamo un ID valido di esempio che dovrebbe funzionare meglio
+      const defaultMapId = "1dzlxUTK3bz-7kChq1HASlXEpn6t5uQ8";
+      setCustomMapId(defaultMapId);
+      localStorage.setItem("customMapId", defaultMapId);
     }
   }, []);
 
@@ -71,6 +74,7 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
                 setDialogOpen(true);
               }}
               title="Seleziona dalla mappa"
+              className="shrink-0"
             >
               <Map className="h-4 w-4 mr-2" />
               Seleziona
@@ -79,6 +83,7 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
           <FormDescription>
             Associa questo cimitero a un marker esistente nella mappa personalizzata
           </FormDescription>
+          <FormMessage />
 
           <CustomMapMarkerDialog
             open={dialogOpen}

@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Map, Check } from "lucide-react";
+import { X, Map, Check, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { mapInteractionScript } from "./mapInteractionScript";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CustomMapMarkerDialogProps {
   open: boolean;
@@ -24,21 +25,28 @@ const CustomMapMarkerDialog = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // Ripristina lo stato iniziale quando il dialogo si apre
   useEffect(() => {
     if (open) {
-      setSelectedMarkerId(null);
+      setSelectedMarkerId(initialMarkerId || null);
       setMapLoaded(false);
+      setMapError(null);
       setShowInstructions(true);
     }
-  }, [open]);
+  }, [open, initialMarkerId]);
 
-  // Costruisci l'URL della mappa personalizzata
-  const mapUrl = customMapId ? 
-    `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F` :
-    null;
+  // Costruisci l'URL della mappa personalizzata, aggiungendo i parametri corretti
+  const buildMapUrl = () => {
+    if (!customMapId) return null;
+    
+    // URL corretto per l'incorporamento di Google My Maps
+    return `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F`;
+  };
+
+  const mapUrl = buildMapUrl();
 
   // Gestisci il messaggio dal frame della mappa
   useEffect(() => {
@@ -72,9 +80,16 @@ const CustomMapMarkerDialog = ({
         console.log('Script iniettato nell\'iframe della mappa');
       } catch (error) {
         console.error('Errore durante l\'iniezione dello script:', error);
-        toast.error("Impossibile interagire con la mappa a causa di restrizioni di sicurezza");
+        setMapError("Impossibile interagire con la mappa a causa di restrizioni di sicurezza");
       }
     }
+  };
+
+  // Gestisci errori di caricamento dell'iframe
+  const handleIframeError = () => {
+    console.error('Errore durante il caricamento della mappa');
+    setMapError("Impossibile caricare la mappa. Verifica l'ID della mappa personalizzata.");
+    setMapLoaded(true); // Per rimuovere lo spinner di caricamento
   };
 
   // Funzione per confermare la selezione
@@ -130,6 +145,13 @@ const CustomMapMarkerDialog = ({
         )}
         
         <div className="flex-1 relative min-h-0">
+          {mapError && (
+            <Alert variant="destructive" className="m-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{mapError}</AlertDescription>
+            </Alert>
+          )}
+          
           {mapUrl ? (
             <iframe 
               ref={iframeRef}
@@ -142,6 +164,7 @@ const CustomMapMarkerDialog = ({
               referrerPolicy="no-referrer-when-downgrade"
               title="Seleziona un marker dalla mappa"
               onLoad={injectScript}
+              onError={handleIframeError}
               className="absolute inset-0"
             />
           ) : (
@@ -150,7 +173,7 @@ const CustomMapMarkerDialog = ({
             </div>
           )}
           
-          {!mapLoaded && mapUrl && (
+          {!mapLoaded && mapUrl && !mapError && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/80">
               <div className="text-center">
                 <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -160,7 +183,7 @@ const CustomMapMarkerDialog = ({
           )}
         </div>
         
-        <div className="p-4 border-t flex items-center justify-between">
+        <div className="p-4 border-t flex items-center justify-between bg-muted/10">
           <div className="text-sm">
             {selectedMarkerId ? (
               <span className="text-green-600 font-medium flex items-center gap-1">
@@ -170,15 +193,17 @@ const CustomMapMarkerDialog = ({
               <span className="text-muted-foreground">Nessun marker selezionato</span>
             )}
           </div>
-          <div className="space-x-2">
-            <Button variant="outline" onClick={onClose}>
-              <X className="h-4 w-4 mr-2" /> Annulla
+          <div className="space-x-2 flex">
+            <Button variant="outline" size="sm" onClick={onClose} className="h-9">
+              <X className="h-4 w-4 mr-1.5" /> Annulla
             </Button>
             <Button 
               onClick={confirmSelection} 
               disabled={!selectedMarkerId}
+              size="sm"
+              className="h-9 bg-primary"
             >
-              <Check className="h-4 w-4 mr-2" /> Conferma selezione
+              <Check className="h-4 w-4 mr-1.5" /> Conferma selezione
             </Button>
           </div>
         </div>
