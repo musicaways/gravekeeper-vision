@@ -45,13 +45,15 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
   return (
     <Dialog open={open} onOpenChange={(newOpen) => !newOpen && onClose()} modal>
       <DialogContent 
-        className="fixed inset-0 p-0 m-0 w-screen h-screen max-w-none max-h-none bg-black/95 border-none overflow-hidden rounded-none"
+        className="fixed inset-0 p-0 m-0 w-full h-full max-w-none max-h-none bg-black/95 border-none overflow-hidden rounded-none"
         onMouseLeave={handleMouseUp}
+        aria-describedby="lightbox-description"
       >
         <DialogTitle className="sr-only">Visualizzatore foto</DialogTitle>
+        <span id="lightbox-description" className="sr-only">Visualizzatore immagini a schermo intero</span>
         
         <div 
-          className="fixed inset-0 flex flex-col bg-transparent overflow-hidden"
+          className="fixed inset-0 w-full h-full flex flex-col justify-center items-center overflow-hidden"
           ref={contentRef}
         >
           <div 
