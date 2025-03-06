@@ -11,8 +11,9 @@ export function highlightSelectedMarker(lastClickedElement: HTMLElement | null):
     // Highlight popup if present
     const popups = document.querySelectorAll('.gm-style-iw');
     if (popups.length > 0) {
-      popups[0].style.border = '3px solid #4CAF50';
-      popups[0].style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.6)';
+      const popup = popups[0] as HTMLElement;
+      popup.style.border = '3px solid #4CAF50';
+      popup.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.6)';
     }
     
     // Highlight clicked element if available
