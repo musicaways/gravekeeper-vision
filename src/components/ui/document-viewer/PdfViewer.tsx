@@ -32,6 +32,7 @@ const PdfViewer = ({
   const [totalPages, setTotalPages] = useState(0);
   const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
   const currentScaleRef = useRef<number>(scale);
+  const [initialRenderComplete, setInitialRenderComplete] = useState(false);
   
   useEffect(() => {
     // Update the ref when scale changes
@@ -39,15 +40,18 @@ const PdfViewer = ({
   }, [scale]);
   
   // Function to render PDF page
-  const renderPage = async (page: PDFPageProxy) => {
+  const renderPage = async (page: PDFPageProxy, forceScale?: number) => {
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    // Use currentScaleRef to ensure we're using the latest scale value
-    const viewport = page.getViewport({ scale: currentScaleRef.current * 1.5 });
+    // Use the provided scale or currentScaleRef
+    const scaleToUse = forceScale !== undefined ? forceScale : currentScaleRef.current;
+    
+    // Apply scaling factor
+    const viewport = page.getViewport({ scale: scaleToUse * 1.5 });
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
@@ -56,7 +60,11 @@ const PdfViewer = ({
         canvasContext: context,
         viewport: viewport
       }).promise;
-      console.log("Page rendered successfully with scale:", currentScaleRef.current);
+      console.log("Page rendered successfully with scale:", scaleToUse);
+      
+      if (!initialRenderComplete) {
+        setInitialRenderComplete(true);
+      }
     } catch (error) {
       console.error("Error rendering PDF page:", error);
       setPdfError("Errore nel rendering della pagina PDF");
@@ -108,6 +116,7 @@ const PdfViewer = ({
       try {
         setPdfLoading(true);
         setPdfError(null);
+        setInitialRenderComplete(false);
         
         // Load the PDF document
         const loadingTask = pdfjsLib.getDocument({
@@ -124,7 +133,9 @@ const PdfViewer = ({
         
         // Get the first page
         const page = await pdf.getPage(1);
-        await renderPage(page);
+        
+        // Force initial render with scale=1 to ensure visibility
+        await renderPage(page, 1);
         setPdfLoading(false);
       } catch (error) {
         console.error("Error loading PDF:", error);
@@ -160,8 +171,29 @@ const PdfViewer = ({
       }
     };
 
-    updatePdfScale();
-  }, [scale, currentPage]);
+    // Only update scale if initial render is complete
+    if (initialRenderComplete) {
+      updatePdfScale();
+    }
+  }, [scale, currentPage, initialRenderComplete]);
+
+  // Force a re-render after the component has mounted
+  useEffect(() => {
+    const forceRender = async () => {
+      if (!initialRenderComplete && pdfDocRef.current) {
+        try {
+          const page = await pdfDocRef.current.getPage(currentPage);
+          await renderPage(page, 1);
+        } catch (error) {
+          console.error("Error forcing render:", error);
+        }
+      }
+    };
+    
+    // Small delay to ensure component is fully mounted
+    const timer = setTimeout(forceRender, 500);
+    return () => clearTimeout(timer);
+  }, [initialRenderComplete, currentPage]);
 
   if (pdfLoading) {
     return (
@@ -191,7 +223,11 @@ const PdfViewer = ({
         onClick={toggleControls}
         onDoubleClick={handleDoubleClick}
       >
-        <canvas ref={canvasRef} className="max-w-full shadow-lg" />
+        <canvas 
+          ref={canvasRef} 
+          className="max-w-full shadow-lg"
+          style={{ opacity: initialRenderComplete ? 1 : 0.99 }} // Trick to force re-render
+        />
       </div>
       
       {totalPages > 1 && (
