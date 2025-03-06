@@ -51,7 +51,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
         <DialogTitle className="sr-only">Visualizzatore foto</DialogTitle>
         
         <div 
-          className="absolute inset-0 flex flex-col bg-transparent overflow-hidden"
+          className="fixed inset-0 flex flex-col bg-transparent overflow-hidden"
           ref={contentRef}
         >
           <div 

@@ -28,7 +28,7 @@ const LightboxImage = ({
       ref={imageRef}
       src={currentImage.url} 
       alt={title || ""}
-      className="max-h-[90vh] max-w-[95vw] object-contain select-none"
+      className="max-h-[85vh] max-w-[90vw] object-contain select-none"
       style={{ 
         scale,
         x: position.x,
