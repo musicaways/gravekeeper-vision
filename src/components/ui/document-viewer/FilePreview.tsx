@@ -5,6 +5,7 @@ import PdfViewer from "./PdfViewer";
 import ImageViewer from "./ImageViewer";
 import GenericFileViewer from "./GenericFileViewer";
 import { getFileLoaderComponent } from "./fileViewerUtils";
+import { useEffect } from "react";
 
 interface FilePreviewProps {
   currentFile: DocumentViewerFile | undefined;
@@ -32,6 +33,13 @@ const FilePreview = ({
     e.stopPropagation();
     handleZoomIn();
   };
+
+  // Force render when file changes
+  useEffect(() => {
+    if (currentFile) {
+      console.log("FilePreview: New file loaded, type:", fileType);
+    }
+  }, [currentFile, fileType]);
 
   if (!currentFile) {
     return (

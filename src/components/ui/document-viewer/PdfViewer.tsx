@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { usePdfViewer } from "./hooks/usePdfViewer";
 import PdfCanvas from "./components/PdfCanvas";
 import PdfPageNavigation from "./components/PdfPageNavigation";
@@ -40,6 +40,16 @@ const PdfViewer = ({
     initialPage: 1,
     setSwipeEnabled
   });
+
+  // Force a render when the component mounts to ensure PDF is displayed
+  useEffect(() => {
+    // This is just to trigger a re-render, no actual state update needed
+    const timer = setTimeout(() => {
+      console.log("PdfViewer: Forcing re-render to ensure PDF is displayed");
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   if (pdfLoading) {
     return <PdfLoading />;

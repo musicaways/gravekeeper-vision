@@ -24,7 +24,7 @@ export const usePdfRenderer = ({
   setSwipeEnabled
 }: UsePdfRendererProps) => {
   const lastPageRef = useRef<number>(0);
-  const lastScaleRef = useRef<number>(1);
+  const lastScaleRef = useRef<number>(0); // Changed from 1 to 0 to force initial render
   
   // Render the current page of the PDF
   useEffect(() => {
@@ -46,12 +46,14 @@ export const usePdfRenderer = ({
       try {
         renderInProgress.current = true;
         
-        // Force render on scale change or page change, even if already rendered once
+        // Always force render on first load (lastScaleRef is initialized to 0)
+        // or on scale/page change
         const shouldForceRender = 
+          lastScaleRef.current === 0 ||
           currentPage !== lastPageRef.current || 
           scale !== lastScaleRef.current;
         
-        console.log(`Checking if PDF page needs rendering. Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}`);
+        console.log(`Checking if PDF page needs rendering. Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}, lastScale: ${lastScaleRef.current}`);
         
         if (!shouldForceRender && initialRenderComplete) {
           renderInProgress.current = false;

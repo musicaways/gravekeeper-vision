@@ -123,7 +123,10 @@ const PdfCanvas = ({
         <canvas 
           ref={canvasRef} 
           className="max-w-full shadow-lg"
-          style={{ opacity: initialRenderComplete ? 1 : 0, transition: 'opacity 0.3s ease' }}
+          style={{ 
+            opacity: initialRenderComplete ? 1 : 0.1, // Changed from 0 to 0.1 to see if canvas exists
+            transition: 'opacity 0.3s ease' 
+          }}
           data-scale={scale}
         />
       </div>

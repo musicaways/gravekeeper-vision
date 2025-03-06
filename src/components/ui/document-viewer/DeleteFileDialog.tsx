@@ -1,48 +1,68 @@
 
-import React from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import React from 'react';
+import { 
+  Dialog, 
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 interface DeleteFileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   fileTitle: string;
+  isDeleting?: boolean;
 }
 
-const DeleteFileDialog: React.FC<DeleteFileDialogProps> = ({
+const DeleteFileDialog = ({
   open,
   onOpenChange,
   onConfirm,
-  fileTitle
-}) => {
+  fileTitle,
+  isDeleting = false
+}: DeleteFileDialogProps) => {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
-          <AlertDialogDescription>
-            Sei sicuro di voler eliminare questo file
-            {fileTitle ? ` "${fileTitle}"` : ""}? 
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Elimina file</DialogTitle>
+          <DialogDescription>
+            Sei sicuro di voler eliminare il file "{fileTitle}"?
             Questa azione non può essere annullata.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Annulla</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            Elimina
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </DialogDescription>
+        </DialogHeader>
+        
+        <DialogFooter className="flex flex-row gap-2 justify-end mt-4">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isDeleting}
+          >
+            Annulla
+          </Button>
+          
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Eliminazione...
+              </>
+            ) : (
+              'Elimina'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

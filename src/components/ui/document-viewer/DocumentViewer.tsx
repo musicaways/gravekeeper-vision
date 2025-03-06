@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useDocumentViewer } from "./useDocumentViewer";
@@ -32,10 +32,19 @@ const DocumentViewer = ({
     handleZoomOut
   } = useDocumentViewer({ files, open, initialIndex, onClose });
 
+  useEffect(() => {
+    if (open && files.length > 0) {
+      console.log("DocumentViewer: Opened with files", files.length, "Current index:", initialIndex);
+      console.log("DocumentViewer: Current file:", currentFile);
+    }
+  }, [open, files, initialIndex, currentFile]);
+
   const handleDeleteRequest = () => {
-    if (onDeleteFile) {
+    if (onDeleteFile && currentFile?.id) {
+      console.log("DocumentViewer: Delete requested for file ID:", currentFile.id);
       setDeleteDialogOpen(true);
     } else {
+      console.warn("DocumentViewer: Cannot delete file - onDeleteFile function or file ID missing");
       toast({
         title: "Operazione non disponibile",
         description: "La funzione di eliminazione non è disponibile per questo documento.",
@@ -45,11 +54,14 @@ const DocumentViewer = ({
   };
 
   const handleDeleteConfirm = async () => {
-    if (!onDeleteFile || !currentFile?.id) return;
+    if (!onDeleteFile || !currentFile?.id) {
+      console.error("DocumentViewer: Cannot delete - missing onDeleteFile or currentFile.id");
+      return;
+    }
     
     try {
       setIsDeleting(true);
-      console.log("Deleting file with ID:", currentFile.id);
+      console.log("DocumentViewer: Deleting file with ID:", currentFile.id);
       
       await onDeleteFile(currentFile.id);
       
@@ -124,6 +136,7 @@ const DocumentViewer = ({
             onOpenChange={setDeleteDialogOpen}
             onConfirm={handleDeleteConfirm}
             fileTitle={fileDetails.title}
+            isDeleting={isDeleting}
           />
         </DocumentViewerOverlay>
       )}
