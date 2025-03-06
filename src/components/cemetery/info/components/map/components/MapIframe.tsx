@@ -14,20 +14,32 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
   
   useEffect(() => {
     setIframeLoaded(false);
-  }, [mapUrl, forceRefresh]);
+    
+    // When forceRefresh changes, we reload the iframe directly instead of
+    // adding a refresh parameter to the URL
+    if (iframeRef.current) {
+      try {
+        // Access the contentWindow and reload it
+        const frameWindow = iframeRef.current.contentWindow;
+        if (frameWindow) {
+          frameWindow.location.reload();
+        }
+      } catch (error) {
+        console.error("Error reloading iframe:", error);
+      }
+    }
+  }, [forceRefresh]);
 
   const handleIframeLoad = () => {
     setIframeLoaded(true);
     console.log("Map iframe loaded successfully");
   };
-
-  const mapUrlWithParams = `${mapUrl}${mapUrl.includes('?') ? '&' : '?'}refresh=${forceRefresh}`;
   
   return (
     <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative">
       <iframe 
         ref={iframeRef}
-        src={mapUrlWithParams}
+        src={mapUrl}
         width="100%" 
         height="100%" 
         style={{ border: 0 }} 
@@ -38,7 +50,7 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
         onLoad={handleIframeLoad}
         onError={(e) => {
           console.error("Map iframe loading error:", e);
-          toast.error("Errore nel caricamento della mappa: API key non valida");
+          toast.error("Errore nel caricamento della mappa");
         }}
       ></iframe>
       

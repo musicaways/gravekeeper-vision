@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import MapIframe from "./components/MapIframe";
 import MapErrorState from "./components/MapErrorState";
@@ -27,6 +27,12 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   customMapId,
 }) => {
   const [forceRefresh, setForceRefresh] = useState(0);
+  const [mapError, setMapError] = useState<string | null>(null);
+
+  // Reset map error when mapUrl changes
+  useEffect(() => {
+    setMapError(null);
+  }, [mapUrl]);
 
   const handleOpenMapInNewTab = () => {
     console.log("Opening map in new tab");
@@ -58,6 +64,16 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
+  if (mapError) {
+    return (
+      <MapErrorState 
+        message={`Errore nel caricamento della mappa: ${mapError}`}
+        buttonText="Riprova"
+        buttonAction={reloadMap}
+      />
+    );
+  }
+
   if (!mapUrl) {
     console.log("No map URL available");
     return (
@@ -68,7 +84,10 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   console.log("Rendering map with URL:", mapUrl);
   return (
     <div className="space-y-2">
-      <MapIframe mapUrl={mapUrl} forceRefresh={forceRefresh} />
+      <MapIframe 
+        mapUrl={mapUrl} 
+        forceRefresh={forceRefresh} 
+      />
       <MapControls 
         onRefresh={reloadMap} 
         onOpenInGoogleMaps={handleOpenMapInNewTab} 
