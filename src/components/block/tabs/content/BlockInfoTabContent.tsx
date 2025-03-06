@@ -26,7 +26,7 @@ const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
   };
 
   return (
-    <div className="px-4 py-4">
+    <div className="px-4 py-4 space-y-6">
       {/* Description Section */}
       {block.Descrizione && (
         <BlockTextSection title="Descrizione" content={block.Descrizione} />
