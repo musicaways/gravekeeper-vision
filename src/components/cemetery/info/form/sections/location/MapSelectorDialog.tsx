@@ -1,18 +1,22 @@
 
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import MapSelector from "../../sections/map-selector/MapSelector";
+import MapSelector from "../map-selector/MapSelector";
 
 interface MapSelectorDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectLocation: (lat: number, lng: number) => void;
+  initialLat?: number;
+  initialLng?: number;
 }
 
 const MapSelectorDialog = ({ 
   isOpen, 
   onOpenChange, 
-  onSelectLocation 
+  onSelectLocation,
+  initialLat,
+  initialLng
 }: MapSelectorDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -24,7 +28,11 @@ const MapSelectorDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 h-[450px] relative">
-          <MapSelector onSelectLocation={onSelectLocation} />
+          <MapSelector 
+            onSelectLocation={onSelectLocation} 
+            initialLat={initialLat}
+            initialLng={initialLng}
+          />
         </div>
       </DialogContent>
     </Dialog>

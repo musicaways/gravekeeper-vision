@@ -17,11 +17,25 @@ const LocationSection = ({
   const [showMapSelector, setShowMapSelector] = useState(false);
   const form = useFormContext();
   
+  // Get current lat/lng values from the form to pass to the map selector
+  const getInitialCoordinates = () => {
+    const latValue = form.getValues('Latitudine');
+    const lngValue = form.getValues('Longitudine');
+    
+    return {
+      lat: latValue ? parseFloat(latValue) : undefined,
+      lng: lngValue ? parseFloat(lngValue) : undefined
+    };
+  };
+  
   const handleMapLocationSelect = (lat: number, lng: number) => {
     form.setValue('Latitudine', lat.toString(), { shouldValidate: true });
     form.setValue('Longitudine', lng.toString(), { shouldValidate: true });
     setShowMapSelector(false);
   };
+  
+  // Get initial coordinates for the map
+  const { lat: initialLat, lng: initialLng } = getInitialCoordinates();
   
   return (
     <div className="space-y-4">
@@ -38,6 +52,8 @@ const LocationSection = ({
         isOpen={showMapSelector} 
         onOpenChange={setShowMapSelector}
         onSelectLocation={handleMapLocationSelect}
+        initialLat={initialLat}
+        initialLng={initialLng}
       />
     </div>
   );

@@ -1,39 +1,45 @@
 
 import { useState, useEffect } from 'react';
 
-// Google Maps type definitions
+// Google Maps API interface declaration
+interface GoogleMapTypes {
+  maps: {
+    Map: any;
+    Marker: any;
+    MapTypeId: {
+      ROADMAP: string;
+      SATELLITE: string;
+      HYBRID: string;
+      TERRAIN: string;
+    };
+    MapTypeControlStyle: {
+      HORIZONTAL_BAR: number;
+      DROPDOWN_MENU: number;
+      DEFAULT: number;
+    };
+    ControlPosition: {
+      TOP_RIGHT: number;
+      RIGHT_TOP: number;
+      RIGHT_CENTER: number;
+      LEFT_TOP: number;
+      TOP_LEFT: number;
+    };
+    Animation: {
+      DROP: number;
+      BOUNCE: number;
+    };
+    event: {
+      addListener: (instance: any, eventName: string, handler: Function) => void;
+    };
+    MapMouseEvent: any;
+  };
+}
+
+// Extend Window interface to include Google Maps API
 declare global {
   interface Window {
     googleMapsCallback?: () => void;
-    google?: {
-      maps: {
-        Map: typeof google.maps.Map;
-        Marker: typeof google.maps.Marker;
-        MapTypeId: {
-          ROADMAP: string;
-          SATELLITE: string;
-          HYBRID: string;
-          TERRAIN: string;
-        };
-        MapTypeControlStyle: {
-          HORIZONTAL_BAR: number;
-          DROPDOWN_MENU: number;
-          DEFAULT: number;
-        };
-        ControlPosition: {
-          TOP_RIGHT: number;
-          RIGHT_TOP: number;
-          RIGHT_CENTER: number;
-          LEFT_TOP: number;
-          TOP_LEFT: number;
-        };
-        Animation: {
-          DROP: number;
-          BOUNCE: number;
-        };
-        MapMouseEvent: google.maps.MapMouseEvent;
-      };
-    };
+    google?: GoogleMapTypes;
   }
 }
 

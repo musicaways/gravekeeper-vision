@@ -17,8 +17,8 @@ const MapSelector: React.FC<MapSelectorProps> = ({
   initialLng = 12.4964
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
-  const [marker, setMarker] = useState<google.maps.Marker | null>(null);
+  const [googleMap, setGoogleMap] = useState<any | null>(null);
+  const [marker, setMarker] = useState<any | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<{lat: number, lng: number} | null>(null);
   const { isLoaded, isError, loadingError } = useGoogleMapsApi();
   const { toast } = useToast();
@@ -55,18 +55,30 @@ const MapSelector: React.FC<MapSelectorProps> = ({
       // Create initial marker if we have initial coordinates
       if (initialLat && initialLng) {
         const initialPosition = { lat: initialLat, lng: initialLng };
+        
+        // Create marker with custom styling for better visibility
         const newMarker = new window.google.maps.Marker({
           position: initialPosition,
           map: map,
           draggable: true,
-          animation: window.google.maps.Animation.DROP
+          animation: window.google.maps.Animation.DROP,
+          // Enhanced marker styling
+          icon: {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            scale: 12,
+            fillColor: "#8B5CF6", // Vivid purple
+            fillOpacity: 0.9,
+            strokeColor: "#FFFFFF",
+            strokeWeight: 2
+          },
+          title: "Posizione del cimitero"
         });
         
         setMarker(newMarker);
         setSelectedPosition(initialPosition);
         
         // Add drag event to the marker
-        newMarker.addListener('dragend', () => {
+        window.google.maps.event.addListener(newMarker, 'dragend', () => {
           const position = newMarker.getPosition();
           if (position) {
             setSelectedPosition({
@@ -78,7 +90,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({
       }
 
       // Add click event to the map
-      map.addListener('click', (event: google.maps.MapMouseEvent) => {
+      window.google.maps.event.addListener(map, 'click', (event: any) => {
         if (event.latLng) {
           const clickedPosition = {
             lat: event.latLng.lat(),
@@ -89,15 +101,26 @@ const MapSelector: React.FC<MapSelectorProps> = ({
           if (marker) {
             marker.setPosition(clickedPosition);
           } else {
+            // Create marker with custom styling for better visibility
             const newMarker = new window.google.maps.Marker({
               position: clickedPosition,
               map: map,
               draggable: true,
-              animation: window.google.maps.Animation.DROP
+              animation: window.google.maps.Animation.DROP,
+              // Enhanced marker styling
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 12,
+                fillColor: "#8B5CF6", // Vivid purple
+                fillOpacity: 0.9,
+                strokeColor: "#FFFFFF",
+                strokeWeight: 2
+              },
+              title: "Posizione del cimitero"
             });
             
             // Add drag event to the marker
-            newMarker.addListener('dragend', () => {
+            window.google.maps.event.addListener(newMarker, 'dragend', () => {
               const position = newMarker.getPosition();
               if (position) {
                 setSelectedPosition({

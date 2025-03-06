@@ -17,7 +17,8 @@ export const buildMapUrl = (
     // - maptype=satellite: Uses satellite view
     // - zoom=18: Closer view of the location
     // - language=it: Italian language UI
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it`;
+    // Using a custom marker icon with markercolor parameter and custom ID
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it&icon=https://maps.google.com/mapfiles/ms/icons/purple-dot.png`;
   } 
   
   if (address) {
