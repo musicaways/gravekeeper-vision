@@ -1,4 +1,4 @@
 
-export { default as CustomMapMarkerDialog } from './CustomMapMarkerDialog';
 export { default as MarkerIdField } from './MarkerIdField';
-export { mapInteractionScript } from './mapInteractionScript';
+export { default as CustomMapMarkerDialog } from './CustomMapMarkerDialog';
+export { setupMapScript } from './helpers/mapScriptSetup';

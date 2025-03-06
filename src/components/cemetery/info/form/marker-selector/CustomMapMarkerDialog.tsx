@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { X, Map, Check, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
-import { mapInteractionScript } from "./mapInteractionScript";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Map } from "lucide-react";
+import { useCustomMapMarker } from "./hooks/useCustomMapMarker";
+import InstructionsPanel from "./components/InstructionsPanel";
+import MapContainer from "./components/MapContainer";
+import DialogFooter from "./components/DialogFooter";
+import { setupMapScript } from "./helpers/mapScriptSetup";
 
 interface CustomMapMarkerDialogProps {
   open: boolean;
@@ -19,6 +20,9 @@ interface CustomMapMarkerDialogProps {
   };
 }
 
+// Set up the map script globally when this module is loaded
+setupMapScript();
+
 const CustomMapMarkerDialog = ({
   open,
   onClose,
@@ -27,102 +31,30 @@ const CustomMapMarkerDialog = ({
   initialMarkerId,
   cemeteryCoordinates
 }: CustomMapMarkerDialogProps) => {
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(true);
-  const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
-  const [mapError, setMapError] = useState<string | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const {
+    mapLoaded,
+    showInstructions,
+    selectedMarkerId,
+    mapError,
+    mapUrl,
+    iframeRef,
+    setShowInstructions,
+    injectScript,
+    handleIframeError,
+    confirmSelection,
+    handleManualInput
+  } = useCustomMapMarker({
+    initialMarkerId,
+    customMapId,
+    cemeteryCoordinates,
+    onSelect
+  });
   
-  // Ripristina lo stato iniziale quando il dialogo si apre
-  useEffect(() => {
-    if (open) {
-      setSelectedMarkerId(initialMarkerId || null);
-      setMapLoaded(false);
-      setMapError(null);
-      setShowInstructions(true);
-    }
-  }, [open, initialMarkerId]);
-
-  // Costruisci l'URL della mappa personalizzata, aggiungendo i parametri corretti
-  const buildMapUrl = () => {
-    if (!customMapId) return null;
-    
-    let url = `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F`;
-    
-    // Aggiungi le coordinate del cimitero se disponibili
-    if (cemeteryCoordinates?.latitude && cemeteryCoordinates?.longitude) {
-      url += `&ll=${cemeteryCoordinates.latitude},${cemeteryCoordinates.longitude}&z=16`;
-      console.log("Adding cemetery coordinates to map URL:", cemeteryCoordinates);
-    }
-    
-    return url;
-  };
-
-  const mapUrl = buildMapUrl();
-
-  // Gestisci il messaggio dal frame della mappa
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === "markerSelected" && data.markerId) {
-          console.log("Marker selected event received:", data.markerId);
-          setSelectedMarkerId(data.markerId);
-          toast.success("Marker selezionato con successo!");
-        }
-      } catch (e) {
-        // Ignora messaggi non in formato JSON
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
-
-  // Inietta lo script nell'iframe dopo che è stato caricato
-  const injectScript = () => {
-    setMapLoaded(true);
-    setMapError(null); // Reset error on successful load
-    
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      try {
-        const iframeWindow = iframeRef.current.contentWindow;
-        const script = document.createElement('script');
-        script.textContent = mapInteractionScript;
-        iframeWindow.document.body.appendChild(script);
-        
-        console.log('Script iniettato nell\'iframe della mappa');
-      } catch (error) {
-        console.error('Errore durante l\'iniezione dello script:', error);
-        setMapError("Impossibile interagire con la mappa a causa di restrizioni di sicurezza");
-      }
-    }
-  };
-
-  // Gestisci errori di caricamento dell'iframe
-  const handleIframeError = () => {
-    console.error('Errore durante il caricamento della mappa');
-    setMapError("Impossibile caricare la mappa. Verifica l'ID della mappa personalizzata.");
-    setMapLoaded(true); // Per rimuovere lo spinner di caricamento
-  };
-
-  // Funzione per confermare la selezione
-  const confirmSelection = () => {
-    if (selectedMarkerId) {
-      onSelect(selectedMarkerId);
+  // Handle confirmation and close dialog
+  const handleConfirm = () => {
+    const success = confirmSelection();
+    if (success) {
       onClose();
-      toast.success("ID marker importato con successo");
-    } else {
-      toast.error("Seleziona prima un marker dalla mappa");
-    }
-  };
-
-  // Funzione per simulare una selezione manuale di marker (per situazioni di fallback)
-  const handleManualInput = () => {
-    const userInput = prompt("Inserisci manualmente l'ID del marker:");
-    if (userInput && userInput.trim()) {
-      setSelectedMarkerId(userInput.trim());
-      toast.success("ID marker impostato manualmente");
     }
   };
 
@@ -139,110 +71,26 @@ const CustomMapMarkerDialog = ({
           </DialogDescription>
         </DialogHeader>
         
-        {showInstructions && (
-          <div className="bg-muted/30 p-4">
-            <div className="flex items-start space-x-2">
-              <div className="bg-amber-50 border border-amber-200 p-4 rounded-md w-full">
-                <h4 className="font-medium text-amber-900 mb-2">Istruzioni per la selezione</h4>
-                <ol className="list-decimal pl-5 space-y-1 text-amber-800">
-                  <li>Naviga sulla mappa fino a trovare il marker desiderato</li>
-                  <li>Clicca sul marker per selezionarlo</li>
-                  <li>Il marker selezionato verrà evidenziato e le sue informazioni appariranno</li>
-                  <li>Clicca su "Conferma selezione" per utilizzare questo marker</li>
-                </ol>
-                <p className="mt-2 text-amber-800 text-sm">
-                  <strong>Nota:</strong> A causa delle restrizioni di sicurezza di Google Maps, potrebbe essere necessario 
-                  selezionare il marker, copiare manualmente l'ID dalla barra degli indirizzi e incollarlo nel campo.
-                </p>
-                <div className="mt-3 flex justify-end">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowInstructions(false)}
-                  >
-                    Nascondi istruzioni
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <InstructionsPanel 
+          showInstructions={showInstructions} 
+          onHideInstructions={() => setShowInstructions(false)} 
+        />
         
-        <div className="flex-1 relative min-h-0">
-          {mapError && (
-            <Alert variant="destructive" className="m-4">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                {mapError}
-                <Button
-                  variant="link"
-                  className="ml-2 p-0 h-auto text-destructive-foreground underline"
-                  onClick={handleManualInput}
-                >
-                  Inserisci ID manualmente
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          {mapUrl ? (
-            <iframe 
-              ref={iframeRef}
-              src={mapUrl}
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen={false} 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Seleziona un marker dalla mappa"
-              onLoad={injectScript}
-              onError={handleIframeError}
-              className="absolute inset-0"
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">Nessuna mappa personalizzata configurata</p>
-            </div>
-          )}
-          
-          {!mapLoaded && mapUrl && !mapError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-              <div className="text-center">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p>Caricamento mappa in corso...</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <MapContainer 
+          mapUrl={mapUrl}
+          mapError={mapError}
+          mapLoaded={mapLoaded}
+          iframeRef={iframeRef}
+          onIframeLoad={injectScript}
+          onIframeError={handleIframeError}
+          onManualInput={handleManualInput}
+        />
         
-        <div className="p-4 border-t flex items-center justify-between bg-muted/10">
-          <div className="text-sm flex-1">
-            {selectedMarkerId ? (
-              <span className="text-green-600 font-medium flex items-center gap-1">
-                <Check className="h-4 w-4" /> Marker selezionato: 
-                <span className="text-xs bg-green-50 px-2 py-0.5 rounded border border-green-200 max-w-[200px] truncate">
-                  {selectedMarkerId}
-                </span>
-              </span>
-            ) : (
-              <span className="text-muted-foreground">Nessun marker selezionato</span>
-            )}
-          </div>
-          <div className="space-x-2 flex">
-            <Button variant="outline" size="sm" onClick={onClose} className="h-9">
-              <X className="h-4 w-4 mr-1.5" /> Annulla
-            </Button>
-            <Button 
-              onClick={confirmSelection} 
-              disabled={!selectedMarkerId}
-              size="sm"
-              className="h-9 bg-primary"
-            >
-              <Check className="h-4 w-4 mr-1.5" /> Conferma selezione
-            </Button>
-          </div>
-        </div>
+        <DialogFooter 
+          selectedMarkerId={selectedMarkerId}
+          onCancel={onClose}
+          onConfirm={handleConfirm}
+        />
       </DialogContent>
     </Dialog>
   );
