@@ -1,176 +1,164 @@
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 
-export function useApiKeyManagement() {
+export const useApiKeyManagement = () => {
   const [googleMapsKey, setGoogleMapsKey] = useState("");
   const [maskedKey, setMaskedKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [testLoading, setTestLoading] = useState(false);
-  const [keyId, setKeyId] = useState<string | null>(null);
   const [hasExistingKey, setHasExistingKey] = useState(false);
   const [testSuccess, setTestSuccess] = useState<boolean | null>(null);
+  
+  const { toast } = useToast();
 
-  // Fetch existing API key on component mount
+  // Load existing key on component mount
   useEffect(() => {
-    const fetchApiKey = async () => {
-      try {
-        console.log("Fetching API key from database...");
-        const { data, error } = await supabase
-          .from('api_keys')
-          .select('id, googlemaps_key')
-          .maybeSingle();
-        
-        if (error) {
-          console.error("Error fetching API keys:", error);
-          toast.error("Errore nel recuperare l'API key: " + error.message);
-          throw error;
-        }
-        
-        console.log("API key fetch result:", data ? "Key found" : "No key found");
-        
-        if (data) {
-          setKeyId(data.id);
-          if (data.googlemaps_key) {
-            setHasExistingKey(true);
-            // Create masked version of the key (showing only last 4 characters)
-            const keyLength = data.googlemaps_key.length;
-            if (keyLength > 4) {
-              const masked = '•'.repeat(keyLength - 4) + data.googlemaps_key.slice(-4);
-              setMaskedKey(masked);
-            } else {
-              setMaskedKey('•'.repeat(keyLength));
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching API keys:", error);
-        toast.error("Errore nel recuperare l'API key");
-      }
-    };
+    const storedKey = localStorage.getItem("googleMapsApiKey");
+    if (storedKey) {
+      // Create a masked version of the key for display
+      const visiblePart = storedKey.substring(0, 4);
+      const maskedPart = "•".repeat(Math.max(0, storedKey.length - 8));
+      const lastPart = storedKey.substring(storedKey.length - 4);
+      
+      setMaskedKey(`${visiblePart}${maskedPart}${lastPart}`);
+      setGoogleMapsKey(showKey ? storedKey : "");
+      setHasExistingKey(true);
+    }
+  }, [showKey]);
 
-    fetchApiKey();
+  // Toggle key visibility
+  const toggleKeyVisibility = useCallback(() => {
+    setShowKey(prev => {
+      // If toggling on, load the real key
+      if (!prev) {
+        const storedKey = localStorage.getItem("googleMapsApiKey");
+        if (storedKey) {
+          setGoogleMapsKey(storedKey);
+        }
+      } else {
+        // If toggling off, set to empty string (we'll show masked key)
+        setGoogleMapsKey("");
+      }
+      return !prev;
+    });
   }, []);
 
-  const handleSaveGoogleMapsKey = async () => {
-    if (!googleMapsKey.trim()) return;
-    
+  // Save API key to localStorage
+  const handleSaveGoogleMapsKey = useCallback(async () => {
     try {
+      if (!googleMapsKey.trim()) {
+        toast({
+          title: "Errore",
+          description: "La chiave API non può essere vuota",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setLoading(true);
-      console.log("Saving Google Maps API key to database...");
       
-      // If we have an existing key ID, update it, otherwise insert a new record
-      const { error, data } = await supabase
-        .from('api_keys')
-        .upsert({ 
-          id: keyId || undefined, // Let Supabase generate a UUID if none exists
-          googlemaps_key: googleMapsKey,
-          updated_at: new Date().toISOString()
-        })
-        .select();
-
-      if (error) {
-        console.error("Error saving API key:", error);
-        toast.error("Errore nel salvare l'API key: " + error.message);
-        throw error;
+      // Optional: Validate key format (basic validation)
+      if (!googleMapsKey.match(/^AIza[0-9A-Za-z-_]{35}$/)) {
+        console.warn("La chiave API di Google Maps potrebbe non essere valida");
       }
-
-      console.log("API key saved successfully:", data);
       
-      // Show toast notification
-      toast.success("API key salvata con successo");
+      // Save to localStorage
+      localStorage.setItem("googleMapsApiKey", googleMapsKey);
       
-      // Update UI state
+      // Update masked key
+      const visiblePart = googleMapsKey.substring(0, 4);
+      const maskedPart = "•".repeat(Math.max(0, googleMapsKey.length - 8));
+      const lastPart = googleMapsKey.substring(googleMapsKey.length - 4);
+      setMaskedKey(`${visiblePart}${maskedPart}${lastPart}`);
+      
       setHasExistingKey(true);
-      const keyLength = googleMapsKey.length;
-      if (keyLength > 4) {
-        const masked = '•'.repeat(keyLength - 4) + googleMapsKey.slice(-4);
-        setMaskedKey(masked);
-      } else {
-        setMaskedKey('•'.repeat(keyLength));
-      }
-      
-      setGoogleMapsKey("");
       setShowKey(false);
-
-      // Update keyId if this was a new record
-      if (data && data.length > 0 && !keyId) {
-        setKeyId(data[0].id);
-      }
-    } catch (error: any) {
+      setGoogleMapsKey(""); // Clear input when saving
+      
+      toast({
+        title: "Chiave API salvata",
+        description: "La chiave API di Google Maps è stata salvata con successo"
+      });
+      
+      // Test the key after saving
+      await testGoogleMapsApi();
+      
+    } catch (error) {
       console.error("Error saving API key:", error);
-      toast.error("Errore nel salvare l'API key: " + (error?.message || "Errore sconosciuto"));
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio della chiave API",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [googleMapsKey, toast]);
 
-  const testGoogleMapsApi = async () => {
-    setTestSuccess(null);
+  // Test if the API key works
+  const testGoogleMapsApi = useCallback(async () => {
     try {
       setTestLoading(true);
-      console.log("Testing Google Maps API...");
+      setTestSuccess(null);
       
-      // First get the API key from the database or use the one being entered
-      let keyToTest = googleMapsKey.trim();
+      // Get the key to test
+      const keyToTest = showKey ? googleMapsKey : localStorage.getItem("googleMapsApiKey");
       
       if (!keyToTest) {
-        const { data, error } = await supabase
-          .from('api_keys')
-          .select('googlemaps_key')
-          .single();
-        
-        if (error) {
-          console.error("Error fetching API key for testing:", error);
-          toast.error("Errore nel recuperare l'API key per il test: " + error.message);
-          throw error;
-        }
-        
-        if (!data?.googlemaps_key) {
-          console.warn("No API key found for testing");
-          toast.error("Nessuna API key di Google Maps trovata");
-          setTestSuccess(false);
-          return;
-        }
-        
-        keyToTest = data.googlemaps_key;
+        toast({
+          title: "Errore",
+          description: "Nessuna chiave API da testare",
+          variant: "destructive"
+        });
+        setTestSuccess(false);
+        return;
       }
       
-      // Test the Google Maps API with a simple geocoding request
-      const testUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=Roma,Italia&key=${keyToTest}`;
-      console.log("Making test request to Google Maps API...");
-      const response = await fetch(testUrl);
-      const result = await response.json();
+      // Test the API key with a simple geocoding request
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=Roma,Italia&key=${keyToTest}`
+      );
       
-      console.log("Google Maps API test result:", result);
+      const data = await response.json();
       
-      if (result.status === "OK") {
+      // Check if the API returns a valid response
+      if (data.status === "OK") {
         setTestSuccess(true);
-        toast.success("Test dell'API di Google Maps completato con successo!");
-        console.log("Google Maps API test succeeded");
-      } else if (result.error_message) {
+        toast({
+          title: "Test riuscito",
+          description: "La chiave API di Google Maps funziona correttamente"
+        });
+      } else if (data.status === "REQUEST_DENIED" || data.error_message) {
+        console.error("API test failed:", data);
         setTestSuccess(false);
-        console.error("Google Maps API test failed:", result.error_message);
-        toast.error(`Errore nel test dell'API: ${result.error_message}`);
+        toast({
+          title: "Test fallito",
+          description: data.error_message || "La chiave API non è valida o non ha i permessi necessari",
+          variant: "destructive"
+        });
       } else {
+        console.warn("Unexpected API response:", data);
         setTestSuccess(false);
-        console.error("Google Maps API test failed:", result.status);
-        toast.error(`Errore nel test dell'API: ${result.status}`);
+        toast({
+          title: "Risultato non chiaro",
+          description: `Stato API: ${data.status}. Controlla la console per i dettagli.`,
+          variant: "destructive"
+        });
       }
-    } catch (error: any) {
-      setTestSuccess(false);
+    } catch (error) {
       console.error("Error testing API key:", error);
-      toast.error("Errore durante il test dell'API key: " + (error?.message || "Errore sconosciuto"));
+      setTestSuccess(false);
+      toast({
+        title: "Errore di connessione",
+        description: "Impossibile testare la chiave API. Controlla la connessione internet.",
+        variant: "destructive"
+      });
     } finally {
       setTestLoading(false);
     }
-  };
-
-  const toggleKeyVisibility = () => {
-    setShowKey(!showKey);
-  };
+  }, [googleMapsKey, showKey, toast]);
 
   return {
     googleMapsKey,
@@ -185,4 +173,4 @@ export function useApiKeyManagement() {
     testGoogleMapsApi,
     toggleKeyVisibility
   };
-}
+};

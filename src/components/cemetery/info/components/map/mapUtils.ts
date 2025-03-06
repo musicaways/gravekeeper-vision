@@ -1,6 +1,7 @@
 
 import { toast } from "sonner";
 
+// Build map URL for embedded maps
 export const buildMapUrl = (
   apiKey: string,
   latitude?: number | null,
@@ -64,5 +65,56 @@ export const openExternalMap = (
   if (url) {
     console.log("Opening map URL:", url);
     window.open(url, '_blank');
+  } else {
+    toast({
+      title: "Errore",
+      description: "Non ci sono abbastanza informazioni per aprire la mappa",
+      variant: "destructive"
+    });
+  }
+};
+
+// Add a custom script to make Google Maps embedded iframe use single finger panning
+export const injectSingleFingerPanScript = (iframeId: string): void => {
+  try {
+    const iframe = document.getElementById(iframeId) as HTMLIFrameElement;
+    if (!iframe || !iframe.contentWindow) return;
+    
+    // This script tries to modify the embedded map to allow single finger panning
+    // Note: This may not work in all cases due to cross-origin restrictions
+    const script = `
+      try {
+        const mapElement = document.querySelector('.gm-style');
+        if (mapElement) {
+          // Attempt to modify the gesture handling
+          mapElement.style.touchAction = 'pan-x pan-y';
+          
+          // Try to find and modify the map instance
+          const maps = Object.values(window).filter(val => 
+            val && typeof val === 'object' && val._panes && val.setOptions
+          );
+          
+          if (maps.length > 0) {
+            maps[0].setOptions({gestureHandling: 'greedy'});
+            console.log('Modified map gesture handling');
+          }
+        }
+      } catch (e) {
+        console.error('Error modifying map:', e);
+      }
+    `;
+    
+    // Attempt to inject the script
+    setTimeout(() => {
+      try {
+        if (iframe.contentWindow) {
+          iframe.contentWindow.postMessage(script, '*');
+        }
+      } catch (e) {
+        console.warn('Could not inject script to iframe due to cross-origin policy:', e);
+      }
+    }, 1000);
+  } catch (error) {
+    console.error('Error injecting script:', error);
   }
 };

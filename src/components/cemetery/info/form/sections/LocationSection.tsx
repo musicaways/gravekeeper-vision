@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { MapPin, Map } from "lucide-react";
 import { Control } from "react-hook-form";
+import MapSelector from "./map-selector/MapSelector";
 
 interface LocationSectionProps {
   control: Control<any>;
@@ -20,13 +21,6 @@ const LocationSection = ({
 }: LocationSectionProps) => {
   const [showMapSelector, setShowMapSelector] = useState(false);
   
-  // Function to get coordinates from manual map click
-  const handleManualSelection = (lat: string, lng: string) => {
-    // This would be filled in by the parent form to update lat/lng values
-    console.log("Selected coordinates:", lat, lng);
-    setShowMapSelector(false);
-  };
-
   return (
     <div className="space-y-4">
       <FormField
@@ -184,51 +178,25 @@ const LocationSection = ({
       
       {/* Map Selection Dialog */}
       <Dialog open={showMapSelector} onOpenChange={setShowMapSelector}>
-        <DialogContent className="sm:max-w-[600px] h-[500px]">
+        <DialogContent className="sm:max-w-[650px] h-[600px] max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Seleziona posizione sulla mappa</DialogTitle>
             <DialogDescription>
               Fai clic sulla mappa per selezionare la posizione del cimitero
             </DialogDescription>
           </DialogHeader>
-          <div className="flex-1 h-[350px] relative">
+          <div className="flex-1 h-[450px] relative">
             <MapSelector
               onSelectLocation={(lat, lng) => {
-                // Update form values using the setValue function from control
-                control._fields.Latitudine.onChange(lat.toString());
-                control._fields.Longitudine.onChange(lng.toString());
+                // Use setValue function from react-hook-form's Control
+                control.setValue('Latitudine', lat.toString());
+                control.setValue('Longitudine', lng.toString());
                 setShowMapSelector(false);
               }}
             />
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-};
-
-// Map selector component that allows clicking to set coordinates
-const MapSelector = ({ onSelectLocation }: { onSelectLocation: (lat: number, lng: number) => void }) => {
-  // This is a simplified version - in a real implementation, you would:
-  // 1. Embed a Google Map with proper API
-  // 2. Add click handler to get coordinates
-  // 3. Show a marker at the selected position
-  
-  return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-muted/40 rounded-md">
-      <p className="text-center text-sm text-muted-foreground mb-4">
-        Per implementare questa funzionalità è necessario utilizzare Google Maps JavaScript API.
-        <br />
-        Selezionando un punto sulla mappa verranno aggiornate le coordinate.
-      </p>
-      <Button
-        onClick={() => {
-          // Example coordinates for Rome, Italy
-          onSelectLocation(41.9028, 12.4964);
-        }}
-      >
-        Seleziona esempio (Roma)
-      </Button>
     </div>
   );
 };
