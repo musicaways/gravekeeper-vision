@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
 import React from "react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface Photo {
   Id: string;
@@ -112,19 +113,21 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
         {photos.map((photo, index) => (
           <div 
             key={photo.Id} 
-            className={`${getAspectClass()} relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity`}
+            className="group rounded-md overflow-hidden border bg-card shadow-sm hover:shadow-md transition-all"
             onClick={() => openLightbox(index)}
           >
-            <img 
-              src={photo.Url} 
-              alt={photo.Descrizione || `Foto ${index + 1}`} 
-              className="w-full h-full object-cover"
-            />
-            {photo.Descrizione && (
-              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
-                {photo.Descrizione}
-              </div>
-            )}
+            <AspectRatio ratio={1} className={`bg-muted ${getAspectClass()}`}>
+              <img 
+                src={photo.Url} 
+                alt={photo.Descrizione || `Foto ${index + 1}`} 
+                className="object-cover w-full h-full rounded-t-md cursor-pointer hover:opacity-90 transition-opacity" 
+              />
+            </AspectRatio>
+            <div className="p-2">
+              <p className="text-xs text-muted-foreground truncate">
+                {photo.Descrizione || `Foto ${index + 1}`}
+              </p>
+            </div>
           </div>
         ))}
       </div>
