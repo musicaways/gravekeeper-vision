@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,30 @@ export function ApiSettings() {
   const [googleMapsKey, setGoogleMapsKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [testLoading, setTestLoading] = useState(false);
+  const [keyId, setKeyId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch existing API key on component mount
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('api_keys')
+          .select('id, googlemaps_key')
+          .maybeSingle();
+        
+        if (error) throw error;
+        
+        if (data) {
+          setKeyId(data.id);
+        }
+      } catch (error) {
+        console.error("Error fetching API keys:", error);
+      }
+    };
+
+    fetchApiKey();
+  }, []);
 
   const handleSaveGoogleMapsKey = async () => {
     if (!googleMapsKey.trim()) return;
@@ -19,10 +42,11 @@ export function ApiSettings() {
     try {
       setLoading(true);
       
+      // If we have an existing key ID, update it, otherwise insert a new record
       const { error } = await supabase
         .from('api_keys')
         .upsert({ 
-          id: '1', // Using a fixed ID for simplicity since we only need one row
+          id: keyId || undefined, // Let Supabase generate a UUID if none exists
           googlemaps_key: googleMapsKey,
           updated_at: new Date().toISOString()
         });
@@ -112,40 +136,42 @@ export function ApiSettings() {
               value={googleMapsKey}
               onChange={(e) => setGoogleMapsKey(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="pr-12"
+              className="pr-24"
               ref={inputRef}
-              disabled={loading}
+              disabled={loading || testLoading}
             />
-            <Button 
-              size="sm"
-              variant="ghost"
-              onClick={handleSaveGoogleMapsKey}
-              disabled={!googleMapsKey.trim() || loading}
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-              aria-label="Salva API key"
-            >
-              <Save className="h-4 w-4" />
-              <span className="sr-only">Salva</span>
-            </Button>
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
+              <Button 
+                size="sm"
+                variant="ghost"
+                onClick={testGoogleMapsApi}
+                disabled={testLoading || loading}
+                className="h-8 w-8 p-0"
+                aria-label="Testa API key"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="sr-only">Testa</span>
+              </Button>
+              <Button 
+                size="sm"
+                variant="ghost"
+                onClick={handleSaveGoogleMapsKey}
+                disabled={!googleMapsKey.trim() || loading || testLoading}
+                className="h-8 w-8 p-0"
+                aria-label="Salva API key"
+              >
+                <Save className="h-4 w-4" />
+                <span className="sr-only">Salva</span>
+              </Button>
+            </div>
           </div>
-          {loading && (
-            <p className="text-xs text-muted-foreground">Salvando l'API key...</p>
-          )}
+          {loading && <p className="text-xs text-muted-foreground">Salvando l'API key...</p>}
+          {testLoading && <p className="text-xs text-muted-foreground">Testando l'API key...</p>}
           
-          <div className="mt-4 pt-4 border-t border-border">
-            <Button
-              variant="outline"
-              onClick={testGoogleMapsApi}
-              disabled={testLoading}
-              className="flex items-center gap-2"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              {testLoading ? "Testando..." : "Testa API Google Maps"}
-            </Button>
-            <p className="text-xs text-muted-foreground mt-2">
-              Questo test verificherà il funzionamento della chiave API facendo una richiesta di geocodifica.
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Questa chiave API è necessaria per il funzionamento delle mappe nei dettagli del cimitero.
+            Per ottenere una chiave API visita la <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Console Google Cloud</a>.
+          </p>
         </div>
       </CardContent>
     </Card>
