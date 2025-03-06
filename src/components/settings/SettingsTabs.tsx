@@ -1,9 +1,9 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Bell, Shield } from "lucide-react";
+import { User, Bell, Shield, Key } from "lucide-react";
 import { GeneralSettings } from "./GeneralSettings";
 import { NotificationSettings } from "./NotificationSettings";
 import { SecuritySettings } from "./SecuritySettings";
+import { ApiSettings } from "./ApiSettings";
 
 interface SettingsTabsProps {
   language: string;
@@ -24,7 +24,7 @@ export function SettingsTabs({
 }: SettingsTabsProps) {
   return (
     <Tabs defaultValue="general" className="space-y-4">
-      <TabsList className="grid grid-cols-3 w-full md:w-1/2">
+      <TabsList className="grid grid-cols-4 w-full md:w-1/2">
         <TabsTrigger value="general" className="flex items-center gap-1">
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Generali</span>
@@ -36,6 +36,10 @@ export function SettingsTabs({
         <TabsTrigger value="security" className="flex items-center gap-1">
           <Shield className="h-4 w-4" />
           <span className="hidden sm:inline">Sicurezza</span>
+        </TabsTrigger>
+        <TabsTrigger value="api" className="flex items-center gap-1">
+          <Key className="h-4 w-4" />
+          <span className="hidden sm:inline">API</span>
         </TabsTrigger>
       </TabsList>
 
@@ -57,6 +61,10 @@ export function SettingsTabs({
 
       <TabsContent value="security" className="space-y-4">
         <SecuritySettings />
+      </TabsContent>
+
+      <TabsContent value="api" className="space-y-4">
+        <ApiSettings />
       </TabsContent>
     </Tabs>
   );

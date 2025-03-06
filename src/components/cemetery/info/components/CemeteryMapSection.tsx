@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Map, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,16 +11,31 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
   const [loading, setLoading] = useState(true);
   const [cemetery, setCemetery] = useState<any>(null);
   const [mapUrl, setMapUrl] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      const { data, error } = await supabase
+        .from('api_keys')
+        .select('googlemaps_key')
+        .single();
+      
+      if (!error && data?.googlemaps_key) {
+        setApiKey(data.googlemaps_key);
+      }
+    };
+
+    fetchApiKey();
+  }, []);
 
   useEffect(() => {
     const fetchCemeteryData = async () => {
       try {
-        if (!cemeteryId) return;
+        if (!cemeteryId || !apiKey) return;
 
         // Convert cemeteryId to number if it's a string
         const numericId = typeof cemeteryId === 'string' ? parseInt(cemeteryId, 10) : cemeteryId;
         
-        // Check if the conversion resulted in a valid number
         if (isNaN(numericId)) {
           console.error("Invalid cemetery ID format:", cemeteryId);
           setLoading(false);
@@ -38,12 +52,9 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         
         setCemetery(data);
         
-        // Generate Google Maps URL based on coordinates or address
         if (data.Latitudine && data.Longitudine) {
-          // Use coordinates if available
-          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=AIzaSyDfDnGw_IVT0l3YNVqp0JQ6NZjrP5ybviU&q=${data.Latitudine},${data.Longitudine}&zoom=16`);
+          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${data.Latitudine},${data.Longitudine}&zoom=16`);
         } else if (data.Indirizzo) {
-          // Use address if coordinates not available
           const address = [
             data.Indirizzo,
             data.city,
@@ -52,7 +63,7 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
             data.country
           ].filter(Boolean).join(', ');
           
-          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=AIzaSyDfDnGw_IVT0l3YNVqp0JQ6NZjrP5ybviU&q=${encodeURIComponent(address)}&zoom=16`);
+          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}&zoom=16`);
         }
       } catch (err) {
         console.error("Errore nel caricamento dei dati del cimitero:", err);
@@ -62,17 +73,15 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     };
 
     fetchCemeteryData();
-  }, [cemeteryId]);
+  }, [cemeteryId, apiKey]);
 
   const handleOpenMapInNewTab = () => {
     if (!cemetery) return;
     
     let url = "";
     if (cemetery.Latitudine && cemetery.Longitudine) {
-      // Use coordinates if available
       url = `https://www.google.com/maps/search/?api=1&query=${cemetery.Latitudine},${cemetery.Longitudine}`;
     } else if (cemetery.Indirizzo) {
-      // Use address if coordinates not available
       const address = [
         cemetery.Indirizzo,
         cemetery.city,
