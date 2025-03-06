@@ -118,13 +118,13 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         maxWidth: 250
       });
       
-      // Show info window on marker click - fix the addListener method error
+      // Show info window on marker click - fixed event listener
       google.maps.event.addListener(newMarker, 'click', () => {
         infoWindow.open(newMap, newMarker);
       });
       
-      // Add tilesloaded event listener
-      google.maps.event.addListenerOnce(newMap, 'tilesloaded', () => {
+      // Add tiles loaded event listener - fixed event listener method
+      google.maps.event.addListener(newMap, 'tilesloaded', () => {
         if (!mapLoaded) {
           setMapLoaded(true);
           toast.success("Mappa caricata con successo", { duration: 2000 });
