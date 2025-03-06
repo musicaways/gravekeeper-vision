@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { openExternalMap } from "./mapUtils";
+import { toast } from "sonner";
 
 interface MapDisplayProps {
   loading: boolean;
@@ -28,11 +28,9 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   const [iframeLoaded, setIframeLoaded] = useState(false);
   
   useEffect(() => {
-    // Reset iframe loaded state when map URL changes
     setIframeLoaded(false);
   }, [mapUrl]);
 
-  // Handle iframe loaded event
   const handleIframeLoad = () => {
     setIframeLoaded(true);
     console.log("Map iframe loaded successfully");
@@ -43,7 +41,6 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     openExternalMap(customMapId, useCustomMap, cemetery);
   };
 
-  // Function to reload the iframe with updated URL
   const reloadMap = () => {
     console.log("Reloading map iframe");
     setForceRefresh(prev => prev + 1);
@@ -87,7 +84,6 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
-  // Add the refresh parameter to force iframe reload
   const mapUrlWithParams = `${mapUrl}${mapUrl.includes('?') ? '&' : '?'}refresh=${forceRefresh}`;
 
   console.log("Rendering map with URL:", mapUrlWithParams);
@@ -111,7 +107,6 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
           }}
         ></iframe>
         
-        {/* Loading overlay */}
         {!iframeLoaded && (
           <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
             <div className="flex flex-col items-center">
