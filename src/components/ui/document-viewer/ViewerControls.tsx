@@ -40,7 +40,7 @@ const ViewerControls = ({
             <span>{currentIndex + 1}/{filesLength}</span>
             {fileType && <span className="text-xs bg-white/20 px-2 py-0.5 rounded uppercase">{fileType}</span>}
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 mr-10">
             <Button 
               variant="ghost" 
               size="icon" 

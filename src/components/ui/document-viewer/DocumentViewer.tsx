@@ -135,6 +135,7 @@ const DocumentViewer = ({
                   title={title}
                   scale={scale}
                   handleDownload={handleDownload}
+                  handleZoomIn={handleZoomIn}
                 />
               </div>
               
