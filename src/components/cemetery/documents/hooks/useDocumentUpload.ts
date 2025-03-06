@@ -122,7 +122,6 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
         description: error instanceof Error ? error.message : "Si è verificato un errore durante il caricamento",
         variant: "destructive"
       });
-      throw error; // Re-throw to be caught by the form
     } finally {
       setTimeout(() => {
         setIsUploading(false);

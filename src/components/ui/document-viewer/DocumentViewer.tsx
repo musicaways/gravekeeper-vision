@@ -49,6 +49,8 @@ const DocumentViewer = ({
     
     try {
       setIsDeleting(true);
+      console.log("Deleting file with ID:", currentFile.id);
+      
       await onDeleteFile(currentFile.id);
       
       toast({
@@ -72,13 +74,23 @@ const DocumentViewer = ({
 
   const handleDownload = () => {
     if (currentFile?.url) {
-      const link = document.createElement('a');
-      link.href = currentFile.url;
-      link.target = '_blank';
-      link.download = currentFile.title || 'document';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      console.log("Starting download for file:", currentFile.url);
+      try {
+        const link = document.createElement('a');
+        link.href = currentFile.url;
+        link.target = '_blank';
+        link.download = currentFile.title || 'document';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Download error:", error);
+        toast({
+          title: "Errore",
+          description: "Si è verificato un errore durante il download del file.",
+          variant: "destructive"
+        });
+      }
     }
   };
 

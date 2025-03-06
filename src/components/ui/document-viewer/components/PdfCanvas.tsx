@@ -22,6 +22,7 @@ const PdfCanvas = ({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchMoveCount = useRef(0);
 
   // Force re-render when scale changes by updating a data attribute
   useEffect(() => {
@@ -33,59 +34,61 @@ const PdfCanvas = ({
     const shouldEnableSwipe = scale <= 1;
     setSwipeEnabled(shouldEnableSwipe);
     console.log("PdfCanvas: Updated swipe enabled state:", shouldEnableSwipe);
-  }, [scale, canvasRef, setSwipeEnabled]);
-
-  // Reset position when scale changes to 1
-  useEffect(() => {
+    
+    // Reset position when scale is reset to 1 or less
     if (scale <= 1) {
       setPosition({ x: 0, y: 0 });
     }
-  }, [scale]);
+  }, [scale, canvasRef, setSwipeEnabled]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (scale <= 1) return;
     
-    e.stopPropagation();
+    touchMoveCount.current = 0;
     setIsDragging(true);
     setDragStart({
       x: e.touches[0].clientX - position.x,
       y: e.touches[0].clientY - position.y
     });
-    console.log("PdfCanvas: Touch start for panning, disabling swipe navigation");
+    // Immediately disable swipe when in zoom mode and starting to drag
     setSwipeEnabled(false);
+    console.log("PdfCanvas: Touch start for panning, disabling swipe navigation");
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || scale <= 1) return;
     
-    e.stopPropagation();
-    e.preventDefault(); // Prevent scrolling when dragging
-
+    touchMoveCount.current += 1;
+    
+    // Only prevent default after confirming we're really dragging (after a few move events)
+    if (touchMoveCount.current > 3) {
+      e.preventDefault(); // Prevent scrolling when dragging
+    }
+    
     const newX = e.touches[0].clientX - dragStart.x;
     const newY = e.touches[0].clientY - dragStart.y;
     
     // Add bounds to prevent dragging too far
-    const maxDrag = (scale - 1) * 300; // Limit based on scale
-    const boundedX = Math.min(Math.max(newX, -maxDrag), maxDrag);
-    const boundedY = Math.min(Math.max(newY, -maxDrag), maxDrag);
+    const maxDragX = Math.max(0, (scale - 1) * (canvasRef.current?.width || 0) / 2);
+    const maxDragY = Math.max(0, (scale - 1) * (canvasRef.current?.height || 0) / 2);
+    
+    const boundedX = Math.min(Math.max(newX, -maxDragX), maxDragX);
+    const boundedY = Math.min(Math.max(newY, -maxDragY), maxDragY);
     
     setPosition({ x: boundedX, y: boundedY });
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (scale <= 1) return;
-    
-    e.stopPropagation();
     setIsDragging(false);
     
-    // Small delay before re-enabling swipe to prevent accidental swipes
+    // Only re-enable swipe if scale is 1 or less
+    // Small delay to prevent accidental swipe
     setTimeout(() => {
-      // Only re-enable swipe if scale is back to 1
       if (scale <= 1) {
         setSwipeEnabled(true);
         console.log("PdfCanvas: Re-enabling swipe navigation after panning");
       }
-    }, 100);
+    }, 300);
   };
 
   return (
@@ -108,7 +111,7 @@ const PdfCanvas = ({
         <canvas 
           ref={canvasRef} 
           className="max-w-full shadow-lg"
-          style={{ opacity: initialRenderComplete ? 1 : 0.99 }}
+          style={{ opacity: initialRenderComplete ? 1 : 0, transition: 'opacity 0.3s ease' }}
           data-scale={scale}
         />
       </div>

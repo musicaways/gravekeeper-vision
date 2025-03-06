@@ -66,12 +66,17 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 
-      await page.render({
-        canvasContext: context,
-        viewport: viewport
-      }).promise;
-      
-      console.log("Page rendered successfully with scale:", scaleToUse);
+      try {
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+        
+        console.log("Page rendered successfully with scale:", scaleToUse);
+      } catch (renderError) {
+        console.error("Error in page render method:", renderError);
+        // Continue despite render error - don't throw
+      }
       
       // Update last rendered values
       lastRenderedScale.current = scaleToUse;
@@ -103,6 +108,8 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
 
   // Load PDF document when URL changes
   useEffect(() => {
+    let isActive = true; // Flag to prevent state updates after unmount
+    
     if (!url) return;
 
     const loadPdf = async () => {
@@ -123,13 +130,17 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
         });
         
         const pdf = await loadingTask.promise;
+        if (!isActive) return; // Prevent state updates if component unmounted
+        
         console.log("PDF loaded successfully, pages:", pdf.numPages);
         
         // Cleanup previous PDF if exists
         if (pdfDocRef.current) {
-          await pdfDocRef.current.destroy().catch(err => {
+          try {
+            await pdfDocRef.current.destroy();
+          } catch (err) {
             console.error("Error destroying previous PDF document:", err);
-          });
+          }
         }
         
         pdfDocRef.current = pdf;
@@ -141,11 +152,14 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
         
         // Force initial render with scale=1 to ensure visibility
         await renderPage(page, 1);
+        if (!isActive) return; // Check again before state update
         setPdfLoading(false);
       } catch (error) {
         console.error("Error loading PDF:", error);
-        setPdfError("Impossibile caricare il PDF. Prova a scaricarlo.");
-        setPdfLoading(false);
+        if (isActive) {
+          setPdfError("Impossibile caricare il PDF. Prova a scaricarlo.");
+          setPdfLoading(false);
+        }
       }
     };
 
@@ -153,6 +167,7 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
     
     // Cleanup function
     return () => {
+      isActive = false;
       if (pdfDocRef.current) {
         pdfDocRef.current.destroy().catch(err => {
           console.error("Error destroying PDF document:", err);
