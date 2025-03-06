@@ -43,17 +43,17 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       console.log("Starting file upload to storage bucket...");
       setUploadProgress(30);
       
-      // 2. Upload the file to Supabase Storage with progress tracking
-      // Create an upload controller to track progress
-      const uploadController = new AbortController();
+      // 2. Upload the file to Supabase Storage
+      // Track progress manually
+      let lastProgress = 0;
       
-      // Setup progress listener
-      const progressListener = (progress: { uploadedBytes: number; totalBytes: number; }) => {
-        if (progress.totalBytes > 0) {
-          const calculatedProgress = (progress.uploadedBytes / progress.totalBytes) * 60;
-          setUploadProgress(30 + calculatedProgress);
+      // Periodically update progress while uploading (simulate progress since we can't track it directly)
+      const progressInterval = setInterval(() => {
+        if (lastProgress < 80) {
+          lastProgress += 5;
+          setUploadProgress(30 + lastProgress * 0.6);
         }
-      };
+      }, 500);
       
       // Perform the upload
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -61,9 +61,11 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false,
-          contentType: contentType,
-          signal: uploadController.signal,
+          contentType: contentType
         });
+      
+      // Clear the progress interval
+      clearInterval(progressInterval);
       
       if (uploadError) {
         console.error("File upload failed:", uploadError);

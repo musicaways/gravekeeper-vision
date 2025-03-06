@@ -9,7 +9,7 @@ interface DocumentsListProps {
   loading: boolean;
   onDownload: (document: DocumentItemType) => void;
   onDelete: (document: DocumentItemType) => void;
-  onDocumentClick?: (index: number) => void;
+  onDocumentClick?: (document: DocumentItemType) => void;
 }
 
 const DocumentsList: React.FC<DocumentsListProps> = ({ 
@@ -33,13 +33,13 @@ const DocumentsList: React.FC<DocumentsListProps> = ({
 
   return (
     <div className="space-y-4">
-      {documents.map((doc, index) => (
+      {documents.map((doc) => (
         <DocumentItem 
           key={doc.id} 
           document={doc} 
           onDownload={onDownload} 
           onDelete={onDelete}
-          onClick={() => onDocumentClick && onDocumentClick(index)}
+          onClick={() => onDocumentClick && onDocumentClick(doc)}
         />
       ))}
     </div>
