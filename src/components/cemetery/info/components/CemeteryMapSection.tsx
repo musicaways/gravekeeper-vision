@@ -19,16 +19,18 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
   useEffect(() => {
     const fetchApiKey = async () => {
       try {
+        console.log("Fetching Google Maps API key...");
         const { data, error } = await supabase
           .from('api_keys')
           .select('googlemaps_key')
           .single();
         
         if (!error && data?.googlemaps_key) {
+          console.log("API key retrieved successfully");
           setApiKey(data.googlemaps_key);
         } else {
-          setApiKeyError(true);
           console.error("API key not found or error:", error);
+          setApiKeyError(true);
         }
       } catch (err) {
         console.error("Error fetching API key:", err);
@@ -60,6 +62,7 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
           return;
         }
 
+        console.log("Fetching cemetery data for ID:", numericId);
         const { data, error } = await supabase
           .from('Cimitero')
           .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country')
@@ -68,10 +71,13 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         
         if (error) throw error;
         
+        console.log("Cemetery data retrieved:", data);
         setCemetery(data);
         
         if (data.Latitudine && data.Longitudine) {
-          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${data.Latitudine},${data.Longitudine}&zoom=16`);
+          // Impostazione della visualizzazione satellitare utilizzando il parametro maptype=satellite
+          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${data.Latitudine},${data.Longitudine}&zoom=16&maptype=satellite`);
+          console.log("Map URL set with coordinates and satellite view");
         } else if (data.Indirizzo) {
           const address = [
             data.Indirizzo,
@@ -81,7 +87,9 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
             data.country
           ].filter(Boolean).join(', ');
           
-          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}&zoom=16`);
+          // Impostazione della visualizzazione satellitare utilizzando il parametro maptype=satellite
+          setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}&zoom=16&maptype=satellite`);
+          console.log("Map URL set with address and satellite view");
         }
       } catch (err) {
         console.error("Errore nel caricamento dei dati del cimitero:", err);
@@ -98,7 +106,9 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     
     let url = "";
     if (cemetery.Latitudine && cemetery.Longitudine) {
-      url = `https://www.google.com/maps/search/?api=1&query=${cemetery.Latitudine},${cemetery.Longitudine}`;
+      // Per Google Maps in una nuova scheda, usiamo t=k (satellite view) per il parametro della visualizzazione satellitare
+      url = `https://www.google.com/maps/search/?api=1&query=${cemetery.Latitudine},${cemetery.Longitudine}&t=k`;
+      console.log("Opening external map with coordinates and satellite view");
     } else if (cemetery.Indirizzo) {
       const address = [
         cemetery.Indirizzo,
@@ -108,7 +118,9 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         cemetery.country
       ].filter(Boolean).join(', ');
       
-      url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+      // Per Google Maps in una nuova scheda, usiamo t=k (satellite view) per il parametro della visualizzazione satellitare
+      url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}&t=k`;
+      console.log("Opening external map with address and satellite view");
     }
     
     if (url) {
