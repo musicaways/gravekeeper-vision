@@ -52,7 +52,7 @@ export const useImageDrag = ({ setPosition }: UseImageDragProps) => {
     }
 
     // Add bounds to prevent dragging too far
-    const maxDrag = (scale - 1) * 500; // Arbitrary limit based on scale
+    const maxDrag = (scale - 1) * 500; // Limit based on scale
     newX = Math.min(Math.max(newX, -maxDrag), maxDrag);
     newY = Math.min(Math.max(newY, -maxDrag), maxDrag);
     

@@ -18,7 +18,10 @@ export const useImageZoom = ({ open }: UseImageZoomProps) => {
   }, [open]);
   
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 3));
+    setScale((prev) => {
+      const newScale = Math.min(prev + 0.5, 3);
+      return newScale;
+    });
   };
 
   const handleZoomOut = () => {

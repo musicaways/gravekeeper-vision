@@ -97,7 +97,6 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     showControls,
     dragging: isDragging || isSwipeDragging,
     swipeDirection,
-    startX: 0, // This is now managed internally by useImageSwipe
     imageRef,
     contentRef,
     goToPreviousImage: () => goToPreviousImage(scale),
