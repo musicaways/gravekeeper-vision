@@ -48,7 +48,7 @@ export const useDocumentViewer = ({
 
   const handleZoomIn = () => {
     setScale((prev) => {
-      const newScale = prev >= 3 ? 1 : prev + 0.5;
+      const newScale = prev >= 3 ? 3 : prev + 0.5;
       console.log("Zooming in from:", prev, "to:", newScale);
       return newScale;
     });

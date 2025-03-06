@@ -7,6 +7,7 @@ interface PdfCanvasProps {
   handleDoubleClick: (e: React.MouseEvent) => void;
   toggleControls: () => void;
   scale: number;
+  setSwipeEnabled: (enabled: boolean) => void;
 }
 
 const PdfCanvas = ({
@@ -14,7 +15,8 @@ const PdfCanvas = ({
   initialRenderComplete,
   handleDoubleClick,
   toggleControls,
-  scale
+  scale,
+  setSwipeEnabled
 }: PdfCanvasProps) => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -25,7 +27,11 @@ const PdfCanvas = ({
     if (canvasRef.current) {
       canvasRef.current.setAttribute('data-scale', scale.toString());
     }
-  }, [scale, canvasRef]);
+    
+    // Update swipe enabled state based on scale
+    setSwipeEnabled(scale <= 1);
+    console.log("PdfCanvas: Updated swipe enabled state:", scale <= 1);
+  }, [scale, canvasRef, setSwipeEnabled]);
 
   // Reset position when scale changes to 1
   useEffect(() => {
@@ -43,6 +49,7 @@ const PdfCanvas = ({
       x: e.touches[0].clientX - position.x,
       y: e.touches[0].clientY - position.y
     });
+    console.log("PdfCanvas: Touch start, disabling swipe navigation");
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {

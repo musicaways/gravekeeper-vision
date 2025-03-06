@@ -14,6 +14,7 @@ interface FilePreviewProps {
   handleDownload: () => void;
   handleZoomIn: () => void;
   toggleControls: () => void;
+  setSwipeEnabled: (enabled: boolean) => void;
 }
 
 const FilePreview = ({
@@ -23,7 +24,8 @@ const FilePreview = ({
   scale,
   handleDownload,
   handleZoomIn,
-  toggleControls
+  toggleControls,
+  setSwipeEnabled
 }: FilePreviewProps) => {
   // Handle double click for zoom
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -52,6 +54,7 @@ const FilePreview = ({
           handleDownload={handleDownload}
           handleDoubleClick={handleDoubleClick}
           toggleControls={toggleControls}
+          setSwipeEnabled={setSwipeEnabled}
         />
       </div>
     );
@@ -65,6 +68,7 @@ const FilePreview = ({
         scale={scale}
         toggleControls={toggleControls}
         handleDoubleClick={handleDoubleClick}
+        setSwipeEnabled={setSwipeEnabled}
       />
     );
   }

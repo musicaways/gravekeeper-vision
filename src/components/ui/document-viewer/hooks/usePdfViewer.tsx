@@ -10,9 +10,10 @@ interface UsePdfViewerProps {
   url: string;
   scale: number;
   initialPage?: number;
+  setSwipeEnabled: (enabled: boolean) => void;
 }
 
-export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps) => {
+export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: UsePdfViewerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [pdfLoading, setPdfLoading] = useState(true);
   const [pdfError, setPdfError] = useState<string | null>(null);
@@ -21,6 +22,12 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
   const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
   const lastRenderedScale = useRef<number>(0); // Track last rendered scale to avoid unnecessary rendering
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
+  
+  // Update swipe enabled when scale changes
+  useEffect(() => {
+    console.log("PDF hook: Setting swipe enabled based on scale:", scale <= 1);
+    setSwipeEnabled(scale <= 1);
+  }, [scale, setSwipeEnabled]);
   
   // Function to render PDF page
   const renderPage = async (page: PDFPageProxy, forceScale?: number) => {

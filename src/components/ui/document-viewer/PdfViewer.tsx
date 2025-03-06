@@ -13,6 +13,7 @@ interface PdfViewerProps {
   handleDownload: () => void;
   handleDoubleClick: (e: React.MouseEvent) => void;
   toggleControls: () => void;
+  setSwipeEnabled: (enabled: boolean) => void;
 }
 
 const PdfViewer = ({
@@ -21,7 +22,8 @@ const PdfViewer = ({
   scale,
   handleDownload,
   handleDoubleClick,
-  toggleControls
+  toggleControls,
+  setSwipeEnabled
 }: PdfViewerProps) => {
   const {
     canvasRef,
@@ -35,7 +37,8 @@ const PdfViewer = ({
   } = usePdfViewer({
     url,
     scale,
-    initialPage: 1
+    initialPage: 1,
+    setSwipeEnabled
   });
 
   if (pdfLoading) {
@@ -54,6 +57,7 @@ const PdfViewer = ({
         handleDoubleClick={handleDoubleClick}
         toggleControls={toggleControls}
         scale={scale}
+        setSwipeEnabled={setSwipeEnabled}
       />
       
       <PdfPageNavigation 

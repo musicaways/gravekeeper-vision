@@ -8,6 +8,7 @@ interface ImageViewerProps {
   scale: number;
   toggleControls: () => void;
   handleDoubleClick: (e: React.MouseEvent) => void;
+  setSwipeEnabled: (enabled: boolean) => void;
 }
 
 const ImageViewer = ({
@@ -15,7 +16,8 @@ const ImageViewer = ({
   title,
   scale,
   toggleControls,
-  handleDoubleClick
+  handleDoubleClick,
+  setSwipeEnabled
 }: ImageViewerProps) => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -26,7 +28,11 @@ const ImageViewer = ({
     if (scale <= 1) {
       setPosition({ x: 0, y: 0 });
     }
-  }, [scale]);
+    
+    // Update swipe enabled state based on scale
+    setSwipeEnabled(scale <= 1);
+    console.log("ImageViewer: Updated swipe enabled state:", scale <= 1);
+  }, [scale, setSwipeEnabled]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (scale <= 1) return;
@@ -37,6 +43,8 @@ const ImageViewer = ({
       x: e.touches[0].clientX - position.x,
       y: e.touches[0].clientY - position.y
     });
+    
+    console.log("ImageViewer: Touch start, disabling swipe navigation");
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {

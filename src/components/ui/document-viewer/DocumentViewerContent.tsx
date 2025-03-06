@@ -49,23 +49,43 @@ const DocumentViewerContent = ({
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  const [swipeEnabled, setSwipeEnabled] = useState(true);
   
   // Reset swipe direction and touch points on file change
   useEffect(() => {
     setSwipeDirection(null);
     setTouchStart(0);
     setTouchEnd(0);
+    // Reset swipe enabled when file changes
+    setSwipeEnabled(true);
   }, [currentIndex]);
+
+  // Disable swipe navigation when scaled
+  useEffect(() => {
+    if (scale > 1) {
+      console.log("Disabling swipe navigation due to zoom level:", scale);
+      setSwipeEnabled(false);
+    } else {
+      console.log("Enabling swipe navigation at zoom level:", scale);
+      setSwipeEnabled(true);
+    }
+  }, [scale]);
 
   // Handle touch events for swipe navigation (when not zoomed in)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (scale > 1) return; // Don't capture swipes when zoomed in
-    console.log("Touch start event captured");
+    if (!swipeEnabled) {
+      console.log("Touch start ignored - swipe navigation disabled");
+      return;
+    }
+    
+    console.log("Touch start event captured for swipe navigation");
     setTouchStart(e.touches[0].clientX);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (scale > 1) return; // Don't capture swipes when zoomed in
+    if (!swipeEnabled) {
+      return;
+    }
     
     setTouchEnd(e.touches[0].clientX);
     
@@ -83,12 +103,15 @@ const DocumentViewerContent = ({
   };
 
   const handleTouchEnd = () => {
-    if (scale > 1) return; // Don't capture swipes when zoomed in
+    if (!swipeEnabled) {
+      console.log("Touch end ignored - swipe navigation disabled");
+      return;
+    }
     
     const swipeThreshold = 80; // Lower threshold for easier swipes
     const diff = touchStart - touchEnd;
     
-    console.log("Swipe end, diff:", diff, "threshold:", swipeThreshold);
+    console.log("Swipe end, diff:", diff, "threshold:", swipeThreshold, "swipe enabled:", swipeEnabled);
     
     if (diff > swipeThreshold && files.length > 1) {
       // Swiped left, go to next file
@@ -110,7 +133,7 @@ const DocumentViewerContent = ({
       <CloseButton onClose={onClose} />
       
       <div 
-        className={`relative w-full h-full flex items-center justify-center ${scale <= 1 ? 'touch-auto' : 'touch-none'}`}
+        className={`relative w-full h-full flex items-center justify-center ${swipeEnabled ? 'touch-auto' : 'touch-none'}`}
         onClick={toggleControls}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -160,6 +183,7 @@ const DocumentViewerContent = ({
             handleDownload={handleDownload}
             handleZoomIn={handleZoomIn}
             toggleControls={toggleControls}
+            setSwipeEnabled={setSwipeEnabled}
           />
         </div>
         
