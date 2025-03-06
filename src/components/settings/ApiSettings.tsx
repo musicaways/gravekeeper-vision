@@ -21,9 +21,12 @@ export function ApiSettings() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && googleMapsKey.trim()) {
+      console.log("Enter key pressed, saving API key...");
       handleSaveGoogleMapsKey();
     }
   };
+
+  console.log("ApiSettings rendering - hasExistingKey:", hasExistingKey, "loading:", loading, "testLoading:", testLoading);
 
   return (
     <Card>

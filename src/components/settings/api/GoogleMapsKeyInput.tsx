@@ -2,7 +2,7 @@
 import React, { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Save, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { Save, Eye, EyeOff, CheckCircle2, Loader2 } from "lucide-react";
 
 interface GoogleMapsKeyInputProps {
   googleMapsKey: string;
@@ -72,7 +72,7 @@ export function GoogleMapsKeyInput({
             className="h-8 w-8 p-0"
             aria-label="Testa API key"
           >
-            <CheckCircle2 className="h-4 w-4" />
+            {testLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             <span className="sr-only">Testa</span>
           </Button>
           <Button 
@@ -83,7 +83,7 @@ export function GoogleMapsKeyInput({
             className="h-8 w-8 p-0"
             aria-label="Salva API key"
           >
-            <Save className="h-4 w-4" />
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             <span className="sr-only">Salva</span>
           </Button>
         </div>
