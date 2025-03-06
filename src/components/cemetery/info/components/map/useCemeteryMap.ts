@@ -28,6 +28,9 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         if (!error && data?.googlemaps_key) {
           console.log("API key retrieved successfully");
           setApiKey(data.googlemaps_key);
+          
+          // Salva la chiave API in localStorage per essere utilizzata da useGoogleMapsApi hook
+          localStorage.setItem('googleMapsApiKey', data.googlemaps_key);
         } else {
           console.error("API key not found or error:", error);
           setApiKeyError(true);
@@ -45,11 +48,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
   useEffect(() => {
     const fetchCemeteryData = async () => {
       try {
-        if (!cemeteryId || !apiKey) {
-          if (!apiKey && !apiKeyError) {
-            // Still loading the API key, don't show error yet
-            return;
-          }
+        if (!cemeteryId) {
           setLoading(false);
           return;
         }
@@ -66,7 +65,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         console.log("Fetching cemetery data for ID:", numericId);
         const { data, error } = await supabase
           .from('Cimitero')
-          .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country, custom_map_marker_id')
+          .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country, custom_map_marker_id, Nome')
           .eq('Id', numericId)
           .single();
         
@@ -75,39 +74,43 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         console.log("Cemetery data retrieved:", data);
         setCemetery(data);
         
-        // Always use satellite view with embedded marker
-        if (data.Latitudine && data.Longitudine) {
-          const standardMapUrl = buildMapUrl(
-            apiKey, 
-            data.Latitudine, 
-            data.Longitudine, 
-            data.Indirizzo, 
-            data.city, 
-            data.postal_code, 
-            data.state, 
-            data.country
-          );
-          
-          console.log("Standard map URL with marker:", standardMapUrl);
-          setMapUrl(standardMapUrl);
-        } else if (data.Indirizzo) {
-          // Fallback to address if no coordinates
-          const addressMapUrl = buildMapUrl(
-            apiKey,
-            null,
-            null,
-            data.Indirizzo,
-            data.city,
-            data.postal_code,
-            data.state,
-            data.country
-          );
-          
-          console.log("Address-based map URL:", addressMapUrl);
-          setMapUrl(addressMapUrl);
-        } else {
-          // No location data available
-          setMapUrl(null);
+        // Generiamo l'URL della mappa solo se abbiamo la API key
+        // (per retrocompatibilità con la visualizzazione iframe)
+        if (apiKey) {
+          // Always use satellite view with embedded marker
+          if (data.Latitudine && data.Longitudine) {
+            const standardMapUrl = buildMapUrl(
+              apiKey, 
+              data.Latitudine, 
+              data.Longitudine, 
+              data.Indirizzo, 
+              data.city, 
+              data.postal_code, 
+              data.state, 
+              data.country
+            );
+            
+            console.log("Standard map URL with marker:", standardMapUrl);
+            setMapUrl(standardMapUrl);
+          } else if (data.Indirizzo) {
+            // Fallback to address if no coordinates
+            const addressMapUrl = buildMapUrl(
+              apiKey,
+              null,
+              null,
+              data.Indirizzo,
+              data.city,
+              data.postal_code,
+              data.state,
+              data.country
+            );
+            
+            console.log("Address-based map URL:", addressMapUrl);
+            setMapUrl(addressMapUrl);
+          } else {
+            // No location data available
+            setMapUrl(null);
+          }
         }
       } catch (err) {
         console.error("Errore nel caricamento dei dati del cimitero:", err);
@@ -117,7 +120,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
     };
 
     fetchCemeteryData();
-  }, [cemeteryId, apiKey, apiKeyError]);
+  }, [cemeteryId, apiKey]);
 
   // Simplified as we're no longer using custom maps with marker IDs
   const getCleanMarkerId = () => null;

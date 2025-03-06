@@ -5,6 +5,7 @@ import MapIframe from "./components/MapIframe";
 import MapErrorState from "./components/MapErrorState";
 import MapControls from "./components/MapControls";
 import { openExternalMap } from "./mapUtils";
+import JavaScriptMap from "./components/JavaScriptMap";
 
 interface MapDisplayProps {
   loading: boolean;
@@ -27,6 +28,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 }) => {
   const [forceRefresh, setForceRefresh] = useState(0);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [useJavaScriptAPI, setUseJavaScriptAPI] = useState(true);
 
   // Reset map error when mapUrl changes
   useEffect(() => {
@@ -39,7 +41,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   };
 
   const reloadMap = () => {
-    console.log("Reloading map iframe");
+    console.log("Reloading map");
     setForceRefresh(prev => prev + 1);
     toast.success("Mappa aggiornata");
   };
@@ -73,23 +75,40 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
-  if (!mapUrl) {
-    console.log("No map URL available");
+  if (!mapUrl && !cemetery?.Latitudine && !cemetery?.Longitudine) {
+    console.log("No map URL or coordinates available");
     return (
       <MapErrorState message="Posizione non disponibile per questo cimitero" />
     );
   }
 
-  console.log("Rendering map with URL:", mapUrl);
   return (
     <div className="space-y-2">
-      <MapIframe 
-        mapUrl={mapUrl} 
-        forceRefresh={forceRefresh} 
-      />
-      <MapControls 
-        onOpenInGoogleMaps={handleOpenMapInNewTab} 
-      />
+      {useJavaScriptAPI ? (
+        <JavaScriptMap 
+          cemetery={cemetery}
+          forceRefresh={forceRefresh}
+          onError={(error) => setMapError(error)}
+        />
+      ) : (
+        <MapIframe 
+          mapUrl={mapUrl || ''} 
+          forceRefresh={forceRefresh} 
+        />
+      )}
+      
+      <div className="flex justify-between">
+        <MapControls 
+          onOpenInGoogleMaps={handleOpenMapInNewTab} 
+        />
+        
+        <button 
+          onClick={() => setUseJavaScriptAPI(!useJavaScriptAPI)}
+          className="text-xs text-muted-foreground hover:text-primary transition-colors"
+        >
+          {useJavaScriptAPI ? "Passa a mappa iframe" : "Passa a mappa interattiva"}
+        </button>
+      </div>
     </div>
   );
 };
