@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Save } from "lucide-react";
@@ -11,7 +10,7 @@ import {
   LocationSection,
   ContactSection,
   FacilitiesSection
-} from './FormSections';
+} from './sections';
 
 interface CemeteryInfoEditFormProps {
   cemetery: any;
