@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { handleCustomMapView, buildMapUrl } from "./mapUtils";
+import { buildMapUrl } from "./mapUtils";
+import { toast } from "sonner";
 
 export const useCemeteryMap = (cemeteryId: string | number) => {
   const [loading, setLoading] = useState(true);
@@ -77,19 +78,29 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         // Handle map URL based on custom map setting
         if (useCustomMap) {
           console.log("Using custom map view, generating URL...");
-          const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}`;
           
-          // Add center parameter if coordinates are available
+          // For custom Google My Maps embed, we can only center the map on coordinates
+          // We can't add a marker dynamically as that requires editing the map in My Maps
           if (data.Latitudine && data.Longitudine) {
-            const urlWithCoords = `${customEmbedUrl}&ll=${data.Latitudine},${data.Longitudine}&z=16`;
-            console.log("Custom map URL with coordinates:", urlWithCoords);
-            setMapUrl(urlWithCoords);
+            // Center the map on cemetery coordinates
+            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ll=${data.Latitudine},${data.Longitudine}&z=16`;
+            console.log("Custom map URL with coordinates:", customEmbedUrl);
+            setMapUrl(customEmbedUrl);
+            
+            // Show toast message to explain the marker situation
+            toast.info(
+              "La mappa personalizzata è centrata sulla posizione del cimitero, ma i markers devono essere aggiunti manualmente in Google My Maps",
+              { duration: 5000 }
+            );
           } else {
+            // No coordinates available
+            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}`;
             console.log("Custom map URL without coordinates:", customEmbedUrl);
             setMapUrl(customEmbedUrl);
           }
         } else if (data.Latitudine || data.Indirizzo) {
           console.log("Using standard map view, generating URL...");
+          // Standard Google Maps view with marker
           const standardMapUrl = buildMapUrl(
             apiKey, 
             data.Latitudine, 

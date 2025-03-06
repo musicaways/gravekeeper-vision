@@ -12,6 +12,7 @@ export const buildMapUrl = (
   country?: string
 ): string => {
   if (latitude && longitude) {
+    // When using coordinates, Google Maps adds a marker at the specified location
     return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=16&maptype=satellite`;
   } 
   
@@ -40,15 +41,22 @@ export const openExternalMap = (
   console.log("Opening external map:", useCustomMap ? "custom" : "standard");
   
   if (useCustomMap) {
+    // For custom maps - we open the viewer which might have markers added manually
     let url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
     if (cemetery.Latitudine && cemetery.Longitudine) {
       url += `&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;
+      console.log("Opening custom map URL with coordinates:", url);
+    } else {
+      console.log("Opening custom map URL without coordinates:", url);
     }
-    console.log("Opening custom map URL:", url);
     window.open(url, '_blank');
+    
+    // Inform user about custom maps limitations
+    toast.info("I marker nella mappa personalizzata devono essere aggiunti manualmente nell'editor di Google My Maps");
     return;
   }
   
+  // For standard maps - we use the standard Google Maps with automatic markers
   let url = "";
   if (cemetery.Latitudine && cemetery.Longitudine) {
     url = `https://www.google.com/maps/search/?api=1&query=${cemetery.Latitudine},${cemetery.Longitudine}&t=k`;

@@ -4,6 +4,7 @@ import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MapDisplay from "./map/MapDisplay";
 import { useCemeteryMap } from "./map/useCemeteryMap";
+import { toast } from "sonner";
 
 interface CemeteryMapSectionProps {
   cemeteryId: string | number;
@@ -33,6 +34,15 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
   
   const toggleMapType = () => {
     console.log(`Switching map view from ${useCustomMap ? 'custom' : 'standard'} to ${!useCustomMap ? 'custom' : 'standard'}`);
+    
+    if (!useCustomMap) {
+      // Switching to custom map - inform user about custom maps
+      toast.info(
+        "La mappa personalizzata mostra la vista dell'area, ma i marker devono essere aggiunti manualmente",
+        { duration: 4000 }
+      );
+    }
+    
     setUseCustomMap(!useCustomMap);
   };
 

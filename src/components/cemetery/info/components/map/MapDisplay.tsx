@@ -117,9 +117,17 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
           >
             <polygon points="3 11 22 2 13 21 11 13 3 11" />
           </svg>
-          Apri in Google Maps
+          {useCustomMap ? "Apri mappa personalizzata" : "Apri in Google Maps"}
         </Button>
       </div>
+      
+      {useCustomMap && cemetery?.Latitudine && cemetery?.Longitudine && (
+        <div className="mt-2 bg-muted/30 p-3 rounded-md text-sm">
+          <p className="text-muted-foreground">
+            <strong>Nota:</strong> La mappa personalizzata è centrata sul cimitero, ma i marker devono essere aggiunti manualmente nell'editor di Google My Maps.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
