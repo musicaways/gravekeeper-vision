@@ -67,15 +67,15 @@ export const usePdfRenderer = ({
         const currentTime = Date.now();
         
         // Force render on first load or on scale/page change or when explicitly requested
-        // Also force if it's been more than 10 seconds since last render and initial render is not complete
+        // Also force if it's been more than 5 seconds since last render and initial render is not complete
         const timeSinceLastRender = currentTime - lastRenderTimestamp.current;
-        const timeoutRender = !initialRenderComplete && timeSinceLastRender > 10000;
+        const timeoutRender = !initialRenderComplete && timeSinceLastRender > 5000;
         
         const shouldForceRender = 
           forceRender.current || // Force render flag is set
           !initialRenderComplete || // Always force render on first load
           currentPage !== lastPageRef.current || 
-          scale !== lastScaleRef.current ||
+          Math.abs(scale - lastScaleRef.current) > 0.01 || // Force render on scale change (with small tolerance)
           timeoutRender;
         
         console.log(`PDF render check: Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}, initialRender: ${initialRenderComplete}, forceRender: ${forceRender.current}, timeoutRender: ${timeoutRender}, timeSinceLastRender: ${timeSinceLastRender}ms`);
@@ -99,6 +99,9 @@ export const usePdfRenderer = ({
         const viewport = page.getViewport({ scale });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
+        
+        // Cancella il canvas prima di renderizzare per evitare artefatti
+        context.clearRect(0, 0, canvas.width, canvas.height);
         
         // Render the page
         const renderContext = {
@@ -162,7 +165,7 @@ export const usePdfRenderer = ({
           forceRender.current = true;
           renderPage();
         }
-      }, 3000) : null;
+      }, 2000) : null; // Riduciamo a 2 secondi per essere più reattivi
     
     // Cleanup
     return () => {

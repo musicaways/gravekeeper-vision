@@ -26,7 +26,6 @@ const PdfCanvas = ({
   const touchTimeout = useRef<NodeJS.Timeout | null>(null);
   const previousScale = useRef(scale);
   const renderTimestamp = useRef(Date.now());
-  const debuggingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Force re-render and reset position when scale changes
   useEffect(() => {
@@ -58,29 +57,7 @@ const PdfCanvas = ({
     };
   }, [scale, canvasRef, setSwipeEnabled]);
 
-  // Debug canvas state periodically
-  useEffect(() => {
-    if (debuggingIntervalRef.current) {
-      clearInterval(debuggingIntervalRef.current);
-    }
-    
-    debuggingIntervalRef.current = setInterval(() => {
-      if (canvasRef.current) {
-        const canvasWidth = canvasRef.current.width;
-        const canvasHeight = canvasRef.current.height;
-        const hasContent = canvasWidth > 0 && canvasHeight > 0;
-        console.log(`Canvas debug: width=${canvasWidth}, height=${canvasHeight}, hasContent=${hasContent}, scale=${scale}, initialRenderComplete=${initialRenderComplete}`);
-      }
-    }, 5000); // Check every 5 seconds
-    
-    return () => {
-      if (debuggingIntervalRef.current) {
-        clearInterval(debuggingIntervalRef.current);
-      }
-    };
-  }, [canvasRef, scale, initialRenderComplete]);
-
-  // Creating a memoized touch handlers to prevent unnecessary re-renders
+  // Creating memoized touch handlers to prevent unnecessary re-renders
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (scale <= 1) return;
     
@@ -111,6 +88,7 @@ const PdfCanvas = ({
     const newY = e.touches[0].clientY - dragStart.y;
     
     // Add bounds to prevent dragging too far
+    // Calcolo adeguato dei limiti in base alle dimensioni del canvas e al livello di zoom
     const maxDragX = Math.max(0, (scale - 1) * (canvasRef.current?.width || 0) / 2);
     const maxDragY = Math.max(0, (scale - 1) * (canvasRef.current?.height || 0) / 2);
     
@@ -141,6 +119,68 @@ const PdfCanvas = ({
     }, 300);
   }, [isDragging, scale, setSwipeEnabled]);
 
+  // Aggiungiamo supporto anche per il mouse
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (scale <= 1) return;
+    
+    e.stopPropagation();
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+    // Disable swipe when mouse dragging in zoom mode
+    setSwipeEnabled(false);
+    console.log("PdfCanvas: Mouse down for panning, disabling swipe navigation");
+  }, [scale, position, setSwipeEnabled]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || scale <= 1) return;
+    
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    // Add bounds to prevent dragging too far
+    const maxDragX = Math.max(0, (scale - 1) * (canvasRef.current?.width || 0) / 2);
+    const maxDragY = Math.max(0, (scale - 1) * (canvasRef.current?.height || 0) / 2);
+    
+    const boundedX = Math.min(Math.max(newX, -maxDragX), maxDragX);
+    const boundedY = Math.min(Math.max(newY, -maxDragY), maxDragY);
+    
+    setPosition({ x: boundedX, y: boundedY });
+  }, [isDragging, scale, dragStart, canvasRef]);
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    
+    setIsDragging(false);
+    
+    // Re-enable swipe with a small delay if scale is 1 or less
+    setTimeout(() => {
+      if (scale <= 1) {
+        setSwipeEnabled(true);
+        console.log("PdfCanvas: Re-enabling swipe navigation after mouse panning");
+      }
+    }, 300);
+  }, [isDragging, scale, setSwipeEnabled]);
+
+  // Add global mouse event handlers when dragging
+  useEffect(() => {
+    if (isDragging && scale > 1) {
+      document.addEventListener('mousemove', handleMouseMove as unknown as EventListener);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove as unknown as EventListener);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, scale, handleMouseMove, handleMouseUp]);
+
   return (
     <div 
       className="flex-1 overflow-auto w-full flex items-center justify-center cursor-zoom-in"
@@ -157,6 +197,7 @@ const PdfCanvas = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
       >
         <canvas 
           ref={canvasRef} 
@@ -164,7 +205,9 @@ const PdfCanvas = ({
           style={{ 
             opacity: initialRenderComplete ? 1 : 0.5, // Increased opacity for better visibility
             transition: 'opacity 0.3s ease',
-            border: !initialRenderComplete ? '1px dashed rgba(0,0,0,0.2)' : 'none' // Visual indicator while loading
+            border: !initialRenderComplete ? '1px dashed rgba(0,0,0,0.2)' : 'none', // Visual indicator while loading
+            transform: `scale(${scale})`, // Applicare lo scale anche visivamente al canvas
+            transformOrigin: 'center',
           }}
           data-scale={scale}
           data-render-timestamp={renderTimestamp.current}

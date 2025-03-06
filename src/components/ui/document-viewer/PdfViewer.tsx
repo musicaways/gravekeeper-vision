@@ -28,6 +28,7 @@ const PdfViewer = ({
   const mountedRef = useRef(false);
   const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const renderAttemptsRef = useRef(0);
+  const maxRenderAttemptsRef = useRef(5); // Aumentiamo il numero di tentativi
   
   const {
     canvasRef,
@@ -57,6 +58,9 @@ const PdfViewer = ({
       clearTimeout(renderTimeoutRef.current);
     }
     
+    // Logghiamo lo stato iniziale
+    console.log("PdfViewer: Initial state - initialRenderComplete:", initialRenderComplete);
+    
     // Series of render attempts with increasing delays
     const scheduleRenderAttempt = (delay: number) => {
       renderTimeoutRef.current = setTimeout(() => {
@@ -67,14 +71,16 @@ const PdfViewer = ({
           forceRerender();
           
           // If PDF still hasn't rendered, try reloading it
-          if (renderAttemptsRef.current >= 3) {
+          if (renderAttemptsRef.current >= 3 && renderAttemptsRef.current < maxRenderAttemptsRef.current) {
             console.log("PDF not rendered after multiple attempts, reloading PDF");
             reloadPdf();
           }
           
-          // Schedule next attempt with increasing delay if needed (up to 5 attempts)
-          if (renderAttemptsRef.current < 5) {
-            scheduleRenderAttempt(delay * 1.5); // Increase delay for next attempt
+          // Schedule next attempt with increasing delay if needed
+          if (renderAttemptsRef.current < maxRenderAttemptsRef.current) {
+            scheduleRenderAttempt(Math.min(delay * 1.5, 2000)); // Increase delay for next attempt, max 2000ms
+          } else {
+            console.log(`Maximum render attempts (${maxRenderAttemptsRef.current}) reached`);
           }
         }
       }, delay);
@@ -90,6 +96,15 @@ const PdfViewer = ({
       }
     };
   }, [url, scale, initialRenderComplete, reloadPdf, forceRerender]);
+
+  // Reagiamo anche ai cambiamenti di scala
+  useEffect(() => {
+    console.log("PdfViewer: Scale changed to:", scale);
+    // Forziamo un re-render quando cambia lo scale
+    if (mountedRef.current && !pdfLoading && scale > 0) {
+      forceRerender();
+    }
+  }, [scale, forceRerender, pdfLoading]);
 
   if (pdfLoading) {
     return <PdfLoading />;
