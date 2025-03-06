@@ -40,10 +40,11 @@ const FilePreview = ({
   }
 
   const fileViewerType = getFileLoaderComponent(fileType);
+  console.log("File viewer type:", fileViewerType, "for file type:", fileType);
 
   if (fileViewerType === 'pdf') {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center relative bg-black/10">
+      <div className="w-full h-full flex flex-col items-center justify-center relative">
         <PdfViewer
           url={currentFile.url}
           title={title}

@@ -26,7 +26,7 @@ const PdfViewer = ({
   toggleControls
 }: PdfViewerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(true);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -44,13 +44,12 @@ const PdfViewer = ({
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport
-    };
-
     try {
-      await page.render(renderContext).promise;
+      await page.render({
+        canvasContext: context,
+        viewport: viewport
+      }).promise;
+      console.log("Page rendered successfully");
     } catch (error) {
       console.error("Error rendering PDF page:", error);
       setPdfError("Errore nel rendering della pagina PDF");
@@ -84,8 +83,9 @@ const PdfViewer = ({
     if (!pdfDocRef.current) return;
     
     try {
+      console.log(`Loading page ${pageNum}`);
       const page = await pdfDocRef.current.getPage(pageNum);
-      renderPage(page);
+      await renderPage(page);
     } catch (error) {
       console.error("Error loading PDF page:", error);
       setPdfError("Impossibile caricare la pagina del PDF");
@@ -94,9 +94,8 @@ const PdfViewer = ({
 
   // Load PDF document
   useEffect(() => {
-    if (!url || !canvasRef.current) return;
+    if (!url) return;
 
-    // Function to load PDF
     const loadPdf = async () => {
       console.log("Loading PDF:", url);
       try {
@@ -117,12 +116,12 @@ const PdfViewer = ({
         setTotalPages(pdf.numPages);
         
         // Get the first page
-        const page = await pdf.getPage(currentPage);
+        const page = await pdf.getPage(1);
         await renderPage(page);
+        setPdfLoading(false);
       } catch (error) {
         console.error("Error loading PDF:", error);
         setPdfError("Impossibile caricare il PDF. Prova a scaricarlo.");
-      } finally {
         setPdfLoading(false);
       }
     };
@@ -154,7 +153,7 @@ const PdfViewer = ({
     };
 
     updatePdfScale();
-  }, [scale]);
+  }, [scale, currentPage]);
 
   if (pdfLoading) {
     return (

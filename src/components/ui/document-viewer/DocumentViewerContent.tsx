@@ -46,6 +46,7 @@ const DocumentViewerContent = ({
   handleDownload
 }: DocumentViewerContentProps) => {
   const { title, description, dateInfo, fileType } = fileDetails;
+  console.log("Rendering document viewer content with file type:", fileType);
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden touch-none">
