@@ -1,6 +1,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Info } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LightboxInfoBarProps {
@@ -37,8 +37,8 @@ const LightboxInfoBar = ({
             )}
             {dateInfo && (
               <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-2">
-                <Info className="h-4 w-4" />
-                {dateInfo}
+                <Calendar className="h-4 w-4" />
+                <span>Data: {dateInfo}</span>
               </p>
             )}
           </div>

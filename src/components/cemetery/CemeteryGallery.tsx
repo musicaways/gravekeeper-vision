@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { formatDate } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,27 +66,13 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
     fetchPhotos();
   }, [cemeteryId]);
 
-  const lightboxImages: LightboxImage[] = photos.map(photo => {
-    // Create a more complete description that includes both the text and date
-    let fullDescription = photo.Descrizione || "";
-    
-    // Add date information to the description
-    if (photo.DataInserimento) {
-      const formattedDate = formatDate(photo.DataInserimento, "long");
-      if (fullDescription) {
-        fullDescription = `${fullDescription}\nDate: ${formattedDate}`;
-      } else {
-        fullDescription = `Date: ${formattedDate}`;
-      }
-    }
-    
-    return {
-      id: photo.Id,
-      url: photo.Url,
-      title: photo.NomeFile || "",
-      description: fullDescription
-    };
-  });
+  const lightboxImages: LightboxImage[] = photos.map(photo => ({
+    id: photo.Id,
+    url: photo.Url,
+    title: photo.NomeFile || "",
+    description: photo.Descrizione || "",
+    date: photo.DataInserimento || ""
+  }));
 
   const openLightbox = (index: number) => {
     setSelectedPhotoIndex(index);
@@ -101,7 +85,6 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
 
   const handleDeletePhoto = async (photoId: string) => {
     try {
-      // First delete the record from the CimiteroFoto table
       const { error } = await supabase
         .from('CimiteroFoto')
         .delete()
@@ -109,7 +92,6 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
       
       if (error) throw error;
       
-      // If successful, refresh the photos
       await fetchPhotos();
       
       return Promise.resolve();

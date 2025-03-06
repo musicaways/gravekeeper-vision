@@ -1,5 +1,7 @@
 
 import { LightboxImage } from "../types";
+import { format, parseISO } from "date-fns";
+import { it } from "date-fns/locale";
 
 export const parseImageDetails = (currentImage: LightboxImage | undefined) => {
   if (!currentImage) {
@@ -23,7 +25,14 @@ export const parseImageDetails = (currentImage: LightboxImage | undefined) => {
   
   // If we have date directly from the image object, use that instead
   if (currentImage.date) {
-    dateInfo = currentImage.date;
+    try {
+      // Try to parse the date and format it in Italian
+      const parsedDate = parseISO(currentImage.date);
+      dateInfo = format(parsedDate, "d MMMM yyyy", { locale: it });
+    } catch (error) {
+      // If parsing fails, use the original date string
+      dateInfo = currentImage.date;
+    }
   }
   
   return { title, description, dateInfo };
