@@ -6,6 +6,7 @@ import { useCustomMapMarker } from "./hooks/useCustomMapMarker";
 import InstructionsPanel from "./components/InstructionsPanel";
 import MapContainer from "./components/MapContainer";
 import DialogFooter from "./components/DialogFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CustomMapMarkerDialogProps {
   open: boolean;
@@ -27,6 +28,7 @@ const CustomMapMarkerDialog = ({
   initialMarkerId,
   cemeteryCoordinates
 }: CustomMapMarkerDialogProps) => {
+  const isMobile = useIsMobile();
   const {
     mapLoaded,
     showInstructions,
@@ -58,20 +60,21 @@ const CustomMapMarkerDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 gap-0">
-        <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
-            <Map className="h-5 w-5" />
-            Seleziona marker dalla mappa personalizzata
+      <DialogContent className={`${isMobile ? 'max-w-full w-full h-[95vh] p-0 rounded-t-xl m-0 bottom-0 top-auto translate-y-0 translate-x-[-50%]' : 'max-w-4xl h-[80vh]'} flex flex-col p-0 gap-0`}>
+        <DialogHeader className="px-4 py-3 border-b">
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Map className="h-4 w-4" />
+            Seleziona marker dalla mappa
           </DialogTitle>
-          <DialogDescription>
-            Clicca su un marker nella mappa, copia l'ID dalla barra degli indirizzi o inseriscilo manualmente
+          <DialogDescription className="text-xs">
+            Clicca su un marker nella mappa o inseriscilo manualmente
           </DialogDescription>
         </DialogHeader>
         
         <InstructionsPanel 
           showInstructions={showInstructions} 
           onHideInstructions={() => setShowInstructions(false)} 
+          isMobile={isMobile}
         />
         
         <MapContainer 
@@ -83,12 +86,14 @@ const CustomMapMarkerDialog = ({
           onIframeError={handleIframeError}
           onManualInput={handleManualInput}
           onUrlInput={handleUrlInput}
+          isMobile={isMobile}
         />
         
         <DialogFooter 
           selectedMarkerId={selectedMarkerId}
           onCancel={onClose}
           onConfirm={handleConfirm}
+          isMobile={isMobile}
         />
       </DialogContent>
     </Dialog>

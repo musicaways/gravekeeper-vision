@@ -13,6 +13,7 @@ interface MapContainerProps {
   onIframeError: () => void;
   onManualInput: () => void;
   onUrlInput?: () => void;
+  isMobile?: boolean;
 }
 
 const MapContainer = ({
@@ -23,12 +24,13 @@ const MapContainer = ({
   onIframeLoad,
   onIframeError,
   onManualInput,
-  onUrlInput
+  onUrlInput,
+  isMobile = false
 }: MapContainerProps) => {
   return (
     <div className="flex-1 relative min-h-0">
       {mapError && (
-        <Alert variant="destructive" className="m-4">
+        <Alert variant="destructive" className="m-3">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             {mapError}
@@ -74,11 +76,11 @@ const MapContainer = ({
             onError={onIframeError}
             className="absolute inset-0"
           />
-          <div className="absolute bottom-4 right-4 flex gap-2">
+          <div className={`absolute ${isMobile ? 'bottom-2 right-2 left-2 justify-center' : 'bottom-4 right-4'} flex gap-2`}>
             <Button
               variant="secondary"
               size="sm"
-              className="bg-white/90 text-black shadow-md hover:bg-white"
+              className={`bg-white/90 text-black shadow-md hover:bg-white ${isMobile ? 'flex-1 text-xs h-8 py-0' : ''}`}
               onClick={onManualInput}
             >
               <Copy className="h-3.5 w-3.5 mr-1" />
@@ -88,7 +90,7 @@ const MapContainer = ({
               <Button
                 variant="secondary"
                 size="sm"
-                className="bg-white/90 text-black shadow-md hover:bg-white"
+                className={`bg-white/90 text-black shadow-md hover:bg-white ${isMobile ? 'flex-1 text-xs h-8 py-0' : ''}`}
                 onClick={onUrlInput}
               >
                 <Link className="h-3.5 w-3.5 mr-1" />

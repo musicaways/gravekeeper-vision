@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Control, useWatch } from "react-hook-form";
 import CustomMapMarkerDialog from "./CustomMapMarkerDialog";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MarkerIdFieldProps {
   control: Control<any>;
@@ -16,6 +17,7 @@ interface MarkerIdFieldProps {
 const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [customMapId, setCustomMapId] = useState<string>("");
+  const isMobile = useIsMobile();
   
   // Utilizza useWatch per ottenere le coordinate del cimitero dal form
   const latitude = useWatch({
@@ -50,28 +52,27 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel className="flex items-center gap-1">
-            ID marker sulla mappa personalizzata
+            ID marker sulla mappa
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-80 p-3">
-                  <p>Inserisci l'ID del marker nella mappa personalizzata o selezionalo direttamente dalla mappa.</p>
+                  <p>Inserisci l'ID del marker nella mappa personalizzata o selezionalo direttamente.</p>
                   <p className="mt-1">Come trovare l'ID del marker:</p>
                   <ol className="list-decimal pl-4 mt-1 space-y-1 text-xs">
                     <li>Apri la mappa in Google My Maps</li>
                     <li>Fai clic sul marker che vuoi associare</li>
-                    <li>Nella finestra popup, fai clic sull'icona di condivisione</li>
-                    <li>Copia l'URL e cerca il parametro 'msid=' seguito da un ID numerico</li>
+                    <li>Cerca il parametro 'msid=' nell'URL seguito da un ID</li>
                   </ol>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </FormLabel>
-          <div className="flex gap-2">
+          <div className={isMobile ? "flex flex-col gap-2" : "flex gap-2"}>
             <FormControl>
-              <Input {...field} placeholder="Es. 1Kd5EpcPnLnGAcBfZJl1u3cMyRplZqoWI" />
+              <Input {...field} placeholder="ID del marker dalla mappa personalizzata" />
             </FormControl>
             <Button 
               type="button" 
@@ -84,10 +85,10 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
                 setDialogOpen(true);
               }}
               title="Seleziona dalla mappa"
-              className="shrink-0"
+              className={isMobile ? "w-full justify-center" : "shrink-0"}
             >
               <Map className="h-4 w-4 mr-2" />
-              Seleziona
+              Seleziona dalla mappa
             </Button>
           </div>
           <FormDescription>
