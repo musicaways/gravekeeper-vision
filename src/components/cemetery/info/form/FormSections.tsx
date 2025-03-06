@@ -1,4 +1,3 @@
-
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Control } from "react-hook-form";
+import MarkerIdField from "./marker-selector/MarkerIdField";
 
 // Description Section
 export const DescriptionSection = ({ control }: { control: Control<any> }) => (
@@ -169,40 +169,7 @@ export const LocationSection = ({
       />
     </div>
 
-    <FormField
-      control={control}
-      name="custom_map_marker_id"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="flex items-center gap-1">
-            ID marker sulla mappa personalizzata
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-80 p-3">
-                  <p>Inserisci l'ID del marker nella mappa personalizzata di Google My Maps.</p>
-                  <p className="mt-1">Come trovare l'ID del marker:</p>
-                  <ol className="list-decimal pl-4 mt-1 space-y-1 text-xs">
-                    <li>Apri la mappa in Google My Maps</li>
-                    <li>Fai clic sul marker che vuoi associare</li>
-                    <li>Nella finestra popup, fai clic sull'icona di condivisione</li>
-                    <li>Copia l'URL e cerca il parametro 'msid=' seguito da un ID numerico</li>
-                  </ol>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </FormLabel>
-          <FormControl>
-            <Input {...field} placeholder="Es. 1Kd5EpcPnLnGAcBfZJl1u3cMyRplZqoWI" />
-          </FormControl>
-          <FormDescription>
-            Associa questo cimitero a un marker esistente nella mappa personalizzata
-          </FormDescription>
-        </FormItem>
-      )}
-    />
+    <MarkerIdField control={control} />
 
     <FormField
       control={control}
