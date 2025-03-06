@@ -1,14 +1,17 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { formatDate } from "@/lib/utils";
 
 interface Photo {
   Id: string;
   Url: string;
   NomeFile?: string;
   Descrizione?: string;
+  DataInserimento?: string;
 }
 
 export interface CemeteryGalleryProps {
@@ -61,12 +64,22 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
     fetchPhotos();
   }, [cemeteryId]);
 
-  const lightboxImages: LightboxImage[] = photos.map(photo => ({
-    id: photo.Id,
-    url: photo.Url,
-    title: photo.Descrizione,
-    description: photo.NomeFile
-  }));
+  const lightboxImages: LightboxImage[] = photos.map(photo => {
+    let description = photo.Descrizione || "";
+    
+    // Add date information to the description
+    if (photo.DataInserimento) {
+      const formattedDate = formatDate(photo.DataInserimento, "long");
+      description = description ? `${description}\nDate: ${formattedDate}` : `Date: ${formattedDate}`;
+    }
+    
+    return {
+      id: photo.Id,
+      url: photo.Url,
+      title: photo.NomeFile || "",
+      description: description
+    };
+  });
 
   const openLightbox = (index: number) => {
     setSelectedPhotoIndex(index);
@@ -124,7 +137,6 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
         ))}
       </div>
 
-      {/* Passing the correct initialIndex to ensure the lightbox shows the selected image */}
       <ImageLightbox 
         images={lightboxImages}
         open={lightboxOpen}
