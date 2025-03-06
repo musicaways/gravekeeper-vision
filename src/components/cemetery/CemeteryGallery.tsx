@@ -44,7 +44,8 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
         const { data, error } = await supabase
           .from('CimiteroFoto')
           .select('*')
-          .eq('IdCimitero', numericId);
+          .eq('IdCimitero', numericId)
+          .order('DataInserimento', { ascending: false }); // Most recent photos first
           
         if (error) {
           console.error("Errore nel caricamento delle foto:", error);

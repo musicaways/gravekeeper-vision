@@ -78,12 +78,10 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
             </Button>
           </div>
           
-          {(currentImage.title || currentImage.description) && (
+          {(currentImage.title) && (
             <div className="p-4 bg-background">
-              {currentImage.title && <p className="text-lg font-medium">{currentImage.title}</p>}
-              {currentImage.description && (
-                <p className="text-sm text-muted-foreground">{currentImage.description}</p>
-              )}
+              <p className="text-lg font-medium">Nota</p>
+              <p className="text-base">{currentImage.title}</p>
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import CemeteryGallery from "../../CemeteryGallery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Camera } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -168,14 +168,6 @@ const CemeteryPhotosTabContent: React.FC<CemeteryPhotosTabContentProps> = ({ cem
     <div className="w-full space-y-4">
       <div className="flex justify-between items-center px-1">
         <h2 className="text-lg font-medium">Foto del cimitero</h2>
-        <Button 
-          onClick={() => setUploadDialogOpen(true)}
-          size="sm"
-          className="flex items-center gap-1"
-        >
-          <Upload className="h-4 w-4" />
-          <span>Carica foto</span>
-        </Button>
       </div>
       
       <Card>
@@ -189,6 +181,15 @@ const CemeteryPhotosTabContent: React.FC<CemeteryPhotosTabContentProps> = ({ cem
           />
         </CardContent>
       </Card>
+
+      {/* Floating Upload Button */}
+      <Button 
+        onClick={() => setUploadDialogOpen(true)}
+        size="icon"
+        className="fixed left-6 bottom-6 w-14 h-14 rounded-full shadow-lg"
+      >
+        <Camera className="h-6 w-6" />
+      </Button>
 
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -207,7 +208,7 @@ const CemeteryPhotosTabContent: React.FC<CemeteryPhotosTabContentProps> = ({ cem
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="description">Descrizione (opzionale)</Label>
+              <Label htmlFor="description">Descrizione (nota per questa foto)</Label>
               <Textarea 
                 id="description" 
                 placeholder="Inserisci una descrizione o una nota per questa foto"
