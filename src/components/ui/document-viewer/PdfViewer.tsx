@@ -31,6 +31,12 @@ const PdfViewer = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
+  const currentScaleRef = useRef<number>(scale);
+  
+  useEffect(() => {
+    // Update the ref when scale changes
+    currentScaleRef.current = scale;
+  }, [scale]);
   
   // Function to render PDF page
   const renderPage = async (page: PDFPageProxy) => {
@@ -40,7 +46,8 @@ const PdfViewer = ({
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    const viewport = page.getViewport({ scale: scale * 1.5 });
+    // Use currentScaleRef to ensure we're using the latest scale value
+    const viewport = page.getViewport({ scale: currentScaleRef.current * 1.5 });
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
@@ -49,7 +56,7 @@ const PdfViewer = ({
         canvasContext: context,
         viewport: viewport
       }).promise;
-      console.log("Page rendered successfully");
+      console.log("Page rendered successfully with scale:", currentScaleRef.current);
     } catch (error) {
       console.error("Error rendering PDF page:", error);
       setPdfError("Errore nel rendering della pagina PDF");
@@ -83,7 +90,7 @@ const PdfViewer = ({
     if (!pdfDocRef.current) return;
     
     try {
-      console.log(`Loading page ${pageNum}`);
+      console.log(`Loading page ${pageNum} with scale ${currentScaleRef.current}`);
       const page = await pdfDocRef.current.getPage(pageNum);
       await renderPage(page);
     } catch (error) {
@@ -142,10 +149,11 @@ const PdfViewer = ({
   // Update rendering when scale changes
   useEffect(() => {
     const updatePdfScale = async () => {
+      console.log("Scale changed to:", scale);
       if (pdfDocRef.current && canvasRef.current) {
         try {
           const page = await pdfDocRef.current.getPage(currentPage);
-          renderPage(page);
+          await renderPage(page);
         } catch (error) {
           console.error("Error updating PDF scale:", error);
         }

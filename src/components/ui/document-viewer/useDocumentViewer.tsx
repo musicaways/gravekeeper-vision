@@ -43,6 +43,7 @@ export const useDocumentViewer = ({
 
   const handleZoomIn = () => {
     setScale((prev) => {
+      console.log("Zooming in from:", prev);
       // Se lo zoom è al massimo, ritorna a 1
       if (prev >= 3) return 1;
       return Math.min(prev + 0.5, 3);
@@ -51,6 +52,7 @@ export const useDocumentViewer = ({
 
   const handleZoomOut = () => {
     setScale((prev) => {
+      console.log("Zooming out from:", prev);
       // Se lo zoom è al minimo, ritorna a 1
       if (prev <= 1) return 1;
       return Math.max(prev - 0.5, 1);
