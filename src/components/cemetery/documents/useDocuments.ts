@@ -4,12 +4,12 @@ import { useDocumentFetch } from "./hooks/useDocumentFetch";
 import { useDocumentDownload } from "./hooks/useDocumentDownload";
 import { useDocumentDelete } from "./hooks/useDocumentDelete";
 import { useDocumentUpload } from "./hooks/useDocumentUpload";
-import { Document } from "./types"; 
+import { DocumentItemType } from "./types"; 
 
 export const useDocuments = (cemeteryId: string) => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedDocIndex, setSelectedDocIndex] = useState(0);
-  const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
+  const [documentToDelete, setDocumentToDelete] = useState<DocumentItemType | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   // Fetch documents
@@ -37,13 +37,13 @@ export const useDocuments = (cemeteryId: string) => {
   } = useDocumentUpload(cemeteryId, refetch);
   
   // Open the document delete confirmation dialog
-  const openDeleteDialog = (document: Document) => {
+  const openDeleteDialog = (document: DocumentItemType) => {
     setDocumentToDelete(document);
     setIsDeleteDialogOpen(true);
   };
   
   // Handle document click to open the viewer
-  const handleDocumentClick = (document: Document) => {
+  const handleDocumentClick = (document: DocumentItemType) => {
     const index = documents.findIndex(doc => doc.id === document.id);
     if (index !== -1) {
       setSelectedDocIndex(index);

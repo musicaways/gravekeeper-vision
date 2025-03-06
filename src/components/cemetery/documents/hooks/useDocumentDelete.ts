@@ -4,7 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentItemType } from "../types";
 
-export const useDocumentDelete = (onSuccess: () => void) => {
+interface UseDocumentDeleteOptions {
+  cemeteryId: string;
+  onSuccess: () => void;
+}
+
+export const useDocumentDelete = ({ cemeteryId, onSuccess }: UseDocumentDeleteOptions) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<DocumentItemType | null>(null);
   const { toast } = useToast();

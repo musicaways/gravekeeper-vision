@@ -9,6 +9,8 @@ export interface DocumentItemType {
   url: string;
 }
 
+export type Document = DocumentItemType;
+
 export interface FileUploadFormValues {
   filename: string;
   description: string;

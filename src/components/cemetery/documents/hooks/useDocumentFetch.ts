@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentItemType } from "../types";
@@ -9,7 +9,7 @@ export const useDocumentFetch = (cemeteryId: string) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -75,11 +75,11 @@ export const useDocumentFetch = (cemeteryId: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cemeteryId, toast]);
 
   useEffect(() => {
     fetchDocuments();
-  }, [cemeteryId]);
+  }, [fetchDocuments]);
 
-  return { documents, loading, fetchDocuments };
+  return { documents, loading, refetch: fetchDocuments };
 };
