@@ -7,21 +7,21 @@ export const useDocumentDownload = () => {
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownload = async (document: DocumentItemType) => {
+  const handleDownload = async (documentItem: DocumentItemType) => {
     try {
       setIsDownloading(true);
       
       // For PDFs and some document types, just opening might be better
-      if (document.type?.toLowerCase() === 'pdf') {
-        window.open(document.url, '_blank');
+      if (documentItem.type?.toLowerCase() === 'pdf') {
+        window.open(documentItem.url, '_blank');
         
         toast({
           title: "PDF aperto",
-          description: `Il file "${document.name}" si aprirà in una nuova scheda.`,
+          description: `Il file "${documentItem.name}" si aprirà in una nuova scheda.`,
         });
       } else {
         // For other files, use the fetch and download approach
-        const response = await fetch(document.url);
+        const response = await fetch(documentItem.url);
         if (!response.ok) throw new Error('Network response was not ok');
         
         const blob = await response.blob();
@@ -30,7 +30,7 @@ export const useDocumentDownload = () => {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = downloadUrl;
-        a.download = document.name || 'document';
+        a.download = documentItem.name || 'document';
         document.body.appendChild(a);
         a.click();
         
@@ -40,7 +40,7 @@ export const useDocumentDownload = () => {
         
         toast({
           title: "Download avviato",
-          description: `Il file "${document.name}" è stato scaricato.`,
+          description: `Il file "${documentItem.name}" è stato scaricato.`,
         });
       }
     } catch (error) {
