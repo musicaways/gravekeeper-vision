@@ -20,15 +20,15 @@ const CemeteryTextSection = ({ title, content }: CemeteryTextSectionProps) => {
   };
 
   return (
-    <div className="w-full py-0">
-      <h3 className="text-base font-medium mb-1 flex items-center gap-2 text-foreground">
-        <ScrollText className="h-5 w-5 text-primary" />
-        {title}
-      </h3>
-      <div className="rounded-md bg-muted/20 p-4">
+    <div className="w-full">
+      <div className="flex items-center mb-3">
+        <ScrollText className="h-5 w-5 text-primary mr-2.5" />
+        <h3 className="text-base font-medium text-foreground">{title}</h3>
+      </div>
+      <div className="pl-7 pr-1 mb-4">
         {formatMultilineText(content)}
       </div>
-      <Separator className="mt-2 bg-slate-200" />
+      <Separator className="mb-4" />
     </div>
   );
 };

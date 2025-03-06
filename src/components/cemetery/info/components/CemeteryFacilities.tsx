@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Check, X, Building2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -17,15 +18,15 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
     if (value === null || value === undefined) return null;
     
     return (
-      <div className="flex items-center gap-3 py-2">
-        {value ? 
-          <Check className="h-5 w-5 text-success shrink-0" /> : 
-          <X className="h-5 w-5 text-destructive shrink-0" />
-        }
-        <div className="flex-1">
+      <div className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">
+        <div className="flex items-center">
+          {value ? 
+            <Check className="h-5 w-5 text-success mr-3 shrink-0" /> : 
+            <X className="h-5 w-5 text-destructive mr-3 shrink-0" />
+          }
           <p className="text-sm">{label}</p>
         </div>
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           {value ? 'Disponibile' : 'Non disponibile'}
         </span>
       </div>
@@ -41,19 +42,21 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
   if (!hasFacilities) return null;
 
   return (
-    <div className="w-full py-0">
-      <h3 className="text-base font-medium mb-1 flex items-center gap-2 text-foreground">
-        <Building2 className="h-5 w-5 text-primary" />
-        Strutture e servizi
-      </h3>
-      <div className="space-y-1 divide-y divide-slate-200">
+    <div className="w-full">
+      <div className="flex items-center mb-3">
+        <Building2 className="h-5 w-5 text-primary mr-2.5" />
+        <h3 className="text-base font-medium text-foreground">Strutture e servizi</h3>
+      </div>
+      
+      <div className="bg-muted/10 rounded-md mb-4">
         {renderBooleanField("Ricevimento salme", cemetery.ricevimento_salme)}
         {renderBooleanField("Chiesa", cemetery.chiesa)}
         {renderBooleanField("Camera mortuaria", cemetery.camera_mortuaria)}
         {renderBooleanField("Cavalletti", cemetery.cavalletti)}
         {renderBooleanField("Impalcatura", cemetery.impalcatura)}
       </div>
-      <Separator className="mt-2 bg-slate-200" />
+      
+      <Separator className="mb-4" />
     </div>
   );
 };

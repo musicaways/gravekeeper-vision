@@ -19,8 +19,8 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
 
   return (
     <Card className="w-full shadow-sm relative mx-auto">
-      <CardContent className="p-6 pt-6">
-        <div className="space-y-2">
+      <CardContent className="p-5 pt-5">
+        <div className="space-y-1">
           <CemeteryTextSection title="Descrizione" content={cemetery.Descrizione} />
           <CemeteryTextSection title="Note" content={cemetery.Note} />
           

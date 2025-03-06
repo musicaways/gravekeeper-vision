@@ -49,17 +49,18 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
   }, [cemeteryId]);
 
   return (
-    <div className="mt-8">
-      <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
-        <Map className="h-5 w-5" />
-        Mappa del cimitero
-      </h3>
+    <div className="w-full">
+      <div className="flex items-center mb-3">
+        <Map className="h-5 w-5 text-primary mr-2.5" />
+        <h3 className="text-base font-medium text-foreground">Mappa del cimitero</h3>
+      </div>
+      
       {loading ? (
         <div className="flex justify-center items-center py-10">
           <span className="ml-2">Caricamento mappa...</span>
         </div>
       ) : mapUrl ? (
-        <div className="rounded-md overflow-hidden border border-border h-[400px] mt-4">
+        <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2">
           <img 
             src={mapUrl} 
             alt="Mappa del cimitero" 
