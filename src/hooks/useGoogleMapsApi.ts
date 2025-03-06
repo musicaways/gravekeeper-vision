@@ -1,9 +1,39 @@
 
 import { useState, useEffect } from 'react';
 
+// Google Maps type definitions
 declare global {
   interface Window {
     googleMapsCallback?: () => void;
+    google?: {
+      maps: {
+        Map: typeof google.maps.Map;
+        Marker: typeof google.maps.Marker;
+        MapTypeId: {
+          ROADMAP: string;
+          SATELLITE: string;
+          HYBRID: string;
+          TERRAIN: string;
+        };
+        MapTypeControlStyle: {
+          HORIZONTAL_BAR: number;
+          DROPDOWN_MENU: number;
+          DEFAULT: number;
+        };
+        ControlPosition: {
+          TOP_RIGHT: number;
+          RIGHT_TOP: number;
+          RIGHT_CENTER: number;
+          LEFT_TOP: number;
+          TOP_LEFT: number;
+        };
+        Animation: {
+          DROP: number;
+          BOUNCE: number;
+        };
+        MapMouseEvent: google.maps.MapMouseEvent;
+      };
+    };
   }
 }
 

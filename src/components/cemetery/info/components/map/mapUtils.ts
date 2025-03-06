@@ -68,8 +68,7 @@ export const openExternalMap = (
   } else {
     toast({
       title: "Errore",
-      description: "Non ci sono abbastanza informazioni per aprire la mappa",
-      variant: "destructive"
+      description: "Non ci sono abbastanza informazioni per aprire la mappa"
     });
   }
 };

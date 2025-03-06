@@ -25,28 +25,28 @@ const MapSelector: React.FC<MapSelectorProps> = ({
 
   // Initialize map once Google Maps API is loaded
   useEffect(() => {
-    if (!isLoaded || !mapRef.current) return;
+    if (!isLoaded || !mapRef.current || !window.google?.maps) return;
 
     try {
       // Create the map
-      const map = new google.maps.Map(mapRef.current, {
+      const map = new window.google.maps.Map(mapRef.current, {
         center: { lat: initialLat, lng: initialLng },
         zoom: 10,
         streetViewControl: false,
         mapTypeControl: true,
-        mapTypeId: google.maps.MapTypeId.HYBRID,
+        mapTypeId: window.google.maps.MapTypeId.HYBRID,
         mapTypeControlOptions: {
-          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-          position: google.maps.ControlPosition.TOP_RIGHT,
+          style: window.google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+          position: window.google.maps.ControlPosition.TOP_RIGHT,
         },
         gestureHandling: "greedy", // Enables one-finger pan on mobile
         fullscreenControl: true,
         fullscreenControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_TOP,
+          position: window.google.maps.ControlPosition.RIGHT_TOP,
         },
         zoomControl: true,
         zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_CENTER,
+          position: window.google.maps.ControlPosition.RIGHT_CENTER,
         },
       });
 
@@ -55,11 +55,11 @@ const MapSelector: React.FC<MapSelectorProps> = ({
       // Create initial marker if we have initial coordinates
       if (initialLat && initialLng) {
         const initialPosition = { lat: initialLat, lng: initialLng };
-        const newMarker = new google.maps.Marker({
+        const newMarker = new window.google.maps.Marker({
           position: initialPosition,
           map: map,
           draggable: true,
-          animation: google.maps.Animation.DROP
+          animation: window.google.maps.Animation.DROP
         });
         
         setMarker(newMarker);
@@ -89,11 +89,11 @@ const MapSelector: React.FC<MapSelectorProps> = ({
           if (marker) {
             marker.setPosition(clickedPosition);
           } else {
-            const newMarker = new google.maps.Marker({
+            const newMarker = new window.google.maps.Marker({
               position: clickedPosition,
               map: map,
               draggable: true,
-              animation: google.maps.Animation.DROP
+              animation: window.google.maps.Animation.DROP
             });
             
             // Add drag event to the marker
