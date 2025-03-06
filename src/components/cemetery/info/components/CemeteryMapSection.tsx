@@ -19,7 +19,8 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     useCustomMap,
     setUseCustomMap,
     customMapId,
-    hasCustomMapMarker
+    hasCustomMapMarker,
+    getCleanMarkerId
   } = useCemeteryMap(cemeteryId);
 
   useEffect(() => {
@@ -30,9 +31,11 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
       useCustomMap, 
       customMapId,
       hasCustomMapMarker,
+      markerIdOriginal: cemetery?.custom_map_marker_id,
+      markerIdCleaned: getCleanMarkerId?.(),
       mapUrl
     });
-  }, [loading, mapUrl, apiKeyError, useCustomMap, customMapId, hasCustomMapMarker]);
+  }, [loading, mapUrl, apiKeyError, useCustomMap, customMapId, hasCustomMapMarker, cemetery, getCleanMarkerId]);
   
   const toggleMapType = () => {
     console.log(`Switching map view from ${useCustomMap ? 'custom' : 'standard'} to ${!useCustomMap ? 'custom' : 'standard'}`);
@@ -80,6 +83,7 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         useCustomMap={useCustomMap}
         customMapId={customMapId}
         hasCustomMapMarker={hasCustomMapMarker}
+        getCleanMarkerId={getCleanMarkerId}
       />
     </div>
   );

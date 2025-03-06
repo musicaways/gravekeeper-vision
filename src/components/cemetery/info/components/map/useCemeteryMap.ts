@@ -79,13 +79,21 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         if (useCustomMap) {
           console.log("Using custom map view, generating URL...");
           
-          // Verifica se è stato configurato un ID di marker personalizzato
+          // Extract the clean marker ID by removing any URL parameters
+          let cleanMarkerId = null;
           if (data.custom_map_marker_id) {
-            console.log("Custom marker ID found:", data.custom_map_marker_id);
+            // Extract just the marker ID without any URL parameters
+            cleanMarkerId = data.custom_map_marker_id.split(/[&?]/)[0];
+            console.log("Clean marker ID extracted:", cleanMarkerId);
+          }
+          
+          // Verifica se è stato configurato un ID di marker personalizzato
+          if (cleanMarkerId) {
+            console.log("Custom marker ID found:", cleanMarkerId);
             
             // Costruisci l'URL con l'ID del marker come parametro msid
-            // Aggiunto parametro z=18 per impostare uno zoom più vicino al marker
-            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F&msid=${data.custom_map_marker_id}&z=18`;
+            // Aggiunto parametro z=18 per impostare uno zoom più elevato sul marker
+            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F&msid=${cleanMarkerId}&z=18`;
             console.log("Custom map URL with marker ID:", customEmbedUrl);
             setMapUrl(customEmbedUrl);
             
@@ -135,6 +143,12 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
     fetchCemeteryData();
   }, [cemeteryId, apiKey, apiKeyError, useCustomMap]);
 
+  // Function to extract a clean marker ID
+  const getCleanMarkerId = () => {
+    if (!cemetery?.custom_map_marker_id) return null;
+    return cemetery.custom_map_marker_id.split(/[&?]/)[0];
+  };
+
   return {
     loading,
     cemetery,
@@ -143,6 +157,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
     useCustomMap,
     setUseCustomMap,
     customMapId,
-    hasCustomMapMarker: !!cemetery?.custom_map_marker_id
+    hasCustomMapMarker: !!cemetery?.custom_map_marker_id,
+    getCleanMarkerId
   };
 };

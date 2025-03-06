@@ -51,6 +51,13 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
     }
   }, []);
 
+  // Clean marker ID by removing any URL parameters
+  const getCleanMarkerId = (id: string): string => {
+    if (!id) return "";
+    // Extract just the marker ID without any URL parameters
+    return id.split(/[&?]/)[0];
+  };
+
   // Funzione per verificare l'ID del marker
   const verifyMarker = () => {
     if (!markerId) {
@@ -58,10 +65,19 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
       return;
     }
     
-    // Apre una nuova finestra con il marker selezionato
-    const url = `https://www.google.com/maps/d/viewer?mid=${customMapId}&msid=${markerId}&z=18`;
-    window.open(url, '_blank');
-    toast.info("Verifica che il marker si evidenzi correttamente nella mappa appena aperta");
+    try {
+      // Clean the marker ID by removing any URL parameters
+      const cleanMarkerId = getCleanMarkerId(markerId);
+      
+      // Apre una nuova finestra con il marker selezionato
+      const url = `https://www.google.com/maps/d/viewer?mid=${customMapId}&msid=${cleanMarkerId}&z=18`;
+      console.log("Opening verification URL:", url);
+      window.open(url, '_blank');
+      toast.info("Verifica che il marker si evidenzi correttamente nella mappa appena aperta");
+    } catch (error) {
+      console.error("Error verifying marker:", error);
+      toast.error("Errore durante la verifica del marker. Controlla l'ID del marker.");
+    }
   };
 
   return (
@@ -91,7 +107,21 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
           </FormLabel>
           <div className={isMobile ? "flex flex-col gap-2" : "flex gap-2"}>
             <FormControl>
-              <Input {...field} placeholder="ID del marker dalla mappa personalizzata" />
+              <Input 
+                {...field} 
+                placeholder="ID del marker dalla mappa personalizzata" 
+                onChange={(e) => {
+                  // Clean the input value by removing any URL parameters
+                  const rawValue = e.target.value;
+                  const cleanValue = getCleanMarkerId(rawValue);
+                  
+                  if (rawValue !== cleanValue) {
+                    console.log("Cleaned marker ID from input:", rawValue, "to:", cleanValue);
+                  }
+                  
+                  field.onChange(cleanValue);
+                }}
+              />
             </FormControl>
             <div className="flex gap-2">
               <Button 
@@ -149,7 +179,9 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
             open={dialogOpen}
             onClose={() => setDialogOpen(false)}
             onSelect={(markerId) => {
-              field.onChange(markerId);
+              // Clean the marker ID first
+              const cleanMarkerId = getCleanMarkerId(markerId);
+              field.onChange(cleanMarkerId);
               toast.success("ID marker impostato con successo");
             }}
             customMapId={customMapId}

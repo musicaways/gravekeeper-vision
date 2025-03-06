@@ -31,6 +31,12 @@ export const buildMapUrl = (
   return '';
 };
 
+// Clean marker ID by removing any URL parameters
+const getCleanMarkerId = (markerId?: string | null): string | null => {
+  if (!markerId) return null;
+  return markerId.split(/[&?]/)[0];
+};
+
 export const openExternalMap = (
   customMapId: string,
   useCustomMap: boolean,
@@ -48,9 +54,12 @@ export const openExternalMap = (
     // Se è stato configurato un ID marker personalizzato, includi il parametro msid
     // e imposta lo zoom a 18 per avvicinarsi di più al marker
     if (cemetery.custom_map_marker_id) {
-      // Usando il marker ID come msid è cruciale per visualizzare il marker corretto
-      // Aggiungiamo anche il parametro z=18 per uno zoom più elevato sul marker
-      url += `&msid=${cemetery.custom_map_marker_id}&z=18`;
+      // Use the clean marker ID (without URL parameters)
+      const cleanMarkerId = getCleanMarkerId(cemetery.custom_map_marker_id);
+      
+      // Using the marker ID as msid is crucial for highlighting the correct marker
+      // Also add the z=18 parameter for a closer zoom to the marker
+      url += `&msid=${cleanMarkerId}&z=18`;
       console.log("Opening custom map URL with marker ID:", url);
     } else if (cemetery.Latitudine && cemetery.Longitudine) {
       url += `&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;
