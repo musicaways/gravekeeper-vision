@@ -1,5 +1,7 @@
 
 import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollText } from "lucide-react";
 
 interface CemeteryTextSectionProps {
   title: string;
@@ -11,19 +13,24 @@ const CemeteryTextSection = ({ title, content }: CemeteryTextSectionProps) => {
 
   const formatMultilineText = (text: string) => {
     return text.split('\n').map((line, i) => (
-      <p key={i} className="text-sm md:text-base mb-1">
+      <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-2 last:mb-0">
         {line || <br />}
       </p>
     ));
   };
 
   return (
-    <div className="w-full">
-      <h3 className="text-sm font-medium mb-2">{title}</h3>
-      <div className="p-4 rounded-md w-full">
-        {formatMultilineText(content)}
-      </div>
-    </div>
+    <Card className="w-full shadow-sm">
+      <CardContent className="p-6">
+        <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-foreground">
+          <ScrollText className="h-5 w-5 text-primary" />
+          {title}
+        </h3>
+        <div className="rounded-md bg-muted/30 p-4">
+          {formatMultilineText(content)}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

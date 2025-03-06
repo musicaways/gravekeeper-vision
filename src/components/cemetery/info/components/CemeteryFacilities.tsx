@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, Building2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface CemeteryFacilitiesProps {
   cemetery: {
@@ -17,15 +18,17 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
     if (value === null || value === undefined) return null;
     
     return (
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3 py-2">
         {value ? 
-          <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" /> : 
-          <X className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+          <Check className="h-5 w-5 text-success shrink-0" /> : 
+          <X className="h-5 w-5 text-destructive shrink-0" />
         }
-        <div>
-          <h4 className="font-medium">{label}</h4>
-          <p className="text-sm md:text-base">{value ? 'Sì' : 'No'}</p>
+        <div className="flex-1">
+          <p className="text-sm">{label}</p>
         </div>
+        <span className="text-sm font-medium text-muted-foreground">
+          {value ? 'Disponibile' : 'Non disponibile'}
+        </span>
       </div>
     );
   };
@@ -39,16 +42,21 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
   if (!hasFacilities) return null;
 
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-medium mb-3">Strutture e servizi</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {renderBooleanField("Ricevimento salme", cemetery.ricevimento_salme)}
-        {renderBooleanField("Chiesa", cemetery.chiesa)}
-        {renderBooleanField("Camera mortuaria", cemetery.camera_mortuaria)}
-        {renderBooleanField("Cavalletti", cemetery.cavalletti)}
-        {renderBooleanField("Impalcatura", cemetery.impalcatura)}
-      </div>
-    </div>
+    <Card className="w-full shadow-sm">
+      <CardContent className="p-6">
+        <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-foreground">
+          <Building2 className="h-5 w-5 text-primary" />
+          Strutture e servizi
+        </h3>
+        <div className="bg-muted/30 rounded-md p-4 divide-y divide-border">
+          {renderBooleanField("Ricevimento salme", cemetery.ricevimento_salme)}
+          {renderBooleanField("Chiesa", cemetery.chiesa)}
+          {renderBooleanField("Camera mortuaria", cemetery.camera_mortuaria)}
+          {renderBooleanField("Cavalletti", cemetery.cavalletti)}
+          {renderBooleanField("Impalcatura", cemetery.impalcatura)}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
