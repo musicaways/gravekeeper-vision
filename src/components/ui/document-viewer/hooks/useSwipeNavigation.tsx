@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 interface UseSwipeNavigationProps {
   currentIndex: number;
@@ -7,7 +7,7 @@ interface UseSwipeNavigationProps {
   goToPreviousFile: () => void;
   goToNextFile: () => void;
   swipeEnabled: boolean;
-  scale: number;
+  scale?: number;
 }
 
 export const useSwipeNavigation = ({
@@ -16,78 +16,74 @@ export const useSwipeNavigation = ({
   goToPreviousFile,
   goToNextFile,
   swipeEnabled,
-  scale
+  scale = 1
 }: UseSwipeNavigationProps) => {
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const swipeThreshold = 80; // minimum distance in pixels to trigger a swipe
   
-  // Reset swipe direction and touch points on file change or scale change
-  useEffect(() => {
+  const resetSwipeState = useCallback(() => {
+    touchStartX.current = null;
+    touchEndX.current = null;
     setSwipeDirection(null);
-    setTouchStart(0);
-    setTouchEnd(0);
-  }, [currentIndex, scale]);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!swipeEnabled) {
-      console.log("Touch start ignored - swipe navigation disabled");
+  }, []);
+  
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!swipeEnabled || (scale && scale > 1)) {
       return;
     }
     
+    touchStartX.current = e.touches[0].clientX;
     console.log("Touch start event captured for swipe navigation");
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!swipeEnabled) {
+  }, [swipeEnabled, scale]);
+  
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!swipeEnabled || touchStartX.current === null || (scale && scale > 1)) {
       return;
     }
     
-    setTouchEnd(e.touches[0].clientX);
+    const currentX = e.touches[0].clientX;
+    const diff = touchStartX.current - currentX;
     
-    // Calculate direction for visual feedback
-    const diff = touchStart - e.touches[0].clientX;
-    console.log("Swipe diff:", diff);
-    
-    if (diff > 50) {
-      setSwipeDirection("right");
-    } else if (diff < -50) {
-      setSwipeDirection("left");
+    // Show swipe direction indicator
+    if (Math.abs(diff) > 20) {
+      setSwipeDirection(diff > 0 ? "right" : "left");
     } else {
       setSwipeDirection(null);
     }
-  };
-
-  const handleTouchEnd = () => {
-    if (!swipeEnabled) {
-      console.log("Touch end ignored - swipe navigation disabled");
+  }, [swipeEnabled, scale]);
+  
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!swipeEnabled || touchStartX.current === null || (scale && scale > 1)) {
+      resetSwipeState();
       return;
     }
     
-    const swipeThreshold = 80; // Lower threshold for easier swipes
-    const diff = touchStart - touchEnd;
+    touchEndX.current = e.changedTouches[0].clientX;
     
+    const diff = touchStartX.current - touchEndX.current;
     console.log("Swipe end, diff:", diff, "threshold:", swipeThreshold, "swipe enabled:", swipeEnabled);
     
-    if (diff > swipeThreshold && filesLength > 1) {
-      // Swiped left, go to next file
-      console.log("Swiping to next file");
-      goToNextFile();
-    } else if (diff < -swipeThreshold && filesLength > 1) {
-      // Swiped right, go to previous file
-      console.log("Swiping to previous file");
-      goToPreviousFile();
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swiped left to right
+        console.log("Swiping to next file");
+        goToNextFile();
+      } else {
+        // Swiped right to left
+        console.log("Swiping to previous file");
+        goToPreviousFile();
+      }
     }
     
-    // Reset state
-    setSwipeDirection(null);
-  };
-
+    resetSwipeState();
+  }, [goToNextFile, goToPreviousFile, resetSwipeState, swipeEnabled, swipeThreshold, scale]);
+  
   return {
     swipeDirection,
     handleTouchStart,
     handleTouchMove,
-    handleTouchEnd
+    handleTouchEnd,
   };
 };

@@ -28,8 +28,10 @@ export const usePdfRenderer = ({
   
   // Render the current page of the PDF
   useEffect(() => {
+    let isActive = true; // Flag to prevent operations after unmount
+    
     const renderPage = async () => {
-      if (!canvasRef.current || !pdfDocRef.current) {
+      if (!canvasRef.current || !pdfDocRef.current || !isActive) {
         return;
       }
       
@@ -45,7 +47,9 @@ export const usePdfRenderer = ({
         renderInProgress.current = true;
         
         // Check if we're rendering the same page at the same scale
-        if (currentPage === lastPageRef.current && scale === lastScaleRef.current && initialRenderComplete) {
+        if (currentPage === lastPageRef.current && 
+            scale === lastScaleRef.current && 
+            initialRenderComplete) {
           renderInProgress.current = false;
           return;
         }
@@ -54,6 +58,10 @@ export const usePdfRenderer = ({
         
         // Load the page
         const page = await pdfDocRef.current.getPage(currentPage);
+        if (!isActive) {
+          renderInProgress.current = false;
+          return;
+        }
         
         // Update viewport with current scale
         const viewport = page.getViewport({ scale });
@@ -66,7 +74,13 @@ export const usePdfRenderer = ({
           viewport: viewport
         };
         
-        await page.render(renderContext).promise;
+        const renderTask = page.render(renderContext);
+        await renderTask.promise;
+        
+        if (!isActive) {
+          renderInProgress.current = false;
+          return;
+        }
         
         // Update refs after successful render
         lastPageRef.current = currentPage;
@@ -83,7 +97,9 @@ export const usePdfRenderer = ({
       } catch (error) {
         console.error("Error rendering PDF page:", error);
       } finally {
-        renderInProgress.current = false;
+        if (isActive) {
+          renderInProgress.current = false;
+        }
       }
     };
     
@@ -91,6 +107,7 @@ export const usePdfRenderer = ({
     
     // Cleanup
     return () => {
+      isActive = false;
       renderInProgress.current = false;
     };
   }, [canvasRef, pdfDocRef, currentPage, scale, setInitialRenderComplete, initialRenderComplete, renderInProgress, setSwipeEnabled]);

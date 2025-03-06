@@ -23,6 +23,7 @@ const PdfCanvas = ({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const touchMoveCount = useRef(0);
+  const touchTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Force re-render when scale changes by updating a data attribute
   useEffect(() => {
@@ -39,6 +40,12 @@ const PdfCanvas = ({
     if (scale <= 1) {
       setPosition({ x: 0, y: 0 });
     }
+    
+    return () => {
+      if (touchTimeout.current) {
+        clearTimeout(touchTimeout.current);
+      }
+    };
   }, [scale, canvasRef, setSwipeEnabled]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -81,9 +88,14 @@ const PdfCanvas = ({
   const handleTouchEnd = (e: React.TouchEvent) => {
     setIsDragging(false);
     
+    // Clear any existing timeout
+    if (touchTimeout.current) {
+      clearTimeout(touchTimeout.current);
+    }
+    
     // Only re-enable swipe if scale is 1 or less
     // Small delay to prevent accidental swipe
-    setTimeout(() => {
+    touchTimeout.current = setTimeout(() => {
       if (scale <= 1) {
         setSwipeEnabled(true);
         console.log("PdfCanvas: Re-enabling swipe navigation after panning");

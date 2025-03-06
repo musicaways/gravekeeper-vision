@@ -19,6 +19,7 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
   // Load PDF document when URL changes
   useEffect(() => {
     let isActive = true; // Flag to prevent state updates after unmount
+    let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
     
     if (!url) return;
 
@@ -28,26 +29,31 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
         setPdfLoading(true);
         setPdfError(null);
         
+        // Cleanup previous PDF if exists
+        if (pdfDocRef.current) {
+          try {
+            await pdfDocRef.current.destroy();
+            pdfDocRef.current = null;
+          } catch (err) {
+            console.error("Error destroying previous PDF document:", err);
+          }
+        }
+        
         // Load the PDF document
-        const loadingTask = pdfjsLib.getDocument({
+        loadingTask = pdfjsLib.getDocument({
           url: url,
           cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
           cMapPacked: true,
         });
         
         const pdf = await loadingTask.promise;
-        if (!isActive) return; // Prevent state updates if component unmounted
+        if (!isActive) {
+          // If component unmounted, clean up the PDF and return
+          pdf.destroy().catch(err => console.error("Error destroying PDF after unmount:", err));
+          return;
+        }
         
         console.log("PDF loaded successfully, pages:", pdf.numPages);
-        
-        // Cleanup previous PDF if exists
-        if (pdfDocRef.current) {
-          try {
-            await pdfDocRef.current.destroy();
-          } catch (err) {
-            console.error("Error destroying previous PDF document:", err);
-          }
-        }
         
         pdfDocRef.current = pdf;
         setTotalPages(pdf.numPages);
@@ -66,6 +72,15 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
     // Cleanup function
     return () => {
       isActive = false;
+      
+      // Cancel the loading task if it's still in progress
+      if (loadingTask) {
+        loadingTask.destroy().catch(err => {
+          console.error("Error destroying PDF loading task:", err);
+        });
+      }
+      
+      // Clean up the PDF document
       if (pdfDocRef.current) {
         pdfDocRef.current.destroy().catch(err => {
           console.error("Error destroying PDF document:", err);

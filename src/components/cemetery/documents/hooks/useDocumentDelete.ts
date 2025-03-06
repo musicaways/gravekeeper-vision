@@ -20,15 +20,15 @@ export const useDocumentDelete = ({ cemeteryId, onSuccess }: UseDocumentDeleteOp
   };
 
   const handleDelete = async (id?: string) => {
-    const docToDelete = id 
-      ? null // We'll load it from documents later
-      : documentToDelete;
-    
-    if (!docToDelete && !id) return;
-    
     try {
       // Get the document ID to delete
-      const documentId = id || docToDelete?.id;
+      const documentId = id || (documentToDelete?.id || '');
+      
+      if (!documentId) {
+        console.error("No document ID provided for deletion");
+        throw new Error("ID del documento non valido");
+      }
+      
       console.log("Deleting document with ID:", documentId);
       
       // 1. Delete from database
@@ -45,6 +45,7 @@ export const useDocumentDelete = ({ cemeteryId, onSuccess }: UseDocumentDeleteOp
       console.log("Document deleted from database successfully");
       
       // 2. Try to extract the storage path from the URL if we have the document object
+      const docToDelete = documentToDelete || null;
       if (docToDelete && docToDelete.url) {
         console.log("Attempting to delete file from storage:", docToDelete.url);
         try {
