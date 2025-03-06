@@ -16,7 +16,7 @@ const CemeteryContactInfo = ({ contactInfo }: CemeteryContactInfoProps) => {
 
   return (
     <div className="w-full">
-      <div className="flex items-center mb-3">
+      <div className="flex items-center mb-2">
         <Phone className="h-5 w-5 text-primary mr-2.5" />
         <h3 className="text-base font-medium text-foreground">Contatti</h3>
       </div>
