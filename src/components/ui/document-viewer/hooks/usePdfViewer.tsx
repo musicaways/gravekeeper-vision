@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePdfDocument } from "./pdf/usePdfDocument";
 import { usePdfPageNavigation } from "./pdf/usePdfPageNavigation";
 import { usePdfRenderer } from "./pdf/usePdfRenderer";
@@ -15,6 +15,21 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
   const renderInProgress = useRef<boolean>(false);
+  const previousScale = useRef<number>(scale);
+  
+  // Reset initial render state when url changes
+  useEffect(() => {
+    console.log("PDF url changed, resetting render state:", url);
+    setInitialRenderComplete(false);
+  }, [url]);
+  
+  // Track scale changes
+  useEffect(() => {
+    if (previousScale.current !== scale) {
+      console.log(`Scale changed from ${previousScale.current} to ${scale}`);
+      previousScale.current = scale;
+    }
+  }, [scale]);
   
   // Load and manage the PDF document
   const { 

@@ -24,11 +24,18 @@ const PdfCanvas = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const touchMoveCount = useRef(0);
   const touchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const previousScale = useRef(scale);
 
-  // Force re-render when scale changes by updating a data attribute
+  // Force re-render and reset position when scale changes
   useEffect(() => {
     if (canvasRef.current) {
       canvasRef.current.setAttribute('data-scale', scale.toString());
+      
+      // If scale changed, log it
+      if (previousScale.current !== scale) {
+        console.log(`PdfCanvas: Scale changed from ${previousScale.current} to ${scale}`);
+        previousScale.current = scale;
+      }
     }
     
     // Update swipe enabled state based on scale
@@ -51,6 +58,7 @@ const PdfCanvas = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     if (scale <= 1) return;
     
+    e.stopPropagation(); // Stop event propagation to prevent conflicts
     touchMoveCount.current = 0;
     setIsDragging(true);
     setDragStart({
@@ -70,6 +78,7 @@ const PdfCanvas = ({
     // Only prevent default after confirming we're really dragging (after a few move events)
     if (touchMoveCount.current > 3) {
       e.preventDefault(); // Prevent scrolling when dragging
+      e.stopPropagation(); // Stop event propagation to prevent conflicts
     }
     
     const newX = e.touches[0].clientX - dragStart.x;
@@ -86,6 +95,9 @@ const PdfCanvas = ({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    e.stopPropagation(); // Stop event propagation to prevent conflicts
     setIsDragging(false);
     
     // Clear any existing timeout
@@ -124,7 +136,7 @@ const PdfCanvas = ({
           ref={canvasRef} 
           className="max-w-full shadow-lg"
           style={{ 
-            opacity: initialRenderComplete ? 1 : 0.1, // Changed from 0 to 0.1 to see if canvas exists
+            opacity: initialRenderComplete ? 1 : 0.3, // Increased from 0.1 to 0.3 to make it more visible while loading
             transition: 'opacity 0.3s ease' 
           }}
           data-scale={scale}

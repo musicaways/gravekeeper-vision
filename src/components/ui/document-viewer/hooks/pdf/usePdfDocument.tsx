@@ -21,7 +21,12 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
     let isActive = true; // Flag to prevent state updates after unmount
     let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
     
-    if (!url) return;
+    if (!url) {
+      console.error("No URL provided for PDF");
+      setPdfError("URL PDF non valido");
+      setPdfLoading(false);
+      return;
+    }
 
     const loadPdf = async () => {
       console.log("Loading PDF:", url);
@@ -39,14 +44,28 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
           }
         }
         
-        // Load the PDF document
-        loadingTask = pdfjsLib.getDocument({
-          url: url,
-          cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
-          cMapPacked: true,
-        });
+        // Load the PDF document with retry mechanism
+        const loadWithRetry = async (retries = 2) => {
+          try {
+            loadingTask = pdfjsLib.getDocument({
+              url: url,
+              cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+              cMapPacked: true,
+            });
+            
+            const pdf = await loadingTask.promise;
+            return pdf;
+          } catch (error) {
+            if (retries > 0 && isActive) {
+              console.warn(`PDF load failed, retrying... (${retries} attempts left)`);
+              return await loadWithRetry(retries - 1);
+            }
+            throw error;
+          }
+        };
         
-        const pdf = await loadingTask.promise;
+        const pdf = await loadWithRetry();
+        
         if (!isActive) {
           // If component unmounted, clean up the PDF and return
           pdf.destroy().catch(err => console.error("Error destroying PDF after unmount:", err));

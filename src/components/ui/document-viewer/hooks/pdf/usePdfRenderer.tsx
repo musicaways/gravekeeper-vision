@@ -24,7 +24,7 @@ export const usePdfRenderer = ({
   setSwipeEnabled
 }: UsePdfRendererProps) => {
   const lastPageRef = useRef<number>(0);
-  const lastScaleRef = useRef<number>(0); // Changed from 1 to 0 to force initial render
+  const lastScaleRef = useRef<number>(0); // Force initial render with 0
   
   // Render the current page of the PDF
   useEffect(() => {
@@ -32,6 +32,7 @@ export const usePdfRenderer = ({
     
     const renderPage = async () => {
       if (!canvasRef.current || !pdfDocRef.current || !isActive) {
+        console.log("Cannot render PDF: Canvas or PDF document not available");
         return;
       }
       
@@ -46,16 +47,16 @@ export const usePdfRenderer = ({
       try {
         renderInProgress.current = true;
         
-        // Always force render on first load (lastScaleRef is initialized to 0)
-        // or on scale/page change
+        // Force render on first load or on scale/page change
         const shouldForceRender = 
-          lastScaleRef.current === 0 ||
+          !initialRenderComplete || // Always force render on first load
           currentPage !== lastPageRef.current || 
           scale !== lastScaleRef.current;
         
-        console.log(`Checking if PDF page needs rendering. Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}, lastScale: ${lastScaleRef.current}`);
+        console.log(`PDF render check: Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}, initialRender: ${initialRenderComplete}`);
         
         if (!shouldForceRender && initialRenderComplete) {
+          console.log("Skipping PDF render - no changes detected");
           renderInProgress.current = false;
           return;
         }
@@ -111,11 +112,15 @@ export const usePdfRenderer = ({
       }
     };
     
-    renderPage();
+    // Add a small delay before rendering to ensure the component is fully mounted
+    const timerId = setTimeout(() => {
+      renderPage();
+    }, 100);
     
     // Cleanup
     return () => {
       isActive = false;
+      clearTimeout(timerId);
       renderInProgress.current = false;
     };
   }, [canvasRef, pdfDocRef, currentPage, scale, setInitialRenderComplete, initialRenderComplete, renderInProgress, setSwipeEnabled]);

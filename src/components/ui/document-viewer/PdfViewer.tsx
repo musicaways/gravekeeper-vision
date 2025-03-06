@@ -43,13 +43,17 @@ const PdfViewer = ({
 
   // Force a render when the component mounts to ensure PDF is displayed
   useEffect(() => {
-    // This is just to trigger a re-render, no actual state update needed
+    console.log("PdfViewer: Component mounted, url:", url, "scale:", scale);
+    
+    // Force a re-render after a short delay to ensure the PDF is displayed
     const timer = setTimeout(() => {
       console.log("PdfViewer: Forcing re-render to ensure PDF is displayed");
-    }, 100);
+      // This empty setState call is just to trigger a re-render
+      // The actual rendering will happen in the usePdfRenderer hook
+    }, 200);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [url, scale]);
 
   if (pdfLoading) {
     return <PdfLoading />;
