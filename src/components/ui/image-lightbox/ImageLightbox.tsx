@@ -43,15 +43,15 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
   const { title, description, dateInfo } = parseImageDetails();
   
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => !newOpen && onClose()}>
+    <Dialog open={open} onOpenChange={(newOpen) => !newOpen && onClose()} modal>
       <DialogContent 
-        className="fixed inset-0 p-0 w-screen h-screen max-w-none max-h-none bg-black/95 border-none overflow-hidden"
+        className="fixed inset-0 p-0 m-0 w-screen h-screen max-w-none max-h-none bg-black/95 border-none overflow-hidden rounded-none"
         onMouseLeave={handleMouseUp}
       >
         <DialogTitle className="sr-only">Visualizzatore foto</DialogTitle>
         
         <div 
-          className="relative h-full flex flex-col bg-transparent overflow-auto"
+          className="absolute inset-0 flex flex-col bg-transparent overflow-hidden"
           ref={contentRef}
         >
           <div 
