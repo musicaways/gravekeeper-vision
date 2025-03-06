@@ -1,9 +1,7 @@
 
-import { useRef, useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { getMapOptions } from '../utils/mapStyles';
-import { createCemeteryMarker, createInfoWindow } from '../utils/markerUtils';
-import createTiltControl from '../components/TiltControl';
+import { useRef, useState, useEffect, RefObject } from "react";
+import { cemeteryMapStyles, getMapOptions } from "../utils/mapStyles";
+import { createInitialCemeteryMarker } from "../utils/markerUtils";
 
 interface UseMapInitializationProps {
   isLoaded: boolean;
@@ -19,104 +17,82 @@ const useMapInitialization = ({
   onError
 }: UseMapInitializationProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [marker, setMarker] = useState<google.maps.Marker | null>(null);
-  const tilesLoadedListenerRef = useRef<google.maps.MapsEventListener | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const mapInitializedRef = useRef(false);
 
-  useEffect(() => {
-    // Only initialize the map once when conditions are met
-    if (!isLoaded || !mapRef.current || !window.google?.maps || mapInitializedRef.current) return;
-    
-    // Cleanup function for event listeners
-    const cleanup = () => {
-      if (tilesLoadedListenerRef.current) {
-        google.maps.event.removeListener(tilesLoadedListenerRef.current);
-        tilesLoadedListenerRef.current = null;
-      }
-    };
-    
-    try {
-      const { Latitudine, Longitudine, Nome } = cemetery;
-      
-      // Check for valid coordinates
-      if (!Latitudine || !Longitudine) {
-        onError("Coordinate non disponibili per questo cimitero");
-        return cleanup;
-      }
-      
-      const mapPosition = { 
-        lat: parseFloat(Latitudine), 
-        lng: parseFloat(Longitudine) 
-      };
-      
-      // Get map options
-      const mapOptions = getMapOptions(mapPosition);
-      
-      // Initialize the map
-      const newMap = new google.maps.Map(mapRef.current, mapOptions);
-      
-      // Set the tilt to 0 after map initialization to ensure a flat view by default
-      (newMap as any).setTilt(0);
-      
-      // Create marker
-      const newMarker = createCemeteryMarker(mapPosition, newMap, Nome);
-      
-      // Create info window
-      createInfoWindow(newMarker, newMap, cemetery);
-      
-      // Add tiles loaded event listener - use ref to store the listener for cleanup
-      if (!mapLoaded) {
-        // Use addListener with a one-time check instead of addListenerOnce which isn't available
-        tilesLoadedListenerRef.current = google.maps.event.addListener(newMap, 'tilesloaded', function onTilesLoaded() {
-          // Remove the listener to ensure it only fires once
-          if (tilesLoadedListenerRef.current) {
-            google.maps.event.removeListener(tilesLoadedListenerRef.current);
-            tilesLoadedListenerRef.current = null;
-          }
-          setMapLoaded(true);
-          toast.success("Mappa caricata con successo", { duration: 2000 });
-        });
-      }
-      
-      // Add tilt control - a custom control for toggling 45° view
-      const tiltControlDiv = document.createElement('div');
-      createTiltControl(tiltControlDiv, newMap);
-      
-      // Add the custom control to the map
-      (newMap as any).controls[google.maps.ControlPosition.TOP_RIGHT].push(tiltControlDiv);
-      
-      // Save references
-      setMap(newMap);
-      setMarker(newMarker);
-      mapInitializedRef.current = true;
-      
-      // Add listener for errors
-      const errorListener = google.maps.event.addListener(newMap, 'error', () => {
-        onError("Errore durante il caricamento della mappa");
-      });
-      
-      return () => {
-        // Cleanup listeners on component unmount
-        if (errorListener) {
-          google.maps.event.removeListener(errorListener);
-        }
-        cleanup();
-      };
-    } catch (error) {
-      console.error("Errore nell'inizializzazione della mappa:", error);
-      onError(error instanceof Error ? error.message : "Errore sconosciuto");
-      return cleanup;
-    }
-  }, [isLoaded, cemetery, forceRefresh, onError, mapLoaded]);
-
-  // Reset the initialization flag when cemetery or forceRefresh changes
+  // Reset when cemetery or forceRefresh changes
   useEffect(() => {
     mapInitializedRef.current = false;
+    setMapLoaded(false);
+    setMap(null);
   }, [cemetery, forceRefresh]);
 
-  return { mapRef, mapLoaded, map, marker };
+  useEffect(() => {
+    if (!isLoaded || !mapRef.current || !cemetery || mapInitializedRef.current) {
+      return;
+    }
+
+    try {
+      // Check for valid coordinates
+      const lat = parseFloat(cemetery.Latitudine);
+      const lng = parseFloat(cemetery.Longitudine);
+
+      if (isNaN(lat) || isNaN(lng)) {
+        throw new Error("Coordinate non valide per questo cimitero");
+      }
+
+      console.log("Initializing map with coordinates:", lat, lng);
+      
+      // Initialize map with custom options
+      const mapOptions = getMapOptions({ lat, lng });
+      
+      const newMap = new window.google.maps.Map(mapRef.current, {
+        ...mapOptions,
+        mapTypeControlOptions: {
+          mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID]
+        }
+      });
+      
+      // Hide the standard google maps copyright and terms text
+      const styleElement = document.createElement('style');
+      styleElement.type = 'text/css';
+      styleElement.innerHTML = `
+        .gmnoprint a, .gmnoprint span, .gm-style-cc {
+          display: none;
+        }
+        .gmnoprint div {
+          background: none !important;
+        }
+      `;
+      document.getElementsByTagName('head')[0].appendChild(styleElement);
+      
+      // Create cemetery marker
+      createInitialCemeteryMarker(newMap, cemetery);
+      
+      // Add custom controls
+      const mapLoadedListener = google.maps.event.addListenerOnce(newMap, 'idle', () => {
+        console.log("Map fully loaded");
+        setMapLoaded(true);
+      });
+      
+      mapInitializedRef.current = true;
+      setMap(newMap);
+      
+      return () => {
+        google.maps.event.removeListener(mapLoadedListener);
+        // Clean up the style element when component unmounts
+        if (styleElement.parentNode) {
+          styleElement.parentNode.removeChild(styleElement);
+        }
+      };
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      onError(error instanceof Error ? error.message : "Errore sconosciuto durante l'inizializzazione della mappa");
+    }
+  }, [isLoaded, cemetery, onError]);
+
+  return { mapRef, map, mapLoaded };
 };
 
 export default useMapInitialization;
