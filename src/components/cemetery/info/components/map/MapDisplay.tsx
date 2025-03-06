@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import MapIframe from "./components/MapIframe";
 import MapErrorState from "./components/MapErrorState";
 import MapControls from "./components/MapControls";
-import MapInfoBox from "./components/MapInfoBox";
 import { openExternalMap } from "./mapUtils";
 
 interface MapDisplayProps {
@@ -89,10 +88,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         forceRefresh={forceRefresh} 
       />
       <MapControls 
-        onRefresh={reloadMap} 
         onOpenInGoogleMaps={handleOpenMapInNewTab} 
       />
-      <MapInfoBox />
     </div>
   );
 };

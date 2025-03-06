@@ -15,8 +15,7 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
   useEffect(() => {
     setIframeLoaded(false);
     
-    // When forceRefresh changes, we reload the iframe directly instead of
-    // adding a refresh parameter to the URL
+    // When forceRefresh changes, we reload the iframe directly
     if (iframeRef.current) {
       try {
         // Access the contentWindow and reload it
@@ -33,6 +32,32 @@ const MapIframe: React.FC<MapIframeProps> = ({ mapUrl, forceRefresh }) => {
   const handleIframeLoad = () => {
     setIframeLoaded(true);
     console.log("Map iframe loaded successfully");
+    
+    // Attempt to inject styles into the iframe to customize the appearance
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        const iframe = iframeRef.current;
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        
+        // Create a style element to hide specific Google Maps elements
+        const styleEl = iframeDoc.createElement('style');
+        styleEl.textContent = `
+          /* Hide Google logo and terms */
+          .gmnoprint, .gm-style-cc, .gm-style a[href^="https://maps.google.com"] {
+            display: none !important;
+          }
+          
+          /* Enable gesture handling for single touch */
+          .gm-control-active {
+            touch-action: pan-x pan-y !important;
+          }
+        `;
+        
+        iframeDoc.head.appendChild(styleEl);
+      }
+    } catch (e) {
+      console.warn("Could not customize map appearance due to cross-origin restrictions:", e);
+    }
   };
   
   return (

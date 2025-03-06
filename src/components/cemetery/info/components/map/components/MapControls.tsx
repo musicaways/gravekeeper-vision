@@ -3,12 +3,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 
 interface MapControlsProps {
-  onRefresh: () => void;
   onOpenInGoogleMaps: () => void;
 }
 
 const MapControls: React.FC<MapControlsProps> = ({ 
-  onRefresh, 
   onOpenInGoogleMaps 
 }) => {
   return (

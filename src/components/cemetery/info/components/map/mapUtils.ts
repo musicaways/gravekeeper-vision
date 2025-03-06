@@ -12,9 +12,11 @@ export const buildMapUrl = (
   country?: string
 ): string => {
   if (latitude && longitude) {
-    // When using coordinates, Google Maps adds a marker at the specified location
-    // Using satellite view (maptype=satellite) and zoom level 18 for closer view
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite`;
+    // Using coordinates with maximum map customization:
+    // - maptype=satellite: Uses satellite view
+    // - zoom=18: Closer view of the location
+    // - language=it: Italian language UI
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=18&maptype=satellite&language=it`;
   } 
   
   if (address) {
@@ -26,8 +28,7 @@ export const buildMapUrl = (
       country
     ].filter(Boolean).join(', ');
     
-    // Using satellite view (maptype=satellite) for address-based maps too
-    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(fullAddress)}&zoom=16&maptype=satellite`;
+    return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(fullAddress)}&zoom=16&maptype=satellite&language=it`;
   }
   
   return '';
