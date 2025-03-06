@@ -73,7 +73,7 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         }
       ];
       
-      // Custom map options - enabling rotation and single finger panning
+      // Custom map options - enabling single finger panning and flat view by default
       const mapOptions: google.maps.MapOptions = {
         center: mapPosition,
         zoom: 17,
@@ -83,8 +83,14 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         clickableIcons: false,
         styles: mapStyles,
         gestureHandling: 'greedy', // Abilita la navigazione con un dito (greedy mode)
-        rotateControl: true, // Mostra il controllo di rotazione
-        tilt: 45 // Imposta un'inclinazione iniziale della mappa
+        tilt: 0, // Imposta una vista piatta di default
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_TOP
+        }
       };
       
       // Initialize the map
@@ -135,10 +141,10 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         }
       });
       
-      // Enable user to rotate map with two fingers
-      newMap.setOptions({
-        gestureHandling: 'greedy',
-      });
+      // Add tilt control - a custom control for toggling 45° view
+      const tiltControlDiv = document.createElement('div');
+      const tiltControl = createTiltControl(tiltControlDiv, newMap);
+      newMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(tiltControlDiv);
       
       // Save references
       setMap(newMap);
@@ -160,6 +166,43 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       onError(error instanceof Error ? error.message : "Errore sconosciuto");
     }
   }, [isLoaded, cemetery, forceRefresh, onError, mapLoaded]);
+  
+  // Function to create the tilt control
+  const createTiltControl = (controlDiv: HTMLDivElement, map: google.maps.Map) => {
+    // Set CSS for the control border
+    const controlUI = document.createElement('div');
+    controlUI.style.backgroundColor = '#fff';
+    controlUI.style.border = '2px solid #fff';
+    controlUI.style.borderRadius = '3px';
+    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.marginTop = '10px';
+    controlUI.style.marginRight = '10px';
+    controlUI.style.textAlign = 'center';
+    controlUI.title = 'Clicca per attivare/disattivare la vista inclinata';
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior
+    const controlText = document.createElement('div');
+    controlText.style.color = 'rgb(25,25,25)';
+    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+    controlText.style.fontSize = '12px';
+    controlText.style.lineHeight = '20px';
+    controlText.style.paddingLeft = '5px';
+    controlText.style.paddingRight = '5px';
+    controlText.innerHTML = '3D';
+    controlUI.appendChild(controlText);
+
+    // Setup the click event listener
+    let isTilted = false;
+    controlUI.addEventListener('click', () => {
+      isTilted = !isTilted;
+      map.setTilt(isTilted ? 45 : 0);
+      controlText.innerHTML = isTilted ? '2D' : '3D';
+    });
+    
+    return controlUI;
+  };
   
   // Handle Google Maps API errors
   useEffect(() => {
