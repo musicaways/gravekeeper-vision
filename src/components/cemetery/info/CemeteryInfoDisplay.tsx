@@ -1,13 +1,12 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import CemeteryTextSection from "./components/CemeteryTextSection";
 import CemeteryLocationInfo from "./components/CemeteryLocationInfo";
 import CemeteryContactInfo from "./components/CemeteryContactInfo";
 import CemeteryFacilities from "./components/CemeteryFacilities";
 import CemeteryMapSection from "./components/CemeteryMapSection";
+import BlockEditButton from "@/components/block/info/BlockEditButton";
 
 interface CemeteryInfoDisplayProps {
   cemetery: any;
@@ -35,16 +34,7 @@ const CemeteryInfoDisplay = ({ cemetery, onEditClick }: CemeteryInfoDisplayProps
         </div>
       </CardContent>
       
-      {canEdit && (
-        <Button 
-          onClick={onEditClick}
-          size="icon"
-          variant="secondary"
-          className="fixed bottom-6 right-6 h-12 w-12 rounded-full shadow-md z-10 bg-primary-light hover:bg-primary-dark text-white transition-all duration-300"
-        >
-          <Edit className="h-5 w-5" />
-        </Button>
-      )}
+      {canEdit && <BlockEditButton onClick={onEditClick} />}
     </Card>
   );
 };
