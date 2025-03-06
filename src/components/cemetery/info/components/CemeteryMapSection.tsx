@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { Map } from "lucide-react";
 import MapDisplay from "./map/MapDisplay";
 import { useCemeteryMap } from "./map/useCemeteryMap";
-import { toast } from "sonner";
 
 interface CemeteryMapSectionProps {
   cemeteryId: string | number;
@@ -16,7 +15,6 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     mapUrl,
     apiKeyError,
     useCustomMap,
-    setUseCustomMap,
     customMapId,
     hasCustomMapMarker,
     getCleanMarkerId
