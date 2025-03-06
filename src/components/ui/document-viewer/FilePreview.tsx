@@ -11,6 +11,7 @@ interface FilePreviewProps {
   scale: number;
   handleDownload: () => void;
   handleZoomIn: () => void;
+  toggleControls: () => void;
 }
 
 const FilePreview = ({
@@ -19,7 +20,8 @@ const FilePreview = ({
   title,
   scale,
   handleDownload,
-  handleZoomIn
+  handleZoomIn,
+  toggleControls
 }: FilePreviewProps) => {
   const isPdf = fileType.toLowerCase() === 'pdf';
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(fileType.toLowerCase());
@@ -36,14 +38,25 @@ const FilePreview = ({
     transition: 'transform 0.2s ease-out'
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (scale > 1) {
+      // Reset zoom
+      handleZoomIn();
+    } else {
+      // Zoom in
+      handleZoomIn();
+      handleZoomIn();
+    }
+  };
+
   if (isPdf) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center relative">
+      <div className="w-full h-full flex flex-col items-center justify-center relative bg-white">
         <iframe
-          src={`${currentFile.url}#zoom=${scale < 1.5 ? '100' : '150'}`}
+          src={`${currentFile.url}#zoom=${scale * 100}`}
           title={title}
-          className="w-full h-full"
-          style={{ backgroundColor: "white" }}
+          className="w-full h-full bg-white"
         ></iframe>
         <div className="absolute bottom-4 right-4 flex gap-2">
           <Button
@@ -72,8 +85,9 @@ const FilePreview = ({
           style={imageStyle}
           onClick={(e) => {
             e.stopPropagation();
-            handleZoomIn();
+            toggleControls();
           }}
+          onDoubleClick={handleDoubleClick}
           draggable={false}
           animate={{ opacity: 1 }}
           initial={{ opacity: 0 }}

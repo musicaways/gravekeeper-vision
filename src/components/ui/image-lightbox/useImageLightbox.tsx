@@ -65,8 +65,8 @@ export const useImageLightbox = ({
     handleSwipeMove,
     handleSwipeEnd
   } = useImageSwipe({
-    goNext: () => goToNextImage(),
-    goPrevious: () => goToPreviousImage(),
+    goNext: goToNextImage,
+    goPrevious: goToPreviousImage,
     scale
   });
 
