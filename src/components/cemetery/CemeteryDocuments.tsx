@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import DocumentsList from "./documents/DocumentsList";
 import DocumentUploadForm from "./documents/DocumentUploadForm";
@@ -74,6 +74,9 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Carica file</DialogTitle>
+            <DialogDescription>
+              Carica documenti e file associati a questo cimitero
+            </DialogDescription>
           </DialogHeader>
           
           <DocumentUploadForm 

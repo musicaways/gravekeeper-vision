@@ -96,16 +96,20 @@ export const useDocuments = (cemeteryId: string) => {
       }
       
       // 1. Upload the file to Supabase Storage
-      const fileExt = selectedFile.name.split('.').pop();
+      const fileExt = selectedFile.name.split('.').pop()?.toLowerCase() || '';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${cemeteryId}/${fileName}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('cemetery-documents')
-        .upload(filePath, selectedFile);
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
       
       if (uploadError) {
-        throw uploadError;
+        console.error("Errore durante il caricamento del file:", uploadError);
+        throw new Error(`Errore durante il caricamento del file: ${uploadError.message}`);
       }
       
       // 2. Get the URL of the uploaded file
@@ -123,10 +127,12 @@ export const useDocuments = (cemeteryId: string) => {
           NomeFile: values.filename,
           Descrizione: values.description,
           TipoFile: fileExt?.toUpperCase() || 'FILE',
-          Url: fileUrl
+          Url: fileUrl,
+          DataInserimento: new Date().toISOString()
         });
       
       if (dbError) {
+        console.error("Errore durante il salvataggio dei metadati:", dbError);
         throw dbError;
       }
       
@@ -144,7 +150,7 @@ export const useDocuments = (cemeteryId: string) => {
       console.error("Errore durante il caricamento:", error);
       toast({
         title: "Errore",
-        description: "Si è verificato un errore durante il caricamento",
+        description: error instanceof Error ? error.message : "Si è verificato un errore durante il caricamento",
         variant: "destructive"
       });
     } finally {
@@ -161,37 +167,54 @@ export const useDocuments = (cemeteryId: string) => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!documentToDelete) return;
+  const handleDelete = async (id?: string) => {
+    const docToDelete = id 
+      ? documents.find(doc => doc.id === id) 
+      : documentToDelete;
+    
+    if (!docToDelete) return;
     
     try {
       // 1. Delete from database
       const { error: dbError } = await supabase
         .from('CimiteroDocumenti')
         .delete()
-        .eq('Id', documentToDelete.id);
+        .eq('Id', docToDelete.id);
       
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Errore durante l'eliminazione dal database:", dbError);
+        throw dbError;
+      }
       
-      // 2. Get the storage path from the URL
-      // This is a simplification - in a real app you might want to store the storage path in your database
-      const urlParts = documentToDelete.url.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      const filePath = `${cemeteryId}/${fileName}`;
-      
-      // 3. Delete from storage
-      // This step might fail if the file path doesn't match exactly
-      const { error: storageError } = await supabase.storage
-        .from('cemetery-documents')
-        .remove([filePath]);
-      
-      if (storageError) {
-        console.warn("File might not have been removed from storage:", storageError);
+      // 2. Try to extract the storage path from the URL
+      try {
+        const url = new URL(docToDelete.url);
+        const pathParts = url.pathname.split('/');
+        // Find the relevant part after the bucket name
+        const objectPathIndex = pathParts.findIndex(part => part === 'object') + 2;
+        if (objectPathIndex > 1 && objectPathIndex < pathParts.length) {
+          const bucketIndex = pathParts.findIndex(part => part === 'public') + 1;
+          if (bucketIndex > 0 && bucketIndex < pathParts.length) {
+            const bucket = pathParts[bucketIndex];
+            const objectPath = pathParts.slice(objectPathIndex).join('/');
+            
+            // 3. Delete from storage
+            const { error: storageError } = await supabase.storage
+              .from(bucket)
+              .remove([objectPath]);
+            
+            if (storageError) {
+              console.warn("File might not have been removed from storage:", storageError);
+            }
+          }
+        }
+      } catch (parseError) {
+        console.warn("Couldn't parse file URL to delete from storage:", parseError);
       }
       
       toast({
         title: "Documento eliminato",
-        description: `${documentToDelete.name} è stato eliminato con successo`,
+        description: `${docToDelete.name} è stato eliminato con successo`,
       });
       
       fetchDocuments();

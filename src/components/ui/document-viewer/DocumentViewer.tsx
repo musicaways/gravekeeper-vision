@@ -82,9 +82,10 @@ const DocumentViewer = ({
   
   const renderFilePreview = () => {
     const fileUrl = currentFile?.url || '';
+    const fileTypeLower = fileType?.toLowerCase() || '';
 
     // PDF Preview
-    if (fileType?.toLowerCase() === 'pdf') {
+    if (fileTypeLower === 'pdf') {
       return (
         <div className="w-full h-full flex items-center justify-center bg-black/5 rounded-md overflow-hidden">
           <iframe 
@@ -96,14 +97,19 @@ const DocumentViewer = ({
       );
     }
     
-    // Image Preview (jpg, png, gif, etc.)
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType?.toLowerCase() || '')) {
+    // Image Preview (jpg, png, gif, bmp, etc.)
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(fileTypeLower)) {
       return (
         <div className="w-full h-full flex items-center justify-center">
           <img 
             src={fileUrl} 
             alt={title || "Image"} 
             className="max-h-[75vh] max-w-full object-contain"
+            onError={(e) => {
+              console.error("Image load error:", e);
+              e.currentTarget.src = "/placeholder.svg";
+              e.currentTarget.alt = "Errore nel caricamento dell'immagine";
+            }}
           />
         </div>
       );

@@ -6,11 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-interface FileUploadFormValues {
-  filename: string;
-  description: string;
-}
+import { useToast } from "@/hooks/use-toast";
+import { FileUploadFormValues } from "./types";
 
 interface DocumentUploadFormProps {
   onSubmit: (values: FileUploadFormValues, file: File) => Promise<void>;
@@ -24,6 +21,8 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   isUploading 
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { toast } = useToast();
+  
   const form = useForm<FileUploadFormValues>({
     defaultValues: {
       filename: "",
@@ -34,14 +33,45 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      // Check file size (limit to 50MB)
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (file.size > maxSize) {
+        toast({
+          title: "File troppo grande",
+          description: "Il file selezionato è troppo grande. Il limite è di 50MB.",
+          variant: "destructive"
+        });
+        e.target.value = '';
+        return;
+      }
+      
       setSelectedFile(file);
       form.setValue("filename", file.name);
     }
   };
 
   const handleFormSubmit = async (values: FileUploadFormValues) => {
-    if (!selectedFile) return;
-    await onSubmit(values, selectedFile);
+    if (!selectedFile) {
+      toast({
+        title: "Nessun file selezionato",
+        description: "Per favore seleziona un file da caricare.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      await onSubmit(values, selectedFile);
+    } catch (error) {
+      console.error("Error during form submission:", error);
+    }
+  };
+
+  const resetForm = () => {
+    form.reset();
+    setSelectedFile(null);
+    onCancel();
   };
 
   return (
@@ -56,7 +86,13 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
             type="file"
             onChange={handleFileChange}
             className="cursor-pointer"
+            disabled={isUploading}
           />
+          {selectedFile && (
+            <p className="text-xs text-muted-foreground mt-1">
+              File selezionato: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+            </p>
+          )}
         </div>
         
         <FormField
@@ -66,7 +102,7 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
             <FormItem>
               <FormLabel>Nome file</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={isUploading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,7 +116,11 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
             <FormItem>
               <FormLabel>Descrizione</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder="Inserisci una descrizione per questo file" />
+                <Textarea 
+                  {...field} 
+                  placeholder="Inserisci una descrizione per questo file" 
+                  disabled={isUploading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,12 +131,15 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
           <Button 
             type="button" 
             variant="outline" 
-            onClick={onCancel}
+            onClick={resetForm}
             disabled={isUploading}
           >
             Annulla
           </Button>
-          <Button type="submit" disabled={isUploading}>
+          <Button 
+            type="submit" 
+            disabled={isUploading || !selectedFile}
+          >
             {isUploading ? "Caricamento..." : "Carica"}
           </Button>
         </DialogFooter>
