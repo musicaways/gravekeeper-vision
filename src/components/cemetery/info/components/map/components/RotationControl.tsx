@@ -25,23 +25,28 @@ const RotationControl: React.FC<RotationControlProps> = ({ map }) => {
     // Check tilt when map is idle (after any operation completes)
     const tiltListener = google.maps.event.addListener(map, 'idle', checkTilt);
     
+    // Listen for custom tilt change events from TiltControl
+    const tiltChangeHandler = (event: CustomEvent) => {
+      setIs3DMode(event.detail.tilt > 0);
+      // Reset rotation degrees when switching to 3D mode
+      if (event.detail.tilt > 0) {
+        setRotationDegrees(0);
+      }
+    };
+    
+    document.addEventListener('tiltchange', tiltChangeHandler as EventListener);
+    
     // Check initial state
     checkTilt();
     
     return () => {
       google.maps.event.removeListener(tiltListener);
+      document.removeEventListener('tiltchange', tiltChangeHandler as EventListener);
     };
   }, [map]);
   
   const handleRotate = () => {
     if (!map) return;
-    
-    // If not in 3D mode, switch to 3D mode first
-    if (!is3DMode) {
-      (map as any).setTilt(45);
-      setIs3DMode(true);
-      toast.info("Attivata visualizzazione 3D", { duration: 2000 });
-    }
     
     // Increment rotation by 45 degrees each time, cycling from 0 to 315
     const newRotation = (rotationDegrees + 45) % 360;
@@ -54,13 +59,18 @@ const RotationControl: React.FC<RotationControlProps> = ({ map }) => {
     toast.success(`Mappa ruotata a ${newRotation}°`, { duration: 1500 });
   };
 
+  // Only render the button when in 3D mode
+  if (!is3DMode) {
+    return null;
+  }
+
   return (
     <Button
       variant="outline"
       size="sm"
       onClick={handleRotate}
       className="flex items-center gap-1 text-xs"
-      title={is3DMode ? `Ruota la mappa (${rotationDegrees}°)` : "Attiva 3D e ruota la mappa"}
+      title={`Ruota la mappa (${rotationDegrees}°)`}
     >
       <RotateCw className="h-4 w-4" />
       <span>Ruota</span>
