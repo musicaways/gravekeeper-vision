@@ -1,6 +1,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Info } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LightboxInfoBarProps {
   showControls: boolean;
@@ -25,15 +26,17 @@ const LightboxInfoBar = ({
           exit={{ opacity: 0, y: 50 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="text-white space-y-2 max-w-3xl mx-auto">
+          <div className="text-white max-w-3xl mx-auto">
             {title && (
               <p className="text-base md:text-lg font-medium">{title}</p>
             )}
             {description && (
-              <p className="text-sm md:text-base text-white/90">{description}</p>
+              <ScrollArea className="max-h-[150px] mt-2" orientation="vertical">
+                <p className="text-sm md:text-base text-white/90 pr-2">{description}</p>
+              </ScrollArea>
             )}
             {dateInfo && (
-              <p className="text-xs md:text-sm text-white/80 flex items-center gap-1">
+              <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-2">
                 <Info className="h-4 w-4" />
                 {dateInfo}
               </p>
