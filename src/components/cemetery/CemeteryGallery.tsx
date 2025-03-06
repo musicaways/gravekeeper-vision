@@ -5,6 +5,7 @@ import ImageLightbox, { LightboxImage } from "@/components/ui/image-lightbox";
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { formatDate } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Photo {
   Id: string;
@@ -31,6 +32,7 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -96,12 +98,22 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
   };
 
   const getGridClass = () => {
-    switch (columns) {
-      case 1: return "grid-cols-1";
-      case 2: return "grid-cols-2 sm:grid-cols-3";
-      case 3: return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5";
-      case 4: return "grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8";
-      default: return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5";
+    if (isMobile) {
+      switch (columns) {
+        case 1: return "grid-cols-1";
+        case 2: return "grid-cols-2";
+        case 3: return "grid-cols-2";
+        case 4: return "grid-cols-3";
+        default: return "grid-cols-2";
+      }
+    } else {
+      switch (columns) {
+        case 1: return "grid-cols-1";
+        case 2: return "grid-cols-2 sm:grid-cols-3";
+        case 3: return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5";
+        case 4: return "grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8";
+        default: return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5";
+      }
     }
   };
 

@@ -1,6 +1,7 @@
 
 import { motion } from "framer-motion";
 import { LightboxImage as LightboxImageType } from "./types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LightboxImageProps {
   imageRef: React.RefObject<HTMLImageElement>;
@@ -23,13 +24,15 @@ const LightboxImage = ({
   swipeDirection,
   setScale
 }: LightboxImageProps) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <motion.div className="absolute inset-0 flex items-center justify-center">
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
       <motion.img 
         ref={imageRef}
         src={currentImage.url} 
-        alt={title || ""}
-        className="max-h-[80vh] max-w-[85vw] object-contain select-none"
+        alt={title || "Immagine"}
+        className={`object-contain select-none ${isMobile ? 'max-h-[75vh] max-w-[90vw]' : 'max-h-[80vh] max-w-[85vw]'}`}
         style={{ 
           scale,
           x: position.x,
@@ -46,7 +49,7 @@ const LightboxImage = ({
         dragConstraints={{ left: -1000, right: 1000, top: -1000, bottom: 1000 }}
         dragElastic={0.1}
       />
-    </motion.div>
+    </div>
   );
 };
 

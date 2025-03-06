@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UseImageDragProps {
   setPosition: (pos: { x: number; y: number }) => void;
@@ -8,12 +9,14 @@ interface UseImageDragProps {
 export const useImageDrag = ({ setPosition }: UseImageDragProps) => {
   const [dragging, setDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const isMobile = useIsMobile();
   
   // Start image dragging (panning) when zoomed in
   const handleImageDragStart = (e: React.MouseEvent | React.TouchEvent, scale: number, position: { x: number; y: number }) => {
     if (scale <= 1) return;
     
     e.stopPropagation();
+    e.preventDefault();
     setDragging(true);
     
     if ('touches' in e) {
@@ -34,7 +37,9 @@ export const useImageDrag = ({ setPosition }: UseImageDragProps) => {
     if (!dragging || scale <= 1) return;
     
     e.stopPropagation();
-    e.preventDefault();
+    if ('touches' in e) {
+      e.preventDefault(); // Only prevent default for touch events
+    }
     
     let newX: number, newY: number;
     
@@ -46,6 +51,11 @@ export const useImageDrag = ({ setPosition }: UseImageDragProps) => {
       newY = e.clientY - dragStart.y;
     }
 
+    // Add bounds to prevent dragging too far
+    const maxDrag = (scale - 1) * 500; // Arbitrary limit based on scale
+    newX = Math.min(Math.max(newX, -maxDrag), maxDrag);
+    newY = Math.min(Math.max(newY, -maxDrag), maxDrag);
+    
     setPosition({ x: newX, y: newY });
   };
 
