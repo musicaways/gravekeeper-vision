@@ -18,7 +18,8 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     apiKeyError,
     useCustomMap,
     setUseCustomMap,
-    customMapId
+    customMapId,
+    hasCustomMapMarker
   } = useCemeteryMap(cemeteryId);
 
   useEffect(() => {
@@ -28,19 +29,27 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
       apiKeyError, 
       useCustomMap, 
       customMapId,
+      hasCustomMapMarker,
       mapUrl
     });
-  }, [loading, mapUrl, apiKeyError, useCustomMap, customMapId]);
+  }, [loading, mapUrl, apiKeyError, useCustomMap, customMapId, hasCustomMapMarker]);
   
   const toggleMapType = () => {
     console.log(`Switching map view from ${useCustomMap ? 'custom' : 'standard'} to ${!useCustomMap ? 'custom' : 'standard'}`);
     
     if (!useCustomMap) {
       // Switching to custom map - inform user about custom maps
-      toast.info(
-        "La mappa personalizzata mostra la vista dell'area, ma i marker devono essere aggiunti manualmente",
-        { duration: 4000 }
-      );
+      if (cemetery?.custom_map_marker_id) {
+        toast.success(
+          "Visualizzazione mappa personalizzata con marker configurato",
+          { duration: 3000 }
+        );
+      } else {
+        toast.info(
+          "La mappa personalizzata mostra la vista dell'area. Per visualizzare un marker specifico, configura l'ID del marker nelle impostazioni.",
+          { duration: 4000 }
+        );
+      }
     }
     
     setUseCustomMap(!useCustomMap);
@@ -70,6 +79,7 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         cemetery={cemetery}
         useCustomMap={useCustomMap}
         customMapId={customMapId}
+        hasCustomMapMarker={hasCustomMapMarker}
       />
     </div>
   );

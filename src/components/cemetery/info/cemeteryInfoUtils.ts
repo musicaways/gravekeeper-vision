@@ -13,6 +13,7 @@ export interface CemeteryUpdateData {
   total_area_sqm: number | null;
   Latitudine: string | number | null;
   Longitudine: string | number | null;
+  custom_map_marker_id: string | null;
   contact_info: {
     phone: string;
     email: string;
@@ -38,6 +39,7 @@ export const formatCemeteryData = (formData: any): CemeteryUpdateData => {
     total_area_sqm: formData.total_area_sqm ? parseFloat(formData.total_area_sqm) : null,
     Latitudine: formData.Latitudine ? parseFloat(formData.Latitudine) : null,
     Longitudine: formData.Longitudine ? parseFloat(formData.Longitudine) : null,
+    custom_map_marker_id: formData.custom_map_marker_id || null,
     contact_info: {
       phone: formData.contact_info.phone || "",
       email: formData.contact_info.email || "",

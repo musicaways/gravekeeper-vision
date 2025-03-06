@@ -66,7 +66,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         console.log("Fetching cemetery data for ID:", numericId);
         const { data, error } = await supabase
           .from('Cimitero')
-          .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country')
+          .select('Indirizzo, Latitudine, Longitudine, city, postal_code, state, country, custom_map_marker_id')
           .eq('Id', numericId)
           .single();
         
@@ -79,23 +79,32 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         if (useCustomMap) {
           console.log("Using custom map view, generating URL...");
           
-          // For custom Google My Maps embed, we can only center the map on coordinates
-          // We can't add a marker dynamically as that requires editing the map in My Maps
-          if (data.Latitudine && data.Longitudine) {
-            // Center the map on cemetery coordinates
-            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ll=${data.Latitudine},${data.Longitudine}&z=16`;
-            console.log("Custom map URL with coordinates:", customEmbedUrl);
+          // Controlla se è stato configurato un ID di marker personalizzato
+          if (data.custom_map_marker_id) {
+            console.log("Custom marker ID found:", data.custom_map_marker_id);
+            // Usa l'ID del marker per centrare la mappa e mostrare il marker
+            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&msid=${data.custom_map_marker_id}`;
+            console.log("Custom map URL with marker ID:", customEmbedUrl);
             setMapUrl(customEmbedUrl);
             
-            // Show toast message to explain the marker situation
+            toast.success(
+              "Marker personalizzato associato trovato e visualizzato nella mappa",
+              { duration: 3000 }
+            );
+          } else if (data.Latitudine && data.Longitudine) {
+            // Se non c'è un ID marker, ma ci sono le coordinate, centra solo la mappa
+            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ll=${data.Latitudine},${data.Longitudine}&z=16`;
+            console.log("Custom map URL with coordinates (no marker):", customEmbedUrl);
+            setMapUrl(customEmbedUrl);
+            
             toast.info(
-              "La mappa personalizzata è centrata sulla posizione del cimitero, ma i markers devono essere aggiunti manualmente in Google My Maps",
+              "La mappa personalizzata è centrata sulla posizione del cimitero. Per visualizzare il marker, aggiungi l'ID del marker nelle impostazioni del cimitero.",
               { duration: 5000 }
             );
           } else {
-            // No coordinates available
+            // Non ci sono né ID marker né coordinate
             const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}`;
-            console.log("Custom map URL without coordinates:", customEmbedUrl);
+            console.log("Custom map URL without coordinates or marker ID:", customEmbedUrl);
             setMapUrl(customEmbedUrl);
           }
         } else if (data.Latitudine || data.Indirizzo) {
@@ -131,6 +140,7 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
     apiKeyError,
     useCustomMap,
     setUseCustomMap,
-    customMapId
+    customMapId,
+    hasCustomMapMarker: !!cemetery?.custom_map_marker_id
   };
 };

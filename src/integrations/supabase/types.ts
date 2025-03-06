@@ -162,6 +162,7 @@ export type Database = {
           Codice: string | null
           contact_info: Json | null
           country: string | null
+          custom_map_marker_id: string | null
           Descrizione: string | null
           established_date: string | null
           FotoCopertina: string | null
@@ -189,6 +190,7 @@ export type Database = {
           Codice?: string | null
           contact_info?: Json | null
           country?: string | null
+          custom_map_marker_id?: string | null
           Descrizione?: string | null
           established_date?: string | null
           FotoCopertina?: string | null
@@ -216,6 +218,7 @@ export type Database = {
           Codice?: string | null
           contact_info?: Json | null
           country?: string | null
+          custom_map_marker_id?: string | null
           Descrizione?: string | null
           established_date?: string | null
           FotoCopertina?: string | null

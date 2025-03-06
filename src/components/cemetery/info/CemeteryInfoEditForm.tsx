@@ -1,13 +1,14 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Save, MapPin } from "lucide-react";
+import { Save, MapPin, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CemeteryInfoEditFormProps {
   cemetery: any;
@@ -32,6 +33,7 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
       total_area_sqm: cemetery.total_area_sqm || "",
       Latitudine: cemetery.Latitudine || "",
       Longitudine: cemetery.Longitudine || "",
+      custom_map_marker_id: cemetery.custom_map_marker_id || "",
       contact_info: {
         phone: cemetery.contact_info?.phone || "",
         email: cemetery.contact_info?.email || "",
@@ -247,6 +249,41 @@ const CemeteryInfoEditForm = ({ cemetery, onSave, onCancel }: CemeteryInfoEditFo
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="custom_map_marker_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1">
+                        ID marker sulla mappa personalizzata
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-80 p-3">
+                              <p>Inserisci l'ID del marker nella mappa personalizzata di Google My Maps.</p>
+                              <p className="mt-1">Come trovare l'ID del marker:</p>
+                              <ol className="list-decimal pl-4 mt-1 space-y-1 text-xs">
+                                <li>Apri la mappa in Google My Maps</li>
+                                <li>Fai clic sul marker che vuoi associare</li>
+                                <li>Nella finestra popup, fai clic sull'icona di condivisione</li>
+                                <li>Copia l'URL e cerca il parametro 'msid=' seguito da un ID numerico</li>
+                              </ol>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Es. 1Kd5EpcPnLnGAcBfZJl1u3cMyRplZqoWI" />
+                      </FormControl>
+                      <FormDescription>
+                        Associa questo cimitero a un marker esistente nella mappa personalizzata
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

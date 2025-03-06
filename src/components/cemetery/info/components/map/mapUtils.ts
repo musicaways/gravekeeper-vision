@@ -43,16 +43,26 @@ export const openExternalMap = (
   if (useCustomMap) {
     // For custom maps - we open the viewer which might have markers added manually
     let url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
-    if (cemetery.Latitudine && cemetery.Longitudine) {
+    
+    // Se è stato configurato un ID marker personalizzato, includi il parametro msid
+    if (cemetery.custom_map_marker_id) {
+      url += `&msid=${cemetery.custom_map_marker_id}`;
+      console.log("Opening custom map URL with marker ID:", url);
+    } else if (cemetery.Latitudine && cemetery.Longitudine) {
       url += `&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;
       console.log("Opening custom map URL with coordinates:", url);
     } else {
       console.log("Opening custom map URL without coordinates:", url);
     }
+    
     window.open(url, '_blank');
     
-    // Inform user about custom maps limitations
-    toast.info("I marker nella mappa personalizzata devono essere aggiunti manualmente nell'editor di Google My Maps");
+    // Messaggio diverso in base alla presenza dell'ID marker
+    if (cemetery.custom_map_marker_id) {
+      toast.success("Apertura mappa personalizzata con marker configurato");
+    } else {
+      toast.info("I marker nella mappa personalizzata devono essere aggiunti manualmente nell'editor di Google My Maps");
+    }
     return;
   }
   

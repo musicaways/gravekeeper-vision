@@ -1,6 +1,6 @@
 
 import React, { useEffect } from "react";
-import { Map } from "lucide-react";
+import { Map, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { openExternalMap } from "./mapUtils";
@@ -12,6 +12,7 @@ interface MapDisplayProps {
   cemetery: any;
   useCustomMap: boolean;
   customMapId: string;
+  hasCustomMapMarker?: boolean;
 }
 
 const MapDisplay: React.FC<MapDisplayProps> = ({
@@ -20,7 +21,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   apiKeyError,
   cemetery,
   useCustomMap,
-  customMapId
+  customMapId,
+  hasCustomMapMarker = false
 }) => {
   useEffect(() => {
     console.log("MapDisplay rendered with:", { 
@@ -28,9 +30,10 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       hasMapUrl: !!mapUrl, 
       apiKeyError, 
       useCustomMap, 
+      hasCustomMapMarker,
       mapUrl 
     });
-  }, [loading, mapUrl, apiKeyError, useCustomMap]);
+  }, [loading, mapUrl, apiKeyError, useCustomMap, hasCustomMapMarker]);
 
   const handleOpenMapInNewTab = () => {
     console.log("Opening map in new tab");
@@ -121,10 +124,25 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         </Button>
       </div>
       
-      {useCustomMap && cemetery?.Latitudine && cemetery?.Longitudine && (
-        <div className="mt-2 bg-muted/30 p-3 rounded-md text-sm">
-          <p className="text-muted-foreground">
-            <strong>Nota:</strong> La mappa personalizzata è centrata sul cimitero, ma i marker devono essere aggiunti manualmente nell'editor di Google My Maps.
+      {useCustomMap && !hasCustomMapMarker && cemetery?.Latitudine && cemetery?.Longitudine && (
+        <div className="mt-2 bg-yellow-50 border border-yellow-200 p-3 rounded-md text-sm">
+          <div className="flex items-start">
+            <AlertTriangle className="h-5 w-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-yellow-800 font-medium">Marker non configurato</p>
+              <p className="text-yellow-700 mt-1">
+                La mappa personalizzata è centrata sul cimitero, ma non è stato configurato un marker specifico. 
+                Per visualizzare un marker sulla mappa personalizzata, aggiungi l'ID del marker nelle impostazioni del cimitero.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {useCustomMap && hasCustomMapMarker && (
+        <div className="mt-2 bg-green-50 border border-green-200 p-3 rounded-md text-sm">
+          <p className="text-green-800">
+            <strong>Marker configurato:</strong> La mappa personalizzata visualizza il marker associato a questo cimitero.
           </p>
         </div>
       )}
