@@ -42,8 +42,8 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
   if (!hasFacilities) return null;
 
   return (
-    <div className="w-full py-2">
-      <h3 className="text-base font-medium mb-2 flex items-center gap-2 text-foreground">
+    <div className="w-full py-1">
+      <h3 className="text-base font-medium mb-2 flex items-center gap-2 text-foreground mt-0.5">
         <Building2 className="h-5 w-5 text-primary" />
         Strutture e servizi
       </h3>
@@ -54,7 +54,7 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
         {renderBooleanField("Cavalletti", cemetery.cavalletti)}
         {renderBooleanField("Impalcatura", cemetery.impalcatura)}
       </div>
-      <Separator className="mt-4 bg-slate-200" />
+      <Separator className="mt-3 bg-slate-200" />
     </div>
   );
 };
