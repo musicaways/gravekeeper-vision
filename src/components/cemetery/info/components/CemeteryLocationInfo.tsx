@@ -18,8 +18,8 @@ interface CemeteryLocationInfoProps {
 
 const CemeteryLocationInfo = ({ cemetery }: CemeteryLocationInfoProps) => {
   return (
-    <div className="w-full py-4">
-      <h3 className="text-base font-medium mb-3 text-foreground">Informazioni sulla posizione</h3>
+    <div className="w-full py-2">
+      <h3 className="text-base font-medium mb-2 text-foreground">Informazioni sulla posizione</h3>
       <div className="space-y-6">
         <div className="flex items-start gap-4">
           <MapPin className="h-5 w-5 text-primary mt-1 shrink-0" />

@@ -42,8 +42,8 @@ const CemeteryFacilities = ({ cemetery }: CemeteryFacilitiesProps) => {
   if (!hasFacilities) return null;
 
   return (
-    <div className="w-full py-4">
-      <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-foreground">
+    <div className="w-full py-2">
+      <h3 className="text-base font-medium mb-2 flex items-center gap-2 text-foreground">
         <Building2 className="h-5 w-5 text-primary" />
         Strutture e servizi
       </h3>
