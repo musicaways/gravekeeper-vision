@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -15,12 +15,12 @@ export interface CemeteryDocumentsProps {
 }
 
 const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => {
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedDocIndex, setSelectedDocIndex] = useState(0);
-  
   const {
     documents,
     loading,
+    viewerOpen,
+    setViewerOpen,
+    selectedDocIndex,
     isUploading,
     isUploadDialogOpen,
     setIsUploadDialogOpen,
@@ -30,7 +30,8 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
     handleUpload,
     handleDownload,
     openDeleteDialog,
-    handleDelete
+    handleDelete,
+    handleDocumentClick
   } = useDocuments(cemeteryId);
 
   const viewerFiles: DocumentViewerFile[] = documents.map(doc => ({
@@ -41,11 +42,6 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
     date: doc.date,
     type: doc.type
   }));
-
-  const handleDocumentClick = (index: number) => {
-    setSelectedDocIndex(index);
-    setViewerOpen(true);
-  };
 
   return (
     <div className="w-full">
