@@ -27,6 +27,7 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     documentToDelete,
+    isDownloading,
     handleUpload,
     handleDownload,
     openDeleteDialog,
@@ -49,7 +50,7 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
         <CardContent className="px-4 md:px-6 py-4">
           <DocumentsList 
             documents={documents}
-            loading={loading}
+            loading={loading || isDownloading}
             onDownload={handleDownload}
             onDelete={openDeleteDialog}
             onDocumentClick={handleDocumentClick}

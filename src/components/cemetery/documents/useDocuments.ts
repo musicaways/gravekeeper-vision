@@ -18,7 +18,7 @@ export const useDocuments = (cemeteryId: string) => {
     useDocumentUpload(cemeteryId, fetchDocuments);
   const { isDeleteDialogOpen, setIsDeleteDialogOpen, documentToDelete, openDeleteDialog, handleDelete } = 
     useDocumentDelete(fetchDocuments);
-  const { handleDownload } = useDocumentDownload();
+  const { handleDownload, isDownloading } = useDocumentDownload();
 
   // Document viewer handling
   const handleDocumentClick = (index: number) => {
@@ -45,6 +45,9 @@ export const useDocuments = (cemeteryId: string) => {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     documentToDelete,
+    
+    // Download related
+    isDownloading,
     
     // Actions
     handleUpload,
