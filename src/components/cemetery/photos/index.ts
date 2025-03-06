@@ -9,3 +9,6 @@ export { default as PhotoGalleryCard } from './PhotoGalleryCard';
 export * from './types';
 export * from './galleryUtils';
 export * from './useCemeteryPhotos';
+export * from './hooks/usePhotoUpload';
+export { default as PhotoFileInput } from './components/PhotoFileInput';
+export { default as UploadProgressBar } from './components/UploadProgressBar';
