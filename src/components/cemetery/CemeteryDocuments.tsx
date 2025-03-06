@@ -22,6 +22,7 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
     setViewerOpen,
     selectedDocIndex,
     isUploading,
+    uploadProgress,
     isUploadDialogOpen,
     setIsUploadDialogOpen,
     isDeleteDialogOpen,
@@ -80,6 +81,7 @@ const CemeteryDocuments: React.FC<CemeteryDocumentsProps> = ({ cemeteryId }) => 
             onSubmit={handleUpload}
             onCancel={() => setIsUploadDialogOpen(false)}
             isUploading={isUploading}
+            uploadProgress={uploadProgress}
           />
         </DialogContent>
       </Dialog>

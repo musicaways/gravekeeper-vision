@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface PdfCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -21,6 +21,7 @@ const PdfCanvas = ({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Force re-render when scale changes by updating a data attribute
   useEffect(() => {
@@ -29,8 +30,9 @@ const PdfCanvas = ({
     }
     
     // Update swipe enabled state based on scale
-    setSwipeEnabled(scale <= 1);
-    console.log("PdfCanvas: Updated swipe enabled state:", scale <= 1);
+    const shouldEnableSwipe = scale <= 1;
+    setSwipeEnabled(shouldEnableSwipe);
+    console.log("PdfCanvas: Updated swipe enabled state:", shouldEnableSwipe);
   }, [scale, canvasRef, setSwipeEnabled]);
 
   // Reset position when scale changes to 1
@@ -49,7 +51,8 @@ const PdfCanvas = ({
       x: e.touches[0].clientX - position.x,
       y: e.touches[0].clientY - position.y
     });
-    console.log("PdfCanvas: Touch start, disabling swipe navigation");
+    console.log("PdfCanvas: Touch start for panning, disabling swipe navigation");
+    setSwipeEnabled(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -69,8 +72,20 @@ const PdfCanvas = ({
     setPosition({ x: boundedX, y: boundedY });
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (scale <= 1) return;
+    
+    e.stopPropagation();
     setIsDragging(false);
+    
+    // Small delay before re-enabling swipe to prevent accidental swipes
+    setTimeout(() => {
+      // Only re-enable swipe if scale is back to 1
+      if (scale <= 1) {
+        setSwipeEnabled(true);
+        console.log("PdfCanvas: Re-enabling swipe navigation after panning");
+      }
+    }, 100);
   };
 
   return (
@@ -78,11 +93,13 @@ const PdfCanvas = ({
       className="flex-1 overflow-auto w-full flex items-center justify-center cursor-zoom-in"
       onClick={toggleControls}
       onDoubleClick={handleDoubleClick}
+      ref={containerRef}
     >
       <div 
         style={{ 
           transform: `translate(${position.x}px, ${position.y}px)`,
-          transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+          transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+          willChange: isDragging ? 'transform' : 'auto' // Performance optimization
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

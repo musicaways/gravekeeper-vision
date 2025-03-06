@@ -6,12 +6,14 @@ import { FileUploadFormValues } from "../types";
 
 export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleUpload = async (values: FileUploadFormValues, selectedFile: File) => {
     console.log("Starting upload process for file:", selectedFile.name);
     setIsUploading(true);
+    setUploadProgress(10);
 
     try {
       const numericId = parseInt(cemeteryId, 10);
@@ -27,6 +29,7 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       const filePath = `${cemeteryId}/${fileName}`;
       
       console.log("Generated file path:", filePath);
+      setUploadProgress(20);
       
       // Set proper content type for the upload
       let contentType = 'application/octet-stream'; // default
@@ -38,14 +41,21 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       
       console.log("Using content type:", contentType);
       console.log("Starting file upload to storage bucket...");
+      setUploadProgress(30);
       
-      // 2. Upload the file to Supabase Storage
+      // 2. Upload the file to Supabase Storage with progress tracking
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('cemetery-documents')
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false,
-          contentType: contentType
+          contentType: contentType,
+          onUploadProgress: (progress) => {
+            if (progress.totalBytes > 0) {
+              const calculatedProgress = (progress.uploadedBytes / progress.totalBytes) * 60;
+              setUploadProgress(30 + calculatedProgress);
+            }
+          }
         });
       
       if (uploadError) {
@@ -54,6 +64,7 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       }
       
       console.log("File uploaded successfully, getting public URL...");
+      setUploadProgress(90);
       
       // 3. Get the URL of the uploaded file
       const { data: publicUrlData } = supabase.storage
@@ -83,6 +94,7 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       }
       
       console.log("Upload process completed successfully");
+      setUploadProgress(100);
       
       toast({
         title: "File caricato",
@@ -103,12 +115,16 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       });
       throw error; // Re-throw to be caught by the form
     } finally {
-      setIsUploading(false);
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 500);
     }
   };
 
   return {
     isUploading,
+    uploadProgress,
     isUploadDialogOpen,
     setIsUploadDialogOpen,
     handleUpload

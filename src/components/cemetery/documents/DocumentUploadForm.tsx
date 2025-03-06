@@ -8,17 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { FileUploadFormValues } from "./types";
+import { Progress } from "@/components/ui/progress";
 
 interface DocumentUploadFormProps {
   onSubmit: (values: FileUploadFormValues, file: File) => Promise<void>;
   onCancel: () => void;
   isUploading: boolean;
+  uploadProgress?: number;
 }
 
 const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({ 
   onSubmit, 
   onCancel,
-  isUploading 
+  isUploading,
+  uploadProgress = 0
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -152,6 +155,15 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
             </FormItem>
           )}
         />
+        
+        {isUploading && uploadProgress > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Caricamento in corso... {uploadProgress.toFixed(0)}%
+            </p>
+            <Progress value={uploadProgress} className="h-2" />
+          </div>
+        )}
         
         <DialogFooter className="mt-4">
           <Button 

@@ -21,45 +21,61 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
   const [totalPages, setTotalPages] = useState(0);
   const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
   const lastRenderedScale = useRef<number>(0); // Track last rendered scale to avoid unnecessary rendering
+  const lastRenderedPage = useRef<number>(0); // Track last rendered page to avoid unnecessary rendering
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
+  const renderInProgress = useRef<boolean>(false);
   
   // Update swipe enabled when scale changes
   useEffect(() => {
-    console.log("PDF hook: Setting swipe enabled based on scale:", scale <= 1);
-    setSwipeEnabled(scale <= 1);
+    const shouldEnableSwipe = scale <= 1;
+    console.log("PDF hook: Setting swipe enabled based on scale:", shouldEnableSwipe);
+    setSwipeEnabled(shouldEnableSwipe);
   }, [scale, setSwipeEnabled]);
   
   // Function to render PDF page
   const renderPage = async (page: PDFPageProxy, forceScale?: number) => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || renderInProgress.current) return;
 
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    // Use the provided scale or current scale prop
-    const scaleToUse = forceScale !== undefined ? forceScale : scale;
+    renderInProgress.current = true;
     
-    // Skip rendering if scale hasn't changed
-    if (scaleToUse === lastRenderedScale.current && initialRenderComplete) {
-      console.log("Skipping render - scale unchanged:", scaleToUse);
-      return;
-    }
-    
-    // Apply scaling factor
-    const viewport = page.getViewport({ scale: scaleToUse * 1.5 });
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-
     try {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      if (!context) {
+        renderInProgress.current = false;
+        return;
+      }
+
+      // Use the provided scale or current scale prop
+      const scaleToUse = forceScale !== undefined ? forceScale : scale;
+      
+      // Skip rendering if scale and page haven't changed
+      if (scaleToUse === lastRenderedScale.current && 
+          page.pageNumber === lastRenderedPage.current && 
+          initialRenderComplete) {
+        console.log("Skipping render - no changes detected:", 
+                    {scale: scaleToUse, page: page.pageNumber, lastScale: lastRenderedScale.current, lastPage: lastRenderedPage.current});
+        renderInProgress.current = false;
+        return;
+      }
+      
+      console.log("Rendering page", page.pageNumber, "with scale", scaleToUse);
+      
+      // Apply scaling factor
+      const viewport = page.getViewport({ scale: scaleToUse * 1.5 });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
       await page.render({
         canvasContext: context,
         viewport: viewport
       }).promise;
+      
       console.log("Page rendered successfully with scale:", scaleToUse);
       
-      // Update last rendered scale
+      // Update last rendered values
       lastRenderedScale.current = scaleToUse;
+      lastRenderedPage.current = page.pageNumber;
       
       if (!initialRenderComplete) {
         setInitialRenderComplete(true);
@@ -67,6 +83,8 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
     } catch (error) {
       console.error("Error rendering PDF page:", error);
       setPdfError("Errore nel rendering della pagina PDF");
+    } finally {
+      renderInProgress.current = false;
     }
   };
 
@@ -83,7 +101,7 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
     }
   };
 
-  // Load PDF document
+  // Load PDF document when URL changes
   useEffect(() => {
     if (!url) return;
 
@@ -94,6 +112,8 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
         setPdfError(null);
         setInitialRenderComplete(false);
         lastRenderedScale.current = 0; // Reset last rendered scale
+        lastRenderedPage.current = 0; // Reset last rendered page
+        renderInProgress.current = false;
         
         // Load the PDF document
         const loadingTask = pdfjsLib.getDocument({
@@ -105,11 +125,19 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
         const pdf = await loadingTask.promise;
         console.log("PDF loaded successfully, pages:", pdf.numPages);
         
+        // Cleanup previous PDF if exists
+        if (pdfDocRef.current) {
+          await pdfDocRef.current.destroy().catch(err => {
+            console.error("Error destroying previous PDF document:", err);
+          });
+        }
+        
         pdfDocRef.current = pdf;
         setTotalPages(pdf.numPages);
+        setCurrentPage(initialPage);
         
         // Get the first page
-        const page = await pdf.getPage(1);
+        const page = await pdf.getPage(initialPage);
         
         // Force initial render with scale=1 to ensure visibility
         await renderPage(page, 1);
@@ -132,13 +160,13 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
         pdfDocRef.current = null;
       }
     };
-  }, [url]);
+  }, [url, initialPage]);
 
   // Update rendering when scale changes
   useEffect(() => {
     const updatePdfScale = async () => {
       console.log("Scale changed to:", scale, "Last rendered scale:", lastRenderedScale.current);
-      if (pdfDocRef.current && canvasRef.current) {
+      if (pdfDocRef.current && canvasRef.current && !renderInProgress.current) {
         try {
           const page = await pdfDocRef.current.getPage(currentPage);
           await renderPage(page);
@@ -156,26 +184,26 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
 
   // Force a re-render after the component has mounted
   useEffect(() => {
-    const forceRender = async () => {
-      if (!initialRenderComplete && pdfDocRef.current) {
+    if (!initialRenderComplete && pdfDocRef.current && !renderInProgress.current) {
+      const forceRender = async () => {
         try {
-          const page = await pdfDocRef.current.getPage(currentPage);
+          const page = await pdfDocRef.current!.getPage(currentPage);
           await renderPage(page, 1);
         } catch (error) {
           console.error("Error forcing render:", error);
         }
-      }
-    };
-    
-    // Small delay to ensure component is fully mounted
-    const timer = setTimeout(forceRender, 500);
-    return () => clearTimeout(timer);
+      };
+      
+      // Small delay to ensure component is fully mounted
+      const timer = setTimeout(forceRender, 300);
+      return () => clearTimeout(timer);
+    }
   }, [initialRenderComplete, currentPage]);
 
   // Handle page navigation
   const goToNextPage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (pdfDocRef.current && currentPage < totalPages) {
+    if (pdfDocRef.current && currentPage < totalPages && !renderInProgress.current) {
       setCurrentPage(prev => {
         const nextPage = prev + 1;
         loadPdfPage(nextPage);
@@ -186,7 +214,7 @@ export const usePdfViewer = ({ url, scale, initialPage = 1, setSwipeEnabled }: U
 
   const goToPrevPage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (pdfDocRef.current && currentPage > 1) {
+    if (pdfDocRef.current && currentPage > 1 && !renderInProgress.current) {
       setCurrentPage(prev => {
         const prevPage = prev - 1;
         loadPdfPage(prevPage);
