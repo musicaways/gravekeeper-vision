@@ -46,6 +46,7 @@ export const openExternalMap = (
     
     // Se è stato configurato un ID marker personalizzato, includi il parametro msid
     if (cemetery.custom_map_marker_id) {
+      // Usando il marker ID come msid è cruciale per visualizzare il marker corretto
       url += `&msid=${cemetery.custom_map_marker_id}`;
       console.log("Opening custom map URL with marker ID:", url);
     } else if (cemetery.Latitudine && cemetery.Longitudine) {

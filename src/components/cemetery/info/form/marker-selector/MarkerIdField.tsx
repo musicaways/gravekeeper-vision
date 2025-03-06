@@ -92,7 +92,8 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
             </Button>
           </div>
           <FormDescription>
-            Associa questo cimitero a un marker esistente nella mappa personalizzata
+            Questo ID verrà utilizzato per evidenziare un marker specifico nella mappa personalizzata.
+            Dopo aver salvato, nella visualizzazione "Mappa personalizzata" nella scheda Info, il marker sarà visibile.
           </FormDescription>
           <FormMessage />
 

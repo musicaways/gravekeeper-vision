@@ -79,11 +79,12 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         if (useCustomMap) {
           console.log("Using custom map view, generating URL...");
           
-          // Controlla se è stato configurato un ID di marker personalizzato
+          // Verifica se è stato configurato un ID di marker personalizzato
           if (data.custom_map_marker_id) {
             console.log("Custom marker ID found:", data.custom_map_marker_id);
-            // Usa l'ID del marker per centrare la mappa e mostrare il marker
-            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&msid=${data.custom_map_marker_id}`;
+            
+            // Costruisci l'URL con l'ID del marker come parametro msid
+            const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ehbc=2E312F&msid=${data.custom_map_marker_id}`;
             console.log("Custom map URL with marker ID:", customEmbedUrl);
             setMapUrl(customEmbedUrl);
             

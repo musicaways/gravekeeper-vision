@@ -44,6 +44,12 @@ export function useCustomMapMarker({
       console.log("Adding cemetery coordinates to map URL:", cemeteryCoordinates);
     }
     
+    // If we have a selected marker ID and we're re-opening the dialog, include it
+    if (initialMarkerId) {
+      url += `&msid=${initialMarkerId}`;
+      console.log("Including initial marker ID in URL:", initialMarkerId);
+    }
+    
     return url;
   };
 
