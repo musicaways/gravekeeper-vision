@@ -32,6 +32,19 @@ interface GoogleMapTypes {
       addListener: (instance: any, eventName: string, handler: Function) => void;
     };
     MapMouseEvent: any;
+    // Add SymbolPath to fix the missing property error
+    SymbolPath: {
+      CIRCLE: number;
+      FORWARD_CLOSED_ARROW: number;
+      FORWARD_OPEN_ARROW: number;
+      BACKWARD_CLOSED_ARROW: number;
+      BACKWARD_OPEN_ARROW: number;
+    };
+    // Add Size constructor for marker icon sizing
+    Size: new (width: number, height: number) => {
+      width: number;
+      height: number;
+    };
   };
 }
 

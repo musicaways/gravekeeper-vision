@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -62,14 +61,10 @@ const MapSelector: React.FC<MapSelectorProps> = ({
           map: map,
           draggable: true,
           animation: window.google.maps.Animation.DROP,
-          // Enhanced marker styling
+          // Use a simpler marker icon configuration that doesn't rely on SymbolPath
           icon: {
-            path: window.google.maps.SymbolPath.CIRCLE,
-            scale: 12,
-            fillColor: "#8B5CF6", // Vivid purple
-            fillOpacity: 0.9,
-            strokeColor: "#FFFFFF",
-            strokeWeight: 2
+            url: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+            scaledSize: new window.google.maps.Size(32, 32),
           },
           title: "Posizione del cimitero"
         });
@@ -101,20 +96,16 @@ const MapSelector: React.FC<MapSelectorProps> = ({
           if (marker) {
             marker.setPosition(clickedPosition);
           } else {
-            // Create marker with custom styling for better visibility
+            // Create marker with custom styling for better visibility using URL
             const newMarker = new window.google.maps.Marker({
               position: clickedPosition,
               map: map,
               draggable: true,
               animation: window.google.maps.Animation.DROP,
-              // Enhanced marker styling
+              // Use a simpler marker icon configuration that doesn't rely on SymbolPath
               icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 12,
-                fillColor: "#8B5CF6", // Vivid purple
-                fillOpacity: 0.9,
-                strokeColor: "#FFFFFF",
-                strokeWeight: 2
+                url: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+                scaledSize: new window.google.maps.Size(32, 32),
               },
               title: "Posizione del cimitero"
             });
