@@ -90,31 +90,29 @@ const CemeteryDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Main container with consistent padding */}
-      <div className="w-full flex justify-center">
-        <div className="w-full max-w-screen-md px-4 md:px-6">
-          {/* Cover photo with rounded corners, matching TabList styling */}
-          <div className="w-full h-48 md:h-64 relative overflow-hidden rounded-md mb-2">
-            <img 
-              src={coverPhotoUrl} 
-              alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
-              <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
-              <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
-            </div>
+      {/* Container for the cover photo with consistent width */}
+      <div className="w-full h-48 md:h-64 relative overflow-hidden">
+        <img 
+          src={coverPhotoUrl} 
+          alt={`${cemetery.nome || 'Cimitero'} - immagine di copertina`}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/30 p-4">
+          <div className="w-full max-w-none px-1">
+            <h2 className="text-white text-xl md:text-2xl font-semibold">{cemetery.Nome || cemetery.nome || "Cimitero"}</h2>
+            <p className="text-white/90 text-sm md:text-base">{cemetery.Indirizzo || "Indirizzo non disponibile"}</p>
           </div>
-          
-          {/* Tabs with the same container width as the cover photo */}
-          <CemeteryTabs 
-            cemetery={cemetery} 
-            cemeteryId={id || ''} 
-            searchTerm={searchTerm}
-            activeTab={activeTab}
-            onSearch={handleSearch}
-          />
         </div>
+      </div>
+        
+      <div className="w-full max-w-none px-1">
+        <CemeteryTabs 
+          cemetery={cemetery} 
+          cemeteryId={id || ''} 
+          searchTerm={searchTerm}
+          activeTab={activeTab}
+          onSearch={handleSearch}
+        />
       </div>
     </div>
   );
