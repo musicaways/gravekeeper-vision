@@ -12,3 +12,4 @@ export interface ImageLightboxProps {
   initialIndex: number;
   onClose: () => void;
 }
+

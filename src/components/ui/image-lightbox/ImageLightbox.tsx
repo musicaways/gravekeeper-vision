@@ -34,7 +34,8 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
     handleMouseMove,
     handleMouseUp,
     currentImage,
-    parseImageDetails
+    parseImageDetails,
+    setScale
   } = useImageLightbox({ images, open, initialIndex, onClose });
 
   if (images.length === 0) return null;
@@ -91,7 +92,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
               position={position}
               dragging={dragging}
               swipeDirection={swipeDirection}
-              setScale={value => value === 1 ? 2 : 1}
+              setScale={setScale}
             />
             
             {/* Bottom info bar */}

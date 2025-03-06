@@ -38,9 +38,12 @@ const LightboxImage = ({
       }}
       onDoubleClick={(e) => {
         e.stopPropagation();
-        setScale(scale);
+        setScale(scale === 1 ? 2 : 1);
       }}
       transition={{ type: "spring", damping: 20, stiffness: 200 }}
+      drag={scale > 1}
+      dragConstraints={{ left: -1000, right: 1000, top: -1000, bottom: 1000 }}
+      dragElastic={0.1}
     />
   );
 };

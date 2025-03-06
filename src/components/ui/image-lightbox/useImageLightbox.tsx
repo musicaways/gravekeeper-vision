@@ -12,6 +12,7 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
   const [dragging, setDragging] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<null | "left" | "right">(null);
   const [startX, setStartX] = useState(0);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -89,15 +90,68 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     toggleControls();
   };
 
+  // Start image dragging (panning) when zoomed in
+  const handleImageDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    if (scale <= 1) return;
+    
+    e.stopPropagation();
+    setDragging(true);
+    
+    if ('touches' in e) {
+      setDragStart({
+        x: e.touches[0].clientX - position.x,
+        y: e.touches[0].clientY - position.y
+      });
+    } else {
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
+    }
+  };
+
+  // Handle image dragging (panning) movement
+  const handleImageDrag = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!dragging || scale <= 1) return;
+    
+    e.stopPropagation();
+    e.preventDefault();
+    
+    let newX: number, newY: number;
+    
+    if ('touches' in e) {
+      newX = e.touches[0].clientX - dragStart.x;
+      newY = e.touches[0].clientY - dragStart.y;
+    } else {
+      newX = e.clientX - dragStart.x;
+      newY = e.clientY - dragStart.y;
+    }
+
+    setPosition({ x: newX, y: newY });
+  };
+
+  // End image dragging
+  const handleImageDragEnd = () => {
+    setDragging(false);
+  };
+
   // Touch event handlers for swiping
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (scale > 1) {
+      handleImageDragStart(e);
+      return;
+    }
+    
     setStartX(e.touches[0].clientX);
     setDragging(true);
     setShowControls(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (scale > 1) return; // Don't allow swipe when zoomed in
+    if (scale > 1) {
+      handleImageDrag(e);
+      return;
+    }
     
     const currentX = e.touches[0].clientX;
     const diff = startX - currentX;
@@ -111,10 +165,13 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     }
   };
 
-  const handleTouchEnd = () => {
-    setDragging(false);
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (scale > 1) {
+      handleImageDragEnd();
+      return;
+    }
     
-    if (scale > 1) return; // Don't allow swipe when zoomed in
+    setDragging(false);
     
     if (swipeDirection === "right") {
       goToNextImage();
@@ -127,13 +184,23 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
 
   // Mouse event handlers for swipe simulation with mouse
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale > 1) {
+      handleImageDragStart(e);
+      return;
+    }
+    
     setStartX(e.clientX);
     setDragging(true);
     setShowControls(true);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!dragging || scale > 1) return;
+    if (scale > 1) {
+      handleImageDrag(e);
+      return;
+    }
+    
+    if (!dragging) return;
     
     const currentX = e.clientX;
     const diff = startX - currentX;
@@ -147,15 +214,18 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (scale > 1) {
+      handleImageDragEnd();
+      return;
+    }
+    
     if (!dragging) return;
     
-    if (scale <= 1) {
-      if (swipeDirection === "right") {
-        goToNextImage();
-      } else if (swipeDirection === "left") {
-        goToPreviousImage();
-      }
+    if (swipeDirection === "right") {
+      goToNextImage();
+    } else if (swipeDirection === "left") {
+      goToPreviousImage();
     }
     
     setDragging(false);
@@ -204,6 +274,8 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     handleMouseMove,
     handleMouseUp,
     currentImage,
-    parseImageDetails
+    parseImageDetails,
+    setPosition,
+    setScale
   };
 };
