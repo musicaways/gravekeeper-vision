@@ -20,15 +20,15 @@ const CemeteryTabContent: React.FC<CemeteryTabContentProps> = ({
 }) => {
   return (
     <>
-      <TabsContent value="info" className="space-y-6 w-full px-2">
+      <TabsContent value="info" className="space-y-6 w-full px-1">
         <CemeteryInfoTabContent cemetery={cemetery} />
       </TabsContent>
 
-      <TabsContent value="sections" className="space-y-6 w-full px-2">
+      <TabsContent value="sections" className="space-y-6 w-full px-1">
         <CemeterySectionsTabContent cemeteryId={cemeteryId} searchTerm={searchTerm} />
       </TabsContent>
 
-      <TabsContent value="documents" className="space-y-6 w-full px-2">
+      <TabsContent value="documents" className="space-y-6 w-full px-1">
         <CemeteryDocumentsTabContent cemeteryId={cemeteryId} />
       </TabsContent>
     </>

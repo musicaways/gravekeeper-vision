@@ -30,7 +30,7 @@ export const CemeteryTabs: React.FC<CemeteryTabsProps> = ({
     } else {
       const savedTab = localStorage.getItem(`cemetery-${id}-tab`);
       // Verify that the tab saved is one of those available
-      const availableTabs = ["info", "sections", "map", "documents", "gallery"];
+      const availableTabs = ["info", "sections", "map", "documents"];
       if (savedTab && availableTabs.includes(savedTab)) {
         setActiveTab(savedTab);
       }
