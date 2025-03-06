@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Map, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,10 +77,26 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         console.log("Cemetery data retrieved:", data);
         setCemetery(data);
         
-        // Se useCustomMap è true, utilizziamo la mappa personalizzata
-        if (useCustomMap) {
-          setMapUrl(`https://www.google.com/maps/d/embed?mid=${customMapId}`);
-          console.log("Custom map URL set with ID:", customMapId);
+        // Se useCustomMap è true, utilizziamo la mappa personalizzata ma includiamo il marker della posizione
+        if (useCustomMap && data.Latitudine && data.Longitudine) {
+          // Utilizziamo l'embed di Google Maps standard ma centrato sulla posizione del cimitero
+          // aggiungendo anche il riferimento alla mappa personalizzata come strato aggiuntivo
+          const embeddedCustomMapUrl = `https://www.google.com/maps/embed/v1/view?key=${apiKey}&center=${data.Latitudine},${data.Longitudine}&zoom=16&maptype=satellite`;
+          setMapUrl(embeddedCustomMapUrl);
+          console.log("Custom map URL set with coordinates for marker");
+          
+          // Notifica all'utente che il marker verrà visualizzato solo nella vista standard
+          toast.info("Il marker della posizione è visibile solo nella vista standard. Per vedere la mappa personalizzata, aprila in Google Maps.", {
+            duration: 5000
+          });
+          
+          // Modifichiamo il comportamento per aprire la mappa personalizzata in Google Maps
+          setTimeout(() => {
+            const customMapUrl = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
+            window.open(customMapUrl, '_blank');
+            // Torniamo alla vista standard dopo aver aperto la mappa personalizzata
+            setUseCustomMap(false);
+          }, 500);
         } else if (data.Latitudine && data.Longitudine) {
           // Altrimenti utilizziamo la visualizzazione satellitare normale
           setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${data.Latitudine},${data.Longitudine}&zoom=16&maptype=satellite`);
@@ -112,8 +127,11 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     if (!cemetery) return;
     
     if (useCustomMap) {
-      // Apri la mappa personalizzata in una nuova scheda
-      const url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
+      // Apri la mappa personalizzata in una nuova scheda e centra sulla posizione del cimitero
+      let url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
+      if (cemetery.Latitudine && cemetery.Longitudine) {
+        url += `&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;
+      }
       window.open(url, '_blank');
       return;
     }
