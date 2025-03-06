@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useMapDisplay } from "./hooks/useMapDisplay";
 import MapLoadingState from "./components/MapLoadingState";
 import MapErrorState from "./components/MapErrorState";
@@ -31,6 +31,12 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     handleMapError,
     refreshMap
   } = useMapDisplay({ loading, apiKeyError, cemetery });
+
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  const handleMapLoaded = (loadedMap: google.maps.Map) => {
+    setMap(loadedMap);
+  };
 
   const handleOpenMapInNewTab = () => {
     console.log("Opening map in new tab");
@@ -75,11 +81,13 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         cemetery={cemetery}
         forceRefresh={forceRefresh}
         onError={handleMapError}
+        onMapLoaded={handleMapLoaded}
       />
       
       <div className="flex justify-start mt-3">
         <MapControls 
-          onOpenInGoogleMaps={handleOpenMapInNewTab} 
+          onOpenInGoogleMaps={handleOpenMapInNewTab}
+          map={map}
         />
       </div>
     </div>

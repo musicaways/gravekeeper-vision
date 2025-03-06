@@ -8,11 +8,17 @@ interface JavaScriptMapProps {
   cemetery: any;
   forceRefresh: number;
   onError: (error: string) => void;
+  onMapLoaded: (map: google.maps.Map) => void;
 }
 
-const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, onError }) => {
+const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ 
+  cemetery, 
+  forceRefresh, 
+  onError,
+  onMapLoaded
+}) => {
   const { isLoaded, isError, loadingError } = useGoogleMapsApi();
-  const { mapRef, mapLoaded } = useMapInitialization({
+  const { mapRef, mapLoaded, map } = useMapInitialization({
     isLoaded,
     cemetery,
     forceRefresh,
@@ -25,6 +31,13 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       onError(loadingError);
     }
   }, [isError, loadingError, onError]);
+  
+  // Notify parent component when map is loaded
+  React.useEffect(() => {
+    if (map && mapLoaded) {
+      onMapLoaded(map);
+    }
+  }, [map, mapLoaded, onMapLoaded]);
   
   return (
     <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative bg-gradient-to-b from-sky-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">

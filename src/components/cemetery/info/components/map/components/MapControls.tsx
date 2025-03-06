@@ -1,16 +1,19 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import RotationControl from "./RotationControl";
 
 interface MapControlsProps {
   onOpenInGoogleMaps: () => void;
+  map: google.maps.Map | null;
 }
 
 const MapControls: React.FC<MapControlsProps> = ({ 
-  onOpenInGoogleMaps 
+  onOpenInGoogleMaps,
+  map
 }) => {
   return (
-    <div className="flex justify-start items-center">
+    <div className="flex justify-start items-center gap-2">
       <Button 
         variant="outline" 
         size="sm" 
@@ -33,6 +36,8 @@ const MapControls: React.FC<MapControlsProps> = ({
         </svg>
         Apri in Google Maps
       </Button>
+      
+      <RotationControl map={map} />
     </div>
   );
 };
