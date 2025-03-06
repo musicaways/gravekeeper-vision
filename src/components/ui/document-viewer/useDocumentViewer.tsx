@@ -12,14 +12,15 @@ export const useDocumentViewer = ({
   const [showControls, setShowControls] = useState(true);
   const [scale, setScale] = useState(1);
   
-  // Reset current index and scale when viewer opens
+  // Reset current index and scale when viewer opens or files change
   useEffect(() => {
     if (open) {
       setCurrentIndex(initialIndex);
       setScale(1);
       setShowControls(true);
+      console.log("Document viewer reset state on open, initialIndex:", initialIndex);
     }
-  }, [initialIndex, open]);
+  }, [initialIndex, open, files]);
   
   const goToPreviousFile = () => {
     setCurrentIndex((prev) => {
@@ -47,25 +48,17 @@ export const useDocumentViewer = ({
 
   const handleZoomIn = () => {
     setScale((prev) => {
-      console.log("Zooming in from:", prev);
-      // If the scale is at max (3), go back to 1, otherwise increment by 0.5
-      if (prev >= 3) {
-        return 1;
-      } else {
-        return prev + 0.5;
-      }
+      const newScale = prev >= 3 ? 1 : prev + 0.5;
+      console.log("Zooming in from:", prev, "to:", newScale);
+      return newScale;
     });
   };
 
   const handleZoomOut = () => {
     setScale((prev) => {
-      console.log("Zooming out from:", prev);
-      // If the scale is at min (1), keep it at 1, otherwise decrement by 0.5
-      if (prev <= 1) {
-        return 1;
-      } else {
-        return prev - 0.5;
-      }
+      const newScale = prev <= 1 ? 1 : prev - 0.5;
+      console.log("Zooming out from:", prev, "to:", newScale);
+      return newScale;
     });
   };
   

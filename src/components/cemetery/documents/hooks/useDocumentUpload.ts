@@ -10,21 +10,23 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
   const { toast } = useToast();
 
   const handleUpload = async (values: FileUploadFormValues, selectedFile: File) => {
+    console.log("Starting upload process for file:", selectedFile.name);
     setIsUploading(true);
 
     try {
       const numericId = parseInt(cemeteryId, 10);
       
       if (isNaN(numericId)) {
+        console.error("Invalid cemetery ID:", cemeteryId);
         throw new Error("ID cimitero non valido");
       }
       
-      // 1. Upload the file to Supabase Storage
+      // 1. Generate a unique filename to prevent collisions
       const fileExt = selectedFile.name.split('.').pop()?.toLowerCase() || '';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${cemeteryId}/${fileName}`;
       
-      console.log("Starting file upload...");
+      console.log("Generated file path:", filePath);
       
       // Set proper content type for the upload
       let contentType = 'application/octet-stream'; // default
@@ -34,6 +36,10 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       else if (fileExt === 'gif') contentType = 'image/gif';
       else if (fileExt === 'bmp') contentType = 'image/bmp';
       
+      console.log("Using content type:", contentType);
+      console.log("Starting file upload to storage bucket...");
+      
+      // 2. Upload the file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('cemetery-documents')
         .upload(filePath, selectedFile, {
@@ -43,13 +49,13 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
         });
       
       if (uploadError) {
-        console.error("Errore durante il caricamento del file:", uploadError);
+        console.error("File upload failed:", uploadError);
         throw new Error(`Errore durante il caricamento del file: ${uploadError.message}`);
       }
       
       console.log("File uploaded successfully, getting public URL...");
       
-      // 2. Get the URL of the uploaded file
+      // 3. Get the URL of the uploaded file
       const { data: publicUrlData } = supabase.storage
         .from('cemetery-documents')
         .getPublicUrl(filePath);
@@ -58,7 +64,8 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       
       console.log("Public URL obtained:", fileUrl);
       
-      // 3. Save metadata to the database
+      // 4. Save metadata to the database
+      console.log("Saving metadata to database...");
       const { error: dbError } = await supabase
         .from('CimiteroDocumenti')
         .insert({
@@ -71,9 +78,11 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
         });
       
       if (dbError) {
-        console.error("Errore durante il salvataggio dei metadati:", dbError);
+        console.error("Database insert failed:", dbError);
         throw dbError;
       }
+      
+      console.log("Upload process completed successfully");
       
       toast({
         title: "File caricato",
@@ -86,12 +95,13 @@ export const useDocumentUpload = (cemeteryId: string, onSuccess: () => void) => 
       onSuccess();
       
     } catch (error) {
-      console.error("Errore durante il caricamento:", error);
+      console.error("Complete upload error:", error);
       toast({
         title: "Errore",
         description: error instanceof Error ? error.message : "Si è verificato un errore durante il caricamento",
         variant: "destructive"
       });
+      throw error; // Re-throw to be caught by the form
     } finally {
       setIsUploading(false);
     }

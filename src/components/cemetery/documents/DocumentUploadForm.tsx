@@ -31,13 +31,16 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File selection triggered");
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      console.log("File selected:", file.name, "Size:", file.size, "Type:", file.type);
       
       try {
         // Check file size (limit to 50MB)
         const maxSize = 50 * 1024 * 1024; // 50MB
         if (file.size > maxSize) {
+          console.log("File too large:", file.size, "max:", maxSize);
           toast({
             title: "File troppo grande",
             description: "Il file selezionato è troppo grande. Il limite è di 50MB.",
@@ -49,8 +52,9 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
         
         setSelectedFile(file);
         form.setValue("filename", file.name);
+        console.log("File successfully set for upload:", file.name);
       } catch (error) {
-        console.error("Errore durante la selezione del file:", error);
+        console.error("Error during file selection:", error);
         toast({
           title: "Errore",
           description: "Si è verificato un errore durante la selezione del file.",
@@ -62,7 +66,10 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   };
 
   const handleFormSubmit = async (values: FileUploadFormValues) => {
+    console.log("Form submit triggered with values:", values);
+    
     if (!selectedFile) {
+      console.log("No file selected, showing error toast");
       toast({
         title: "Nessun file selezionato",
         description: "Per favore seleziona un file da caricare.",
@@ -70,6 +77,8 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
       });
       return;
     }
+    
+    console.log("Proceeding with upload of file:", selectedFile.name);
     
     try {
       await onSubmit(values, selectedFile);
@@ -84,6 +93,7 @@ const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   };
 
   const resetForm = () => {
+    console.log("Resetting upload form");
     form.reset();
     setSelectedFile(null);
     onCancel();
