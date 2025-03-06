@@ -86,7 +86,8 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         mapTypeControl: false,
         fullscreenControl: false,
         streetViewControl: false,
-        zoomControl: false // Rimuove i controlli dello zoom
+        zoomControl: false, // Rimuove i controlli dello zoom
+        tilt: 0 // Vista piatta di default
       };
       
       // Initialize the map
@@ -140,7 +141,10 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       // Add tilt control - a custom control for toggling 45° view
       const tiltControlDiv = document.createElement('div');
       const tiltControl = createTiltControl(tiltControlDiv, newMap);
-      newMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(tiltControlDiv);
+      
+      // Add the custom control to the map
+      // Cast to any to bypass the TypeScript error
+      (newMap as any).controls[google.maps.ControlPosition.TOP_RIGHT].push(tiltControlDiv);
       
       // Save references
       setMap(newMap);
@@ -195,10 +199,12 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       isTilted = !isTilted;
       if (isTilted) {
         // Set to 45 degrees for 3D view
-        map.setOptions({ tilt: 45 });
+        // Cast to any to bypass the TypeScript error
+        (map as any).setOptions({ tilt: 45 });
       } else {
         // Set to 0 degrees for 2D view
-        map.setOptions({ tilt: 0 });
+        // Cast to any to bypass the TypeScript error
+        (map as any).setOptions({ tilt: 0 });
       }
       controlText.innerHTML = isTilted ? '2D' : '3D';
     });
