@@ -26,19 +26,25 @@ export const usePdfRenderer = ({
   forceRender
 }: UsePdfRendererProps) => {
   const lastPageRef = useRef<number>(0);
-  const lastScaleRef = useRef<number>(0); // Force initial render with 0
+  const lastScaleRef = useRef<number>(0); // Set to 0 to force initial render
   const renderAttempts = useRef<number>(0);
+  const lastRenderTimestamp = useRef<number>(0);
   
   // Render the current page of the PDF
   useEffect(() => {
     let isActive = true; // Flag to prevent operations after unmount
     
     const renderPage = async () => {
-      if (!canvasRef.current || !pdfDocRef.current || !isActive) {
-        console.log("Cannot render PDF: Canvas or PDF document not available");
+      if (!pdfDocRef.current) {
+        console.log("Cannot render PDF: No PDF document available");
+        return;
+      }
+      
+      if (!canvasRef.current) {
+        console.log("Cannot render PDF: Canvas not available");
         
         // If we have a document but no canvas, retry after a short delay (up to 3 times)
-        if (pdfDocRef.current && !canvasRef.current && renderAttempts.current < 3) {
+        if (pdfDocRef.current && renderAttempts.current < 3) {
           renderAttempts.current += 1;
           console.log(`Render attempt ${renderAttempts.current}/3: Canvas not available, retrying in 200ms`);
           setTimeout(() => {
@@ -58,15 +64,21 @@ export const usePdfRenderer = ({
       
       try {
         renderInProgress.current = true;
+        const currentTime = Date.now();
         
         // Force render on first load or on scale/page change or when explicitly requested
+        // Also force if it's been more than 10 seconds since last render and initial render is not complete
+        const timeSinceLastRender = currentTime - lastRenderTimestamp.current;
+        const timeoutRender = !initialRenderComplete && timeSinceLastRender > 10000;
+        
         const shouldForceRender = 
           forceRender.current || // Force render flag is set
           !initialRenderComplete || // Always force render on first load
           currentPage !== lastPageRef.current || 
-          scale !== lastScaleRef.current;
+          scale !== lastScaleRef.current ||
+          timeoutRender;
         
-        console.log(`PDF render check: Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}, initialRender: ${initialRenderComplete}, forceRender: ${forceRender.current}`);
+        console.log(`PDF render check: Page: ${currentPage}, Scale: ${scale}, Force: ${shouldForceRender}, initialRender: ${initialRenderComplete}, forceRender: ${forceRender.current}, timeoutRender: ${timeoutRender}, timeSinceLastRender: ${timeSinceLastRender}ms`);
         
         if (!shouldForceRender && initialRenderComplete) {
           console.log("Skipping PDF render - no changes detected");
@@ -94,8 +106,10 @@ export const usePdfRenderer = ({
           viewport: viewport
         };
         
+        console.log("Starting PDF render task");
         const renderTask = page.render(renderContext);
         await renderTask.promise;
+        console.log("PDF render task completed");
         
         if (!isActive) {
           renderInProgress.current = false;
@@ -107,6 +121,7 @@ export const usePdfRenderer = ({
         lastScaleRef.current = scale;
         forceRender.current = false; // Reset force render flag
         renderAttempts.current = 0; // Reset render attempts
+        lastRenderTimestamp.current = Date.now();
         
         // Set initial render complete if not already done
         if (!initialRenderComplete) {
@@ -136,16 +151,24 @@ export const usePdfRenderer = ({
       }
     };
     
-    // Add a small delay before rendering to ensure the component is fully mounted
-    const timerId = setTimeout(() => {
-      renderPage();
-    }, 100);
+    // Trigger render on mount and when dependencies change
+    renderPage();
+    
+    // Schedule periodic re-renders if initial render is not complete
+    const renderTimer = !initialRenderComplete ? 
+      setInterval(() => {
+        if (!initialRenderComplete && !renderInProgress.current && isActive) {
+          console.log("Timer-triggered render attempt");
+          forceRender.current = true;
+          renderPage();
+        }
+      }, 3000) : null;
     
     // Cleanup
     return () => {
       isActive = false;
-      clearTimeout(timerId);
+      if (renderTimer) clearInterval(renderTimer);
       renderInProgress.current = false;
     };
-  }, [canvasRef, pdfDocRef, currentPage, scale, setInitialRenderComplete, initialRenderComplete, renderInProgress, setSwipeEnabled, forceRender.current]);
+  }, [canvasRef, pdfDocRef, currentPage, scale, setInitialRenderComplete, initialRenderComplete, renderInProgress, setSwipeEnabled, forceRender]);
 };

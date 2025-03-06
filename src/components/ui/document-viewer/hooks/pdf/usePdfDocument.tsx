@@ -16,6 +16,7 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
   const [totalPages, setTotalPages] = useState(0);
   const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
   const loadingTaskRef = useRef<pdfjsLib.PDFDocumentLoadingTask | null>(null);
+  const loadAttemptsRef = useRef<number>(0);
   
   const cleanupPdf = useCallback(async () => {
     // Cancel the loading task if it's still in progress
@@ -46,6 +47,7 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
     await cleanupPdf();
     setPdfLoading(true);
     setPdfError(null);
+    loadAttemptsRef.current = 0; // Reset load attempts counter
     loadPdf(true);
   }, [url, cleanupPdf]);
   
@@ -60,6 +62,7 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
     }
 
     console.log(`${isRetry ? "Retrying" : "Loading"} PDF:`, url);
+    
     try {
       if (!isRetry) {
         setPdfLoading(true);
@@ -72,8 +75,12 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
       }
       
       // Load the PDF document with retry mechanism
-      const loadWithRetry = async (retries = 2) => {
+      const loadWithRetry = async (retries = 3) => {
         try {
+          // Log worker URL to help debug worker issues
+          console.log("PDF.js worker URL:", pdfjsLib.GlobalWorkerOptions.workerSrc);
+          console.log("Creating PDF loading task...");
+          
           loadingTaskRef.current = pdfjsLib.getDocument({
             url: url,
             cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
@@ -81,13 +88,37 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
           });
           
           console.log("PDF loading task created, waiting for promise to resolve");
-          const pdf = await loadingTaskRef.current.promise;
+          
+          // Add debug logging for promise state
+          const loadingPromise = loadingTaskRef.current.promise;
+          
+          // Create a timeout for the loading task
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+              reject(new Error("PDF load timeout after 30 seconds"));
+            }, 30000); // 30 second timeout
+          });
+          
+          // Race between the loading promise and timeout
+          const pdf = await Promise.race([
+            loadingPromise,
+            timeoutPromise
+          ]) as PDFDocumentProxy;
+          
           console.log("PDF loading task promise resolved");
           return pdf;
         } catch (error) {
           console.error("Error in PDF loading task:", error);
+          loadAttemptsRef.current += 1;
+          console.log(`PDF load attempt ${loadAttemptsRef.current} failed`);
+          
           if (retries > 0 && isActive) {
             console.warn(`PDF load failed, retrying... (${retries} attempts left)`);
+            // Add exponential backoff for retries
+            const backoffDelay = Math.min(1000 * Math.pow(2, 3 - retries), 5000);
+            console.log(`Waiting ${backoffDelay}ms before next attempt`);
+            
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
             return await loadWithRetry(retries - 1);
           }
           throw error;
@@ -107,6 +138,7 @@ export const usePdfDocument = ({ url }: UsePdfDocumentProps) => {
       pdfDocRef.current = pdf;
       setTotalPages(pdf.numPages);
       setPdfLoading(false);
+      loadAttemptsRef.current = 0; // Reset counter on success
     } catch (error) {
       console.error("Error loading PDF:", error);
       if (isActive) {

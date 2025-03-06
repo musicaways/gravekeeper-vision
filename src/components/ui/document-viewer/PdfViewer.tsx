@@ -27,6 +27,7 @@ const PdfViewer = ({
 }: PdfViewerProps) => {
   const mountedRef = useRef(false);
   const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const renderAttemptsRef = useRef(0);
   
   const {
     canvasRef,
@@ -37,7 +38,8 @@ const PdfViewer = ({
     initialRenderComplete,
     goToNextPage,
     goToPrevPage,
-    reloadPdf
+    reloadPdf,
+    forceRerender
   } = usePdfViewer({
     url,
     scale,
@@ -45,24 +47,41 @@ const PdfViewer = ({
     setSwipeEnabled
   });
 
-  // Force a render when the component mounts
+  // Force a render when the component mounts and periodically check render status
   useEffect(() => {
     console.log("PdfViewer: Component mounted, url:", url, "scale:", scale);
     mountedRef.current = true;
     
-    // Force a re-render after component mounts
+    // Initial render attempt
     if (renderTimeoutRef.current) {
       clearTimeout(renderTimeoutRef.current);
     }
     
-    renderTimeoutRef.current = setTimeout(() => {
-      console.log("PdfViewer: Forcing re-render to ensure PDF is displayed");
-      if (!initialRenderComplete && mountedRef.current) {
-        // If PDF hasn't rendered yet, try reloading it
-        console.log("PDF not rendered yet, attempting reload");
-        reloadPdf();
-      }
-    }, 500);
+    // Series of render attempts with increasing delays
+    const scheduleRenderAttempt = (delay: number) => {
+      renderTimeoutRef.current = setTimeout(() => {
+        console.log(`PdfViewer: Render attempt ${renderAttemptsRef.current + 1} (delay: ${delay}ms)`);
+        
+        if (!initialRenderComplete && mountedRef.current) {
+          renderAttemptsRef.current += 1;
+          forceRerender();
+          
+          // If PDF still hasn't rendered, try reloading it
+          if (renderAttemptsRef.current >= 3) {
+            console.log("PDF not rendered after multiple attempts, reloading PDF");
+            reloadPdf();
+          }
+          
+          // Schedule next attempt with increasing delay if needed (up to 5 attempts)
+          if (renderAttemptsRef.current < 5) {
+            scheduleRenderAttempt(delay * 1.5); // Increase delay for next attempt
+          }
+        }
+      }, delay);
+    };
+    
+    // Start the sequence of render attempts
+    scheduleRenderAttempt(500);
     
     return () => {
       mountedRef.current = false;
@@ -70,7 +89,7 @@ const PdfViewer = ({
         clearTimeout(renderTimeoutRef.current);
       }
     };
-  }, [url, scale, initialRenderComplete, reloadPdf]);
+  }, [url, scale, initialRenderComplete, reloadPdf, forceRerender]);
 
   if (pdfLoading) {
     return <PdfLoading />;

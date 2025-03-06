@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 interface PdfCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -26,6 +26,7 @@ const PdfCanvas = ({
   const touchTimeout = useRef<NodeJS.Timeout | null>(null);
   const previousScale = useRef(scale);
   const renderTimestamp = useRef(Date.now());
+  const debuggingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Force re-render and reset position when scale changes
   useEffect(() => {
@@ -57,7 +58,30 @@ const PdfCanvas = ({
     };
   }, [scale, canvasRef, setSwipeEnabled]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // Debug canvas state periodically
+  useEffect(() => {
+    if (debuggingIntervalRef.current) {
+      clearInterval(debuggingIntervalRef.current);
+    }
+    
+    debuggingIntervalRef.current = setInterval(() => {
+      if (canvasRef.current) {
+        const canvasWidth = canvasRef.current.width;
+        const canvasHeight = canvasRef.current.height;
+        const hasContent = canvasWidth > 0 && canvasHeight > 0;
+        console.log(`Canvas debug: width=${canvasWidth}, height=${canvasHeight}, hasContent=${hasContent}, scale=${scale}, initialRenderComplete=${initialRenderComplete}`);
+      }
+    }, 5000); // Check every 5 seconds
+    
+    return () => {
+      if (debuggingIntervalRef.current) {
+        clearInterval(debuggingIntervalRef.current);
+      }
+    };
+  }, [canvasRef, scale, initialRenderComplete]);
+
+  // Creating a memoized touch handlers to prevent unnecessary re-renders
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (scale <= 1) return;
     
     e.stopPropagation(); // Stop event propagation to prevent conflicts
@@ -70,9 +94,9 @@ const PdfCanvas = ({
     // Immediately disable swipe when in zoom mode and starting to drag
     setSwipeEnabled(false);
     console.log("PdfCanvas: Touch start for panning, disabling swipe navigation");
-  };
+  }, [scale, position, setSwipeEnabled]);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDragging || scale <= 1) return;
     
     touchMoveCount.current += 1;
@@ -94,9 +118,9 @@ const PdfCanvas = ({
     const boundedY = Math.min(Math.max(newY, -maxDragY), maxDragY);
     
     setPosition({ x: boundedX, y: boundedY });
-  };
+  }, [isDragging, scale, dragStart, canvasRef]);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (!isDragging) return;
     
     e.stopPropagation(); // Stop event propagation to prevent conflicts
@@ -115,7 +139,7 @@ const PdfCanvas = ({
         console.log("PdfCanvas: Re-enabling swipe navigation after panning");
       }
     }, 300);
-  };
+  }, [isDragging, scale, setSwipeEnabled]);
 
   return (
     <div 
@@ -145,6 +169,11 @@ const PdfCanvas = ({
           data-scale={scale}
           data-render-timestamp={renderTimestamp.current}
         />
+        {!initialRenderComplete && (
+          <div className="absolute inset-0 flex items-center justify-center text-white text-opacity-70">
+            <p>Caricamento PDF...</p>
+          </div>
+        )}
       </div>
     </div>
   );
