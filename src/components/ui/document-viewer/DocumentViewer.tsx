@@ -75,7 +75,13 @@ const DocumentViewer = ({
 
   const handleDownload = () => {
     if (currentFile?.url) {
-      window.open(currentFile.url, '_blank');
+      const link = document.createElement('a');
+      link.href = currentFile.url;
+      link.target = '_blank';
+      link.download = currentFile.title || 'document';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 

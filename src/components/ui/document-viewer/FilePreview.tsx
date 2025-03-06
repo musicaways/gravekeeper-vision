@@ -1,8 +1,14 @@
 
+import { useEffect, useRef, useState } from "react";
 import { DocumentViewerFile } from "./types";
 import { Loader2, FileText, Download, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import * as pdfjsLib from "pdfjs-dist";
+import { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
+
+// Set the worker source
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface FilePreviewProps {
   currentFile: DocumentViewerFile | undefined;
@@ -25,6 +31,12 @@ const FilePreview = ({
 }: FilePreviewProps) => {
   const isPdf = fileType.toLowerCase() === 'pdf';
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(fileType.toLowerCase());
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
   
   if (!currentFile) {
     return <div className="flex items-center justify-center w-full">
@@ -50,27 +62,126 @@ const FilePreview = ({
     }
   };
 
+  // Function to render PDF page
+  useEffect(() => {
+    if (!isPdf || !currentFile?.url || !canvasRef.current) return;
+
+    const loadPdf = async () => {
+      try {
+        setPdfLoading(true);
+        setPdfError(null);
+        
+        // Load the PDF document
+        const loadingTask = pdfjsLib.getDocument(currentFile.url);
+        const pdf = await loadingTask.promise;
+        pdfDocRef.current = pdf;
+        setTotalPages(pdf.numPages);
+        
+        // Get the first page
+        const page = await pdf.getPage(currentPage);
+        renderPage(page);
+      } catch (error) {
+        console.error("Error loading PDF:", error);
+        setPdfError("Impossibile caricare il PDF. Prova a scaricarlo.");
+      } finally {
+        setPdfLoading(false);
+      }
+    };
+
+    loadPdf();
+  }, [currentFile?.url, isPdf, currentPage]);
+
+  // Function to render a specific page
+  const renderPage = async (page: PDFPageProxy) => {
+    if (!canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const viewport = page.getViewport({ scale: scale * 1.5 });
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport
+    };
+
+    await page.render(renderContext).promise;
+  };
+
+  // Update rendering when scale changes
+  useEffect(() => {
+    const updatePdfScale = async () => {
+      if (isPdf && pdfDocRef.current && canvasRef.current) {
+        const page = await pdfDocRef.current.getPage(currentPage);
+        renderPage(page);
+      }
+    };
+
+    updatePdfScale();
+  }, [scale, currentPage]);
+
+  // Handle page navigation
+  const goToNextPage = async () => {
+    if (pdfDocRef.current && currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const goToPrevPage = async () => {
+    if (pdfDocRef.current && currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
   if (isPdf) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center relative bg-white">
-        <iframe
-          src={`${currentFile.url}#zoom=${scale * 100}`}
-          title={title}
-          className="w-full h-full bg-white"
-        ></iframe>
-        <div className="absolute bottom-4 right-4 flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownload();
-            }}
-            className="opacity-80 hover:opacity-100"
-          >
-            <Download className="w-4 h-4 mr-1" /> Apri PDF
-          </Button>
-        </div>
+        {pdfLoading ? (
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        ) : pdfError ? (
+          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <FileText className="w-16 h-16 text-muted-foreground" />
+            <p className="text-muted-foreground">{pdfError}</p>
+            <Button variant="outline" onClick={handleDownload}>
+              <Download className="w-4 h-4 mr-1" /> Scarica PDF
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div 
+              className="flex-1 overflow-auto w-full flex items-center justify-center cursor-zoom-in"
+              onClick={toggleControls}
+              onDoubleClick={handleDoubleClick}
+            >
+              <canvas ref={canvasRef} className="max-w-full" />
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-secondary/80 rounded-md px-3 py-1.5 text-sm">
+                <button 
+                  onClick={goToPrevPage} 
+                  disabled={currentPage <= 1}
+                  className="p-1 rounded hover:bg-secondary-foreground/10 disabled:opacity-50"
+                >
+                  ←
+                </button>
+                <span>
+                  {currentPage} / {totalPages}
+                </span>
+                <button 
+                  onClick={goToNextPage} 
+                  disabled={currentPage >= totalPages}
+                  className="p-1 rounded hover:bg-secondary-foreground/10 disabled:opacity-50"
+                >
+                  →
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     );
   }
