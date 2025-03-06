@@ -22,9 +22,18 @@ const useMapInitialization = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
+  const tilesLoadedListenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.google?.maps) return;
+    
+    // Cleanup function for event listeners
+    const cleanup = () => {
+      if (tilesLoadedListenerRef.current) {
+        google.maps.event.removeListener(tilesLoadedListenerRef.current);
+        tilesLoadedListenerRef.current = null;
+      }
+    };
     
     try {
       const { Latitudine, Longitudine, Nome } = cemetery;
@@ -32,7 +41,7 @@ const useMapInitialization = ({
       // Check for valid coordinates
       if (!Latitudine || !Longitudine) {
         onError("Coordinate non disponibili per questo cimitero");
-        return;
+        return cleanup;
       }
       
       const mapPosition = { 
@@ -55,13 +64,13 @@ const useMapInitialization = ({
       // Create info window
       createInfoWindow(newMarker, newMap, cemetery);
       
-      // Add tiles loaded event listener
-      google.maps.event.addListener(newMap, 'tilesloaded', () => {
-        if (!mapLoaded) {
+      // Add tiles loaded event listener - use ref to store the listener for cleanup
+      if (!mapLoaded) {
+        tilesLoadedListenerRef.current = google.maps.event.addListenerOnce(newMap, 'tilesloaded', () => {
           setMapLoaded(true);
           toast.success("Mappa caricata con successo", { duration: 2000 });
-        }
-      });
+        });
+      }
       
       // Add tilt control - a custom control for toggling 45° view
       const tiltControlDiv = document.createElement('div');
@@ -84,12 +93,14 @@ const useMapInitialization = ({
         if (errorListener) {
           google.maps.event.removeListener(errorListener);
         }
+        cleanup();
       };
     } catch (error) {
       console.error("Errore nell'inizializzazione della mappa:", error);
       onError(error instanceof Error ? error.message : "Errore sconosciuto");
+      return cleanup;
     }
-  }, [isLoaded, cemetery, forceRefresh, onError, mapLoaded]);
+  }, [isLoaded, cemetery, forceRefresh, onError]);
 
   return { mapRef, mapLoaded, map, marker };
 };

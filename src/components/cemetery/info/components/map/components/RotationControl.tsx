@@ -17,8 +17,8 @@ const RotationControl: React.FC<RotationControlProps> = ({ map }) => {
     const newRotation = (rotationDegrees + 45) % 360;
     setRotationDegrees(newRotation);
     
-    // Apply the rotation to the map
-    (map as any).setHeading(newRotation);
+    // Apply the rotation to the map - using the heading property
+    map.setHeading(newRotation);
   };
 
   return (
