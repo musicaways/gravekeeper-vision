@@ -37,11 +37,14 @@ export const openExternalMap = (
 ): void => {
   if (!cemetery) return;
   
+  console.log("Opening external map:", useCustomMap ? "custom" : "standard");
+  
   if (useCustomMap) {
     let url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
     if (cemetery.Latitudine && cemetery.Longitudine) {
       url += `&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;
     }
+    console.log("Opening custom map URL:", url);
     window.open(url, '_blank');
     return;
   }
@@ -62,10 +65,13 @@ export const openExternalMap = (
   }
   
   if (url) {
+    console.log("Opening standard map URL:", url);
     window.open(url, '_blank');
   }
 };
 
+// Questa funzione è obsoleta e non dovrebbe essere usata
+// La lasciamo per compatibilità ma è meglio usare direttamente l'URL embed
 export const handleCustomMapView = (
   cemetery: any,
   apiKey: string,
@@ -73,22 +79,11 @@ export const handleCustomMapView = (
   setMapUrl: (url: string) => void,
   setUseCustomMap: (value: boolean) => void
 ): void => {
+  console.log("WARNING: Using legacy handleCustomMapView function - should be avoided");
+  
   if (!cemetery || !cemetery.Latitudine || !cemetery.Longitudine) return;
 
-  // Utilizziamo l'embed di Google Maps standard ma centrato sulla posizione del cimitero
-  const embeddedCustomMapUrl = `https://www.google.com/maps/embed/v1/view?key=${apiKey}&center=${cemetery.Latitudine},${cemetery.Longitudine}&zoom=16&maptype=satellite`;
+  const embeddedCustomMapUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;
+  console.log("Setting custom map URL:", embeddedCustomMapUrl);
   setMapUrl(embeddedCustomMapUrl);
-  
-  // Notifica all'utente che il marker verrà visualizzato solo nella vista standard
-  toast.info("Il marker della posizione è visibile solo nella vista standard. Per vedere la mappa personalizzata, aprila in Google Maps.", {
-    duration: 5000
-  });
-  
-  // Modifichiamo il comportamento per aprire la mappa personalizzata in Google Maps
-  setTimeout(() => {
-    const customMapUrl = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
-    window.open(customMapUrl, '_blank');
-    // Torniamo alla vista standard dopo aver aperto la mappa personalizzata
-    setUseCustomMap(false);
-  }, 500);
 };

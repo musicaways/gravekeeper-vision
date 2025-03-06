@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -22,7 +22,18 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   useCustomMap,
   customMapId
 }) => {
+  useEffect(() => {
+    console.log("MapDisplay rendered with:", { 
+      loading, 
+      hasMapUrl: !!mapUrl, 
+      apiKeyError, 
+      useCustomMap, 
+      mapUrl 
+    });
+  }, [loading, mapUrl, apiKeyError, useCustomMap]);
+
   const handleOpenMapInNewTab = () => {
+    console.log("Opening map in new tab");
     openExternalMap(customMapId, useCustomMap, cemetery);
   };
 
@@ -35,6 +46,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   }
 
   if (apiKeyError && !useCustomMap) {
+    console.log("Showing API key error state");
     return (
       <div className="text-center py-6 bg-muted/30 rounded-md">
         <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
@@ -52,6 +64,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   }
 
   if (!mapUrl) {
+    console.log("No map URL available");
     return (
       <div className="text-center py-6 bg-muted/30 rounded-md">
         <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
@@ -60,6 +73,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
+  console.log("Rendering map with URL:", mapUrl);
   return (
     <div className="space-y-2">
       <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2">
@@ -72,7 +86,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
           loading="lazy" 
           referrerPolicy="no-referrer-when-downgrade"
           title="Mappa del cimitero"
-          onError={() => {
+          onError={(e) => {
+            console.error("Map iframe loading error:", e);
             if (!useCustomMap) {
               toast.error("Errore nel caricamento della mappa: API key non valida");
             } else {

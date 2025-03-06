@@ -75,10 +75,22 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
         setCemetery(data);
         
         // Handle map URL based on custom map setting
-        if (useCustomMap && data.Latitudine && data.Longitudine) {
-          handleCustomMapView(data, apiKey, customMapId, setMapUrl, setUseCustomMap);
+        if (useCustomMap) {
+          console.log("Using custom map view, generating URL...");
+          const customEmbedUrl = `https://www.google.com/maps/d/embed?mid=${customMapId}`;
+          
+          // Add center parameter if coordinates are available
+          if (data.Latitudine && data.Longitudine) {
+            const urlWithCoords = `${customEmbedUrl}&ll=${data.Latitudine},${data.Longitudine}&z=16`;
+            console.log("Custom map URL with coordinates:", urlWithCoords);
+            setMapUrl(urlWithCoords);
+          } else {
+            console.log("Custom map URL without coordinates:", customEmbedUrl);
+            setMapUrl(customEmbedUrl);
+          }
         } else if (data.Latitudine || data.Indirizzo) {
-          setMapUrl(buildMapUrl(
+          console.log("Using standard map view, generating URL...");
+          const standardMapUrl = buildMapUrl(
             apiKey, 
             data.Latitudine, 
             data.Longitudine, 
@@ -87,7 +99,9 @@ export const useCemeteryMap = (cemeteryId: string | number) => {
             data.postal_code, 
             data.state, 
             data.country
-          ));
+          );
+          console.log("Standard map URL:", standardMapUrl);
+          setMapUrl(standardMapUrl);
         }
       } catch (err) {
         console.error("Errore nel caricamento dei dati del cimitero:", err);

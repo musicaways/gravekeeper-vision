@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MapDisplay from "./map/MapDisplay";
@@ -20,9 +20,20 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     customMapId
   } = useCemeteryMap(cemeteryId);
 
+  useEffect(() => {
+    console.log("CemeteryMapSection - Current state:", { 
+      loading, 
+      hasMapUrl: !!mapUrl, 
+      apiKeyError, 
+      useCustomMap, 
+      customMapId,
+      mapUrl
+    });
+  }, [loading, mapUrl, apiKeyError, useCustomMap, customMapId]);
+  
   const toggleMapType = () => {
+    console.log(`Switching map view from ${useCustomMap ? 'custom' : 'standard'} to ${!useCustomMap ? 'custom' : 'standard'}`);
     setUseCustomMap(!useCustomMap);
-    console.log(`Switched to ${!useCustomMap ? 'custom' : 'standard'} map view`);
   };
 
   return (
