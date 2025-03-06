@@ -15,6 +15,10 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
   const [mapUrl, setMapUrl] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [apiKeyError, setApiKeyError] = useState(false);
+  const [useCustomMap, setUseCustomMap] = useState(false);
+  
+  // ID della mappa personalizzata di Google My Maps
+  const customMapId = "1dzlxUTK3bz-7kChq1HASlXEpn6t5uQ8";
 
   useEffect(() => {
     const fetchApiKey = async () => {
@@ -74,8 +78,12 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
         console.log("Cemetery data retrieved:", data);
         setCemetery(data);
         
-        if (data.Latitudine && data.Longitudine) {
-          // Impostazione della visualizzazione satellitare utilizzando il parametro maptype=satellite
+        // Se useCustomMap è true, utilizziamo la mappa personalizzata
+        if (useCustomMap) {
+          setMapUrl(`https://www.google.com/maps/d/embed?mid=${customMapId}`);
+          console.log("Custom map URL set with ID:", customMapId);
+        } else if (data.Latitudine && data.Longitudine) {
+          // Altrimenti utilizziamo la visualizzazione satellitare normale
           setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${data.Latitudine},${data.Longitudine}&zoom=16&maptype=satellite`);
           console.log("Map URL set with coordinates and satellite view");
         } else if (data.Indirizzo) {
@@ -87,7 +95,6 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
             data.country
           ].filter(Boolean).join(', ');
           
-          // Impostazione della visualizzazione satellitare utilizzando il parametro maptype=satellite
           setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}&zoom=16&maptype=satellite`);
           console.log("Map URL set with address and satellite view");
         }
@@ -99,10 +106,17 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     };
 
     fetchCemeteryData();
-  }, [cemeteryId, apiKey, apiKeyError]);
+  }, [cemeteryId, apiKey, apiKeyError, useCustomMap]);
 
   const handleOpenMapInNewTab = () => {
     if (!cemetery) return;
+    
+    if (useCustomMap) {
+      // Apri la mappa personalizzata in una nuova scheda
+      const url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
+      window.open(url, '_blank');
+      return;
+    }
     
     let url = "";
     if (cemetery.Latitudine && cemetery.Longitudine) {
@@ -128,18 +142,33 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
     }
   };
 
+  const toggleMapType = () => {
+    setUseCustomMap(!useCustomMap);
+    console.log(`Switched to ${!useCustomMap ? 'custom' : 'standard'} map view`);
+  };
+
   return (
     <div className="w-full">
-      <div className="flex items-center mb-3">
-        <Map className="h-5 w-5 text-primary mr-2.5" />
-        <h3 className="text-base font-medium text-foreground">Mappa del cimitero</h3>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center">
+          <Map className="h-5 w-5 text-primary mr-2.5" />
+          <h3 className="text-base font-medium text-foreground">Mappa del cimitero</h3>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={toggleMapType}
+          className="text-xs"
+        >
+          {useCustomMap ? "Visualizza mappa standard" : "Visualizza mappa personalizzata"}
+        </Button>
       </div>
       
       {loading ? (
         <div className="flex justify-center items-center py-10">
           <span className="ml-2">Caricamento mappa...</span>
         </div>
-      ) : apiKeyError ? (
+      ) : apiKeyError && !useCustomMap ? (
         <div className="text-center py-6 bg-muted/30 rounded-md">
           <Map className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
           <p className="text-muted-foreground mb-2">API key di Google Maps non configurata correttamente</p>
@@ -165,8 +194,13 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
               referrerPolicy="no-referrer-when-downgrade"
               title="Mappa del cimitero"
               onError={() => {
-                setApiKeyError(true);
-                toast.error("Errore nel caricamento della mappa: API key non valida");
+                if (!useCustomMap) {
+                  setApiKeyError(true);
+                  toast.error("Errore nel caricamento della mappa: API key non valida");
+                } else {
+                  toast.error("Errore nel caricamento della mappa personalizzata");
+                  setUseCustomMap(false);
+                }
               }}
             ></iframe>
           </div>
