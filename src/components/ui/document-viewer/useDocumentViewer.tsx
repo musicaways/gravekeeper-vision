@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { DocumentViewerProps, DocumentViewerFile } from "./types";
 
@@ -44,18 +43,24 @@ export const useDocumentViewer = ({
   const handleZoomIn = () => {
     setScale((prev) => {
       console.log("Zooming in from:", prev);
-      const newScale = Math.min(prev + 0.5, 3);
-      // Se lo zoom è al massimo, ritorna a 1
-      return prev >= 3 ? 1 : newScale;
+      // If the scale is at max (3), go back to 1, otherwise increment by 0.5
+      if (prev >= 3) {
+        return 1;
+      } else {
+        return prev + 0.5;
+      }
     });
   };
 
   const handleZoomOut = () => {
     setScale((prev) => {
       console.log("Zooming out from:", prev);
-      const newScale = Math.max(prev - 0.5, 1);
-      // Se lo zoom è al minimo, ritorna a 1
-      return prev <= 1 ? 1 : newScale;
+      // If the scale is at min (1), keep it at 1, otherwise decrement by 0.5
+      if (prev <= 1) {
+        return 1;
+      } else {
+        return prev - 0.5;
+      }
     });
   };
   

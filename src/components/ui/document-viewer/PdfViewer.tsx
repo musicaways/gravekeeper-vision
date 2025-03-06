@@ -53,6 +53,7 @@ const PdfViewer = ({
         initialRenderComplete={initialRenderComplete}
         handleDoubleClick={handleDoubleClick}
         toggleControls={toggleControls}
+        scale={scale} // Pass the scale to PdfCanvas
       />
       
       <PdfPageNavigation 

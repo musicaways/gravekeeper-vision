@@ -39,6 +39,7 @@ const ViewerControls = ({
           <div className="text-white text-sm md:text-base flex items-center gap-2">
             <span>{currentIndex + 1}/{filesLength}</span>
             {fileType && <span className="text-xs bg-white/20 px-2 py-0.5 rounded uppercase">{fileType}</span>}
+            <span className="ml-2 text-xs bg-white/10 px-2 py-0.5 rounded">Zoom: {scale}x</span>
           </div>
           <div className="flex gap-3 mr-10">
             <Button 
@@ -58,6 +59,7 @@ const ViewerControls = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleZoomOut();
+                console.log("Zoom out clicked, new scale should be:", scale > 1 ? scale - 0.5 : 1);
               }}
               className="text-white hover:bg-white/20"
               disabled={scale <= 1}
@@ -70,6 +72,7 @@ const ViewerControls = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleZoomIn();
+                console.log("Zoom in clicked, new scale should be:", scale < 3 ? scale + 0.5 : 1);
               }}
               className="text-white hover:bg-white/20"
               disabled={scale >= 3}

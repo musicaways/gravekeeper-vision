@@ -19,13 +19,8 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(0);
   const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
-  const currentScaleRef = useRef<number>(scale);
+  const lastRenderedScale = useRef<number>(0); // Track last rendered scale to avoid unnecessary rendering
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
-  
-  // Update the ref when scale changes
-  useEffect(() => {
-    currentScaleRef.current = scale;
-  }, [scale]);
   
   // Function to render PDF page
   const renderPage = async (page: PDFPageProxy, forceScale?: number) => {
@@ -35,8 +30,14 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    // Use the provided scale or currentScaleRef
-    const scaleToUse = forceScale !== undefined ? forceScale : currentScaleRef.current;
+    // Use the provided scale or current scale prop
+    const scaleToUse = forceScale !== undefined ? forceScale : scale;
+    
+    // Skip rendering if scale hasn't changed
+    if (scaleToUse === lastRenderedScale.current && initialRenderComplete) {
+      console.log("Skipping render - scale unchanged:", scaleToUse);
+      return;
+    }
     
     // Apply scaling factor
     const viewport = page.getViewport({ scale: scaleToUse * 1.5 });
@@ -49,6 +50,9 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
         viewport: viewport
       }).promise;
       console.log("Page rendered successfully with scale:", scaleToUse);
+      
+      // Update last rendered scale
+      lastRenderedScale.current = scaleToUse;
       
       if (!initialRenderComplete) {
         setInitialRenderComplete(true);
@@ -63,7 +67,7 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
     if (!pdfDocRef.current) return;
     
     try {
-      console.log(`Loading page ${pageNum} with scale ${currentScaleRef.current}`);
+      console.log(`Loading page ${pageNum} with scale ${scale}`);
       const page = await pdfDocRef.current.getPage(pageNum);
       await renderPage(page);
     } catch (error) {
@@ -82,6 +86,7 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
         setPdfLoading(true);
         setPdfError(null);
         setInitialRenderComplete(false);
+        lastRenderedScale.current = 0; // Reset last rendered scale
         
         // Load the PDF document
         const loadingTask = pdfjsLib.getDocument({
@@ -125,7 +130,7 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
   // Update rendering when scale changes
   useEffect(() => {
     const updatePdfScale = async () => {
-      console.log("Scale changed to:", scale);
+      console.log("Scale changed to:", scale, "Last rendered scale:", lastRenderedScale.current);
       if (pdfDocRef.current && canvasRef.current) {
         try {
           const page = await pdfDocRef.current.getPage(currentPage);
@@ -136,8 +141,8 @@ export const usePdfViewer = ({ url, scale, initialPage = 1 }: UsePdfViewerProps)
       }
     };
 
-    // Only update scale if initial render is complete
-    if (initialRenderComplete) {
+    // Only update scale if scale has changed AND initial render is complete
+    if (initialRenderComplete && scale !== lastRenderedScale.current) {
       updatePdfScale();
     }
   }, [scale, currentPage, initialRenderComplete]);
