@@ -12,7 +12,7 @@ const CemeterySectionsTabContent: React.FC<CemeterySectionsTabContentProps> = ({
   searchTerm 
 }) => {
   return (
-    <div className="p-0">
+    <div className="w-full p-0">
       <CemeterySectionsTab cemeteryId={cemeteryId} searchTerm={searchTerm} />
     </div>
   );
