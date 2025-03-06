@@ -1,7 +1,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ZoomIn, ZoomOut, X } from "lucide-react";
+import { ZoomIn, ZoomOut, X, Trash2 } from "lucide-react";
 
 interface LightboxControlsProps {
   showControls: boolean;
@@ -11,6 +11,7 @@ interface LightboxControlsProps {
   handleZoomIn: () => void;
   handleZoomOut: () => void;
   onClose: () => void;
+  onDeleteRequest: () => void;
 }
 
 const LightboxControls = ({
@@ -20,7 +21,8 @@ const LightboxControls = ({
   scale,
   handleZoomIn,
   handleZoomOut,
-  onClose
+  onClose,
+  onDeleteRequest
 }: LightboxControlsProps) => {
   return (
     <AnimatePresence>
@@ -36,6 +38,17 @@ const LightboxControls = ({
             <span>{currentIndex + 1}/{imagesLength}</span>
           </div>
           <div className="flex gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteRequest();
+              }}
+              className="text-white hover:bg-white/20"
+            >
+              <Trash2 className="h-5 w-5 text-red-400" />
+            </Button>
             <Button 
               variant="ghost" 
               size="icon" 

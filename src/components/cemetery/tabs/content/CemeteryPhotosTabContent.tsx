@@ -16,10 +16,6 @@ const CemeteryPhotosTabContent: React.FC<CemeteryPhotosTabContentProps> = ({ cem
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex justify-between items-center px-1">
-        <h2 className="text-lg font-medium">Foto del cimitero</h2>
-      </div>
-      
       <PhotoGalleryCard 
         cemeteryId={cemeteryId}
         refreshKey={refreshKey}

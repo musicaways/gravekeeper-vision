@@ -6,6 +6,7 @@ import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { formatDate } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 interface Photo {
   Id: string;
@@ -33,36 +34,37 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(0);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+
+  const fetchPhotos = async () => {
+    try {
+      const numericId = parseInt(cemeteryId, 10);
+      
+      if (isNaN(numericId)) {
+        console.error("ID cimitero non valido");
+        setPhotos([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('CimiteroFoto')
+        .select('*')
+        .eq('IdCimitero', numericId)
+        .order('DataInserimento', { ascending: false }); // Most recent photos first
+        
+      if (error) {
+        console.error("Errore nel caricamento delle foto:", error);
+      } else {
+        setPhotos(data || []);
+      }
+    } catch (err) {
+      console.error("Errore nel caricamento delle foto:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPhotos = async () => {
-      try {
-        const numericId = parseInt(cemeteryId, 10);
-        
-        if (isNaN(numericId)) {
-          console.error("ID cimitero non valido");
-          setPhotos([]);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('CimiteroFoto')
-          .select('*')
-          .eq('IdCimitero', numericId)
-          .order('DataInserimento', { ascending: false }); // Most recent photos first
-          
-        if (error) {
-          console.error("Errore nel caricamento delle foto:", error);
-        } else {
-          setPhotos(data || []);
-        }
-      } catch (err) {
-        console.error("Errore nel caricamento delle foto:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPhotos();
   }, [cemeteryId]);
 
@@ -95,6 +97,31 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
 
   const closeLightbox = () => {
     setLightboxOpen(false);
+  };
+
+  const handleDeletePhoto = async (photoId: string) => {
+    try {
+      // First delete the record from the CimiteroFoto table
+      const { error } = await supabase
+        .from('CimiteroFoto')
+        .delete()
+        .eq('Id', photoId);
+      
+      if (error) throw error;
+      
+      // If successful, refresh the photos
+      await fetchPhotos();
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Errore durante l'eliminazione della foto:", error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile eliminare la foto. Riprova più tardi.",
+        variant: "destructive"
+      });
+      return Promise.reject(error);
+    }
   };
 
   const getGridClass = () => {
@@ -159,6 +186,7 @@ const CemeteryGallery: React.FC<CemeteryGalleryProps> = ({
         open={lightboxOpen}
         initialIndex={selectedPhotoIndex}
         onClose={closeLightbox}
+        onDeletePhoto={handleDeletePhoto}
       />
     </div>
   );

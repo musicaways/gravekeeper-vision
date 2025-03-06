@@ -4,6 +4,7 @@ export interface LightboxImage {
   url: string;
   title?: string;
   description?: string;
+  date?: string;
 }
 
 export interface ImageLightboxProps {
@@ -11,5 +12,5 @@ export interface ImageLightboxProps {
   open: boolean;
   initialIndex: number;
   onClose: () => void;
+  onDeletePhoto?: (photoId: string) => Promise<void>;
 }
-

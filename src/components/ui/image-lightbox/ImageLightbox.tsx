@@ -1,16 +1,32 @@
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LightboxControls from "./LightboxControls";
 import LightboxNavigation from "./LightboxNavigation";
 import LightboxImage from "./LightboxImage";
 import LightboxInfoBar from "./LightboxInfoBar";
 import SwipeIndicator from "./SwipeIndicator";
+import DeletePhotoDialog from "./DeletePhotoDialog";
 import { useImageLightbox } from "./useImageLightbox";
 import { ImageLightboxProps } from "./types";
 import { X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxProps) => {
+interface ExtendedImageLightboxProps extends ImageLightboxProps {
+  onDeletePhoto?: (photoId: string) => Promise<void>;
+}
+
+const ImageLightbox = ({ 
+  images, 
+  open, 
+  initialIndex, 
+  onClose,
+  onDeletePhoto
+}: ExtendedImageLightboxProps) => {
+  const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const {
     currentIndex,
     scale,
@@ -36,6 +52,44 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
     parseImageDetails,
     setScale
   } = useImageLightbox({ images, open, initialIndex, onClose });
+
+  const handleDeleteRequest = () => {
+    if (onDeletePhoto) {
+      setDeleteDialogOpen(true);
+    } else {
+      toast({
+        title: "Operazione non disponibile",
+        description: "La funzione di eliminazione non è disponibile in questa galleria.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!onDeletePhoto || !currentImage?.id) return;
+    
+    try {
+      setIsDeleting(true);
+      await onDeletePhoto(currentImage.id);
+      
+      toast({
+        title: "Foto eliminata",
+        description: "La foto è stata eliminata con successo.",
+      });
+      
+      onClose();
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante l'eliminazione della foto.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+    }
+  };
 
   if (images.length === 0 || !open) return null;
 
@@ -89,6 +143,7 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
                 handleZoomIn={handleZoomIn}
                 handleZoomOut={handleZoomOut}
                 onClose={onClose}
+                onDeleteRequest={handleDeleteRequest}
               />
               
               {/* Navigation buttons */}
@@ -125,6 +180,13 @@ const ImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxPro
               )}
             </div>
           </div>
+          
+          <DeletePhotoDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            onConfirm={handleDeleteConfirm}
+            photoTitle={title}
+          />
         </motion.div>
       )}
     </AnimatePresence>
