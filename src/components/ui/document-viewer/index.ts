@@ -22,6 +22,9 @@ import PdfCanvas from "./components/PdfCanvas";
 import PdfPageNavigation from "./components/PdfPageNavigation";
 import PdfError from "./components/PdfError";
 import PdfLoading from "./components/PdfLoading";
+import SwipeDirectionIndicator from "./components/SwipeDirectionIndicator";
+import ViewerContentContainer from "./components/ViewerContentContainer";
+import { useSwipeNavigation } from "./hooks/useSwipeNavigation";
 
 export {
   FilePreview,
@@ -44,6 +47,9 @@ export {
   PdfPageNavigation,
   PdfError,
   PdfLoading,
+  SwipeDirectionIndicator,
+  ViewerContentContainer,
+  useSwipeNavigation,
   isImageFile,
   isPdfFile,
   getFileLoaderComponent
