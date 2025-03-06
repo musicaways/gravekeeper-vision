@@ -12,31 +12,36 @@ interface CemeteryContactInfoProps {
 }
 
 const CemeteryContactInfo = ({ contactInfo }: CemeteryContactInfoProps) => {
-  if (!contactInfo) return null;
+  // Check if any of the contact fields have values
+  const hasAnyContactInfo = contactInfo && 
+    (contactInfo.phone || contactInfo.email || contactInfo.website);
+
+  // Return null if there's no contact info at all
+  if (!hasAnyContactInfo) return null;
 
   return (
     <div className="w-full">
-      <div className="flex items-center mb-2">
+      <div className="flex items-center mb-3">
         <Phone className="h-5 w-5 text-primary mr-2.5" />
         <h3 className="text-base font-medium text-foreground">Contatti</h3>
       </div>
       
       <div className="pl-7 pr-1 space-y-4 mb-4">
-        {contactInfo.phone && (
+        {contactInfo?.phone && (
           <div>
             <h4 className="font-medium text-sm mb-1.5">Telefono</h4>
             <p className="text-sm text-muted-foreground">{contactInfo.phone}</p>
           </div>
         )}
 
-        {contactInfo.email && (
+        {contactInfo?.email && (
           <div>
             <h4 className="font-medium text-sm mb-1.5">Email</h4>
             <p className="text-sm text-muted-foreground break-words">{contactInfo.email}</p>
           </div>
         )}
 
-        {contactInfo.website && (
+        {contactInfo?.website && (
           <div>
             <h4 className="font-medium text-sm mb-1.5">Sito Web</h4>
             <a 
