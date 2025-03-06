@@ -29,6 +29,12 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
     control,
     name: "Longitudine",
   });
+
+  // Recupera anche l'ID del marker per controllare se è valido
+  const markerId = useWatch({
+    control,
+    name: "custom_map_marker_id",
+  });
   
   // Recupera l'ID della mappa personalizzata dalla configurazione o dal localStorage
   useEffect(() => {
@@ -44,6 +50,19 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
       localStorage.setItem("customMapId", defaultMapId);
     }
   }, []);
+
+  // Funzione per verificare l'ID del marker
+  const verifyMarker = () => {
+    if (!markerId) {
+      toast.error("Nessun ID marker da verificare");
+      return;
+    }
+    
+    // Apre una nuova finestra con il marker selezionato
+    const url = `https://www.google.com/maps/d/viewer?mid=${customMapId}&msid=${markerId}&z=18`;
+    window.open(url, '_blank');
+    toast.info("Verifica che il marker si evidenzi correttamente nella mappa appena aperta");
+  };
 
   return (
     <FormField
@@ -74,22 +93,51 @@ const MarkerIdField = ({ control }: MarkerIdFieldProps) => {
             <FormControl>
               <Input {...field} placeholder="ID del marker dalla mappa personalizzata" />
             </FormControl>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => {
-                if (!customMapId) {
-                  toast.error("Configurazione mappa personalizzata mancante");
-                  return;
-                }
-                setDialogOpen(true);
-              }}
-              title="Seleziona dalla mappa"
-              className={isMobile ? "w-full justify-center" : "shrink-0"}
-            >
-              <Map className="h-4 w-4 mr-2" />
-              Seleziona dalla mappa
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  if (!customMapId) {
+                    toast.error("Configurazione mappa personalizzata mancante");
+                    return;
+                  }
+                  setDialogOpen(true);
+                }}
+                title="Seleziona dalla mappa"
+                className={isMobile ? "flex-1 text-xs h-8 py-0" : "shrink-0"}
+              >
+                <Map className="h-4 w-4 mr-2" />
+                Seleziona
+              </Button>
+              
+              {field.value && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={verifyMarker}
+                  title="Verifica marker"
+                  className={isMobile ? "flex-1 text-xs h-8 py-0" : "shrink-0"}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-2"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                  Verifica
+                </Button>
+              )}
+            </div>
           </div>
           <FormDescription>
             Questo ID verrà utilizzato per evidenziare un marker specifico nella mappa personalizzata.

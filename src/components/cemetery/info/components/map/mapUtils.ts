@@ -41,13 +41,16 @@ export const openExternalMap = (
   console.log("Opening external map:", useCustomMap ? "custom" : "standard");
   
   if (useCustomMap) {
-    // For custom maps - we open the viewer which might have markers added manually
+    // Per le mappe personalizzate - apriamo il viewer con un livello di zoom maggiore (z=18)
+    // e il marker evidenziato
     let url = `https://www.google.com/maps/d/viewer?mid=${customMapId}`;
     
     // Se è stato configurato un ID marker personalizzato, includi il parametro msid
+    // e imposta lo zoom a 18 per avvicinarsi di più al marker
     if (cemetery.custom_map_marker_id) {
       // Usando il marker ID come msid è cruciale per visualizzare il marker corretto
-      url += `&msid=${cemetery.custom_map_marker_id}`;
+      // Aggiungiamo anche il parametro z=18 per uno zoom più elevato sul marker
+      url += `&msid=${cemetery.custom_map_marker_id}&z=18`;
       console.log("Opening custom map URL with marker ID:", url);
     } else if (cemetery.Latitudine && cemetery.Longitudine) {
       url += `&ll=${cemetery.Latitudine},${cemetery.Longitudine}&z=16`;

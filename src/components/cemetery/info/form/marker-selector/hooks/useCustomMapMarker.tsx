@@ -44,10 +44,10 @@ export function useCustomMapMarker({
       console.log("Adding cemetery coordinates to map URL:", cemeteryCoordinates);
     }
     
-    // If we have a selected marker ID and we're re-opening the dialog, include it
+    // If we have a selected marker ID and we're re-opening the dialog, include it and set zoom to 18
     if (initialMarkerId) {
-      url += `&msid=${initialMarkerId}`;
-      console.log("Including initial marker ID in URL:", initialMarkerId);
+      url += `&msid=${initialMarkerId}&z=18`;
+      console.log("Including initial marker ID in URL with high zoom:", initialMarkerId);
     }
     
     return url;

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Map, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   customMapId,
   hasCustomMapMarker = false
 }) => {
+  const [forceRefresh, setForceRefresh] = useState(0);
+  
   useEffect(() => {
     console.log("MapDisplay rendered with:", { 
       loading, 
@@ -44,11 +46,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   // Function to reload the iframe with updated URL
   const reloadMap = () => {
     console.log("Reloading map iframe to refresh marker view");
-    const iframe = document.querySelector('iframe');
-    if (iframe && iframe.src) {
-      // Force reload by appending a timestamp
-      iframe.src = iframe.src.split('&t=')[0] + '&t=' + Date.now();
-    }
+    setForceRefresh(prev => prev + 1);
+    toast.success("Mappa aggiornata. Il marker dovrebbe essere visibile ed evidenziato.");
   };
 
   if (loading) {
@@ -87,12 +86,17 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     );
   }
 
-  console.log("Rendering map with URL:", mapUrl);
+  // Modifichiamo l'URL per forzare l'aggiornamento dell'iframe quando necessario
+  const mapUrlWithRefresh = useCustomMap && hasCustomMapMarker 
+    ? `${mapUrl}&refresh=${forceRefresh}`
+    : mapUrl;
+
+  console.log("Rendering map with URL:", mapUrlWithRefresh);
   return (
     <div className="space-y-2">
-      <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2">
+      <div className="rounded-md overflow-hidden border border-border h-[400px] mt-2 relative">
         <iframe 
-          src={mapUrl}
+          src={mapUrlWithRefresh}
           width="100%" 
           height="100%" 
           style={{ border: 0 }} 
@@ -109,6 +113,14 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
             }
           }}
         ></iframe>
+        
+        {/* Indicatore del marker selezionato */}
+        {useCustomMap && hasCustomMapMarker && (
+          <div className="absolute top-2 left-2 bg-primary/90 text-white px-3 py-1 rounded-md text-sm shadow-md animate-pulse">
+            <span className="inline-block w-2 h-2 bg-white rounded-full mr-2"></span>
+            Marker selezionato attivo
+          </div>
+        )}
       </div>
       <div className="flex justify-between items-center">
         {useCustomMap && hasCustomMapMarker && (
