@@ -1,95 +1,103 @@
 
-import { useRef } from "react";
-import { ImageLightboxProps } from "./types";
-import { useImageNavigation } from "./hooks/useImageNavigation";
+import { useRef, useState, useEffect } from "react";
+import { LightboxImage } from "./types";
 import { useImageZoom } from "./hooks/useImageZoom";
 import { useImageDrag } from "./hooks/useImageDrag";
-import { useImageSwipe } from "./hooks/useImageSwipe";
 import { useImageControls } from "./hooks/useImageControls";
-import { parseImageDetails } from "./utils/imageUtils";
+import { useImageSwipe } from "./hooks/useImageSwipe";
+import { useImageNavigation } from "./hooks/useImageNavigation";
 
-export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageLightboxProps) => {
+interface UseImageLightboxProps {
+  images: LightboxImage[];
+  open: boolean;
+  initialIndex: number;
+  onClose: () => void;
+}
+
+export const useImageLightbox = ({
+  images,
+  open,
+  initialIndex,
+  onClose
+}: UseImageLightboxProps) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  
-  // Use our smaller hooks
-  const { currentIndex, currentImage, goToPreviousImage, goToNextImage } = useImageNavigation({ 
-    images, initialIndex, open 
+
+  // Zoom state management
+  const {
+    scale,
+    position,
+    setScale,
+    setPosition,
+    handleZoomIn,
+    handleZoomOut,
+    handleDoubleClick
+  } = useImageZoom({ open });
+
+  // Image dragging/panning functionality  
+  const {
+    dragging: isDragging,
+    handleImageDragStart,
+    handleImageDrag,
+    handleImageDragEnd
+  } = useImageDrag({ setPosition });
+
+  // Image navigation
+  const {
+    currentIndex,
+    currentImage,
+    goToPreviousImage,
+    goToNextImage
+  } = useImageNavigation({ images, initialIndex, open });
+
+  // Controls visibility
+  const {
+    showControls,
+    toggleControls,
+    handleImageClick
+  } = useImageControls();
+
+  // Swipe navigation
+  const {
+    swipeDirection,
+    isSwipeDragging,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd
+  } = useImageSwipe({
+    goNext: () => goToNextImage(scale),
+    goPrevious: () => goToPreviousImage(scale),
+    scale
   });
-  
-  const { scale, position, setScale, setPosition, handleZoomIn, handleZoomOut } = useImageZoom({ 
-    open 
-  });
-  
-  const { showControls, toggleControls } = useImageControls();
-  
-  const { dragging: isDragging, handleImageDragStart, handleImageDrag, handleImageDragEnd } = useImageDrag({
-    setPosition
-  });
-  
-  const { swipeDirection, dragging: isSwipeDragging, handleSwipeStart, handleSwipeMove, handleSwipeEnd } = useImageSwipe({
-    goToPreviousImage: (scale) => goToPreviousImage(scale),
-    goToNextImage: (scale) => goToNextImage(scale)
-  });
-  
-  // Combined handlers for different events
-  const handleImageClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleControls();
-  };
-  
-  // Touch events
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (scale > 1) {
-      handleImageDragStart(e, scale, position);
-    } else {
-      handleSwipeStart(e, scale);
-      showControls && toggleControls();
-    }
-  };
-  
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (scale > 1) {
-      handleImageDrag(e, scale);
-    } else {
-      handleSwipeMove(e, scale);
-    }
-  };
-  
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (scale > 1) {
-      handleImageDragEnd();
-    } else {
-      handleSwipeEnd(scale);
-    }
-  };
-  
+
   // Mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (scale > 1) {
-      handleImageDragStart(e, scale, position);
-    } else {
-      handleSwipeStart(e, scale);
-      showControls && toggleControls();
-    }
+    handleImageDragStart(e, scale, position);
   };
-  
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (scale > 1) {
-      handleImageDrag(e, scale);
-    } else {
-      handleSwipeMove(e, scale);
-    }
+    handleImageDrag(e, scale);
   };
-  
-  const handleMouseUp = (e: React.MouseEvent) => {
-    if (scale > 1) {
-      handleImageDragEnd();
-    } else {
-      handleSwipeEnd(scale);
-    }
+
+  const handleMouseUp = () => {
+    handleImageDragEnd();
   };
-  
+
+  // Touch events with proper prevention of default behaviors
+  const handleImageDoubleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    handleDoubleClick(e);
+  };
+
+  // Parse image details for display
+  const parseImageDetails = () => {
+    const image = currentImage;
+    return {
+      title: image?.title || '',
+      description: image?.description || '',
+      dateInfo: image?.date || ''
+    };
+  };
+
   return {
     currentIndex,
     scale,
@@ -99,8 +107,8 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     swipeDirection,
     imageRef,
     contentRef,
-    goToPreviousImage: () => goToPreviousImage(scale),
-    goToNextImage: () => goToNextImage(scale),
+    goToPreviousImage,
+    goToNextImage,
     handleZoomIn,
     handleZoomOut,
     toggleControls,
@@ -112,8 +120,8 @@ export const useImageLightbox = ({ images, open, initialIndex, onClose }: ImageL
     handleMouseMove,
     handleMouseUp,
     currentImage,
-    parseImageDetails: () => parseImageDetails(currentImage),
+    parseImageDetails,
     setScale,
-    setPosition
+    handleImageDoubleClick
   };
 };

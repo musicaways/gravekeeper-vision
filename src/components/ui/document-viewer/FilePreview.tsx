@@ -1,11 +1,11 @@
 
-import { FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { DocumentViewerFile } from "./types";
-import { useEffect, useRef } from "react";
+import { Loader2, FileText, Download, ZoomIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface FilePreviewProps {
-  currentFile: DocumentViewerFile;
+  currentFile: DocumentViewerFile | undefined;
   fileType: string;
   title: string;
   scale: number;
@@ -13,104 +13,88 @@ interface FilePreviewProps {
   handleZoomIn: () => void;
 }
 
-const FilePreview: React.FC<FilePreviewProps> = ({
+const FilePreview = ({
   currentFile,
   fileType,
   title,
   scale,
   handleDownload,
   handleZoomIn
-}) => {
-  const fileUrl = currentFile?.url || '';
-  const fileTypeLower = fileType?.toLowerCase() || '';
-  const containerRef = useRef<HTMLDivElement>(null);
-  const lastTapTime = useRef<number>(0);
+}: FilePreviewProps) => {
+  const isPdf = fileType.toLowerCase() === 'pdf';
+  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(fileType.toLowerCase());
   
-  // Double tap handler for zoom
-  useEffect(() => {
-    const handleTap = (e: TouchEvent) => {
-      const now = Date.now();
-      const timeDiff = now - lastTapTime.current;
-      
-      if (timeDiff < 300 && timeDiff > 0) {
-        // It's a double tap, trigger zoom
-        e.preventDefault();
-        handleZoomIn();
-      }
-      
-      lastTapTime.current = now;
-    };
-    
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('touchend', handleTap);
-    }
-    
-    return () => {
-      if (container) {
-        container.removeEventListener('touchend', handleTap);
-      }
-    };
-  }, [handleZoomIn]);
+  if (!currentFile) {
+    return <div className="flex items-center justify-center w-full">
+      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+    </div>;
+  }
 
-  // PDF Preview
-  if (fileTypeLower === 'pdf') {
+  const imageStyle = {
+    transform: `scale(${scale})`,
+    transformOrigin: 'center',
+    transition: 'transform 0.2s ease-out'
+  };
+
+  if (isPdf) {
     return (
-      <div 
-        ref={containerRef}
-        className="w-full h-full flex items-center justify-center bg-black/5 rounded-md overflow-hidden" 
-        style={{ transform: `scale(${scale})`, transition: "transform 0.3s ease" }}
-      >
-        <iframe 
-          src={`${fileUrl}#toolbar=0`} 
-          className="w-full h-full max-h-[75vh]"
-          title={title || "PDF Document"}
-          sandbox="allow-scripts allow-same-origin"
-        />
+      <div className="w-full h-full flex flex-col items-center justify-center relative">
+        <iframe
+          src={`${currentFile.url}#zoom=${scale < 1.5 ? '100' : '150'}`}
+          title={title}
+          className="w-full h-full"
+          style={{ backgroundColor: "white" }}
+        ></iframe>
+        <div className="absolute bottom-4 right-4 flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownload();
+            }}
+            className="opacity-80 hover:opacity-100"
+          >
+            <Download className="w-4 h-4 mr-1" /> Apri PDF
+          </Button>
+        </div>
       </div>
     );
   }
-  
-  // Image Preview (jpg, png, gif, bmp, etc.)
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(fileTypeLower)) {
+
+  if (isImage) {
     return (
-      <div 
-        ref={containerRef}
-        className="w-full h-full flex items-center justify-center"
-      >
-        <img 
-          src={fileUrl} 
-          alt={title || "Image"} 
-          className="max-h-[75vh] max-w-full object-contain"
-          style={{ transform: `scale(${scale})`, transition: "transform 0.3s ease" }}
-          onError={(e) => {
-            console.error("Image load error:", e);
-            e.currentTarget.src = "/placeholder.svg";
-            e.currentTarget.alt = "Errore nel caricamento dell'immagine";
+      <div className="w-full h-full flex items-center justify-center overflow-hidden">
+        <motion.img
+          src={currentFile.url}
+          alt={title}
+          className="max-h-full max-w-full object-contain cursor-zoom-in"
+          style={imageStyle}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleZoomIn();
           }}
+          draggable={false}
+          animate={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
         />
       </div>
     );
   }
-  
-  // Generic Document
+
+  // For all other file types
   return (
-    <div 
-      ref={containerRef}
-      className="w-full h-full flex flex-col items-center justify-center p-8 bg-muted/30 rounded-md" 
-      style={{ transform: `scale(${scale})`, transition: "transform 0.3s ease" }}
-    >
-      <FileText className="h-24 w-24 text-primary/80 mb-4" />
-      <h3 className="text-lg font-medium mb-2">{title || "Documento"}</h3>
-      {fileType && <p className="text-sm text-muted-foreground mb-6 uppercase">{fileType}</p>}
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="gap-2"
+    <div className="flex flex-col items-center justify-center gap-4 py-8">
+      <FileText className="w-16 h-16 text-muted-foreground" />
+      <p className="text-center max-w-md text-muted-foreground">
+        {title ? title : "Questo tipo di file non può essere visualizzato."}
+      </p>
+      <Button
+        variant="outline"
         onClick={handleDownload}
       >
-        <FileText className="h-4 w-4" />
-        Scarica file
+        <Download className="w-4 h-4 mr-1" /> Scarica file
       </Button>
     </div>
   );

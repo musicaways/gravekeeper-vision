@@ -12,7 +12,7 @@ export const useDocumentViewer = ({
   const [showControls, setShowControls] = useState(true);
   const [scale, setScale] = useState(1);
   
-  // Reset current index when viewer opens
+  // Reset current index and scale when viewer opens
   useEffect(() => {
     if (open) {
       setCurrentIndex(initialIndex);
@@ -33,10 +33,14 @@ export const useDocumentViewer = ({
   
   const goToPreviousFile = () => {
     setCurrentIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
+    // Reset zoom when changing file
+    setScale(1);
   };
 
   const goToNextFile = () => {
     setCurrentIndex((prev) => (prev === files.length - 1 ? 0 : prev + 1));
+    // Reset zoom when changing file
+    setScale(1);
   };
   
   const toggleControls = () => {

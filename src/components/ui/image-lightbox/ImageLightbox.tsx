@@ -50,7 +50,8 @@ const ImageLightbox = ({
     handleMouseUp,
     currentImage,
     parseImageDetails,
-    setScale
+    setScale,
+    handleImageDoubleClick
   } = useImageLightbox({ images, open, initialIndex, onClose });
 
   const handleDeleteRequest = () => {
@@ -129,6 +130,7 @@ const ImageLightbox = ({
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -164,6 +166,7 @@ const ImageLightbox = ({
                 dragging={dragging}
                 swipeDirection={swipeDirection}
                 setScale={setScale}
+                onDoubleClick={handleImageDoubleClick}
               />
               
               {/* Bottom info bar */}

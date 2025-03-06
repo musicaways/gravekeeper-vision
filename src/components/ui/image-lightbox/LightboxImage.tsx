@@ -1,20 +1,22 @@
 
 import { motion } from "framer-motion";
 import { LightboxImage as LightboxImageType } from "./types";
-import { useIsMobile } from "@/hooks/use-mobile";
+import Image from "next/image";
+import React from "react";
 
 interface LightboxImageProps {
   imageRef: React.RefObject<HTMLImageElement>;
-  currentImage: LightboxImageType;
+  currentImage: LightboxImageType | null;
   title: string;
   scale: number;
   position: { x: number; y: number };
   dragging: boolean;
-  swipeDirection: null | "left" | "right";
+  swipeDirection: string | null;
   setScale: (scale: number) => void;
+  onDoubleClick?: (e: React.MouseEvent | React.TouchEvent) => void;
 }
 
-const LightboxImage = ({
+const LightboxImage: React.FC<LightboxImageProps> = ({
   imageRef,
   currentImage,
   title,
@@ -22,32 +24,45 @@ const LightboxImage = ({
   position,
   dragging,
   swipeDirection,
-  setScale
-}: LightboxImageProps) => {
-  const isMobile = useIsMobile();
+  onDoubleClick
+}) => {
+  if (!currentImage) return null;
   
+  const transformStyle = {
+    transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+    transition: dragging ? 'none' : 'transform 0.2s ease-out',
+    transformOrigin: 'center',
+    touchAction: scale > 1 ? 'none' : 'pan-y'
+  };
+
+  // Use swipe direction to add visual feedback during swipe
+  const getSwipeTransform = () => {
+    if (!swipeDirection || scale > 1) return {};
+    const swipeOffset = swipeDirection === 'left' ? -30 : 30;
+    return {
+      transform: `translateX(${swipeOffset}px)`,
+      opacity: 0.7,
+    };
+  };
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-      <motion.img 
+    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+      <motion.img
         ref={imageRef}
-        src={currentImage.url} 
-        alt={title || "Immagine"}
-        className={`object-contain select-none ${isMobile ? 'max-h-[75vh] max-w-[90vw]' : 'max-h-[80vh] max-w-[85vw]'}`}
-        style={{ 
-          scale,
-          x: position.x,
-          y: position.y,
-          cursor: dragging ? "grabbing" : (scale > 1 ? "grab" : "default"),
-          transform: swipeDirection ? `translateX(${swipeDirection === "right" ? "-50px" : "50px"})` : undefined
+        src={currentImage.url}
+        alt={title || "Foto"}
+        className={`max-h-full max-w-full object-contain ${dragging ? 'cursor-grabbing' : scale > 1 ? 'cursor-grab' : 'cursor-zoom-in'}`}
+        style={{
+          ...transformStyle,
+          ...(swipeDirection && getSwipeTransform()),
         }}
-        onDoubleClick={(e) => {
-          e.stopPropagation();
-          setScale(scale === 1 ? 2 : 1);
-        }}
-        transition={{ type: "spring", damping: 20, stiffness: 200 }}
-        drag={scale > 1}
-        dragConstraints={{ left: -1000, right: 1000, top: -1000, bottom: 1000 }}
-        dragElastic={0.1}
+        onDoubleClick={onDoubleClick}
+        draggable={false}
+        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
+        loading="eager"
       />
     </div>
   );

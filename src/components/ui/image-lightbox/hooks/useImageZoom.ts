@@ -33,6 +33,21 @@ export const useImageZoom = ({ open }: UseImageZoomProps) => {
       return newScale;
     });
   };
+
+  // Double click/tap to zoom in or reset
+  const handleDoubleClick = (event: React.MouseEvent | React.TouchEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (scale > 1) {
+      // Reset zoom
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    } else {
+      // Zoom in to 2x
+      setScale(2);
+    }
+  };
   
   return {
     scale,
@@ -40,6 +55,7 @@ export const useImageZoom = ({ open }: UseImageZoomProps) => {
     setScale,
     setPosition,
     handleZoomIn,
-    handleZoomOut
+    handleZoomOut,
+    handleDoubleClick
   };
 };
