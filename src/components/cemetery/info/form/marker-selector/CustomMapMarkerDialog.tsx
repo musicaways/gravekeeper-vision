@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+
+import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Map } from "lucide-react";
 import { useCustomMapMarker } from "./hooks/useCustomMapMarker";
 import InstructionsPanel from "./components/InstructionsPanel";
 import MapContainer from "./components/MapContainer";
 import DialogFooter from "./components/DialogFooter";
-import { setupMapScript } from "./helpers/mapScriptSetup";
 
 interface CustomMapMarkerDialogProps {
   open: boolean;
@@ -18,9 +18,6 @@ interface CustomMapMarkerDialogProps {
     longitude: number | null;
   };
 }
-
-// Set up the map script globally when this module is loaded
-setupMapScript();
 
 const CustomMapMarkerDialog = ({
   open,
@@ -38,10 +35,12 @@ const CustomMapMarkerDialog = ({
     mapUrl,
     iframeRef,
     setShowInstructions,
-    injectScript,
+    handleIframeLoad,
     handleIframeError,
     confirmSelection,
-    handleManualInput
+    handleManualInput,
+    handleUrlInput,
+    setSelectedMarkerId
   } = useCustomMapMarker({
     initialMarkerId,
     customMapId,
@@ -66,7 +65,7 @@ const CustomMapMarkerDialog = ({
             Seleziona marker dalla mappa personalizzata
           </DialogTitle>
           <DialogDescription>
-            Clicca su un marker nella mappa per selezionarlo e collegarlo a questo cimitero
+            Clicca su un marker nella mappa, copia l'ID dalla barra degli indirizzi o inseriscilo manualmente
           </DialogDescription>
         </DialogHeader>
         
@@ -80,9 +79,10 @@ const CustomMapMarkerDialog = ({
           mapError={mapError}
           mapLoaded={mapLoaded}
           iframeRef={iframeRef}
-          onIframeLoad={injectScript}
+          onIframeLoad={handleIframeLoad}
           onIframeError={handleIframeError}
           onManualInput={handleManualInput}
+          onUrlInput={handleUrlInput}
         />
         
         <DialogFooter 

@@ -49,43 +49,11 @@ export function useCustomMapMarker({
 
   const mapUrl = buildMapUrl();
 
-  // Handle messages from the map iframe
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === "markerSelected" && data.markerId) {
-          console.log("Marker selected event received:", data.markerId);
-          setSelectedMarkerId(data.markerId);
-          toast.success("Marker selezionato con successo!");
-        }
-      } catch (e) {
-        // Ignore non-JSON messages
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
-
-  // Inject script into iframe after loading
-  const injectScript = () => {
+  // Simple iframe loading handler - no script injection
+  const handleIframeLoad = () => {
     setMapLoaded(true);
-    setMapError(null); // Reset error on successful load
-    
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      try {
-        const iframeWindow = iframeRef.current.contentWindow;
-        const script = document.createElement('script');
-        script.textContent = window.mapInteractionScript; // Using the global script
-        iframeWindow.document.body.appendChild(script);
-        
-        console.log('Script iniettato nell\'iframe della mappa');
-      } catch (error) {
-        console.error('Errore durante l\'iniezione dello script:', error);
-        setMapError("Impossibile interagire con la mappa a causa di restrizioni di sicurezza");
-      }
-    }
+    setMapError(null);
+    console.log("Mappa caricata correttamente");
   };
 
   // Handle iframe loading errors
@@ -107,12 +75,27 @@ export function useCustomMapMarker({
     }
   };
 
-  // Manual marker ID input (fallback)
+  // Manual marker ID input (primary method due to security restrictions)
   const handleManualInput = () => {
     const userInput = prompt("Inserisci manualmente l'ID del marker:");
     if (userInput && userInput.trim()) {
       setSelectedMarkerId(userInput.trim());
       toast.success("ID marker impostato manualmente");
+    }
+  };
+
+  // Handle URL input for marker extraction
+  const handleUrlInput = () => {
+    const userInput = prompt("Incolla l'URL completo del marker:");
+    if (userInput && userInput.trim()) {
+      // Try to extract marker ID from URL
+      const msidMatch = userInput.match(/[?&]msid=([^&#]*)/);
+      if (msidMatch && msidMatch[1]) {
+        setSelectedMarkerId(msidMatch[1]);
+        toast.success("ID marker estratto con successo dall'URL");
+      } else {
+        toast.error("Impossibile trovare l'ID del marker nell'URL fornito");
+      }
     }
   };
 
@@ -124,9 +107,11 @@ export function useCustomMapMarker({
     mapUrl,
     iframeRef,
     setShowInstructions,
-    injectScript,
+    handleIframeLoad,
     handleIframeError,
     confirmSelection,
-    handleManualInput
+    handleManualInput,
+    handleUrlInput,
+    setSelectedMarkerId
   };
 }

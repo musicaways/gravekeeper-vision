@@ -2,7 +2,7 @@
 import React from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Copy, Link } from "lucide-react";
 
 interface MapContainerProps {
   mapUrl: string | null;
@@ -12,6 +12,7 @@ interface MapContainerProps {
   onIframeLoad: () => void;
   onIframeError: () => void;
   onManualInput: () => void;
+  onUrlInput?: () => void;
 }
 
 const MapContainer = ({
@@ -21,7 +22,8 @@ const MapContainer = ({
   iframeRef,
   onIframeLoad,
   onIframeError,
-  onManualInput
+  onManualInput,
+  onUrlInput
 }: MapContainerProps) => {
   return (
     <div className="flex-1 relative min-h-0">
@@ -30,32 +32,71 @@ const MapContainer = ({
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             {mapError}
-            <Button
-              variant="link"
-              className="ml-2 p-0 h-auto text-destructive-foreground underline"
-              onClick={onManualInput}
-            >
-              Inserisci ID manualmente
-            </Button>
+            <div className="mt-2 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={onManualInput}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" />
+                Inserisci ID manualmente
+              </Button>
+              {onUrlInput && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={onUrlInput}
+                >
+                  <Link className="h-3.5 w-3.5 mr-1" />
+                  Incolla URL
+                </Button>
+              )}
+            </div>
           </AlertDescription>
         </Alert>
       )}
       
       {mapUrl ? (
-        <iframe 
-          ref={iframeRef}
-          src={mapUrl}
-          width="100%" 
-          height="100%" 
-          style={{ border: 0 }} 
-          allowFullScreen={false} 
-          loading="lazy" 
-          referrerPolicy="no-referrer-when-downgrade"
-          title="Seleziona un marker dalla mappa"
-          onLoad={onIframeLoad}
-          onError={onIframeError}
-          className="absolute inset-0"
-        />
+        <div className="relative w-full h-full">
+          <iframe 
+            ref={iframeRef}
+            src={mapUrl}
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen={false} 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Seleziona un marker dalla mappa"
+            onLoad={onIframeLoad}
+            onError={onIframeError}
+            className="absolute inset-0"
+          />
+          <div className="absolute bottom-4 right-4 flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-white/90 text-black shadow-md hover:bg-white"
+              onClick={onManualInput}
+            >
+              <Copy className="h-3.5 w-3.5 mr-1" />
+              Inserisci ID
+            </Button>
+            {onUrlInput && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="bg-white/90 text-black shadow-md hover:bg-white"
+                onClick={onUrlInput}
+              >
+                <Link className="h-3.5 w-3.5 mr-1" />
+                Incolla URL
+              </Button>
+            )}
+          </div>
+        </div>
       ) : (
         <div className="flex items-center justify-center h-full">
           <p className="text-muted-foreground">Nessuna mappa personalizzata configurata</p>
