@@ -35,7 +35,7 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         lng: parseFloat(Longitudine) 
       };
       
-      // Enhanced map styling for better visuals - minimal style without labels
+      // Enhanced map styling for better visuals - minimal style without roads and labels
       const mapStyles = [
         {
           featureType: "all",
@@ -50,26 +50,30 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         {
           featureType: "landscape.natural",
           elementType: "geometry",
-          stylers: [{ color: "#e8f5e9" }]
+          stylers: [{ visibility: "on" }, { color: "#e8f5e9" }]
         },
         {
           featureType: "water",
           elementType: "geometry",
-          stylers: [{ color: "#bbdefb" }]
+          stylers: [{ visibility: "on" }, { color: "#bbdefb" }]
         },
         {
           featureType: "road",
           elementType: "geometry",
-          stylers: [{ color: "#ffffff" }]
+          stylers: [{ visibility: "off" }]
         },
         {
           featureType: "administrative",
           elementType: "geometry.stroke",
           stylers: [{ color: "#c9c9c9" }, { weight: 0.8 }]
+        },
+        {
+          featureType: "transit",
+          stylers: [{ visibility: "off" }]
         }
       ];
       
-      // Custom map options - enabling single finger panning with gestureHandling: 'greedy'
+      // Custom map options - enabling rotation and single finger panning
       const mapOptions: google.maps.MapOptions = {
         center: mapPosition,
         zoom: 17,
@@ -78,7 +82,9 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         scrollwheel: false,
         clickableIcons: false,
         styles: mapStyles,
-        gestureHandling: 'greedy' // Abilita la navigazione con un dito (greedy mode)
+        gestureHandling: 'greedy', // Abilita la navigazione con un dito (greedy mode)
+        rotateControl: true, // Mostra il controllo di rotazione
+        tilt: 45 // Imposta un'inclinazione iniziale della mappa
       };
       
       // Initialize the map
@@ -129,6 +135,11 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
         }
       });
       
+      // Enable user to rotate map with two fingers
+      newMap.setOptions({
+        gestureHandling: 'greedy',
+      });
+      
       // Save references
       setMap(newMap);
       setMarker(newMarker);
@@ -162,7 +173,10 @@ const JavaScriptMap: React.FC<JavaScriptMapProps> = ({ cemetery, forceRefresh, o
       <div 
         ref={mapRef} 
         className="w-full h-full"
-        style={{touchAction: 'pan-x pan-y'}} // Migliora il touch handling
+        style={{
+          touchAction: 'pan-x pan-y',
+          willChange: 'transform' // Ottimizza le performance durante le trasformazioni
+        }}
       />
       {!mapLoaded && <LoadingIndicator />}
     </div>
