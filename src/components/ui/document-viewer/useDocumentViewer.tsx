@@ -17,19 +17,13 @@ export const useDocumentViewer = ({
     if (open) {
       setCurrentIndex(initialIndex);
       setScale(1);
+      // Sempre mostrare i controlli quando si apre il visualizzatore
+      setShowControls(true);
     }
   }, [initialIndex, open]);
   
-  // Auto-hide controls after 3 seconds
-  useEffect(() => {
-    if (!showControls) return;
-    
-    const timer = setTimeout(() => {
-      setShowControls(false);
-    }, 3000);
-    
-    return () => clearTimeout(timer);
-  }, [showControls]);
+  // Non nascondere automaticamente i controlli - li manteniamo sempre visibili
+  // per migliorare l'usabilità
   
   const goToPreviousFile = () => {
     setCurrentIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
@@ -48,11 +42,19 @@ export const useDocumentViewer = ({
   };
 
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 3));
+    setScale((prev) => {
+      // Se lo zoom è al massimo, ritorna a 1
+      if (prev >= 3) return 1;
+      return Math.min(prev + 0.5, 3);
+    });
   };
 
   const handleZoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.5, 1));
+    setScale((prev) => {
+      // Se lo zoom è al minimo, ritorna a 1
+      if (prev <= 1) return 1;
+      return Math.max(prev - 0.5, 1);
+    });
   };
   
   const currentFile = files[currentIndex];

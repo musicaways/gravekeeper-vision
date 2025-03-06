@@ -113,9 +113,9 @@ const DocumentViewer = ({
               className="relative w-full h-full flex items-center justify-center touch-none"
               onClick={toggleControls}
             >
-              {/* Top controls bar */}
+              {/* Top controls bar - always visible */}
               <ViewerControls 
-                showControls={showControls}
+                showControls={true}
                 currentIndex={currentIndex}
                 filesLength={files.length}
                 onDeleteRequest={handleDeleteRequest}
@@ -126,12 +126,14 @@ const DocumentViewer = ({
                 handleZoomOut={handleZoomOut}
               />
               
-              {/* Navigation buttons */}
-              <ViewerNavigation 
-                showControls={showControls}
-                goToPreviousFile={goToPreviousFile}
-                goToNextFile={goToNextFile}
-              />
+              {/* Navigation buttons - always visible for multiple files */}
+              {files.length > 1 && (
+                <ViewerNavigation 
+                  showControls={true}
+                  goToPreviousFile={goToPreviousFile}
+                  goToNextFile={goToNextFile}
+                />
+              )}
               
               {/* File Content */}
               <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 h-full flex items-center overflow-hidden">
@@ -146,9 +148,9 @@ const DocumentViewer = ({
                 />
               </div>
               
-              {/* Bottom info bar */}
+              {/* Bottom info bar - always visible */}
               <ViewerInfoBar 
-                showControls={showControls}
+                showControls={true}
                 title={title}
                 description={description}
                 dateInfo={dateInfo}
