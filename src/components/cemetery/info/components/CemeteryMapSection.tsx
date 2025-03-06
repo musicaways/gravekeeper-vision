@@ -16,10 +16,20 @@ const CemeteryMapSection = ({ cemeteryId }: CemeteryMapSectionProps) => {
       try {
         if (!cemeteryId) return;
 
+        // Convert cemeteryId to number if it's a string
+        const numericId = typeof cemeteryId === 'string' ? parseInt(cemeteryId, 10) : cemeteryId;
+        
+        // Check if the conversion resulted in a valid number
+        if (isNaN(numericId)) {
+          console.error("Invalid cemetery ID format:", cemeteryId);
+          setLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase
           .from('CimiteroMappe')
           .select('Url')
-          .eq('IdCimitero', cemeteryId)
+          .eq('IdCimitero', numericId)
           .order('DataInserimento', { ascending: false })
           .limit(1);
         
