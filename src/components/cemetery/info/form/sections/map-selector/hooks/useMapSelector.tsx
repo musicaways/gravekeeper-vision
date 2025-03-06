@@ -16,7 +16,9 @@ export function useMapSelector({
   const mapRef = useRef<HTMLDivElement>(null);
   const [googleMap, setGoogleMap] = useState<any | null>(null);
   const [marker, setMarker] = useState<any | null>(null);
-  const [selectedPosition, setSelectedPosition] = useState<{lat: number, lng: number} | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<{lat: number, lng: number} | null>(
+    initialLat && initialLng ? { lat: initialLat, lng: initialLng } : null
+  );
   const { toast } = useToast();
 
   const handleConfirm = () => {
@@ -56,6 +58,12 @@ export function useMapSelector({
         });
       }
     });
+    
+    // Store marker in the map object to easily access it later
+    if (!map.markers) {
+      map.markers = [];
+    }
+    map.markers.push(newMarker);
     
     return newMarker;
   };

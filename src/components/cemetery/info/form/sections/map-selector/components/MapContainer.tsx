@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useGoogleMapsApi } from "@/hooks/useGoogleMapsApi";
@@ -24,10 +24,15 @@ const MapContainer: React.FC<MapContainerProps> = ({
 }) => {
   const { isLoaded, isError, loadingError } = useGoogleMapsApi();
   const { toast } = useToast();
+  const mapInitializedRef = useRef(false);
 
   // Initialize map once Google Maps API is loaded
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.google?.maps) return;
+    
+    // Use ref to prevent reinitializing the map and causing infinite loops
+    if (mapInitializedRef.current) return;
+    mapInitializedRef.current = true;
 
     try {
       // Create the map
@@ -71,9 +76,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
           map.panTo(clickedPosition);
           
           // Create or move the marker
-          const currentMarker = map.markers?.[0];
-          if (currentMarker) {
-            currentMarker.setPosition(clickedPosition);
+          if (map.markers && map.markers[0]) {
+            map.markers[0].setPosition(clickedPosition);
           } else {
             const newMarker = initializeMarker(map, clickedPosition);
             setMarker(newMarker);

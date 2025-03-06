@@ -71,17 +71,17 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 
   return (
     <div className="space-y-2">
+      <div className="flex justify-start mb-2">
+        <MapControls 
+          onOpenInGoogleMaps={handleOpenMapInNewTab} 
+        />
+      </div>
+      
       <JavaScriptMap 
         cemetery={cemetery}
         forceRefresh={forceRefresh}
         onError={(error) => setMapError(error)}
       />
-      
-      <div className="flex justify-end">
-        <MapControls 
-          onOpenInGoogleMaps={handleOpenMapInNewTab} 
-        />
-      </div>
     </div>
   );
 };
