@@ -194,9 +194,9 @@ const LocationSection = ({
           <div className="flex-1 h-[350px] relative">
             <MapSelector
               onSelectLocation={(lat, lng) => {
-                // Update form values using the form context
-                control._formState.setValue('Latitudine', lat.toString());
-                control._formState.setValue('Longitudine', lng.toString());
+                // Update form values using the setValue function from control
+                control._fields.Latitudine.onChange(lat.toString());
+                control._fields.Longitudine.onChange(lng.toString());
                 setShowMapSelector(false);
               }}
             />
