@@ -1,5 +1,4 @@
 
-import { Card, CardContent } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { User } from "lucide-react";
@@ -28,50 +27,42 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardContent className="p-0">
-        <div className="p-4 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4">
-          <div className="hidden md:flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary">
-            <User className="h-5 w-5" />
-          </div>
-          
-          <div className="space-y-1.5">
-            <div className="flex items-center">
-              <h3 className="text-lg font-semibold">{deceased.nominativo}</h3>
-              <div className="ml-auto text-sm text-muted-foreground">
-                {deceased.data_decesso && formatDate(deceased.data_decesso)}
-              </div>
+    <div className="bg-card border rounded-md overflow-hidden hover:shadow-sm transition-shadow">
+      <div className="flex items-center justify-between p-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold truncate">
+            {deceased.nominativo}
+          </h3>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-muted-foreground mt-1">
+            <div className="flex items-center gap-1">
+              <span className="font-medium">Cimitero:</span>
+              <span>{deceased.cimitero_nome || 'N/A'}</span>
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <span className="font-medium">Cimitero:</span>
-                <span>{deceased.cimitero_nome || 'N/A'}</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <span className="font-medium">Settore:</span>
-                <span>{deceased.settore_nome || 'N/A'}</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <span className="font-medium">Blocco:</span>
-                <span>{deceased.blocco_nome || 'N/A'}</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <span className="font-medium">Loculo:</span>
-                <span>
-                  {deceased.loculo_numero ? 
-                    `#${deceased.loculo_numero}${deceased.loculo_fila ? ` (Fila ${deceased.loculo_fila})` : ''}` : 
-                    'N/A'}
-                </span>
-              </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium">Settore:</span>
+              <span>{deceased.settore_nome || 'N/A'}</span>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <span className="font-medium">Blocco:</span>
+              <span>{deceased.blocco_nome || 'N/A'}</span>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        
+        <div className="flex flex-col items-center justify-center ml-4">
+          <div className="text-sm font-medium whitespace-nowrap">
+            {deceased.loculo_numero && 
+              `Loculo ${deceased.loculo_numero}${deceased.loculo_fila ? ` (Fila ${deceased.loculo_fila})` : ''}`
+            }
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {deceased.data_decesso && formatDate(deceased.data_decesso)}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

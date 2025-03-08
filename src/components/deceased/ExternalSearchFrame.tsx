@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -18,16 +17,16 @@ const ExternalSearchFrame: React.FC = () => {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <div className="w-full">
       {error && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-4 mx-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Errore</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
       
-      <div className="relative" style={{ height: 'calc(100vh - 300px)', minHeight: '600px' }}>
+      <div className="relative" style={{ height: 'calc(100vh - 160px)', minHeight: '600px' }}>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
@@ -42,7 +41,7 @@ const ExternalSearchFrame: React.FC = () => {
           onError={handleIframeError}
         />
       </div>
-    </Card>
+    </div>
   );
 };
 

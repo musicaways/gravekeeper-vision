@@ -9,7 +9,7 @@ interface DeceasedEmptyStateProps {
 
 const DeceasedEmptyState: React.FC<DeceasedEmptyStateProps> = ({ searchTerm, onClear }) => {
   return (
-    <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed rounded-lg">
+    <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed rounded-lg bg-card/50">
       <FileX className="h-12 w-12 text-muted-foreground mb-4" />
       
       {searchTerm ? (

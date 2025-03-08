@@ -1,13 +1,10 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import DeceasedListItem from "./DeceasedListItem";
 import DeceasedEmptyState from "./DeceasedEmptyState";
-import { Search } from "lucide-react";
 
 interface DeceasedRecord {
   id: string;
@@ -110,29 +107,16 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, setSearchTerm }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="relative">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Cerca per nominativo..."
-          className="pl-8"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
+    <div className="px-4 py-2 space-y-4 w-full">
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Card key={i} className="overflow-hidden">
-              <CardContent className="p-0">
-                <div className="p-4">
-                  <Skeleton className="h-6 w-2/3 mb-2" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              </CardContent>
-            </Card>
+            <div key={i} className="bg-card border rounded-md overflow-hidden">
+              <div className="p-4">
+                <Skeleton className="h-6 w-2/3 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </div>
           ))}
         </div>
       ) : filteredDeceased.length > 0 ? (
