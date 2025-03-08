@@ -49,25 +49,26 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, setSearchTerm }
   const fetchDeceased = async () => {
     setLoading(true);
     try {
+      // Fix the query structure to correct join the tables
       const { data, error } = await supabase
         .from('defunti')
         .select(`
           id,
           nominativo,
           data_decesso,
-          loculi!inner (
+          loculi (
             id,
-            numero as loculo_numero,
-            fila as loculo_fila,
-            Blocco!inner (
+            numero,
+            fila,
+            Blocco (
               Id,
-              Nome as blocco_nome,
-              Settore!inner (
+              Nome,
+              Settore (
                 Id,
-                Nome as settore_nome,
-                Cimitero!inner (
+                Nome,
+                Cimitero (
                   Id,
-                  Nome as cimitero_nome
+                  Nome
                 )
               )
             )
@@ -80,19 +81,22 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, setSearchTerm }
       }
 
       // Transform data to flatten the structure
-      const transformedData: DeceasedRecord[] = data.map(item => ({
-        id: item.id,
-        nominativo: item.nominativo,
-        data_decesso: item.data_decesso,
-        cimitero_nome: item.loculi?.Blocco?.Settore?.Cimitero?.Nome || 'N/A',
-        settore_nome: item.loculi?.Blocco?.Settore?.Nome || 'N/A',
-        blocco_nome: item.loculi?.Blocco?.Nome || 'N/A',
-        loculo_numero: item.loculi?.loculo_numero || null,
-        loculo_fila: item.loculi?.loculo_fila || null
-      }));
+      const transformedData: DeceasedRecord[] = data
+        .filter(item => item.loculi) // Filter out records without loculi
+        .map(item => ({
+          id: item.id,
+          nominativo: item.nominativo,
+          data_decesso: item.data_decesso,
+          cimitero_nome: item.loculi?.Blocco?.Settore?.Cimitero?.Nome || null,
+          settore_nome: item.loculi?.Blocco?.Settore?.Nome || null,
+          blocco_nome: item.loculi?.Blocco?.Nome || null,
+          loculo_numero: item.loculi?.numero || null,
+          loculo_fila: item.loculi?.fila || null
+        }));
 
       setDeceased(transformedData);
       setFilteredDeceased(transformedData);
+      
     } catch (error) {
       console.error('Error fetching deceased:', error);
       toast({
