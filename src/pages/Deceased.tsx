@@ -12,27 +12,25 @@ const Deceased = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="container mx-auto px-4 py-2">
-        <Breadcrumb className="py-2">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/" className="flex items-center gap-1">
-                <HomeIcon className="h-3.5 w-3.5" />
-                <span>Home</span>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <span>Registro Defunti</span>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/" className="flex items-center gap-1">
+              <HomeIcon className="h-3.5 w-3.5" />
+              <span>Home</span>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span>Registro Defunti</span>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       
-      <div className="container mx-auto px-4 flex-1">
+      <div className="w-full max-w-none">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-1 pt-1">
+          <div className="sticky z-10 bg-background/95 backdrop-blur-sm pb-1 pt-2 w-full">
             <TabsList className="h-10 px-2 w-full justify-start border-b rounded-none bg-transparent">
               <TabsTrigger
                 value="list"
@@ -51,12 +49,12 @@ const Deceased = () => {
             </TabsList>
           </div>
           
-          <div className="w-full py-4">
-            <TabsContent value="list" className="mt-0 p-0">
+          <div className="w-full max-w-none">
+            <TabsContent value="list" className="mt-0">
               <DeceasedList searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </TabsContent>
             
-            <TabsContent value="search" className="mt-0 p-0">
+            <TabsContent value="search" className="mt-0">
               <ExternalSearchFrame />
             </TabsContent>
           </div>
