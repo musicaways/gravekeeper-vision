@@ -14,6 +14,7 @@ import Layout from "@/components/layout/Layout";
 import WorkOrders from "@/pages/WorkOrders";
 import Settings from "@/pages/Settings";
 import UserProfile from "@/pages/UserProfile";
+import Deceased from "@/pages/Deceased";
 
 import { Toaster } from "@/components/ui/toaster";
 
@@ -66,6 +67,15 @@ const App = () => {
               <ProtectedRoute>
                 <Layout>
                   <WorkOrders />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            
+            {/* Deceased registry route */}
+            <Route path="/deceased" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Deceased />
                 </Layout>
               </ProtectedRoute>
             } />

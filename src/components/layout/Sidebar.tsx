@@ -4,13 +4,11 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  Home, 
   Landmark, 
   ClipboardList, 
   Users, 
   Boxes, 
   Settings, 
-  Map, 
   Activity,
   Bot,
   ChevronLeft,
@@ -83,14 +81,12 @@ export default function Sidebar({ open, onToggle, isMobile }: SidebarProps) {
             )}
             
             <nav className="space-y-1">
-              <NavItem href="/" icon={Home} label="Home" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/dashboard" icon={Activity} label="Dashboard" isActive={isActive("/dashboard")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/" icon={Landmark} label="Cimiteri" isActive={isActive("/")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/work-orders" icon={ClipboardList} label="Ordini di lavoro" isActive={isActive("/work-orders")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/deceased" icon={Users} label="Registri defunti" isActive={isActive("/deceased")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/inventory" icon={Boxes} label="Inventario" isActive={isActive("/inventory")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/crews" icon={Activity} label="Squadre di lavoro" isActive={isActive("/crews")} showLabel={open || isMobile} onClick={handleNavigate} />
-              <NavItem href="/maps" icon={Map} label="Mappe cimitero" isActive={isActive("/maps")} showLabel={open || isMobile} onClick={handleNavigate} />
               <NavItem href="/ai-assistant" icon={Bot} label="Assistente AI" isActive={isActive("/ai-assistant")} showLabel={open || isMobile} onClick={handleNavigate} />
             </nav>
             
