@@ -23,6 +23,7 @@ export interface CemeteryUpdateData {
   camera_mortuaria: boolean | null;
   cavalletti: boolean | null;
   impalcatura: boolean | null;
+  FotoCopertina?: string | null;
 }
 
 export const formatCemeteryData = (formData: any): CemeteryUpdateData => {
@@ -47,7 +48,8 @@ export const formatCemeteryData = (formData: any): CemeteryUpdateData => {
     chiesa: formData.chiesa,
     camera_mortuaria: formData.camera_mortuaria,
     cavalletti: formData.cavalletti,
-    impalcatura: formData.impalcatura
+    impalcatura: formData.impalcatura,
+    FotoCopertina: formData.FotoCopertina || null,
   };
 };
 

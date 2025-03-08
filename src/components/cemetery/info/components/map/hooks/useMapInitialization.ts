@@ -1,7 +1,7 @@
 
 import { useRef, useState, useEffect, RefObject } from "react";
 import { cemeteryMapStyles, getMapOptions } from "../utils/mapStyles";
-import { createInitialCemeteryMarker } from "../utils/markerUtils";
+import { createCemeteryMarker } from "../utils/markerUtils";
 
 interface UseMapInitializationProps {
   isLoaded: boolean;
@@ -68,10 +68,10 @@ const useMapInitialization = ({
       document.getElementsByTagName('head')[0].appendChild(styleElement);
       
       // Create cemetery marker
-      createInitialCemeteryMarker(newMap, cemetery);
+      createCemeteryMarker(newMap, cemetery);
       
       // Add custom controls
-      const mapLoadedListener = google.maps.event.addListenerOnce(newMap, 'idle', () => {
+      const mapLoadedListener = google.maps.event.addListener(newMap, 'idle', () => {
         console.log("Map fully loaded");
         setMapLoaded(true);
       });
