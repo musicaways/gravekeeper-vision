@@ -19,16 +19,18 @@ const ExternalSearchFrame: React.FC = () => {
     // Apply a delay to allow iframe to fully initialize
     setTimeout(() => {
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        console.log("Applicazione stili e comportamenti all'iframe");
+        console.log("Tentativo di abilitare funzionalità dell'iframe");
+        
         try {
-          // Try to access iframe content directly
-          const iframeDocument = iframeRef.current.contentWindow.document;
-          // Check if we have access - this will throw an error if restricted by CORS
-          if (iframeDocument) {
-            console.log("Accesso al documento iframe riuscito");
-          }
+          // Try to enable form submission by posting a message to the iframe
+          iframeRef.current.contentWindow.postMessage({
+            type: 'ENABLE_FORM_SUBMISSION',
+            origin: window.location.origin
+          }, 'https://servizicimiteriali.pesaro.aspes.it');
+          
+          console.log("Messaggio inviato all'iframe per attivare funzionalità");
         } catch (err) {
-          console.log("Non è possibile accedere direttamente al documento dell'iframe a causa di restrizioni CORS", err);
+          console.error("Errore durante l'interazione con l'iframe:", err);
         }
       }
     }, 1000);
@@ -67,30 +69,48 @@ const ExternalSearchFrame: React.FC = () => {
       description: "Il sistema di ricerca è stato aperto in una nuova scheda"
     });
   };
-
-  // Monitor iframe activity and fix potential issues
+  
+  // Try to support form submission through a proxy approach
   useEffect(() => {
     if (!isLoading) {
-      try {
-        console.log("Configurazione monitoraggio iframe");
-        
-        // Create a function to handle messages from the iframe
-        const handleMessage = (event: MessageEvent) => {
-          if (event.origin.includes('servizicimiteriali.pesaro.aspes.it')) {
-            console.log("Messaggio ricevuto dall'iframe:", event.data);
+      // Message listener to detect activities in the iframe
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin.includes('servizicimiteriali.pesaro.aspes.it')) {
+          console.log("Messaggio ricevuto dall'iframe:", event.data);
+          
+          // If we receive a form submission message, we could handle it here
+          if (event.data?.type === 'FORM_SUBMIT') {
+            console.log("Rilevata sottomissione del form");
           }
-        };
-        
-        // Add event listener for messages from the iframe
-        window.addEventListener('message', handleMessage);
-        
-        // Cleanup function
-        return () => {
-          window.removeEventListener('message', handleMessage);
-        };
-      } catch (err) {
-        console.error("Errore durante la configurazione del monitoraggio:", err);
-      }
+        }
+      };
+      
+      window.addEventListener('message', handleMessage);
+      
+      // Monitor for any navigation events within the iframe
+      const checkIframeStatus = setInterval(() => {
+        if (iframeRef.current) {
+          try {
+            console.log("Monitoraggio stato iframe...");
+            
+            // Try to detect loading state changes indirectly
+            const iframeEl = iframeRef.current;
+            const isCurrentlyLoading = iframeEl.classList.contains('loading');
+            
+            if (isCurrentlyLoading !== isLoading) {
+              setIsLoading(isCurrentlyLoading);
+              console.log("Stato di caricamento dell'iframe aggiornato:", isCurrentlyLoading);
+            }
+          } catch (error) {
+            console.error("Errore durante il monitoraggio dell'iframe:", error);
+          }
+        }
+      }, 1000);
+      
+      return () => {
+        window.removeEventListener('message', handleMessage);
+        clearInterval(checkIframeStatus);
+      };
     }
   }, [isLoading]);
 
@@ -125,6 +145,13 @@ const ExternalSearchFrame: React.FC = () => {
           </div>
         )}
         
+        <div className="bg-amber-50/30 p-3 mb-4 mx-4 rounded border border-amber-200 text-amber-800">
+          <p className="text-sm">
+            Per limitazioni tecniche del browser, potrebbe non essere possibile utilizzare il modulo di ricerca direttamente in questa pagina. 
+            Se la ricerca non funziona, utilizza il pulsante "Apri in una nuova scheda" per accedere direttamente al sistema di ricerca.
+          </p>
+        </div>
+        
         <iframe 
           ref={iframeRef}
           src="https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca"
@@ -133,6 +160,7 @@ const ExternalSearchFrame: React.FC = () => {
           onLoad={handleIframeLoad}
           onError={handleIframeError}
           style={{ width: '100%' }}
+          allow="forms"
         />
       </div>
     </div>
