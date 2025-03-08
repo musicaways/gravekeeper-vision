@@ -59,6 +59,7 @@ const ExternalSearchFrame: React.FC = () => {
           // Try to append style to iframe head
           try {
             iframeDoc.head?.appendChild(styleElement);
+            console.log("Successfully applied styles to iframe");
           } catch (e) {
             console.error("Cannot modify iframe content due to same-origin policy:", e);
           }
@@ -76,6 +77,17 @@ const ExternalSearchFrame: React.FC = () => {
       <p className="text-sm text-muted-foreground">Inserisci i dati del defunto per la ricerca</p>
     </div>
   );
+
+  useEffect(() => {
+    // Add an additional attempt to apply styles when component mounts
+    const timer = setTimeout(() => {
+      if (iframeRef.current) {
+        applyIframeStyles();
+      }
+    }, 1500); // Delay to ensure iframe has loaded
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="w-full h-full">
