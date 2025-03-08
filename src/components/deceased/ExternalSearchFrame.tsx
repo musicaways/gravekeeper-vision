@@ -4,15 +4,34 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, RefreshCw } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const ExternalSearchFrame: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { toast } = useToast();
   
   const handleIframeLoad = () => {
     setIsLoading(false);
     console.log("Iframe caricato con successo");
+    
+    // Apply a delay to allow iframe to fully initialize
+    setTimeout(() => {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        console.log("Applicazione stili e comportamenti all'iframe");
+        try {
+          // Try to access iframe content directly
+          const iframeDocument = iframeRef.current.contentWindow.document;
+          // Check if we have access - this will throw an error if restricted by CORS
+          if (iframeDocument) {
+            console.log("Accesso al documento iframe riuscito");
+          }
+        } catch (err) {
+          console.log("Non è possibile accedere direttamente al documento dell'iframe a causa di restrizioni CORS", err);
+        }
+      }
+    }, 1000);
   };
 
   const handleIframeError = () => {
@@ -24,6 +43,10 @@ const ExternalSearchFrame: React.FC = () => {
   const handleRefresh = () => {
     setIsLoading(true);
     setError(null);
+    toast({
+      title: "Ricaricamento in corso",
+      description: "La pagina di ricerca sta venendo ricaricata"
+    });
     
     // Force iframe to reload
     if (iframeRef.current) {
@@ -39,31 +62,36 @@ const ExternalSearchFrame: React.FC = () => {
 
   const handleOpenInNewTab = () => {
     window.open("https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca", "_blank");
+    toast({
+      title: "Pagina aperta",
+      description: "Il sistema di ricerca è stato aperto in una nuova scheda"
+    });
   };
 
+  // Monitor iframe activity and fix potential issues
   useEffect(() => {
-    const checkIframeFormSubmission = () => {
+    if (!isLoading) {
       try {
-        if (iframeRef.current) {
-          console.log("Monitoraggio iframe attivo");
-          
-          // Add message listener to catch any errors or events from the iframe
-          window.addEventListener('message', (event) => {
-            if (event.origin.includes('servizicimiteriali.pesaro.aspes.it')) {
-              console.log("Messaggio ricevuto dall'iframe:", event.data);
-            }
-          });
-        }
+        console.log("Configurazione monitoraggio iframe");
+        
+        // Create a function to handle messages from the iframe
+        const handleMessage = (event: MessageEvent) => {
+          if (event.origin.includes('servizicimiteriali.pesaro.aspes.it')) {
+            console.log("Messaggio ricevuto dall'iframe:", event.data);
+          }
+        };
+        
+        // Add event listener for messages from the iframe
+        window.addEventListener('message', handleMessage);
+        
+        // Cleanup function
+        return () => {
+          window.removeEventListener('message', handleMessage);
+        };
       } catch (err) {
-        console.error("Errore durante il monitoraggio dell'iframe:", err);
+        console.error("Errore durante la configurazione del monitoraggio:", err);
       }
-    };
-
-    const timer = setTimeout(checkIframeFormSubmission, 2000);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('message', () => {});
-    };
+    }
   }, [isLoading]);
 
   return (
@@ -97,20 +125,14 @@ const ExternalSearchFrame: React.FC = () => {
           </div>
         )}
         
-        <div className="bg-amber-50/30 p-3 mb-4 mx-4 rounded border border-amber-200 text-amber-800">
-          <p className="text-sm">
-            Se il modulo di ricerca non funziona correttamente all'interno della pagina, utilizza il pulsante "Apri in una nuova scheda" per accedere direttamente al sistema di ricerca.
-          </p>
-        </div>
-        
         <iframe 
           ref={iframeRef}
           src="https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca"
           title="Sistema di ricerca defunti"
           className="w-full h-full border-0 rounded"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
           onLoad={handleIframeLoad}
           onError={handleIframeError}
+          style={{ width: '100%' }}
         />
       </div>
     </div>
