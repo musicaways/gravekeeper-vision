@@ -3,14 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, RefreshCw, Smartphone } from 'lucide-react';
+import { ExternalLink, RefreshCw, Smartphone, Share2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const ExternalSearchFrame: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mobileMode, setMobileMode] = useState(false);
+  const [fullscreenMode, setFullscreenMode] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -19,41 +21,53 @@ const ExternalSearchFrame: React.FC = () => {
     setIsLoading(false);
     console.log("Iframe caricato con successo");
     
-    // Apply a delay to allow iframe to fully initialize
-    setTimeout(() => {
-      if (iframeRef.current && iframeRef.current.contentWindow) {
-        console.log("Tentativo di abilitare funzionalità dell'iframe");
-        
-        try {
-          // Try to interact with the iframe using a different approach
-          // We'll use direct postMessage with some more detailed data
-          iframeRef.current.contentWindow.postMessage({
-            type: 'BYPASS_RESTRICTIONS',
-            action: 'ENABLE_FORM_SUBMISSION',
-            userAgent: navigator.userAgent,
-            isMobileEmulation: mobileMode,
-            origin: window.location.origin,
-            timestamp: Date.now()
-          }, '*'); // Use wildcard to bypass domain restrictions
+    if (iframeRef.current) {
+      try {
+        // Tenta di osservare i cambiamenti nel contenuto dell'iframe
+        const iframeDocument = iframeRef.current.contentDocument || 
+          (iframeRef.current.contentWindow && iframeRef.current.contentWindow.document);
           
-          console.log("Messaggio inviato all'iframe con nuova strategia");
+        if (iframeDocument) {
+          console.log("Accesso al documento dell'iframe ottenuto");
           
-          // Try to directly interact with iframe document if possible
-          if (iframeRef.current.contentDocument) {
-            const forms = iframeRef.current.contentDocument.querySelectorAll('form');
-            console.log(`Trovati ${forms.length} form nell'iframe`);
-            
-            // Try to modify forms to bypass restrictions
-            forms.forEach((form, index) => {
-              form.setAttribute('target', '_blank');
-              console.log(`Form ${index} modificato per aprirsi in una nuova finestra`);
+          // Osserva i cambiamenti per rilevare quando avviene il caricamento
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              console.log("Rilevata mutazione nel DOM dell'iframe:", mutation.type);
+              
+              // Cerca l'elemento di caricamento
+              const loadingElement = iframeDocument.querySelector('.loading-overlay');
+              if (loadingElement) {
+                console.log("Elemento di caricamento trovato:", loadingElement);
+              }
+              
+              // Cerca il form di ricerca
+              const searchForm = iframeDocument.querySelector('form');
+              if (searchForm) {
+                console.log("Form di ricerca trovato:", searchForm);
+                
+                // Intercetta il submit del form
+                searchForm.addEventListener('submit', (e) => {
+                  console.log("Intercettato submit del form");
+                  // Non preveniamo l'evento predefinito per consentire il submit normale
+                });
+              }
             });
-          }
-        } catch (err) {
-          console.error("Errore durante l'interazione con l'iframe:", err);
+          });
+          
+          // Configura l'observer per monitorare tutto il documento
+          observer.observe(iframeDocument.body, {
+            childList: true,
+            subtree: true,
+            attributes: true
+          });
+          
+          console.log("MutationObserver configurato con successo");
         }
+      } catch (err) {
+        console.error("Errore durante l'accesso al documento dell'iframe:", err);
       }
-    }, 1000);
+    }
   };
 
   const handleIframeError = () => {
@@ -99,143 +113,90 @@ const ExternalSearchFrame: React.FC = () => {
       description: "La pagina verrà ricaricata con la nuova modalità"
     });
     
-    // Force iframe to reload with the new mode
     setTimeout(handleRefresh, 500);
   };
+
+  // Generiamo un ID univoco per la popup
+  const popupId = "search-popup-" + Math.random().toString(36).substring(2, 9);
   
-  // Create a srcDoc with custom HTML that might bypass restrictions
-  const generateSrcDoc = () => {
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          ${mobileMode ? '<meta name="theme-color" content="#ffffff">' : ''}
-          <title>Sistema di ricerca defunti</title>
-          <style>
-            body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-            iframe { width: 100%; height: 100%; border: none; }
-          </style>
-        </head>
-        <body>
-          <iframe 
-            src="https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca" 
-            width="100%" 
-            height="100%" 
-            style="border:none;"
-            allow="forms" 
-            referrerpolicy="no-referrer"
-            ${mobileMode ? 'sandbox="allow-same-origin allow-scripts allow-forms allow-popups"' : ''}
-          ></iframe>
-          <script>
-            // Set a custom user agent to appear as a mobile device
-            if (${mobileMode}) {
-              try {
-                Object.defineProperty(navigator, 'userAgent', {
-                  get: function() { return 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1'; }
-                });
-              } catch(e) { console.error('Failed to override userAgent', e); }
-            }
-            
-            // Listen for form submissions and redirect them
-            document.addEventListener('submit', function(e) {
-              console.log('Form submit captured');
-              const form = e.target;
-              // Allow the form to submit normally but also notify the parent
-              window.parent.postMessage({
-                type: 'FORM_SUBMIT',
-                formAction: form.action,
-                formData: new FormData(form)
-              }, '*');
-            }, true);
-            
-            // Listen for navigation events
-            window.addEventListener('click', function(e) {
-              const a = e.target.closest('a');
-              if (a) {
-                console.log('Link click captured:', a.href);
-                window.parent.postMessage({
-                  type: 'LINK_CLICK',
-                  href: a.href
-                }, '*');
-              }
-            }, true);
-          </script>
-        </body>
-      </html>
-    `;
+  const openPopupWindow = () => {
+    const width = 800;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+    
+    // Apri la finestra popup con le dimensioni specificate
+    const popup = window.open(
+      "https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca", 
+      popupId,
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+    );
+    
+    if (popup) {
+      // Comunica con la popup
+      popup.onload = () => {
+        console.log("Popup caricata correttamente");
+        
+        // Tenta di iniettare un cookie di sessione o un token
+        try {
+          popup.postMessage({ type: "INIT_FROM_PARENT" }, "*");
+        } catch (err) {
+          console.error("Errore nel comunicare con la popup:", err);
+        }
+      };
+      
+      // Controlla quando la popup viene chiusa
+      const checkPopupInterval = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkPopupInterval);
+          console.log("Popup chiusa dall'utente");
+          toast({
+            title: "Finestra di ricerca chiusa",
+            description: "La finestra di ricerca esterna è stata chiusa"
+          });
+        }
+      }, 1000);
+      
+      toast({
+        title: "Ricerca aperta in finestra dedicata",
+        description: "Una finestra dedicata è stata aperta per la ricerca senza limitazioni"
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Popup bloccata",
+        description: "Il browser ha bloccato l'apertura della finestra. Controlla le impostazioni del browser."
+      });
+    }
   };
   
-  // Monitor iframe activity with better logging
-  useEffect(() => {
-    if (!isLoading) {
-      // Message listener to detect activities in the iframe
-      const handleMessage = (event: MessageEvent) => {
-        console.log("Messaggio ricevuto:", event.origin, event.data);
-        
-        // Handle form submissions from our nested iframe
-        if (event.data?.type === 'FORM_SUBMIT') {
-          console.log("Rilevata sottomissione del form:", event.data);
-          setIsLoading(true); // Show loading indicator
-          
-          // Wait a bit and then check if the iframe content has changed
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 3000);
-        }
-        
-        // Handle link clicks from our nested iframe
-        if (event.data?.type === 'LINK_CLICK') {
-          console.log("Rilevato click su link:", event.data);
-          setIsLoading(true); // Show loading indicator
-          
-          // Wait a bit and then check if the iframe content has changed
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 3000);
-        }
-      };
-      
-      window.addEventListener('message', handleMessage);
-      
-      // Create a more sophisticated monitoring system
-      const monitorIframe = () => {
-        if (!iframeRef.current) return;
-        
-        try {
-          console.log("Monitoraggio stato iframe...");
-          
-          // Try to detect if iframe is in a loading state by checking its attributes
-          const iframeEl = iframeRef.current;
-          const currentSrc = iframeEl.src || '';
-          
-          // Check if there's a srcDoc (our custom HTML approach)
-          if (iframeEl.getAttribute('srcdoc')) {
-            // For srcDoc approach, we can only rely on our custom messages
-            console.log("Usando approccio srcDoc, attendendo messaggi...");
-          }
-          
-          // Log current iframe properties
-          console.log("Stato iframe:", {
-            readyState: document.readyState,
-            iframeHeight: iframeEl.offsetHeight,
-            iframeVisible: iframeEl.offsetParent !== null,
-            currentSrc
-          });
-        } catch (error) {
-          console.error("Errore durante il monitoraggio dell'iframe:", error);
-        }
-      };
-      
-      const monitorInterval = setInterval(monitorIframe, 2000);
-      
-      return () => {
-        window.removeEventListener('message', handleMessage);
-        clearInterval(monitorInterval);
-      };
-    }
-  }, [isLoading, mobileMode]);
+  // Per dispositivi mobili, mostriamo un foglio scorrevole invece di un iframe
+  const renderMobileSheet = () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="w-full">
+          <Share2 className="h-4 w-4 mr-2" />
+          Apri ricerca in modalità mobile
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="h-[85vh] p-0">
+        <div className="p-4 border-b">
+          <SheetHeader>
+            <SheetTitle>Ricerca defunti</SheetTitle>
+            <SheetDescription>
+              Sistema di ricerca esterno in modalità mobile
+            </SheetDescription>
+          </SheetHeader>
+        </div>
+        <iframe 
+          src="https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca"
+          className="w-full h-full border-0"
+          allow="forms"
+          referrerPolicy="no-referrer"
+        />
+      </SheetContent>
+    </Sheet>
+  );
 
   return (
     <div className="w-full">
@@ -265,48 +226,44 @@ const ExternalSearchFrame: React.FC = () => {
         </div>
       </div>
       
-      <div className="relative" style={{ height: 'calc(100vh - 220px)', minHeight: '600px' }}>
+      <div className="bg-amber-50/30 p-3 mb-4 mx-4 rounded border border-amber-200 text-amber-800">
+        <p className="text-sm">
+          Per limitazioni tecniche del browser, non è possibile utilizzare completamente il modulo di ricerca in questa pagina.
+          <br />
+          <br />
+          <strong>Soluzione consigliata:</strong> Utilizza il nuovo pulsante "Apri in finestra dedicata" che ti permette di utilizzare 
+          il sistema di ricerca senza le limitazioni di sicurezza del browser.
+        </p>
+      </div>
+      
+      <div className="flex flex-col gap-4 mx-4 mb-6">
+        <Button onClick={openPopupWindow} className="bg-primary hover:bg-primary/90">
+          <ExternalLink className="h-4 w-4 mr-2" />
+          Apri in finestra dedicata
+        </Button>
+        
+        {isMobile && renderMobileSheet()}
+      </div>
+      
+      <div className="relative" style={{ height: 'calc(100vh - 380px)', minHeight: '400px' }}>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
           </div>
         )}
         
-        <div className="bg-amber-50/30 p-3 mb-4 mx-4 rounded border border-amber-200 text-amber-800">
-          <p className="text-sm">
-            Per limitazioni tecniche del browser, potrebbe non essere possibile utilizzare il modulo di ricerca direttamente in questa pagina. 
-            Se la ricerca non funziona, utilizza il pulsante "Apri in una nuova scheda" per accedere direttamente al sistema di ricerca.
-            <br />
-            <br />
-            <strong>Prova la nuova modalità mobile</strong> che potrebbe aggirare alcune restrizioni.
-          </p>
-        </div>
-        
-        {/* Use either srcDoc approach or regular iframe depending on the mode */}
-        {mobileMode ? (
-          <iframe 
-            ref={iframeRef}
-            srcDoc={generateSrcDoc()}
-            title="Sistema di ricerca defunti (modalità mobile)"
-            className="w-full h-full border-0 rounded"
-            onLoad={handleIframeLoad}
-            onError={handleIframeError}
-            style={{ width: '100%' }}
-            allow="forms"
-          />
-        ) : (
-          <iframe 
-            ref={iframeRef}
-            src="https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca"
-            title="Sistema di ricerca defunti"
-            className="w-full h-full border-0 rounded"
-            onLoad={handleIframeLoad}
-            onError={handleIframeError}
-            style={{ width: '100%' }}
-            allow="forms"
-            referrerPolicy="no-referrer"
-          />
-        )}
+        {/* Mostriamo ancora l'iframe per consentire di vedere la pagina, ma consigliamo l'uso della popup */}
+        <iframe 
+          ref={iframeRef}
+          src="https://servizicimiteriali.pesaro.aspes.it/public/defunto/cerca"
+          title="Sistema di ricerca defunti"
+          className="w-full h-full border-0 rounded"
+          onLoad={handleIframeLoad}
+          onError={handleIframeError}
+          style={{ width: '100%' }}
+          allow="forms scripts"
+          referrerPolicy="no-referrer"
+        />
       </div>
     </div>
   );
