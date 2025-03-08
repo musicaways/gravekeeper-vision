@@ -3,15 +3,19 @@
  * Create a marker for the cemetery location
  */
 export const createCemeteryMarker = (
-  position: google.maps.LatLngLiteral,
   map: google.maps.Map,
-  title: string
+  cemetery: any
 ): google.maps.Marker => {
+  const position: google.maps.LatLngLiteral = {
+    lat: parseFloat(cemetery.Latitudine),
+    lng: parseFloat(cemetery.Longitudine)
+  };
+  
   const markerOptions: google.maps.MarkerOptions = {
     position,
     map,
     animation: google.maps.Animation.DROP,
-    title: title || 'Cimitero',
+    title: cemetery.Nome || 'Cimitero',
     // Use the standard Google Maps marker with purple color
     icon: {
       url: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
@@ -19,7 +23,12 @@ export const createCemeteryMarker = (
     }
   };
   
-  return new google.maps.Marker(markerOptions);
+  const marker = new google.maps.Marker(markerOptions);
+  
+  // Create info window for the marker
+  createInfoWindow(marker, map, cemetery);
+  
+  return marker;
 };
 
 /**

@@ -67,7 +67,7 @@ const useMapInitialization = ({
       `;
       document.getElementsByTagName('head')[0].appendChild(styleElement);
       
-      // Create cemetery marker
+      // Create cemetery marker - fixed: pass the map and cemetery objects to the function
       createCemeteryMarker(newMap, cemetery);
       
       // Add custom controls
