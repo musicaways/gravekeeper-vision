@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import DeceasedListItem from "./DeceasedListItem";
 import DeceasedEmptyState from "./DeceasedEmptyState";
-import { Card } from "@/components/ui/card";
 
 interface DeceasedRecord {
   id: string;
@@ -124,32 +124,27 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
   return (
     <div className="space-y-6">
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-1 w-full max-w-full">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="overflow-hidden border border-border/40">
-              <Skeleton className="h-16 w-full" />
-              <div className="p-4">
-                <Skeleton className="h-4 w-2/3 mb-4" />
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <Skeleton className="h-3 w-20 mb-2" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                  <div>
-                    <Skeleton className="h-3 w-20 mb-2" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                  <div>
-                    <Skeleton className="h-3 w-20 mb-2" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </div>
+            <div key={i} className="border rounded-md">
+              <Skeleton className="h-16 w-full rounded-t-md" />
+              <div className="p-3">
+                <Skeleton className="h-4 w-1/2 mb-1" />
+                <Skeleton className="h-4 w-3/4" />
               </div>
-            </Card>
+              <div className="p-3 border-t">
+                <Skeleton className="h-4 w-1/2 mb-1" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+              <div className="p-3 border-t">
+                <Skeleton className="h-4 w-1/2 mb-1" />
+                <Skeleton className="h-4 w-1/4" />
+              </div>
+            </div>
           ))}
         </div>
       ) : filteredDeceased.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-1 w-full">
           {filteredDeceased.map((deceased) => (
             <DeceasedListItem key={deceased.id} deceased={deceased} />
           ))}

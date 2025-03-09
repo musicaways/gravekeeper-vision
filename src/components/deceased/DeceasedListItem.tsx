@@ -63,9 +63,9 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const textColor = "text-white";
 
   return (
-    <Card className="overflow-hidden transition-all duration-200 hover:shadow-md border border-border/40">
+    <div className="border rounded-md hover:bg-accent/5 transition-colors">
       <div 
-        className={`px-5 py-3 ${textColor}`}
+        className={`px-3 py-2 rounded-t-md border-b ${textColor}`}
         style={{ background: backgroundColor }}
       >
         <div className="flex flex-col space-y-1">
@@ -77,7 +77,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
                 <User className="h-5 w-5" />
               )}
             </div>
-            <h3 className="text-xl font-semibold leading-tight">
+            <h3 className="font-medium text-base text-primary-dark">
               {deceased.nominativo}
             </h3>
           </div>
@@ -90,58 +90,56 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
         </div>
       </div>
       
-      <CardContent className="p-4 pt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Cimitero</p>
-            {deceased.cimitero_nome ? (
-              <Link 
-                to={`/cemetery/${deceased.loculi?.Blocco?.Settore?.Cimitero?.Id}`} 
-                className="font-medium text-primary hover:underline"
-              >
-                {deceased.cimitero_nome}
-              </Link>
-            ) : (
-              <p className="font-medium">N/A</p>
+      <div className="space-y-0 divide-y">
+        <div className="p-3 hover:bg-muted/50 transition-colors">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Cimitero</p>
+          {deceased.cimitero_nome ? (
+            <Link 
+              to={`/cemetery/${deceased.loculi?.Blocco?.Settore?.Cimitero?.Id}`} 
+              className="text-sm font-medium text-primary hover:underline truncate block"
+            >
+              {deceased.cimitero_nome}
+            </Link>
+          ) : (
+            <p className="text-sm font-medium truncate">N/A</p>
+          )}
+        </div>
+        
+        <div className="p-3 hover:bg-muted/50 transition-colors">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Ubicazione</p>
+          {deceased.settore_nome && deceased.blocco_nome ? (
+            <Link 
+              to={`/block/${deceased.loculi?.Blocco?.Id}`}
+              className="text-sm font-medium text-primary hover:underline truncate block"
+            >
+              {deceased.settore_nome} - {deceased.blocco_nome}
+            </Link>
+          ) : deceased.settore_nome ? (
+            <p className="text-sm font-medium truncate">{deceased.settore_nome}</p>
+          ) : deceased.blocco_nome ? (
+            <p className="text-sm font-medium truncate">{deceased.blocco_nome}</p>
+          ) : (
+            <p className="text-sm font-medium truncate">N/A</p>
+          )}
+        </div>
+        
+        <div className="p-3 hover:bg-muted/50 transition-colors">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Loculo</p>
+          <div className="flex flex-wrap gap-2">
+            {deceased.loculo_numero && (
+              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
+                Numero {deceased.loculo_numero}
+              </span>
             )}
-          </div>
-          
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Ubicazione</p>
-            {deceased.settore_nome && deceased.blocco_nome ? (
-              <Link 
-                to={`/block/${deceased.loculi?.Blocco?.Id}`}
-                className="font-medium text-primary hover:underline"
-              >
-                {deceased.settore_nome} - {deceased.blocco_nome}
-              </Link>
-            ) : deceased.settore_nome ? (
-              <p className="font-medium">{deceased.settore_nome}</p>
-            ) : deceased.blocco_nome ? (
-              <p className="font-medium">{deceased.blocco_nome}</p>
-            ) : (
-              <p className="font-medium">N/A</p>
+            {deceased.loculo_fila && (
+              <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-muted-foreground/20">
+                Fila {deceased.loculo_fila}
+              </span>
             )}
-          </div>
-          
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Loculo</p>
-            <div className="flex flex-wrap gap-2">
-              {deceased.loculo_numero && (
-                <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
-                  Numero {deceased.loculo_numero}
-                </span>
-              )}
-              {deceased.loculo_fila && (
-                <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-muted-foreground/20">
-                  Fila {deceased.loculo_fila}
-                </span>
-              )}
-            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
