@@ -19,7 +19,7 @@ const Deceased = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="w-full max-w-none p-4">
+      <div className="w-full max-w-none px-3">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -36,7 +36,7 @@ const Deceased = () => {
         </Breadcrumb>
       </div>
       
-      <div className="w-full max-w-none px-2 pb-8">
+      <div className="w-full max-w-none px-1 pb-8">
         <DeceasedList searchTerm={searchTerm} />
       </div>
     </div>

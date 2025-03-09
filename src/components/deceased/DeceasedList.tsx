@@ -124,7 +124,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
   return (
     <div className="space-y-6">
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-1">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="border rounded-md">
               <Skeleton className="h-16 w-full rounded-t-md" />
@@ -144,7 +144,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
           ))}
         </div>
       ) : filteredDeceased.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-1">
           {filteredDeceased.map((deceased) => (
             <DeceasedListItem key={deceased.id} deceased={deceased} />
           ))}

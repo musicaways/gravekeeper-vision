@@ -57,9 +57,9 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
     }
   };
 
-  // Update color to match the section list blue/gray color from the image
-  const backgroundColor = "#1A1F2C"; // Dark blue/gray color from the section list
-  const textColor = "text-white";
+  // Using the exact same color as in SectionsList
+  const backgroundColor = "bg-primary/10"; // Match the bg-primary/10 from SectionsList
+  const textColor = "text-primary-dark";
 
   const getLoculoLink = () => {
     if (deceased.loculi?.Blocco?.Id) {
@@ -71,8 +71,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   return (
     <div className="border rounded-md hover:bg-accent/5 transition-colors h-full flex flex-col">
       <div 
-        className={`px-3 py-3 rounded-t-md border-b ${textColor} flex-shrink-0`}
-        style={{ background: backgroundColor }}
+        className={`px-3 py-2 rounded-t-md border-b ${backgroundColor}`}
       >
         <div className="flex flex-col space-y-1">
           <div className="flex items-center space-x-3">
@@ -83,13 +82,13 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
                 <User className="h-5 w-5" />
               )}
             </div>
-            <h3 className="font-medium text-base text-primary-dark">
+            <h3 className={`font-medium text-base ${textColor}`}>
               {deceased.nominativo}
             </h3>
           </div>
           
           {deceased.data_decesso && (
-            <div className="flex items-center space-x-1 pl-13 ml-13 text-sm text-white/90">
+            <div className="flex items-center space-x-1 pl-13 ml-13 text-sm text-foreground/90">
               <Calendar className="h-3.5 w-3.5 mr-1" />
               <span>Dec. {formatDate(deceased.data_decesso)}</span>
             </div>
