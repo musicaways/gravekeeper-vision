@@ -75,11 +75,11 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
       >
         <div className="flex flex-col space-y-1">
           <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 border-2 border-primary/30 shadow-sm backdrop-blur-sm shrink-0">
               {isFemale(deceased.nominativo) ? (
-                <UserRound className="h-5 w-5" />
+                <UserRound className="h-5 w-5 text-primary-dark" />
               ) : (
-                <User className="h-5 w-5" />
+                <User className="h-5 w-5 text-primary-dark" />
               )}
             </div>
             <h3 className={`font-medium text-base ${textColor}`}>
