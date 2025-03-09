@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +15,23 @@ interface DeceasedRecord {
   blocco_nome: string | null;
   loculo_numero: number | null;
   loculo_fila: number | null;
+  loculi: {
+    id: string;
+    numero: number | null;
+    fila: number | null;
+    Blocco: {
+      Id: number;
+      Nome: string | null;
+      Settore: {
+        Id: number;
+        Nome: string | null;
+        Cimitero: {
+          Id: number;
+          Nome: string | null;
+        } | null;
+      } | null;
+    } | null;
+  } | null;
 }
 
 interface DeceasedListProps {
@@ -88,7 +104,8 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
           settore_nome: item.loculi?.Blocco?.Settore?.Nome || null,
           blocco_nome: item.loculi?.Blocco?.Nome || null,
           loculo_numero: item.loculi?.numero || null,
-          loculo_fila: item.loculi?.fila || null
+          loculo_fila: item.loculi?.fila || null,
+          loculi: item.loculi // Add the complete loculi object for navigation
         }));
 
       setDeceased(transformedData);

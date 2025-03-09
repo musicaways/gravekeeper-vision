@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { UserRound, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface DeceasedItemProps {
   deceased: {
@@ -76,16 +77,34 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Cimitero</p>
-            <p className="font-medium">{deceased.cimitero_nome || 'N/A'}</p>
+            {deceased.cimitero_nome ? (
+              <Link 
+                to={`/cemetery/${deceased.loculi?.Blocco?.Settore?.Cimitero?.Id}`} 
+                className="font-medium text-primary hover:underline"
+              >
+                {deceased.cimitero_nome}
+              </Link>
+            ) : (
+              <p className="font-medium">N/A</p>
+            )}
           </div>
           
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Ubicazione</p>
-            <p className="font-medium">
-              {deceased.settore_nome && deceased.blocco_nome ? 
-                `${deceased.settore_nome} - ${deceased.blocco_nome}` : 
-                (deceased.settore_nome || deceased.blocco_nome || 'N/A')}
-            </p>
+            {deceased.settore_nome && deceased.blocco_nome ? (
+              <Link 
+                to={`/block/${deceased.loculi?.Blocco?.Id}`}
+                className="font-medium text-primary hover:underline"
+              >
+                {deceased.settore_nome} - {deceased.blocco_nome}
+              </Link>
+            ) : deceased.settore_nome ? (
+              <p className="font-medium">{deceased.settore_nome}</p>
+            ) : deceased.blocco_nome ? (
+              <p className="font-medium">{deceased.blocco_nome}</p>
+            ) : (
+              <p className="font-medium">N/A</p>
+            )}
           </div>
           
           <div className="space-y-1">
