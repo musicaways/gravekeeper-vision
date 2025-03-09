@@ -14,7 +14,7 @@ const Breadcrumb = React.forwardRef<
   <nav 
     ref={ref} 
     aria-label="breadcrumb" 
-    className={cn("w-full bg-muted/40 py-2 px-4", className)}
+    className={cn("w-full bg-muted/40 py-2 px-1", className)} /* Changed from px-4 to px-1 */
     {...props} 
   />
 ))
