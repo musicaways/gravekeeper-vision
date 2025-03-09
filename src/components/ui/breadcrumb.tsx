@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal, HomeIcon, MapPin } from "lucide-react"
@@ -14,7 +13,7 @@ const Breadcrumb = React.forwardRef<
   <nav 
     ref={ref} 
     aria-label="breadcrumb" 
-    className={cn("w-full bg-muted/40 py-2 px-1", className)} /* Changed from px-4 to px-1 */
+    className={cn("w-full bg-muted/40 py-2 px-2", className)}
     {...props} 
   />
 ))
