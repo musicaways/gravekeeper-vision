@@ -15,6 +15,23 @@ interface DeceasedItemProps {
     blocco_nome: string | null;
     loculo_numero: number | null;
     loculo_fila: number | null;
+    loculi?: {
+      id: string;
+      numero: number | null;
+      fila: number | null;
+      Blocco?: {
+        Id: number;
+        Nome: string | null;
+        Settore?: {
+          Id: number;
+          Nome: string | null;
+          Cimitero?: {
+            Id: number;
+            Nome: string | null;
+          } | null;
+        } | null;
+      } | null;
+    } | null;
   };
 }
 

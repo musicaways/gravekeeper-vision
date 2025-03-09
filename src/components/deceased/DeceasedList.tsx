@@ -62,7 +62,6 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
   const fetchDeceased = async () => {
     setLoading(true);
     try {
-      // Fix the query structure to correct join the tables
       const { data, error } = await supabase
         .from('defunti')
         .select(`
@@ -93,9 +92,8 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
         throw error;
       }
 
-      // Transform data to flatten the structure
       const transformedData: DeceasedRecord[] = data
-        .filter(item => item.loculi) // Filter out records without loculi
+        .filter(item => item.loculi)
         .map(item => ({
           id: item.id,
           nominativo: item.nominativo,
@@ -105,7 +103,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
           blocco_nome: item.loculi?.Blocco?.Nome || null,
           loculo_numero: item.loculi?.numero || null,
           loculo_fila: item.loculi?.fila || null,
-          loculi: item.loculi // Add the complete loculi object for navigation
+          loculi: item.loculi
         }));
 
       setDeceased(transformedData);
