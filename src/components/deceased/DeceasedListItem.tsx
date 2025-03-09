@@ -1,8 +1,7 @@
 
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { UserRound, User } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { UserRound, User, MapPin, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface DeceasedItemProps {
@@ -63,9 +62,9 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const textColor = "text-white";
 
   return (
-    <div className="border rounded-md hover:bg-accent/5 transition-colors">
+    <div className="border rounded-md hover:bg-accent/5 transition-colors h-full flex flex-col">
       <div 
-        className={`px-3 py-2 rounded-t-md border-b ${textColor}`}
+        className={`px-3 py-3 rounded-t-md border-b ${textColor} flex-shrink-0`}
         style={{ background: backgroundColor }}
       >
         <div className="flex flex-col space-y-1">
@@ -83,14 +82,15 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
           </div>
           
           {deceased.data_decesso && (
-            <p className="pl-13 ml-13 text-sm text-white/90">
-              Dec. {formatDate(deceased.data_decesso)}
-            </p>
+            <div className="flex items-center space-x-1 pl-13 ml-13 text-sm text-white/90">
+              <Calendar className="h-3.5 w-3.5 mr-1" />
+              <span>Dec. {formatDate(deceased.data_decesso)}</span>
+            </div>
           )}
         </div>
       </div>
       
-      <div className="space-y-0 divide-y">
+      <div className="space-y-0 divide-y flex-grow flex flex-col">
         <div className="p-3 hover:bg-muted/50 transition-colors">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Cimitero</p>
           {deceased.cimitero_nome ? (
@@ -107,23 +107,26 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
         
         <div className="p-3 hover:bg-muted/50 transition-colors">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Ubicazione</p>
-          {deceased.settore_nome && deceased.blocco_nome ? (
-            <Link 
-              to={`/block/${deceased.loculi?.Blocco?.Id}`}
-              className="text-sm font-medium text-primary hover:underline truncate block"
-            >
-              {deceased.settore_nome} - {deceased.blocco_nome}
-            </Link>
-          ) : deceased.settore_nome ? (
-            <p className="text-sm font-medium truncate">{deceased.settore_nome}</p>
-          ) : deceased.blocco_nome ? (
-            <p className="text-sm font-medium truncate">{deceased.blocco_nome}</p>
-          ) : (
-            <p className="text-sm font-medium truncate">N/A</p>
-          )}
+          <div className="flex items-start gap-1">
+            <MapPin className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
+            {deceased.settore_nome && deceased.blocco_nome ? (
+              <Link 
+                to={`/block/${deceased.loculi?.Blocco?.Id}`}
+                className="text-sm font-medium text-primary hover:underline truncate block"
+              >
+                {deceased.settore_nome} - {deceased.blocco_nome}
+              </Link>
+            ) : deceased.settore_nome ? (
+              <p className="text-sm font-medium truncate">{deceased.settore_nome}</p>
+            ) : deceased.blocco_nome ? (
+              <p className="text-sm font-medium truncate">{deceased.blocco_nome}</p>
+            ) : (
+              <p className="text-sm font-medium truncate">N/A</p>
+            )}
+          </div>
         </div>
         
-        <div className="p-3 hover:bg-muted/50 transition-colors">
+        <div className="p-3 hover:bg-muted/50 transition-colors mt-auto">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Loculo</p>
           <div className="flex flex-wrap gap-2">
             {deceased.loculo_numero && (
