@@ -36,9 +36,10 @@ interface DeceasedRecord {
 
 interface DeceasedListProps {
   searchTerm: string;
+  sortBy: string;
 }
 
-const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
+const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy }) => {
   const [loading, setLoading] = useState(true);
   const [deceased, setDeceased] = useState<DeceasedRecord[]>([]);
   const [filteredDeceased, setFilteredDeceased] = useState<DeceasedRecord[]>([]);
@@ -58,6 +59,40 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
       setFilteredDeceased(deceased);
     }
   }, [searchTerm, deceased]);
+
+  useEffect(() => {
+    // Apply sorting
+    const sortedData = [...filteredDeceased];
+    
+    switch (sortBy) {
+      case 'name-asc':
+        sortedData.sort((a, b) => (a.nominativo || '').localeCompare(b.nominativo || ''));
+        break;
+      case 'name-desc':
+        sortedData.sort((a, b) => (b.nominativo || '').localeCompare(a.nominativo || ''));
+        break;
+      case 'date':
+        sortedData.sort((a, b) => {
+          // If dates are missing, place those entries at the end
+          if (!a.data_decesso) return 1;
+          if (!b.data_decesso) return -1;
+          return new Date(b.data_decesso).getTime() - new Date(a.data_decesso).getTime();
+        });
+        break;
+      case 'cemetery':
+        sortedData.sort((a, b) => {
+          const cimA = a.cimitero_nome || '';
+          const cimB = b.cimitero_nome || '';
+          return cimA.localeCompare(cimB);
+        });
+        break;
+      default:
+        // Default to name ascending
+        sortedData.sort((a, b) => (a.nominativo || '').localeCompare(b.nominativo || ''));
+    }
+    
+    setFilteredDeceased(sortedData);
+  }, [sortBy, deceased, searchTerm]);
 
   const fetchDeceased = async () => {
     setLoading(true);

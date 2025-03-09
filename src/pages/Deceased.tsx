@@ -1,8 +1,8 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { HomeIcon } from "lucide-react";
+import { ArrowUpAZ, ArrowDownAZ, Calendar, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import DeceasedList from "@/components/deceased/DeceasedList";
 
 const Deceased = () => {
@@ -10,6 +10,7 @@ const Deceased = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const searchTerm = searchParams.get('search') || "";
+  const [sortBy, setSortBy] = useState("name-asc"); // Default sort
 
   // Listen for search term changes in the URL
   useEffect(() => {
@@ -17,27 +18,55 @@ const Deceased = () => {
     // We just need to read the search parameter
   }, [location.search]);
 
+  const handleSort = (sortType: string) => {
+    setSortBy(sortType);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="w-full max-w-none pl-1.5"> {/* Adjusted from pl-1 to pl-1.5 for subtle shift to the right */}
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/" className="flex items-center gap-1">
-                <HomeIcon className="h-3.5 w-3.5" />
-                <span>Home</span>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <span>Defunti</span>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+      <div className="w-full max-w-none px-1 py-2">
+        <div className="flex items-center space-x-1 text-muted-foreground mb-3">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`px-2 ${sortBy === 'name-asc' ? 'text-primary' : ''}`} 
+            onClick={() => handleSort('name-asc')}
+          >
+            <ArrowUpAZ className="h-4 w-4 mr-1" />
+            <span className="text-xs">Nome</span>
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`px-2 ${sortBy === 'name-desc' ? 'text-primary' : ''}`} 
+            onClick={() => handleSort('name-desc')}
+          >
+            <ArrowDownAZ className="h-4 w-4 mr-1" />
+            <span className="text-xs">Nome</span>
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`px-2 ${sortBy === 'date' ? 'text-primary' : ''}`} 
+            onClick={() => handleSort('date')}
+          >
+            <Calendar className="h-4 w-4 mr-1" />
+            <span className="text-xs">Data</span>
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`px-2 ${sortBy === 'cemetery' ? 'text-primary' : ''}`} 
+            onClick={() => handleSort('cemetery')}
+          >
+            <MapPin className="h-4 w-4 mr-1" />
+            <span className="text-xs">Cimitero</span>
+          </Button>
+        </div>
       </div>
       
       <div className="w-full max-w-none px-1 pb-8">
-        <DeceasedList searchTerm={searchTerm} />
+        <DeceasedList searchTerm={searchTerm} sortBy={sortBy} />
       </div>
     </div>
   );
