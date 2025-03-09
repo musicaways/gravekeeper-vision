@@ -1,7 +1,7 @@
 
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { UserRound, User, MapPin, Calendar, Layers } from "lucide-react";
+import { UserRound, User, MapPin, Calendar, Layers, Cross } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface DeceasedItemProps {
@@ -57,8 +57,8 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
     }
   };
 
-  // Use a consistent color for all cards
-  const backgroundColor = "#6E59A5"; // Dark purple
+  // Update color to match the section list blue/gray color from the image
+  const backgroundColor = "#1A1F2C"; // Dark blue/gray color from the section list
   const textColor = "text-white";
 
   const getLoculoLink = () => {
@@ -101,12 +101,15 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
         <div className="p-3 hover:bg-muted/50 transition-colors">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Cimitero</p>
           {deceased.cimitero_nome ? (
-            <Link 
-              to={`/cemetery/${deceased.loculi?.Blocco?.Settore?.Cimitero?.Id}`} 
-              className="text-sm font-medium text-primary hover:underline truncate block"
-            >
-              {deceased.cimitero_nome}
-            </Link>
+            <div className="flex items-start gap-1">
+              <Cross className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
+              <Link 
+                to={`/cemetery/${deceased.loculi?.Blocco?.Settore?.Cimitero?.Id}`} 
+                className="text-sm font-medium text-primary hover:underline truncate block"
+              >
+                {deceased.cimitero_nome}
+              </Link>
+            </div>
           ) : (
             <p className="text-sm font-medium truncate">N/A</p>
           )}
