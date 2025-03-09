@@ -5,8 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import DeceasedListItem from "./DeceasedListItem";
 import DeceasedEmptyState from "./DeceasedEmptyState";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
 interface DeceasedRecord {
@@ -22,10 +20,9 @@ interface DeceasedRecord {
 
 interface DeceasedListProps {
   searchTerm: string;
-  setSearchTerm: (term: string) => void;
 }
 
-const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, setSearchTerm }) => {
+const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm }) => {
   const [loading, setLoading] = useState(true);
   const [deceased, setDeceased] = useState<DeceasedRecord[]>([]);
   const [filteredDeceased, setFilteredDeceased] = useState<DeceasedRecord[]>([]);
@@ -111,20 +108,8 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, setSearchTerm }
 
   return (
     <div className="space-y-6">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4">
-        <div className="relative flex items-center">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cerca defunto per nome..."
-            className="pl-9 pr-4"
-          />
-        </div>
-      </div>
-
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="overflow-hidden border border-border/40">
               <Skeleton className="h-16 w-full" />
@@ -149,13 +134,13 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, setSearchTerm }
           ))}
         </div>
       ) : filteredDeceased.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2">
           {filteredDeceased.map((deceased) => (
             <DeceasedListItem key={deceased.id} deceased={deceased} />
           ))}
         </div>
       ) : (
-        <DeceasedEmptyState searchTerm={searchTerm} onClear={() => setSearchTerm("")} />
+        <DeceasedEmptyState searchTerm={searchTerm} onClear={() => {}} />
       )}
     </div>
   );

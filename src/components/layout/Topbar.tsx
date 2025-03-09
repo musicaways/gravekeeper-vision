@@ -34,8 +34,9 @@ const Topbar = ({ onMenuClick, showBackButton = false }: TopbarProps) => {
     const isCemeteryDetailPage = location.pathname.includes('/cemetery/');
     const isBlockDetailPage = location.pathname.includes('/block/');
     const isHomePage = location.pathname === "/" || location.pathname === "/cemeteries";
+    const isDeceasedPage = location.pathname === "/deceased";
     
-    if (isCemeteryDetailPage || isHomePage || isBlockDetailPage) {
+    if (isCemeteryDetailPage || isHomePage || isBlockDetailPage || isDeceasedPage) {
       // Add search term to URL query params
       const params = new URLSearchParams(location.search);
       if (term) {

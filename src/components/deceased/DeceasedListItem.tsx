@@ -1,8 +1,8 @@
 
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { User } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { UserRound, User } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface DeceasedItemProps {
   deceased: {
@@ -17,67 +17,62 @@ interface DeceasedItemProps {
   };
 }
 
-// Generate a gradient based on the deceased's ID for uniqueness
-const getBackgroundGradient = (id: string) => {
-  // Extract a number from the ID string to use for color selection
-  const num = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 10;
+// Determine if the deceased is likely male or female based on name
+const isFemale = (name: string): boolean => {
+  const lowercaseName = name.toLowerCase();
+  // Common Italian female name endings
+  const femaleEndings = ['a', 'na', 'lla', 'etta', 'ina'];
   
-  // List of gradients to choose from
-  const gradients = [
-    "linear-gradient(90deg, hsla(16, 100%, 76%, 1) 0%, hsla(49, 100%, 81%, 1) 100%)",
-    "linear-gradient(90deg, hsla(186, 33%, 94%, 1) 0%, hsla(216, 41%, 79%, 1) 100%)",
-    "linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)",
-    "linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)",
-    "linear-gradient(90deg, hsla(46, 73%, 75%, 1) 0%, hsla(176, 73%, 88%, 1) 100%)",
-    "linear-gradient(90deg, hsla(59, 86%, 68%, 1) 0%, hsla(134, 36%, 53%, 1) 100%)",
-    "linear-gradient(to top, #accbee 0%, #e7f0fd 100%)",
-    "linear-gradient(to top, #d299c2 0%, #fef9d7 100%)",
-    "linear-gradient(to top, #e6b980 0%, #eacda3 100%)",
-    "linear-gradient(to right, #ee9ca7, #ffdde1)"
-  ];
-  
-  return gradients[num];
-};
-
-// Get contrasting text color (light or dark) based on background lightness
-const getContrastColor = (id: string) => {
-  // This is a simplified approach - for certain gradients, we'll use dark text
-  const num = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 10;
-  const lightGradients = [0, 1, 4, 6, 7, 8, 9]; // Indices of light gradients that need dark text
-  
-  return lightGradients.includes(num) ? "text-gray-800" : "text-white";
+  // Check for common Italian female name endings
+  return femaleEndings.some(ending => {
+    const nameOnly = lowercaseName.split(' ')[0]; // Get first name
+    return nameOnly.endsWith(ending);
+  });
 };
 
 const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Data non disponibile";
     try {
-      return format(parseISO(dateString), "d MMMM yyyy", { locale: it });
+      return format(parseISO(dateString), "d MMM yyyy", { locale: it });
     } catch (error) {
       return "Data non valida";
     }
   };
 
-  const gradientStyle = getBackgroundGradient(deceased.id);
-  const textColor = getContrastColor(deceased.id);
+  // Use a consistent color for all cards
+  const backgroundColor = "#6E59A5"; // Dark purple
+  const textColor = "text-white";
 
   return (
     <Card className="overflow-hidden transition-all duration-200 hover:shadow-md border border-border/40">
       <div 
-        className={`h-16 flex items-center px-4 ${textColor}`}
-        style={{ background: gradientStyle }}
+        className={`px-5 py-3 ${textColor}`}
+        style={{ background: backgroundColor }}
       >
-        <div className="flex items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm shrink-0">
-            <User className="h-5 w-5" />
+        <div className="flex flex-col space-y-1">
+          <div className="flex items-center space-x-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm shrink-0">
+              {isFemale(deceased.nominativo) ? (
+                <UserRound className="h-5 w-5" />
+              ) : (
+                <User className="h-5 w-5" />
+              )}
+            </div>
+            <h3 className="text-xl font-semibold leading-tight">
+              {deceased.nominativo}
+            </h3>
           </div>
-          <h3 className="text-lg font-semibold leading-tight">
-            {deceased.nominativo}
-          </h3>
+          
+          {deceased.data_decesso && (
+            <p className="pl-13 ml-13 text-sm text-white/90">
+              Dec. {formatDate(deceased.data_decesso)}
+            </p>
+          )}
         </div>
       </div>
       
-      <CardContent className="p-4">
+      <CardContent className="p-4 pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Cimitero</p>
@@ -109,14 +104,6 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
             </div>
           </div>
         </div>
-        
-        {deceased.data_decesso && (
-          <div className="mt-4 pt-3 border-t">
-            <p className="text-sm text-muted-foreground flex items-center justify-end">
-              Data decesso: <span className="font-medium ml-1">{formatDate(deceased.data_decesso)}</span>
-            </p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
