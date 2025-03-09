@@ -19,7 +19,7 @@ const Deceased = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="w-full max-w-none px-3">
+      <div className="w-full max-w-none pl-2"> {/* Changed from px-3 to pl-2 */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
