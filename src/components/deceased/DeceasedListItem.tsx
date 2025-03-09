@@ -104,7 +104,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
               <Cross className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
               <Link 
                 to={`/cemetery/${deceased.loculi?.Blocco?.Settore?.Cimitero?.Id}`} 
-                className="text-sm font-medium text-primary hover:underline truncate block"
+                className="text-sm font-medium text-foreground hover:underline truncate block"
               >
                 {deceased.cimitero_nome}
               </Link>
@@ -121,7 +121,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
             {deceased.settore_nome && deceased.blocco_nome ? (
               <Link 
                 to={`/block/${deceased.loculi?.Blocco?.Id}`}
-                className="text-sm font-medium text-primary hover:underline truncate block"
+                className="text-sm font-medium text-foreground hover:underline truncate block"
               >
                 {deceased.settore_nome} - {deceased.blocco_nome}
               </Link>
@@ -142,7 +142,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
               <Layers className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
               <Link 
                 to={getLoculoLink()} 
-                className="text-sm font-medium text-primary hover:underline truncate block"
+                className="text-sm font-medium text-foreground hover:underline truncate block"
               >
                 {deceased.loculo_numero && deceased.loculo_fila 
                   ? `Numero ${deceased.loculo_numero}, Fila ${deceased.loculo_fila}`
