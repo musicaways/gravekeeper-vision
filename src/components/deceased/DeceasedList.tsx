@@ -37,9 +37,10 @@ interface DeceasedRecord {
 interface DeceasedListProps {
   searchTerm: string;
   sortBy: string;
+  filterBy: string;
 }
 
-const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy }) => {
+const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy, filterBy }) => {
   const [loading, setLoading] = useState(true);
   const [deceased, setDeceased] = useState<DeceasedRecord[]>([]);
   const [filteredDeceased, setFilteredDeceased] = useState<DeceasedRecord[]>([]);
@@ -50,19 +51,52 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy }) => {
   }, []);
 
   useEffect(() => {
+    // Apply search filtering
+    let resultSet = deceased;
+    
     if (searchTerm) {
-      const filtered = deceased.filter(d => 
+      resultSet = resultSet.filter(d => 
         d.nominativo.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredDeceased(filtered);
-    } else {
-      setFilteredDeceased(deceased);
     }
-  }, [searchTerm, deceased]);
-
-  useEffect(() => {
+    
+    // Apply additional filtering based on filterBy
+    switch (filterBy) {
+      case 'recent':
+        // Filter for records with death date in the last 30 days
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        resultSet = resultSet.filter(d => {
+          if (!d.data_decesso) return false;
+          const deathDate = new Date(d.data_decesso);
+          return deathDate >= thirtyDaysAgo;
+        });
+        break;
+      case 'this-year':
+        // Filter for records with death date in the current year
+        const currentYear = new Date().getFullYear();
+        resultSet = resultSet.filter(d => {
+          if (!d.data_decesso) return false;
+          const deathDate = new Date(d.data_decesso);
+          return deathDate.getFullYear() === currentYear;
+        });
+        break;
+      case 'has-cemetery':
+        // Filter for records with cemetery information
+        resultSet = resultSet.filter(d => Boolean(d.cimitero_nome));
+        break;
+      case 'without-cemetery':
+        // Filter for records without cemetery information
+        resultSet = resultSet.filter(d => !d.cimitero_nome);
+        break;
+      case 'all':
+      default:
+        // No additional filtering
+        break;
+    }
+    
     // Apply sorting
-    const sortedData = [...filteredDeceased];
+    const sortedData = [...resultSet];
     
     switch (sortBy) {
       case 'name-asc':
@@ -71,7 +105,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy }) => {
       case 'name-desc':
         sortedData.sort((a, b) => (b.nominativo || '').localeCompare(a.nominativo || ''));
         break;
-      case 'date':
+      case 'date-desc':
         sortedData.sort((a, b) => {
           // If dates are missing, place those entries at the end
           if (!a.data_decesso) return 1;
@@ -79,11 +113,26 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy }) => {
           return new Date(b.data_decesso).getTime() - new Date(a.data_decesso).getTime();
         });
         break;
-      case 'cemetery':
+      case 'date-asc':
+        sortedData.sort((a, b) => {
+          // If dates are missing, place those entries at the end
+          if (!a.data_decesso) return 1;
+          if (!b.data_decesso) return -1;
+          return new Date(a.data_decesso).getTime() - new Date(b.data_decesso).getTime();
+        });
+        break;
+      case 'cemetery-asc':
         sortedData.sort((a, b) => {
           const cimA = a.cimitero_nome || '';
           const cimB = b.cimitero_nome || '';
           return cimA.localeCompare(cimB);
+        });
+        break;
+      case 'cemetery-desc':
+        sortedData.sort((a, b) => {
+          const cimA = a.cimitero_nome || '';
+          const cimB = b.cimitero_nome || '';
+          return cimB.localeCompare(cimA);
         });
         break;
       default:
@@ -92,7 +141,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy }) => {
     }
     
     setFilteredDeceased(sortedData);
-  }, [sortBy, deceased, searchTerm]);
+  }, [sortBy, filterBy, deceased, searchTerm]);
 
   const fetchDeceased = async () => {
     setLoading(true);
