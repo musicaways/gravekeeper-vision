@@ -1,7 +1,7 @@
 
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { UserRound, User, MapPin, Calendar } from "lucide-react";
+import { UserRound, User, MapPin, Calendar, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface DeceasedItemProps {
@@ -60,6 +60,13 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   // Use a consistent color for all cards
   const backgroundColor = "#6E59A5"; // Dark purple
   const textColor = "text-white";
+
+  const getLoculoLink = () => {
+    if (deceased.loculi?.Blocco?.Id) {
+      return `/block/${deceased.loculi.Blocco.Id}`;
+    }
+    return "#";
+  };
 
   return (
     <div className="border rounded-md hover:bg-accent/5 transition-colors h-full flex flex-col">
@@ -128,18 +135,24 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
         
         <div className="p-3 hover:bg-muted/50 transition-colors mt-auto">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Loculo</p>
-          <div className="flex flex-wrap gap-2">
-            {deceased.loculo_numero && (
-              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
-                Numero {deceased.loculo_numero}
-              </span>
-            )}
-            {deceased.loculo_fila && (
-              <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-muted-foreground/20">
-                Fila {deceased.loculo_fila}
-              </span>
-            )}
-          </div>
+          {(deceased.loculo_numero || deceased.loculo_fila) ? (
+            <div className="flex items-start gap-1">
+              <Layers className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
+              <Link 
+                to={getLoculoLink()} 
+                className="text-sm font-medium text-primary hover:underline truncate block"
+              >
+                {deceased.loculo_numero && deceased.loculo_fila 
+                  ? `Numero ${deceased.loculo_numero}, Fila ${deceased.loculo_fila}`
+                  : deceased.loculo_numero
+                    ? `Numero ${deceased.loculo_numero}`
+                    : `Fila ${deceased.loculo_fila}`
+                }
+              </Link>
+            </div>
+          ) : (
+            <p className="text-sm font-medium truncate">N/A</p>
+          )}
         </div>
       </div>
     </div>

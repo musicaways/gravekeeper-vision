@@ -34,11 +34,9 @@ const Deceased = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <h1 className="text-2xl font-bold mt-4 mb-6">Registro dei Defunti</h1>
       </div>
       
-      <div className="w-full max-w-none px-4 pb-8">
+      <div className="w-full max-w-none px-2 pb-8">
         <DeceasedList searchTerm={searchTerm} />
       </div>
     </div>
