@@ -8,8 +8,8 @@ import React from "react";
 
 export interface BlockTabContentProps {
   blockId: number;
-  block?: any;  // Add the block prop to the interface
-  searchTerm?: string; // Add searchTerm prop
+  block?: any;
+  searchTerm?: string;
 }
 
 export function BlockTabContent({ blockId, block, searchTerm = "" }: BlockTabContentProps) {

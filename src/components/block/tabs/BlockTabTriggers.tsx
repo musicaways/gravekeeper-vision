@@ -9,50 +9,46 @@ export interface BlockTabTriggersProps {
 
 export function BlockTabTriggers({ defaultTab = "loculi" }: BlockTabTriggersProps) {
   return (
-    <Tabs defaultValue={defaultTab} className="w-full">
-      <div className="border-b overflow-x-auto scrollbar-none">
-        <div className="flex">
-          <TabsTrigger 
-            value="info" 
-            className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-          >
-            <Info className="h-4 w-4 mr-2" />
-            <span>Info</span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="loculi" 
-            className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-          >
-            <List className="h-4 w-4 mr-2" />
-            <span>Loculi</span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="map" 
-            className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-          >
-            <Map className="h-4 w-4 mr-2" />
-            <span>Mappa</span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="documents" 
-            className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            <span>Documenti</span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="migration" 
-            className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-          >
-            <DatabaseIcon className="h-4 w-4 mr-2" />
-            <span>Migrazione</span>
-          </TabsTrigger>
-        </div>
-      </div>
-    </Tabs>
+    <TabsList className="border-b overflow-x-auto scrollbar-none w-full flex">
+      <TabsTrigger 
+        value="info" 
+        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
+      >
+        <Info className="h-4 w-4 mr-2" />
+        <span>Info</span>
+      </TabsTrigger>
+      
+      <TabsTrigger 
+        value="loculi" 
+        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
+      >
+        <List className="h-4 w-4 mr-2" />
+        <span>Loculi</span>
+      </TabsTrigger>
+      
+      <TabsTrigger 
+        value="map" 
+        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
+      >
+        <Map className="h-4 w-4 mr-2" />
+        <span>Mappa</span>
+      </TabsTrigger>
+      
+      <TabsTrigger 
+        value="documents" 
+        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
+      >
+        <FileText className="h-4 w-4 mr-2" />
+        <span>Documenti</span>
+      </TabsTrigger>
+      
+      <TabsTrigger 
+        value="migration" 
+        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
+      >
+        <DatabaseIcon className="h-4 w-4 mr-2" />
+        <span>Migrazione</span>
+      </TabsTrigger>
+    </TabsList>
   );
 }
