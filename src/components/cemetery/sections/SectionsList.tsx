@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { decodeText } from "@/utils/textFormatters";
 
 interface SectionsListProps {
   sections: Section[];
@@ -50,7 +51,7 @@ export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, e
         <div key={section.Id} className="border rounded-md hover:bg-accent/5 transition-colors">
           <div className="bg-primary/10 px-3 py-2 rounded-t-md border-b">
             <h3 className="font-medium text-base text-primary-dark">
-              {section.Nome || section.Codice || `Settore ${section.Id}`}
+              {decodeText(section.Nome) || decodeText(section.Codice) || `Settore ${section.Id}`}
             </h3>
           </div>
           
@@ -62,7 +63,9 @@ export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, e
                   key={block.Id} 
                   className="flex justify-between items-center p-3 hover:bg-muted/50 transition-colors"
                 >
-                  <span className="text-sm font-medium truncate mr-2">{block.Nome || block.Codice || `Blocco ${block.Id}`}</span>
+                  <span className="text-sm font-medium truncate mr-2">
+                    {decodeText(block.Nome) || decodeText(block.Codice) || `Blocco ${block.Id}`}
+                  </span>
                   <Badge variant="outline" className="whitespace-nowrap ml-auto shrink-0 min-w-[70px] text-center text-xs">
                     {block.NumeroLoculi || 0} loculi
                   </Badge>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +5,7 @@ import CemeteryErrorDisplay from "@/components/cemetery/CemeteryErrorDisplay";
 import CemeteryLoading from "@/components/cemetery/CemeteryLoading";
 import { BlockTabs } from "@/components/block/BlockTabs";
 import AppBreadcrumb from "@/components/layout/AppBreadcrumb";
+import { decodeText } from "@/utils/textFormatters";
 
 const BlockDetail = () => {
   const { id } = useParams();
@@ -17,7 +17,6 @@ const BlockDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string | null>(null);
 
-  // Extract search term from query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const globalSearch = params.get('search');
@@ -70,7 +69,6 @@ const BlockDetail = () => {
     fetchBlockDetail();
   }, [id]);
 
-  // Handle search within block
   const handleSearch = (term: string) => {
     const params = new URLSearchParams(location.search);
     
@@ -92,7 +90,6 @@ const BlockDetail = () => {
     return <CemeteryErrorDisplay error={error} />;
   }
 
-  // Usa un'immagine di fallback se non c'è una immagine di copertina specifica per il blocco
   const coverPhotoUrl = block.FotoCopertina || "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&h=400&q=80";
 
   return (
@@ -102,17 +99,17 @@ const BlockDetail = () => {
       <div className="w-full h-48 md:h-64 relative overflow-hidden">
         <img 
           src={coverPhotoUrl} 
-          alt={`${block.Nome || 'Blocco'} - immagine di copertina`}
+          alt={`${decodeText(block.Nome) || 'Blocco'} - immagine di copertina`}
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/30 flex flex-col justify-end">
           <div className="w-full px-4 py-4">
             <div className="w-full">
               <h2 className="text-white text-xl md:text-2xl font-semibold">
-                {block.Nome || block.Codice || `Blocco ${block.Id}`}
+                {decodeText(block.Nome) || decodeText(block.Codice) || `Blocco ${block.Id}`}
               </h2>
               <p className="text-white/90 text-sm md:text-base">
-                {block.Settore?.Nome ? `Settore: ${block.Settore.Nome}` : ""}
+                {block.Settore?.Nome ? `Settore: ${decodeText(block.Settore.Nome)}` : ""}
               </p>
             </div>
           </div>

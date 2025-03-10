@@ -1,7 +1,7 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Phone, Map } from "lucide-react";
+import { decodeText } from "@/utils/textFormatters";
 
 interface BlockDetailsCardProps {
   block: any;
@@ -22,7 +22,7 @@ const BlockDetailsCard: React.FC<BlockDetailsCardProps> = ({ block }) => {
               <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
                 <h4 className="font-medium text-foreground">Nome</h4>
-                <p className="text-sm text-muted-foreground">{block.Nome || "Non disponibile"}</p>
+                <p className="text-sm text-muted-foreground">{decodeText(block.Nome) || "Non disponibile"}</p>
               </div>
             </div>
 
@@ -31,7 +31,7 @@ const BlockDetailsCard: React.FC<BlockDetailsCardProps> = ({ block }) => {
                 <Calendar className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <div>
                   <h4 className="font-medium text-foreground">Codice</h4>
-                  <p className="text-sm text-muted-foreground">{block.Codice}</p>
+                  <p className="text-sm text-muted-foreground">{decodeText(block.Codice)}</p>
                 </div>
               </div>
             )}
@@ -64,7 +64,7 @@ const BlockDetailsCard: React.FC<BlockDetailsCardProps> = ({ block }) => {
                 <div>
                   <h4 className="font-medium text-foreground">Settore</h4>
                   <p className="text-sm text-muted-foreground">
-                    {block.Settore.Nome || block.Settore.Codice || `Settore ${block.Settore.Id}`}
+                    {decodeText(block.Settore.Nome) || decodeText(block.Settore.Codice) || `Settore ${block.Settore.Id}`}
                   </p>
                 </div>
               </div>
