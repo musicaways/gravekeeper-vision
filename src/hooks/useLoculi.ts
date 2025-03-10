@@ -34,11 +34,13 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         console.log("Fetching loculi for block ID:", numericBlockId);
         
         const result = await fetchLoculiData(numericBlockId);
-        setLoculi(result.data);
         
         if (result.error) {
           throw new Error(result.error);
         }
+        
+        console.log(`Caricati ${result.data.length} loculi per il blocco ${numericBlockId}`);
+        setLoculi(result.data);
         
         // If we have a search term, also search for defunti by nominativo
         if (searchTerm) {

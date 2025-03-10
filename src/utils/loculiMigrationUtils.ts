@@ -45,17 +45,17 @@ export async function migrateLoculiData(): Promise<IdMapping[]> {
       // Estrai i dati rilevanti per l'inserimento
       const {
         id: oldId,
-        Numero,
-        Fila,
-        Annotazioni,
-        IdBlocco,
-        TipoTomba,
-        Alias,
-        FilaDaAlto,
-        NumeroPostiResti,
-        NumeroPosti,
-        Superficie,
-        Concesso
+        "Numero": Numero,
+        "Fila": Fila,
+        "Annotazioni": Annotazioni,
+        "IdBlocco": IdBlocco,
+        "TipoTomba": TipoTomba,
+        "Alias": Alias,
+        "FilaDaAlto": FilaDaAlto,
+        "NumeroPostiResti": NumeroPostiResti,
+        "NumeroPosti": NumeroPosti,
+        "Superficie": Superficie,
+        "Concesso": Concesso
       } = loculo;
       
       // Inserisci nella tabella loculi (con UUID generato automaticamente)
@@ -63,17 +63,17 @@ export async function migrateLoculiData(): Promise<IdMapping[]> {
         .from('loculi')
         .insert([
           {
-            Numero: Numero,
-            Fila: Fila,
-            Annotazioni: Annotazioni,
-            IdBlocco: IdBlocco,
-            TipoTomba: TipoTomba,
-            Alias: Alias,
-            FilaDaAlto: FilaDaAlto,
-            NumeroPostiResti: NumeroPostiResti,
-            NumeroPosti: NumeroPosti,
-            Superficie: Superficie,
-            Concesso: Concesso
+            "Numero": Numero,
+            "Fila": Fila,
+            "Annotazioni": Annotazioni,
+            "IdBlocco": IdBlocco,
+            "TipoTomba": TipoTomba,
+            "Alias": Alias,
+            "FilaDaAlto": FilaDaAlto,
+            "NumeroPostiResti": NumeroPostiResti,
+            "NumeroPosti": NumeroPosti,
+            "Superficie": Superficie,
+            "Concesso": Concesso
           }
         ])
         .select('id');
@@ -124,11 +124,14 @@ export async function migrateDefuntiReferences(idMappings: IdMapping[]): Promise
     let aggiornati = 0;
     
     for (const mapping of idMappings) {
-      // Trova defunti associati al vecchio ID numerico
+      // Importante: converti oldId in stringa per la query
+      const oldIdString = mapping.oldId.toString();
+      
+      // Trova defunti associati al vecchio ID numerico (come stringa)
       const { data: defunti, error: fetchError } = await supabase
         .from('defunti')
         .select('id')
-        .eq('id_loculo', mapping.oldId.toString());
+        .eq('id_loculo', oldIdString);
       
       if (fetchError) {
         console.error(`Errore nel recupero dei defunti per il loculo ${mapping.oldId}:`, fetchError);
@@ -138,6 +141,8 @@ export async function migrateDefuntiReferences(idMappings: IdMapping[]): Promise
       if (!defunti || defunti.length === 0) {
         continue;
       }
+      
+      console.log(`Trovati ${defunti.length} defunti associati al loculo ${mapping.oldId}`);
       
       // Aggiorna i riferimenti per ciascun defunto
       for (const defunto of defunti) {
@@ -150,6 +155,7 @@ export async function migrateDefuntiReferences(idMappings: IdMapping[]): Promise
           console.error(`Errore nell'aggiornamento del defunto ${defunto.id}:`, updateError);
         } else {
           aggiornati++;
+          console.log(`Aggiornato defunto ${defunto.id} con nuovo ID loculo ${mapping.newId}`);
         }
       }
     }
@@ -165,4 +171,3 @@ export async function migrateDefuntiReferences(idMappings: IdMapping[]): Promise
     toast.error("Si è verificato un errore durante l'aggiornamento dei riferimenti dei defunti");
   }
 }
-

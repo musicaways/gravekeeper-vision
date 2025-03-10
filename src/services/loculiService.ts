@@ -25,6 +25,8 @@ export async function fetchLoculiFromUppercaseTable(blockId: number) {
  * Fetches loculi data from the loculi (lowercase) table
  */
 export async function fetchLoculiFromLowercaseTable(blockId: number) {
+  console.log("Fetching loculi from lowercase table with blockId:", blockId);
+  
   const { data, error } = await supabase
     .from('loculi')
     .select(`
@@ -32,6 +34,12 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
       defunti(*)
     `)
     .eq('IdBlocco', blockId);
+  
+  if (error) {
+    console.error("Error fetching from lowercase table:", error);
+  } else {
+    console.log(`Found ${data?.length || 0} loculi in lowercase table for blockId ${blockId}`);
+  }
     
   return { data, error };
 }
