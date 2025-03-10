@@ -1,5 +1,6 @@
-import { Tabs } from "@/components/ui/tabs";
-import { DatabaseIcon, FileText, Info, ListView, Map } from "lucide-react";
+
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatabaseIcon, FileText, Info, List, Map } from "lucide-react";
 import React from "react";
 
 export interface BlockTabTriggersProps {
@@ -11,45 +12,45 @@ export function BlockTabTriggers({ defaultTab = "loculi" }: BlockTabTriggersProp
     <Tabs defaultValue={defaultTab} className="w-full">
       <div className="border-b overflow-x-auto scrollbar-none">
         <div className="flex">
-          <Tabs.Trigger 
+          <TabsTrigger 
             value="info" 
             className="flex items-center px-4 py-2 data-[state=active]:text-primary"
           >
             <Info className="h-4 w-4 mr-2" />
             <span>Info</span>
-          </Tabs.Trigger>
+          </TabsTrigger>
           
-          <Tabs.Trigger 
+          <TabsTrigger 
             value="loculi" 
             className="flex items-center px-4 py-2 data-[state=active]:text-primary"
           >
-            <ListView className="h-4 w-4 mr-2" />
+            <List className="h-4 w-4 mr-2" />
             <span>Loculi</span>
-          </Tabs.Trigger>
+          </TabsTrigger>
           
-          <Tabs.Trigger 
+          <TabsTrigger 
             value="map" 
             className="flex items-center px-4 py-2 data-[state=active]:text-primary"
           >
             <Map className="h-4 w-4 mr-2" />
             <span>Mappa</span>
-          </Tabs.Trigger>
+          </TabsTrigger>
           
-          <Tabs.Trigger 
+          <TabsTrigger 
             value="documents" 
             className="flex items-center px-4 py-2 data-[state=active]:text-primary"
           >
             <FileText className="h-4 w-4 mr-2" />
             <span>Documenti</span>
-          </Tabs.Trigger>
+          </TabsTrigger>
           
-          <Tabs.Trigger 
+          <TabsTrigger 
             value="migration" 
             className="flex items-center px-4 py-2 data-[state=active]:text-primary"
           >
             <DatabaseIcon className="h-4 w-4 mr-2" />
             <span>Migrazione</span>
-          </Tabs.Trigger>
+          </TabsTrigger>
         </div>
       </div>
     </Tabs>

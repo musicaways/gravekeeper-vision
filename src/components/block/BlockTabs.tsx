@@ -2,8 +2,8 @@
 import { Tabs } from "@/components/ui/tabs";
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import BlockTabTriggers from "./tabs/BlockTabTriggers";
-import BlockTabContent from "./tabs/BlockTabContent";
+import { BlockTabTriggers } from "./tabs/BlockTabTriggers";
+import { BlockTabContent } from "./tabs/BlockTabContent";
 
 export interface BlockTabsProps {
   block: any;
@@ -58,10 +58,10 @@ export const BlockTabs: React.FC<BlockTabsProps> = ({
       <div className="bg-background rounded-md mb-6 w-full">
         <BlockTabContent 
           block={block} 
-          blockId={blockId} 
+          blockId={parseInt(blockId)} 
           searchTerm={searchTerm} 
         />
       </div>
     </Tabs>
   );
-};
+}

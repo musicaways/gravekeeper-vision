@@ -1,8 +1,8 @@
 
-import { Tabs } from "@/components/ui/tabs";
-import { BlockInfoTabContent } from "./content/BlockInfoTabContent";
-import { BlockLoculiTabContent } from "./content/BlockLoculiTabContent";
-import { BlockDocumentiTabContent } from "./content/BlockDocumentiTabContent";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import BlockInfoTabContent from "./content/BlockInfoTabContent";
+import BlockLoculiTabContent from "./content/BlockLoculiTabContent";
+import BlockDocumentiTabContent from "./content/BlockDocumentiTabContent";
 import { LoculiMigrationTab } from "../loculi/LoculiMigrationTab";
 import React from "react";
 
@@ -13,25 +13,25 @@ export interface BlockTabContentProps {
 export function BlockTabContent({ blockId }: BlockTabContentProps) {
   return (
     <div className="w-full">
-      <Tabs.Content value="info" className="w-full">
+      <TabsContent value="info" className="w-full">
         <BlockInfoTabContent blockId={blockId} />
-      </Tabs.Content>
+      </TabsContent>
       
-      <Tabs.Content value="loculi" className="w-full">
+      <TabsContent value="loculi" className="w-full">
         <BlockLoculiTabContent blockId={blockId} />
-      </Tabs.Content>
+      </TabsContent>
       
-      <Tabs.Content value="map" className="w-full">
+      <TabsContent value="map" className="w-full">
         {/* Map tab content */}
-      </Tabs.Content>
+      </TabsContent>
       
-      <Tabs.Content value="documents" className="w-full">
+      <TabsContent value="documents" className="w-full">
         <BlockDocumentiTabContent blockId={blockId} />
-      </Tabs.Content>
+      </TabsContent>
       
-      <Tabs.Content value="migration" className="w-full">
+      <TabsContent value="migration" className="w-full">
         <LoculiMigrationTab blockId={blockId} />
-      </Tabs.Content>
+      </TabsContent>
     </div>
   );
 }
