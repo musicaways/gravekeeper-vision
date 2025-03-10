@@ -27,7 +27,7 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
           .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
           .eq('id_loculo', loculo.id);
         
-        // Attach defunti data to the loculo
+        // Attach defunti data to the loculo using type assertion to avoid property errors
         (loculo as any).defunti = defuntiData || [];
       }
     }
@@ -56,12 +56,17 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
               .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
               .eq('id_loculo', loculo.id);
             
-            // Attach defunti data to the loculo
+            // Attach defunti data using type assertion to avoid property errors
             (loculo as any).defunti = defuntiData || [];
           }
         }
         
-        return { data: altData || [], error: altError };
+        // Check if altError exists before trying to access properties
+        if (altError) {
+          return { data: [], error: altError };
+        }
+        
+        return { data: altData || [], error: null };
       }
       
       return { data: [], error };
@@ -122,10 +127,11 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
       return { data: [], error: loculiError };
     }
     
-    // Map defunti to their respective loculi
+    // Map defunti to their respective loculi using type assertion to avoid property errors
     if (loculiData && loculiData.length > 0) {
       for (const loculo of loculiData) {
-        loculo.defunti = defuntiData.filter(d => d.id_loculo === loculo.id);
+        // Use type assertion to assign defunti property
+        (loculo as any).defunti = defuntiData.filter(d => d.id_loculo === loculo.id);
       }
     }
     

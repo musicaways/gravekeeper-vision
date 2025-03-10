@@ -46,14 +46,14 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         const loculoTableInfo = await getTableInfo('Loculo');
         console.log("Struttura tabella 'Loculo':", loculoTableInfo);
         
-        // Prova a recuperare i loculi sia dalla tabella uppercase che lowercase
+        // Use type assertions to avoid recursion
         const uppercaseResult = await fetchLoculiFromUppercaseTable(numericBlockId);
         console.log("Uppercase table result:", uppercaseResult);
         
         const lowercaseResult = await fetchLoculiFromLowercaseTable(numericBlockId);
         console.log("Lowercase table result:", lowercaseResult);
         
-        // Recupera i dati usando la funzione helper
+        // Retrieve data using the helper function - treat as simple data object to avoid type recursion
         const result = await fetchLoculiData(numericBlockId);
         
         if (result.error) {
@@ -62,11 +62,11 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         
         console.log(`Caricati ${result.data.length} loculi per il blocco ${numericBlockId}`);
         
-        // Verifica se abbiamo effettivamente dei dati
+        // Verify if we actually have data
         if (result.data.length === 0) {
           console.log("Nessun loculo trovato per il blocco", numericBlockId);
           
-          // Verifica semplificata della presenza di dati nelle tabelle
+          // Simple check for data presence in tables
           try {
             // Use simple queries with explicit column selection to avoid type recursion
             const loculiCheck = await supabase
@@ -81,7 +81,7 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
               .limit(5);
             console.log("Sample Loculo check:", loculoCheck);
             
-            // Prova anche con nomi di colonna alternativi
+            // Try alternative column names too
             console.log("Checking for loculi with block ID using alternative field names...");
             
             const alternativeCheck1 = await supabase
@@ -102,7 +102,8 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           console.log("Primo loculo trovato:", result.data[0]);
         }
         
-        setLoculi(result.data);
+        // Use type assertion to avoid recursion
+        setLoculi(result.data as Loculo[]);
         
         // If we have a search term, also search for defunti by nominativo
         if (searchTerm) {

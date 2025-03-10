@@ -29,7 +29,7 @@ export async function searchDefuntiByName(
     if (!defuntoError && defuntoData && defuntoData.length > 0) {
       console.log("Defunti found in 'Defunto' table:", defuntoData);
       
-      // Extract unique loculi from defunti search results
+      // Extract unique loculi from defunti search results using type assertion
       const loculiFromDefunti = defuntoData
         .filter(d => d.Loculo) // Ensure Loculo is defined
         .map(d => d.Loculo);
@@ -52,8 +52,8 @@ export async function searchDefuntiByName(
         
         console.log("Extracted loculi from defunti:", loculiFromDefunti);
         
-        // Convert if needed (from old database format)
-        if (loculiFromDefunti.length > 0 && 'id' in loculiFromDefunti[0]) {
+        // Convert if needed (from old database format) using type assertion
+        if (loculiFromDefunti.length > 0 && 'id' in (loculiFromDefunti[0] as any)) {
           console.log("Converting loculi from database format");
           // Convert each loculo from database format to proper format
           const convertedLoculi = loculiFromDefunti.map(loculo => {

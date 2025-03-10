@@ -45,33 +45,35 @@ export async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchR
     console.error("Error fetching from 'loculi' table:", loculiError);
     return { 
       data: [], 
-      error: "Impossibile caricare i loculi: " + loculiError.message 
+      error: "Impossibile caricare i loculi: " + (loculiError as any).message 
     };
   }
   
   console.log("Loculi fetched from 'loculi' table:", loculiData);
   
-  // Converti i dati al formato corretto se necessario
+  // Convert data to the correct format if needed
   let formattedData: Loculo[] = [];
   
   if (loculiData && loculiData.length > 0) {
-    // Semplificazione della logica di conversione per evitare problemi di tipo
+    // Simplify conversion logic to avoid type problems
     try {
-      if (loculiData[0] && 'id' in loculiData[0]) {
-        console.log("Converto i dati dal formato vecchio al formato nuovo");
+      // Use type assertions to work with dynamic data
+      const firstItem = loculiData[0] as any;
+      if (firstItem && 'id' in firstItem) {
+        console.log("Converting data from old format to new format");
         formattedData = loculiData.map(loculo => {
           return convertDatabaseToLoculo(loculo as any);
         });
       } else {
-        console.log("I dati sono già nel formato corretto");
+        console.log("Data is already in the correct format");
         formattedData = loculiData as any;
       }
     } catch (err) {
-      console.error("Errore nella conversione dei dati:", err);
+      console.error("Error converting data:", err);
       formattedData = loculiData as any;
     }
     
-    console.log("Dati formattati:", formattedData);
+    console.log("Formatted data:", formattedData);
   }
   
   return { data: formattedData, error: null };
