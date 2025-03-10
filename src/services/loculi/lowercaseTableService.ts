@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { Loculo } from "@/components/block/loculi/types";
 
 /**
  * Fetches loculi data from the loculi (lowercase) table
@@ -9,15 +10,27 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
   
   // Try with IdBlocco field first
   try {
-    // Seleziona esplicitamente i campi per evitare ricorsione nei tipi
+    // Use explicit type casting to break the recursive type reference
     const { data, error } = await supabase
       .from('loculi')
       .select(`
         id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba, FilaDaAlto, 
-        NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias,
-        defunti (id, nominativo, data_nascita, data_decesso, sesso, annotazioni)
+        NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias
       `)
       .eq('IdBlocco', blockId);
+      
+    // Fetch defunti separately to avoid type recursion
+    if (data && data.length > 0) {
+      for (const loculo of data) {
+        const { data: defuntiData } = await supabase
+          .from('defunti')
+          .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
+          .eq('id_loculo', loculo.id);
+        
+        // Attach defunti data to the loculo
+        (loculo as any).defunti = defuntiData || [];
+      }
+    }
       
     if (error) {
       console.error("Errore nel recupero dalla tabella 'loculi':", error);
@@ -26,15 +39,27 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
       if (error.message.includes("does not exist")) {
         console.log("Trying alternative column name 'id_blocco'...");
         
-        // Seleziona esplicitamente i campi per evitare ricorsione nei tipi
+        // Use explicit field selection to avoid nested types
         const { data: altData, error: altError } = await supabase
           .from('loculi')
           .select(`
             id, Numero, Fila, Annotazioni, id_blocco, TipoTomba, FilaDaAlto, 
-            NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias,
-            defunti (id, nominativo, data_nascita, data_decesso, sesso, annotazioni)
+            NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias
           `)
           .eq('id_blocco', blockId);
+        
+        // Fetch defunti separately
+        if (altData && altData.length > 0) {
+          for (const loculo of altData) {
+            const { data: defuntiData } = await supabase
+              .from('defunti')
+              .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
+              .eq('id_loculo', loculo.id);
+            
+            // Attach defunti data to the loculo
+            (loculo as any).defunti = defuntiData || [];
+          }
+        }
         
         return { data: altData || [], error: altError };
       }
@@ -51,20 +76,6 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
     console.error("Exception in fetchLoculiFromLowercaseTable:", err);
     return { data: [], error: err };
   }
-    
-  // Fallback to direct query with no joins
-  try {
-    console.log("Fallback to simpler query...");
-    const { data, error } = await supabase
-      .from('loculi')
-      .select('id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba')
-      .eq('IdBlocco', blockId);
-      
-    return { data: data || [], error };
-  } catch (err) {
-    console.error("Error in fallback query:", err);
-    return { data: [], error: err };
-  }
 }
 
 /**
@@ -72,32 +83,53 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
  */
 export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm: string) {
   try {
-    const { data, error } = await supabase
+    // First fetch defunti that match the search term
+    const { data: defuntiData, error: defuntiError } = await supabase
       .from('defunti')
       .select(`
-        id, nominativo, data_nascita, data_decesso, sesso, annotazioni,
-        loculi!inner (id, Numero, Fila, IdBlocco)
+        id, nominativo, data_nascita, data_decesso, sesso, annotazioni, id_loculo
       `)
-      .eq('loculi.IdBlocco', blockId)
       .ilike('nominativo', `%${searchTerm}%`);
       
-    // If there's a column name error, try with alternative column name
-    if (error && error.message.includes("does not exist")) {
-      console.log("Trying alternative column name for search...");
-      
-      const { data: altData, error: altError } = await supabase
-        .from('defunti')
-        .select(`
-          id, nominativo, data_nascita, data_decesso, sesso, annotazioni,
-          loculi!inner (id, Numero, Fila, id_blocco)
-        `)
-        .eq('loculi.id_blocco', blockId)
-        .ilike('nominativo', `%${searchTerm}%`);
-        
-      return { data: altData || [], error: altError };
+    if (defuntiError) {
+      return { data: [], error: defuntiError };
     }
+    
+    if (!defuntiData || defuntiData.length === 0) {
+      return { data: [], error: null };
+    }
+    
+    // Extract loculo IDs from defunti
+    const loculoIds = defuntiData
+      .filter(d => d.id_loculo)
+      .map(d => d.id_loculo);
       
-    return { data: data || [], error };
+    if (loculoIds.length === 0) {
+      return { data: [], error: null };
+    }
+    
+    // Fetch the loculi with these IDs that also belong to the specified block
+    const { data: loculiData, error: loculiError } = await supabase
+      .from('loculi')
+      .select(`
+        id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba, FilaDaAlto, 
+        NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias
+      `)
+      .eq('IdBlocco', blockId)
+      .in('id', loculoIds);
+      
+    if (loculiError) {
+      return { data: [], error: loculiError };
+    }
+    
+    // Map defunti to their respective loculi
+    if (loculiData && loculiData.length > 0) {
+      for (const loculo of loculiData) {
+        loculo.defunti = defuntiData.filter(d => d.id_loculo === loculo.id);
+      }
+    }
+    
+    return { data: loculiData || [], error: null };
   } catch (err) {
     console.error("Exception in searchDefuntiInLowercaseTable:", err);
     return { data: [], error: err };

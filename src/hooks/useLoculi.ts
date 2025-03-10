@@ -68,6 +68,7 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           
           // Verifica semplificata della presenza di dati nelle tabelle
           try {
+            // Use simple queries with explicit column selection to avoid type recursion
             const loculiCheck = await supabase
               .from('loculi')
               .select('id, Numero, Fila')
