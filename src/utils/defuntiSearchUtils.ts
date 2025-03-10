@@ -50,7 +50,7 @@ export async function searchDefuntiByName(
         .map(d => d.loculi);
       
       // Convert if needed (from old database format)
-      if (loculiFromDefunti.length > 0 && 'id' in loculiFromDefunti[0]) {
+      if (loculiFromDefunti.length > 0 && loculiFromDefunti[0] && 'id' in loculiFromDefunti[0]) {
         // We need to convert each loculo from database format to proper format
         const convertedLoculi = loculiFromDefunti.map(loculo => {
           // Type cast to ensure we're working with the right structure
