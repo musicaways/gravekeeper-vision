@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Filter, ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import CemeteryOptions from "./CemeteryOptions";
 
@@ -27,7 +27,6 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   onFilterChange, 
   onCemeterySelect 
 }) => {
-  // Helper function to get the active filter option label
   const getFilterLabel = () => {
     if (filterBy === 'by-cemetery' && selectedCemetery) {
       return `Cimitero: ${selectedCemetery}`;
