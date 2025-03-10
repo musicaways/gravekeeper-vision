@@ -134,8 +134,8 @@ export const useDeceasedData = ({
           eta,
           loculi (
             id,
-            numero,
-            fila,
+            Numero,
+            Fila,
             Blocco (
               Id,
               Nome,
@@ -156,21 +156,22 @@ export const useDeceasedData = ({
         throw error;
       }
 
-      const transformedData: DeceasedRecord[] = data
-        .filter(item => item.loculi)
-        .map(item => ({
-          id: item.id,
-          nominativo: item.nominativo,
-          data_decesso: item.data_decesso,
-          data_nascita: item.data_nascita,
-          eta: item.eta,
-          cimitero_nome: item.loculi?.Blocco?.Settore?.Cimitero?.Nome || null,
-          settore_nome: item.loculi?.Blocco?.Settore?.Nome || null,
-          blocco_nome: item.loculi?.Blocco?.Nome || null,
-          loculo_numero: item.loculi?.numero || null,
-          loculo_fila: item.loculi?.fila || null,
-          loculi: item.loculi
-        }));
+      // Filter out records without loculi data first
+      const validData = data.filter(item => item.loculi);
+      
+      const transformedData: DeceasedRecord[] = validData.map(item => ({
+        id: item.id,
+        nominativo: item.nominativo,
+        data_decesso: item.data_decesso,
+        data_nascita: item.data_nascita,
+        eta: item.eta,
+        cimitero_nome: item.loculi?.Blocco?.Settore?.Cimitero?.Nome || null,
+        settore_nome: item.loculi?.Blocco?.Settore?.Nome || null,
+        blocco_nome: item.loculi?.Blocco?.Nome || null,
+        loculo_numero: item.loculi?.Numero || null,
+        loculo_fila: item.loculi?.Fila || null,
+        loculi: item.loculi
+      }));
 
       setDeceased(transformedData);
       setFilteredDeceased(transformedData);

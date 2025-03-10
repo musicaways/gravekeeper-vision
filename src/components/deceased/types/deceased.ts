@@ -12,8 +12,8 @@ export interface DeceasedRecord {
   loculo_fila: number | null;
   loculi: {
     id: string;
-    numero: number | null;
-    fila: number | null;
+    Numero: number | null;
+    Fila: number | null;
     Blocco: {
       Id: number;
       Nome: string | null;

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { 
   Loculo, 
   LoculoDatabaseLowercase, 
+  LoculoLowercase,
   convertDatabaseToLoculo 
 } from "@/components/block/loculi/types";
 import { 
@@ -57,7 +58,7 @@ export async function searchDefuntiByName(
           const dbLoculo = loculo as unknown as LoculoDatabaseLowercase;
           return convertDatabaseToLoculo(dbLoculo);
         });
-        loculiFromDefunti = convertedLoculi;
+        loculiFromDefunti = convertedLoculi as unknown as LoculoLowercase[];
       }
       
       // Only include loculi that aren't already in the main results
