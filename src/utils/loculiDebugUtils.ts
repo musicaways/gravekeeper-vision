@@ -12,7 +12,8 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     // Controlla la tabella loculi_import
     const importResponse = await supabase
       .from('loculi_import')
-      .select('*');
+      .select('id, Numero, Fila, IdBlocco')
+      .limit(50);
       
     if (importResponse.error) {
       console.error("Errore nel controllo della tabella loculi_import:", importResponse.error);
@@ -24,7 +25,8 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     // Controlla la tabella loculi
     const loculiResponse = await supabase
       .from('loculi')
-      .select('*');
+      .select('id, Numero, Fila, IdBlocco')
+      .limit(50);
       
     if (loculiResponse.error) {
       console.error("Errore nel controllo della tabella loculi:", loculiResponse.error);
@@ -38,7 +40,7 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     if (blockId) {
       const blockResponse = await supabase
         .from('loculi')
-        .select('*')
+        .select('id, Numero, Fila, IdBlocco, TipoTomba')
         .eq('IdBlocco', blockId);
         
       if (blockResponse.error) {
@@ -60,7 +62,8 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     // Controlla la tabella defunti
     const defuntiResponse = await supabase
       .from('defunti')
-      .select('*');
+      .select('id, nominativo, data_nascita, data_decesso')
+      .limit(50);
       
     if (defuntiResponse.error) {
       console.error("Errore nel controllo della tabella defunti:", defuntiResponse.error);
@@ -74,13 +77,15 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     // Prova anche a interrogare la tabella Loculo e Defunto (vecchie tabelle)
     const loculoOldResponse = await supabase
       .from('Loculo')
-      .select('*').limit(5);
+      .select('Id, Numero, Fila, IdBlocco')
+      .limit(5);
     
     console.log(`Tabella Loculo (vecchia): risultati`, loculoOldResponse);
     
     const defuntoOldResponse = await supabase
       .from('Defunto')
-      .select('*').limit(5);
+      .select('Id, Nominativo, DataNascita, DataDecesso')
+      .limit(5);
     
     console.log(`Tabella Defunto (vecchia): risultati`, defuntoOldResponse);
     
@@ -89,7 +94,7 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
       // Verifica blocco
       const bloccoResponse = await supabase
         .from('Blocco')
-        .select('*')
+        .select('Id, Nome, Codice, NumeroLoculi')
         .eq('Id', blockId);
         
       console.log(`Blocco con ID ${blockId}:`, bloccoResponse);
@@ -128,13 +133,13 @@ export async function getTableMetadata(tableName: string) {
     let result;
     
     if (tableName === 'loculi') {
-      result = await supabase.from('loculi').select('*').limit(1);
+      result = await supabase.from('loculi').select('id, Numero, Fila, IdBlocco').limit(1);
     } else if (tableName === 'Loculo') {
-      result = await supabase.from('Loculo').select('*').limit(1);
+      result = await supabase.from('Loculo').select('Id, Numero, Fila, IdBlocco').limit(1);
     } else if (tableName === 'defunti') {
-      result = await supabase.from('defunti').select('*').limit(1);
+      result = await supabase.from('defunti').select('id, nominativo, data_nascita, data_decesso').limit(1);
     } else if (tableName === 'Defunto') {
-      result = await supabase.from('Defunto').select('*').limit(1);
+      result = await supabase.from('Defunto').select('Id, Nominativo, DataNascita, DataDecesso').limit(1);
     }
     
     if (!result) {

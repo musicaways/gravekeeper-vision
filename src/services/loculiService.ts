@@ -15,8 +15,8 @@ export async function fetchLoculiFromUppercaseTable(blockId: number) {
   const { data, error } = await supabase
     .from('Loculo')
     .select(`
-      *,
-      Defunti:Defunto(*)
+      Id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba,
+      Defunti:Defunto(Id, Nominativo, DataNascita, DataDecesso, Sesso)
     `)
     .eq('IdBlocco', blockId);
     
@@ -42,8 +42,9 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
   const { data, error } = await supabase
     .from('loculi')
     .select(`
-      *,
-      defunti(*)
+      id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba, FilaDaAlto, 
+      NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias,
+      defunti(id, nominativo, data_nascita, data_decesso, sesso, annotazioni)
     `)
     .eq('IdBlocco', blockId);
   
@@ -66,8 +67,8 @@ export async function searchDefuntiInUppercaseTable(blockId: number, searchTerm:
   const { data, error } = await supabase
     .from('Defunto')
     .select(`
-      *,
-      Loculo!inner(*)
+      Id, Nominativo, DataNascita, DataDecesso, Sesso,
+      Loculo!inner(Id, Numero, Fila, IdBlocco)
     `)
     .eq('Loculo.IdBlocco', blockId)
     .ilike('Nominativo', `%${searchTerm}%`);
@@ -82,8 +83,8 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
   const { data, error } = await supabase
     .from('defunti')
     .select(`
-      *,
-      loculi!inner(*)
+      id, nominativo, data_nascita, data_decesso, sesso, annotazioni,
+      loculi!inner(id, Numero, Fila, IdBlocco)
     `)
     .eq('loculi.IdBlocco', blockId)
     .ilike('nominativo', `%${searchTerm}%`);
@@ -138,19 +139,19 @@ export async function getTableInfo(tableName: string) {
     let data, error;
     
     if (tableName === 'loculi') {
-      const result = await supabase.from('loculi').select('*').limit(1);
+      const result = await supabase.from('loculi').select('id, Numero, Fila, IdBlocco').limit(1);
       data = result.data;
       error = result.error;
     } else if (tableName === 'Loculo') {
-      const result = await supabase.from('Loculo').select('*').limit(1);
+      const result = await supabase.from('Loculo').select('Id, Numero, Fila, IdBlocco').limit(1);
       data = result.data;
       error = result.error;
     } else if (tableName === 'defunti') {
-      const result = await supabase.from('defunti').select('*').limit(1);
+      const result = await supabase.from('defunti').select('id, nominativo, data_nascita, data_decesso, sesso').limit(1);
       data = result.data;
       error = result.error;
     } else if (tableName === 'Defunto') {
-      const result = await supabase.from('Defunto').select('*').limit(1);
+      const result = await supabase.from('Defunto').select('Id, Nominativo, DataNascita, DataDecesso, Sesso').limit(1);
       data = result.data;
       error = result.error;
     }

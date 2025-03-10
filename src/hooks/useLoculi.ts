@@ -69,13 +69,13 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           // Use correct typing for Supabase queries to avoid deep recursion
           const loculiCheck = await supabase
             .from('loculi')
-            .select('*')
+            .select('id, Numero, Fila, IdBlocco')
             .limit(5);
           console.log("Sample loculi check:", loculiCheck);
           
           const loculoCheck = await supabase
             .from('Loculo')
-            .select('*')
+            .select('Id, Numero, Fila, IdBlocco')
             .limit(5);
           console.log("Sample Loculo check:", loculoCheck);
           
