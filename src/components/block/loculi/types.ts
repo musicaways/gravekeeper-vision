@@ -1,7 +1,29 @@
 
 // Type definitions for loculi data structures
 
-// Lowercase schema interfaces (from the 'loculi' table with new column names)
+// Lowercase schema interfaces (from the database with lowercase column names)
+export interface LoculoDatabaseLowercase {
+  id: string;
+  numero: number;
+  fila: number;
+  annotazioni?: string;
+  id_blocco: number;
+  tipo_tomba?: number;
+  created_at?: string;
+  updated_at?: string;
+  defunti?: DefuntoDatabaseLowercase[];
+}
+
+export interface DefuntoDatabaseLowercase {
+  id: string | number;
+  nominativo: string;
+  data_nascita?: string | Date;
+  data_decesso?: string | Date;
+  sesso?: string;
+  annotazioni?: string;
+}
+
+// Lowercase schema interfaces (using new column names with capital letters)
 export interface LoculoLowercase {
   Id: number;
   Numero: number;
@@ -61,7 +83,30 @@ export function isLoculoUppercase(loculo: any): loculo is LoculoUppercase {
   return loculo && ('Defunti' in loculo || loculo.Defunti !== undefined);
 }
 
+// Type guard for database lowercase schema (old format)
+export function isLoculoDatabaseLowercase(loculo: any): loculo is LoculoDatabaseLowercase {
+  return loculo && ('id' in loculo && 'numero' in loculo && 'fila' in loculo);
+}
+
 // Helper function to safely get the ID regardless of case
-export function getLoculoId(loculo: Loculo): number | undefined {
+export function getLoculoId(loculo: Loculo | LoculoDatabaseLowercase): number | string | undefined {
+  if (isLoculoDatabaseLowercase(loculo)) {
+    return loculo.id;
+  }
   return loculo.Id;
+}
+
+// Helper function to convert database lowercase to proper Loculo type
+export function convertDatabaseToLoculo(dbLoculo: LoculoDatabaseLowercase): LoculoLowercase {
+  return {
+    Id: parseInt(dbLoculo.id.toString()),
+    Numero: dbLoculo.numero,
+    Fila: dbLoculo.fila,
+    Annotazioni: dbLoculo.annotazioni,
+    IdBlocco: dbLoculo.id_blocco,
+    TipoTomba: dbLoculo.tipo_tomba,
+    created_at: dbLoculo.created_at,
+    updated_at: dbLoculo.updated_at,
+    defunti: dbLoculo.defunti
+  };
 }

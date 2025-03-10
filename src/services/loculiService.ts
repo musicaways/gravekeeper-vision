@@ -1,6 +1,10 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Loculo } from "@/components/block/loculi/types";
+import { 
+  Loculo, 
+  LoculoDatabaseLowercase, 
+  convertDatabaseToLoculo 
+} from "@/components/block/loculi/types";
 
 /**
  * Fetches loculi data from the Loculo (uppercase) table
@@ -70,7 +74,15 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
 export function filterUniqueLoculi(newLoculi: any[], currentLoculi: Loculo[]): Loculo[] {
   return newLoculi.filter(
     newLoculo => !currentLoculi.some(existingLoculo => {
-      return existingLoculo.Id === newLoculo.Id;
+      const existingId = typeof existingLoculo.Id === 'number' ? 
+        existingLoculo.Id : 
+        parseInt(existingLoculo.Id.toString());
+        
+      const newId = typeof newLoculo.Id === 'number' ? 
+        newLoculo.Id : 
+        parseInt(newLoculo.Id.toString());
+        
+      return existingId === newId;
     })
   );
 }

@@ -1,7 +1,11 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Loculo } from "@/components/block/loculi/types";
+import { 
+  Loculo, 
+  LoculoDatabaseLowercase, 
+  convertDatabaseToLoculo 
+} from "@/components/block/loculi/types";
 import { UseLoculiProps, UseLoculiResult, LoculiDataFetchResult } from "@/models/LoculiTypes";
 import { fetchLoculiFromUppercaseTable, fetchLoculiFromLowercaseTable } from "@/services/loculiService";
 import { searchDefuntiByName } from "@/utils/defuntiSearchUtils";
@@ -66,7 +70,7 @@ async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchResult> 
         
   if (!loculoError && loculoData && loculoData.length > 0) {
     console.log("Loculi fetched from 'Loculo' table:", loculoData);
-    return { data: loculoData, error: null };
+    return { data: loculoData as Loculo[], error: null };
   } 
   
   console.log("Error or no data from 'Loculo' table:", loculoError);
@@ -83,5 +87,22 @@ async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchResult> 
   }
   
   console.log("Loculi fetched from 'loculi' table:", loculiData);
-  return { data: loculiData || [], error: null };
+  
+  // Convert the data to the proper format if needed
+  let formattedData: Loculo[] = [];
+  
+  if (loculiData && loculiData.length > 0) {
+    // Check if we need to convert from old database format
+    if ('id' in loculiData[0] && 'numero' in loculiData[0] && 'fila' in loculiData[0]) {
+      // Old format data - convert it
+      formattedData = (loculiData as unknown as LoculoDatabaseLowercase[]).map(
+        loculo => convertDatabaseToLoculo(loculo)
+      );
+    } else {
+      // Already in the right format
+      formattedData = loculiData as unknown as Loculo[];
+    }
+  }
+  
+  return { data: formattedData, error: null };
 }

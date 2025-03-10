@@ -2,7 +2,7 @@
 import React from "react";
 import { User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Loculo, isLoculoLowercase, isLoculoUppercase } from "./types";
+import { Loculo, isLoculoLowercase, isLoculoUppercase, isLoculoDatabaseLowercase } from "./types";
 import { Link } from "react-router-dom";
 
 interface LoculiListProps {
