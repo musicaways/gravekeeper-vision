@@ -7,7 +7,11 @@ import {
   convertDatabaseToLoculo 
 } from "@/components/block/loculi/types";
 import { UseLoculiProps, UseLoculiResult, LoculiDataFetchResult } from "@/models/LoculiTypes";
-import { fetchLoculiFromUppercaseTable, fetchLoculiFromLowercaseTable } from "@/services/loculiService";
+import { 
+  fetchLoculiFromUppercaseTable, 
+  fetchLoculiFromLowercaseTable,
+  getTableInfo 
+} from "@/services/loculiService";
 import { searchDefuntiByName } from "@/utils/defuntiSearchUtils";
 
 /**
@@ -33,6 +37,13 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         
         console.log("Fetching loculi for block ID:", numericBlockId);
         
+        // Check table structure for debugging
+        const loculiTableInfo = await getTableInfo('loculi');
+        console.log("Struttura tabella 'loculi':", loculiTableInfo);
+        
+        const loculoTableInfo = await getTableInfo('Loculo');
+        console.log("Struttura tabella 'Loculo':", loculoTableInfo);
+        
         // Prova a recuperare i loculi sia dalla tabella uppercase che lowercase
         const uppercaseResult = await fetchLoculiFromUppercaseTable(numericBlockId);
         console.log("Uppercase table result:", uppercaseResult);
@@ -52,6 +63,22 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         // Verifica se abbiamo effettivamente dei dati
         if (result.data.length === 0) {
           console.log("Nessun loculo trovato per il blocco", numericBlockId);
+          
+          // Check if there's data in the tables at all
+          const loculiCheck = await supabase.from('loculi').select('*').limit(5);
+          console.log("Sample loculi check:", loculiCheck);
+          
+          const loculoCheck = await supabase.from('Loculo').select('*').limit(5);
+          console.log("Sample Loculo check:", loculoCheck);
+          
+          // Check database for any loculi with this blockId (try different field names)
+          console.log("Checking for loculi with block ID using alternative field names...");
+          
+          const alternativeCheck1 = await supabase.from('loculi').select('*').eq('idblocco', numericBlockId);
+          console.log("Check with 'idblocco':", alternativeCheck1);
+          
+          const alternativeCheck2 = await supabase.from('loculi').select('*').eq('id_blocco', numericBlockId);
+          console.log("Check with 'id_blocco':", alternativeCheck2);
         } else {
           console.log("Primo loculo trovato:", result.data[0]);
         }

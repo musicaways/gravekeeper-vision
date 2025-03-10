@@ -1,16 +1,37 @@
 
-import React from "react";
-import { User, Users, Info } from "lucide-react";
+import React, { useEffect } from "react";
+import { User, Users, Info, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Loculo, isLoculoLowercase, isLoculoUppercase, isLoculoDatabaseLowercase } from "./types";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { checkLoculiMigrationStatus } from "@/utils/loculiDebugUtils";
 
 interface LoculiListProps {
   loculi: Loculo[];
 }
 
 export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
+  useEffect(() => {
+    // Log loculi data for debugging
+    console.log("LoculiList received loculi:", loculi);
+    
+    if (loculi.length > 0) {
+      console.log("Sample loculo:", loculi[0]);
+      
+      // Check the structure to help debug
+      const firstLoculo = loculi[0];
+      console.log("Loculo structure:", {
+        hasId: 'Id' in firstLoculo,
+        hasLowercaseId: 'id' in firstLoculo,
+        properties: Object.keys(firstLoculo),
+        isUppercase: isLoculoUppercase(firstLoculo),
+        isLowercase: isLoculoLowercase(firstLoculo)
+      });
+    }
+  }, [loculi]);
+
   const getNominativo = (defunto: any) => {
     return defunto.Nominativo || defunto.nominativo || "Nome non disponibile";
   };
@@ -29,6 +50,15 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
     return [];
   };
 
+  const handleCheckMigration = async () => {
+    // Extract block ID from URL
+    const blockId = window.location.pathname.split('/').pop();
+    if (blockId) {
+      const result = await checkLoculiMigrationStatus(parseInt(blockId));
+      console.log("Migration status check result:", result);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {loculi.length > 0 ? (
@@ -36,7 +66,8 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
           {loculi.map((loculo, index) => {
             const numero = loculo.Numero;
             const fila = loculo.Fila;
-            const id = loculo.Id || (isLoculoLowercase(loculo) ? loculo.id : undefined);
+            const id = isLoculoUppercase(loculo) ? loculo.Id : 
+                      isLoculoLowercase(loculo) ? (loculo.Id || loculo.id) : undefined;
             const defunti = getDefunti(loculo);
             const defuntiCount = getDefuntiCount(loculo);
             
@@ -78,17 +109,28 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
           })}
         </div>
       ) : (
-        <Alert variant="destructive" className="mt-4">
-          <Info className="h-4 w-4" />
-          <AlertDescription>
-            Nessun loculo trovato per questo blocco. Assicurati che:
-            <ul className="list-disc pl-5 mt-2 text-sm">
-              <li>Il blocco con ID {typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : ''} esista</li>
-              <li>I loculi siano stati correttamente migrati</li>
-              <li>Il campo "IdBlocco" nei loculi sia correttamente impostato</li>
-            </ul>
-          </AlertDescription>
-        </Alert>
+        <div className="space-y-4">
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Nessun loculo trovato per questo blocco. Assicurati che:
+              <ul className="list-disc pl-5 mt-2 text-sm">
+                <li>Il blocco con ID {typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : ''} esista</li>
+                <li>I loculi siano stati correttamente migrati</li>
+                <li>Il campo "IdBlocco" nei loculi sia correttamente impostato</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+          
+          <div className="mt-4">
+            <Button onClick={handleCheckMigration} variant="outline" size="sm">
+              Verifica stato migrazione
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Controlla la console del browser per visualizzare i dettagli sulla migrazione.
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

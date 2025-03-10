@@ -71,6 +71,34 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     
     toast.info(`Verifica completata. Controlla la console per i dettagli.`);
     
+    // Prova anche a interrogare la tabella Loculo e Defunto (vecchie tabelle)
+    const loculoOldResponse = await supabase
+      .from('Loculo')
+      .select('*').limit(5);
+    
+    console.log(`Tabella Loculo (vecchia): risultati`, loculoOldResponse);
+    
+    const defuntoOldResponse = await supabase
+      .from('Defunto')
+      .select('*').limit(5);
+    
+    console.log(`Tabella Defunto (vecchia): risultati`, defuntoOldResponse);
+    
+    // Controlla se c'è un problema con la relazione tra blocchi e loculi
+    if (blockId) {
+      // Verifica blocco
+      const bloccoResponse = await supabase
+        .from('Blocco')
+        .select('*')
+        .eq('Id', blockId);
+        
+      console.log(`Blocco con ID ${blockId}:`, bloccoResponse);
+      
+      // Verifica colonne nella tabella loculi
+      const tableInfo = await getTableMetadata('loculi');
+      console.log("Metadati tabella loculi:", tableInfo);
+    }
+    
     return {
       loculiImport: importResponse.data?.length || 0,
       loculi: loculiResponse.data?.length || 0,
@@ -89,31 +117,47 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
  */
 export async function getTableMetadata(tableName: string) {
   try {
-    // Recupera un record di esempio per vedere le colonne
-    if (tableName === 'loculi' || tableName === 'Loculo' || tableName === 'defunti' || tableName === 'Defunto') {
-      const { data, error } = await supabase
-        .from(tableName as any)
-        .select('*')
-        .limit(1);
-        
-      if (error) {
-        console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, error);
-        return { columns: [], error: error.message };
-      }
-      
-      if (!data || data.length === 0) {
-        console.log(`Nessun dato trovato nella tabella ${tableName}`);
-        return { columns: [], error: null };
-      }
-      
-      // Estrai i nomi delle colonne
-      const columns = Object.keys(data[0]);
-      console.log(`Colonne nella tabella ${tableName}:`, columns);
-      
-      return { columns, error: null };
-    } else {
+    // Check if it's a valid table name
+    const validTableNames = ['loculi', 'Loculo', 'defunti', 'Defunto'];
+    
+    if (!validTableNames.includes(tableName)) {
       return { columns: [], error: `Nome tabella non supportato: ${tableName}` };
     }
+    
+    // Get table data based on the table name
+    let result;
+    
+    if (tableName === 'loculi') {
+      result = await supabase.from('loculi').select('*').limit(1);
+    } else if (tableName === 'Loculo') {
+      result = await supabase.from('Loculo').select('*').limit(1);
+    } else if (tableName === 'defunti') {
+      result = await supabase.from('defunti').select('*').limit(1);
+    } else if (tableName === 'Defunto') {
+      result = await supabase.from('Defunto').select('*').limit(1);
+    }
+    
+    if (!result) {
+      return { columns: [], error: `Errore query tabella ${tableName}` };
+    }
+    
+    const { data, error } = result;
+        
+    if (error) {
+      console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, error);
+      return { columns: [], error: error.message };
+    }
+    
+    if (!data || data.length === 0) {
+      console.log(`Nessun dato trovato nella tabella ${tableName}`);
+      return { columns: [], error: null };
+    }
+    
+    // Estrai i nomi delle colonne
+    const columns = Object.keys(data[0]);
+    console.log(`Colonne nella tabella ${tableName}:`, columns);
+    
+    return { columns, error: null };
   } catch (err: any) {
     console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, err);
     return { columns: [], error: err.message };
