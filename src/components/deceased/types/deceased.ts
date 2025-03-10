@@ -1,6 +1,6 @@
 
 export interface DeceasedRecord {
-  id: string;
+  id: string | number;
   nominativo: string;
   data_decesso: string | null;
   data_nascita: string | null;
@@ -11,7 +11,7 @@ export interface DeceasedRecord {
   loculo_numero: number | null;
   loculo_fila: number | null;
   loculi: {
-    id: string;
+    id: string | number;
     Numero: number | null;
     Fila: number | null;
     Blocco: {

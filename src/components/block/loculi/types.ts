@@ -3,7 +3,7 @@
 
 // Lowercase schema interfaces (from the database with lowercase column names)
 export interface LoculoDatabaseLowercase {
-  id: string;
+  id: string | number;
   Numero: number;
   Fila: number;
   Annotazioni?: string;
@@ -32,7 +32,7 @@ export interface DefuntoDatabaseLowercase {
 // Lowercase schema interfaces (using new column names with capital letters)
 export interface LoculoLowercase {
   Id: number;
-  id?: string; // Optional id field to fix type compatibility
+  id?: string | number; // Optional id field to fix type compatibility
   Numero: number;
   Fila: number;
   Annotazioni?: string;
@@ -111,7 +111,7 @@ export function getLoculoId(loculo: Loculo | LoculoDatabaseLowercase): number | 
 // Helper function to convert database lowercase to proper Loculo type
 export function convertDatabaseToLoculo(dbLoculo: LoculoDatabaseLowercase): LoculoLowercase {
   return {
-    Id: parseInt(dbLoculo.id.toString()),
+    Id: typeof dbLoculo.id === 'string' ? parseInt(dbLoculo.id) : dbLoculo.id as number,
     id: dbLoculo.id, // Add the id field to maintain compatibility
     Numero: dbLoculo.Numero,
     Fila: dbLoculo.Fila,
