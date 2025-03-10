@@ -2,7 +2,7 @@
 import { toast } from "sonner";
 import { 
   Loculo, 
-  LoculoDatabaseLowercase, 
+  LoculoDatabaseLowercase,
   LoculoLowercase,
   convertDatabaseToLoculo 
 } from "@/components/block/loculi/types";
