@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getTableInfo } from "@/services/loculiService";
@@ -45,41 +46,48 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     let blockCount = 0;
     if (blockId) {
       // Try with IdBlocco first
-      let blockResponse = await supabase
-        .from('loculi')
-        .select('id, Numero, Fila, IdBlocco, TipoTomba')
-        .eq('IdBlocco', blockId);
-        
-      // If error, try with id_blocco instead
-      if (blockResponse.error && blockResponse.error.message.includes("does not exist")) {
-        console.log("Trying with 'id_blocco' column instead of 'IdBlocco'");
-        
-        try {
-          // Use explicit type assertion to avoid type errors
-          const altResponse = await supabase
-            .from('loculi')
-            .select('id, Numero, Fila, id_blocco, TipoTomba')
-            .eq('id_blocco', blockId);
+      try {
+        const blockResponse = await supabase
+          .from('loculi')
+          .select('id, Numero, Fila, IdBlocco, TipoTomba')
+          .eq('IdBlocco', blockId);
           
-          blockResponse = altResponse;
-        } catch (err) {
-          console.error("Error with alternative query:", err);
-        }
-      }
-        
-      if (blockResponse.error) {
-        console.error(`Errore nel controllo dei loculi per il blocco ${blockId}:`, blockResponse.error);
-      } else {
-        blockCount = blockResponse.data?.length || 0;
-        console.log(`Loculi per il blocco ${blockId}: ${blockCount} record`);
-        
-        if (blockCount > 0) {
-          // Recupera un esempio di loculo per questo blocco
-          const sampleLoculi = blockResponse.data;
-          if (sampleLoculi && sampleLoculi.length > 0) {
-            console.log(`Esempio di loculo per il blocco ${blockId}:`, sampleLoculi[0]);
+        if (blockResponse.error) {
+          console.error(`Errore nel controllo dei loculi per il blocco ${blockId}:`, blockResponse.error);
+          
+          // If error, try with id_blocco instead
+          if (blockResponse.error.message.includes("does not exist")) {
+            console.log("Trying with 'id_blocco' column instead of 'IdBlocco'");
+            
+            // Use explicit type assertion to avoid type errors
+            const altResponse = await supabase
+              .from('loculi')
+              .select('id, Numero, Fila, id_blocco, TipoTomba')
+              .eq('id_blocco', blockId);
+            
+            if (!altResponse.error && altResponse.data) {
+              blockCount = altResponse.data.length;
+              console.log(`Loculi per il blocco ${blockId} (using id_blocco): ${blockCount} record`);
+              
+              if (blockCount > 0) {
+                console.log(`Esempio di loculo per il blocco ${blockId}:`, altResponse.data[0]);
+              }
+            }
+          }
+        } else {
+          blockCount = blockResponse.data?.length || 0;
+          console.log(`Loculi per il blocco ${blockId}: ${blockCount} record`);
+          
+          if (blockCount > 0) {
+            // Recupera un esempio di loculo per questo blocco
+            const sampleLoculi = blockResponse.data;
+            if (sampleLoculi && sampleLoculi.length > 0) {
+              console.log(`Esempio di loculo per il blocco ${blockId}:`, sampleLoculi[0]);
+            }
           }
         }
+      } catch (err) {
+        console.error("Error querying loculi by block:", err);
       }
     }
     

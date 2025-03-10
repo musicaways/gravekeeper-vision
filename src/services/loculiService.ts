@@ -10,7 +10,7 @@ import {
 } from './loculi/lowercaseTableService';
 
 import { getTableInfo } from './loculi/tableInfoService';
-import { filterUniqueLoculi, fetchLoculiCombined } from './loculi/loculiUtils';
+import { filterUniqueLoculi } from './loculi/loculiUtils';
 import { Loculo, LoculoDatabaseLowercase, convertDatabaseToLoculo } from "@/components/block/loculi/types";
 import { LoculiDataFetchResult } from "@/models/LoculiTypes";
 
@@ -28,15 +28,28 @@ export {
  * Helper function to fetch loculi data from both tables
  */
 export async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchResult> {
-  const { data: loculiData, error } = await fetchLoculiCombined(
-    fetchLoculiFromUppercaseTable,
-    fetchLoculiFromLowercaseTable,
-    blockId
-  );
+  // Try the uppercase Loculo table first
+  const { data: loculoData, error: loculoError } = await fetchLoculiFromUppercaseTable(blockId);
+        
+  if (!loculoError && loculoData && loculoData.length > 0) {
+    console.log("Loculi fetched from 'Loculo' table:", loculoData);
+    return { data: loculoData as Loculo[], error: null };
+  } 
   
-  if (error) {
-    return { data: [], error };
+  console.log("Error or no data from 'Loculo' table:", loculoError);
+  
+  // Try the lowercase loculi table
+  const { data: loculiData, error: loculiError } = await fetchLoculiFromLowercaseTable(blockId);
+  
+  if (loculiError) {
+    console.error("Error fetching from 'loculi' table:", loculiError);
+    return { 
+      data: [], 
+      error: "Impossibile caricare i loculi: " + loculiError.message 
+    };
   }
+  
+  console.log("Loculi fetched from 'loculi' table:", loculiData);
   
   // Convert the data to the proper format if needed
   let formattedData: Loculo[] = [];
