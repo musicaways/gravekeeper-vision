@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { AlertCircle, ArrowRightLeft, Check, Loader2 } from "lucide-react";
 
 interface LoculiMigrationProps {
-  blockId: number;
+  blockId?: number;
 }
 
 export function LoculiMigration({ blockId }: LoculiMigrationProps) {

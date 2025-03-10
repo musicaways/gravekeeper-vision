@@ -1,9 +1,8 @@
 
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import BlockInfoTabContent from "./content/BlockInfoTabContent";
 import BlockLoculiTabContent from "./content/BlockLoculiTabContent";
 import BlockDocumentiTabContent from "./content/BlockDocumentiTabContent";
-import { LoculiMigrationTab } from "../loculi/LoculiMigrationTab";
 import React from "react";
 
 export interface BlockTabContentProps {
@@ -29,10 +28,6 @@ export function BlockTabContent({ blockId, block, searchTerm = "" }: BlockTabCon
       
       <TabsContent value="documents" className="w-full">
         <BlockDocumentiTabContent blockId={blockId.toString()} />
-      </TabsContent>
-      
-      <TabsContent value="migration" className="w-full">
-        <LoculiMigrationTab blockId={blockId} />
       </TabsContent>
     </div>
   );

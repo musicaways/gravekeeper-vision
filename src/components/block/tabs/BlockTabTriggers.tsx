@@ -1,6 +1,6 @@
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DatabaseIcon, FileText, Info, List, Map } from "lucide-react";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Info, List, Map } from "lucide-react";
 import React from "react";
 
 export interface BlockTabTriggersProps {
@@ -40,14 +40,6 @@ export function BlockTabTriggers({ defaultTab = "loculi" }: BlockTabTriggersProp
       >
         <FileText className="h-4 w-4 mr-2" />
         <span>Documenti</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="migration" 
-        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-      >
-        <DatabaseIcon className="h-4 w-4 mr-2" />
-        <span>Migrazione</span>
       </TabsTrigger>
     </TabsList>
   );
