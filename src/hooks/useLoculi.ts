@@ -13,6 +13,7 @@ import {
   getTableInfo 
 } from "@/services/loculiService";
 import { searchDefuntiByName } from "@/utils/defuntiSearchUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Custom hook to fetch and manage loculi data
