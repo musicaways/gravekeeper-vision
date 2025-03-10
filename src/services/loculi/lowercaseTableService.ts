@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Loculo } from "@/components/block/loculi/types";
+import { Loculo, Defunto } from "@/components/block/loculi/types";
 
 /**
  * Fetches loculi data from the loculi (lowercase) table
@@ -36,7 +36,7 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
       console.error("Errore nel recupero dalla tabella 'loculi':", error);
       
       // If there's a column name error, try alternative column name
-      if (error.message.includes("does not exist")) {
+      if (error.message && error.message.includes("does not exist")) {
         console.log("Trying alternative column name 'id_blocco'...");
         
         // Use explicit field selection to avoid nested types
