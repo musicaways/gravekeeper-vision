@@ -93,10 +93,10 @@ async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchResult> 
   
   if (loculiData && loculiData.length > 0) {
     // Check if we need to convert from old database format
-    if ('id' in loculiData[0] && 'numero' in loculiData[0] && 'fila' in loculiData[0]) {
+    if (loculiData[0] && 'id' in loculiData[0] && 'numero' in loculiData[0] && 'fila' in loculiData[0]) {
       // Old format data - convert it
-      formattedData = (loculiData as unknown as LoculoDatabaseLowercase[]).map(
-        loculo => convertDatabaseToLoculo(loculo)
+      formattedData = loculiData.map(loculo => 
+        convertDatabaseToLoculo(loculo as unknown as LoculoDatabaseLowercase)
       );
     } else {
       // Already in the right format

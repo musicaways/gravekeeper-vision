@@ -71,16 +71,25 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
 /**
  * Filters unique loculi that don't already exist in the current results
  */
-export function filterUniqueLoculi(newLoculi: any[], currentLoculi: Loculo[]): Loculo[] {
+export function filterUniqueLoculi(newLoculi: any[], currentLoculi: Loculo[]): any[] {
   return newLoculi.filter(
     newLoculo => !currentLoculi.some(existingLoculo => {
-      const existingId = typeof existingLoculo.Id === 'number' ? 
-        existingLoculo.Id : 
-        parseInt(existingLoculo.Id.toString());
+      // Handle both uppercase and lowercase ID fields
+      const existingId = typeof existingLoculo.Id === 'number' 
+        ? existingLoculo.Id 
+        : typeof existingLoculo.Id === 'string'
+          ? parseInt(existingLoculo.Id)
+          : -1;
         
-      const newId = typeof newLoculo.Id === 'number' ? 
-        newLoculo.Id : 
-        parseInt(newLoculo.Id.toString());
+      const newId = typeof newLoculo.Id === 'number' 
+        ? newLoculo.Id 
+        : typeof newLoculo.Id === 'string'
+          ? parseInt(newLoculo.Id)
+          : typeof newLoculo.id === 'number'
+            ? newLoculo.id
+            : typeof newLoculo.id === 'string'
+              ? parseInt(newLoculo.id)
+              : -2;
         
       return existingId === newId;
     })

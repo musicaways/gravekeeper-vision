@@ -34,7 +34,8 @@ export async function searchDefuntiByName(
       .map(d => d.Loculo);
     
     // Only include loculi that aren't already in the main results
-    additionalLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi) as Loculo[];
+    const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
+    additionalLoculi = uniqueLoculi as Loculo[];
   } else {
     // Try lowercase table
     const { data: defuntiData, error: defuntiError } = 
@@ -50,13 +51,18 @@ export async function searchDefuntiByName(
       
       // Convert if needed (from old database format)
       if (loculiFromDefunti.length > 0 && 'id' in loculiFromDefunti[0]) {
-        loculiFromDefunti = loculiFromDefunti.map(loculo => 
-          convertDatabaseToLoculo(loculo as unknown as LoculoDatabaseLowercase)
-        );
+        // We need to convert each loculo from database format to proper format
+        const convertedLoculi = loculiFromDefunti.map(loculo => {
+          // Type cast to ensure we're working with the right structure
+          const dbLoculo = loculo as unknown as LoculoDatabaseLowercase;
+          return convertDatabaseToLoculo(dbLoculo);
+        });
+        loculiFromDefunti = convertedLoculi;
       }
       
       // Only include loculi that aren't already in the main results
-      additionalLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi) as Loculo[];
+      const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
+      additionalLoculi = uniqueLoculi as Loculo[];
     }
   }
   
