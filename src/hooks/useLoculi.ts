@@ -66,19 +66,32 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           console.log("Nessun loculo trovato per il blocco", numericBlockId);
           
           // Check if there's data in the tables at all
-          const loculiCheck = await supabase.from('loculi').select('*').limit(5);
+          // Use correct typing for Supabase queries to avoid deep recursion
+          const loculiCheck = await supabase
+            .from('loculi')
+            .select('*')
+            .limit(5);
           console.log("Sample loculi check:", loculiCheck);
           
-          const loculoCheck = await supabase.from('Loculo').select('*').limit(5);
+          const loculoCheck = await supabase
+            .from('Loculo')
+            .select('*')
+            .limit(5);
           console.log("Sample Loculo check:", loculoCheck);
           
           // Check database for any loculi with this blockId (try different field names)
           console.log("Checking for loculi with block ID using alternative field names...");
           
-          const alternativeCheck1 = await supabase.from('loculi').select('*').eq('idblocco', numericBlockId);
+          const alternativeCheck1 = await supabase
+            .from('loculi')
+            .select('id, Numero, Fila, IdBlocco')
+            .eq('idblocco', numericBlockId);
           console.log("Check with 'idblocco':", alternativeCheck1);
           
-          const alternativeCheck2 = await supabase.from('loculi').select('*').eq('id_blocco', numericBlockId);
+          const alternativeCheck2 = await supabase
+            .from('loculi')
+            .select('id, Numero, Fila, IdBlocco')
+            .eq('id_blocco', numericBlockId);
           console.log("Check with 'id_blocco':", alternativeCheck2);
         } else {
           console.log("Primo loculo trovato:", result.data[0]);
