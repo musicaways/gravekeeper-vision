@@ -66,7 +66,7 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           console.log("Nessun loculo trovato per il blocco", numericBlockId);
           
           // Check if there's data in the tables at all
-          // Use correct typing for Supabase queries to avoid deep recursion
+          // Use specific columns instead of * to avoid type issues
           const loculiCheck = await supabase
             .from('loculi')
             .select('id, Numero, Fila, IdBlocco')
@@ -82,17 +82,26 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           // Check database for any loculi with this blockId (try different field names)
           console.log("Checking for loculi with block ID using alternative field names...");
           
-          const alternativeCheck1 = await supabase
-            .from('loculi')
-            .select('id, Numero, Fila, IdBlocco')
-            .eq('idblocco', numericBlockId);
-          console.log("Check with 'idblocco':", alternativeCheck1);
+          // Use explicit selection instead of * to avoid type recursion
+          try {
+            const alternativeCheck1 = await supabase
+              .from('loculi')
+              .select('id, Numero, Fila')
+              .eq('idblocco', numericBlockId);
+            console.log("Check with 'idblocco':", alternativeCheck1);
+          } catch (err) {
+            console.error("Error checking 'idblocco':", err);
+          }
           
-          const alternativeCheck2 = await supabase
-            .from('loculi')
-            .select('id, Numero, Fila, IdBlocco')
-            .eq('id_blocco', numericBlockId);
-          console.log("Check with 'id_blocco':", alternativeCheck2);
+          try {
+            const alternativeCheck2 = await supabase
+              .from('loculi')
+              .select('id, Numero, Fila')
+              .eq('id_blocco', numericBlockId);
+            console.log("Check with 'id_blocco':", alternativeCheck2);
+          } catch (err) {
+            console.error("Error checking 'id_blocco':", err);
+          }
         } else {
           console.log("Primo loculo trovato:", result.data[0]);
         }
