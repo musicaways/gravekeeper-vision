@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getTableInfo } from "@/services/loculiService";
 
 /**
  * Funzione di debug per verificare lo stato delle tabelle loculi e defunti

@@ -1,206 +1,64 @@
-import { supabase } from "@/integrations/supabase/client";
+
 import { 
-  Loculo, 
-  LoculoDatabaseLowercase, 
-  convertDatabaseToLoculo 
-} from "@/components/block/loculi/types";
+  fetchLoculiFromUppercaseTable, 
+  searchDefuntiInUppercaseTable 
+} from './loculi/uppercaseTableService';
+
+import { 
+  fetchLoculiFromLowercaseTable, 
+  searchDefuntiInLowercaseTable 
+} from './loculi/lowercaseTableService';
+
+import { getTableInfo } from './loculi/tableInfoService';
+import { filterUniqueLoculi, fetchLoculiCombined } from './loculi/loculiUtils';
+import { Loculo, LoculoDatabaseLowercase, convertDatabaseToLoculo } from "@/components/block/loculi/types";
+import { LoculiDataFetchResult } from "@/models/LoculiTypes";
+
+// Re-export everything from the module files
+export { 
+  fetchLoculiFromUppercaseTable, 
+  searchDefuntiInUppercaseTable,
+  fetchLoculiFromLowercaseTable,
+  searchDefuntiInLowercaseTable,
+  getTableInfo,
+  filterUniqueLoculi
+};
 
 /**
- * Fetches loculi data from the Loculo (uppercase) table
+ * Helper function to fetch loculi data from both tables
  */
-export async function fetchLoculiFromUppercaseTable(blockId: number) {
-  console.log(`Tentativo di recupero loculi dalla tabella 'Loculo' con blockId: ${blockId}`);
-  
-  const { data, error } = await supabase
-    .from('Loculo')
-    .select(`
-      Id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba,
-      Defunti:Defunto(Id, Nominativo, DataNascita, DataDecesso, Sesso)
-    `)
-    .eq('IdBlocco', blockId);
-    
-  if (error) {
-    console.error("Errore nel recupero dalla tabella 'Loculo':", error);
-  } else {
-    console.log(`Trovati ${data?.length || 0} loculi nella tabella 'Loculo' per blockId ${blockId}`);
-    if (data && data.length > 0) {
-      console.log("Esempio di loculo trovato (Loculo):", data[0]);
-    }
-  }
-  
-  return { data, error };
-}
-
-/**
- * Fetches loculi data from the loculi (lowercase) table
- */
-export async function fetchLoculiFromLowercaseTable(blockId: number) {
-  console.log(`Tentativo di recupero loculi dalla tabella 'loculi' con blockId: ${blockId}`);
-  
-  // Try both field naming conventions
-  const { data, error } = await supabase
-    .from('loculi')
-    .select(`
-      id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba, FilaDaAlto, 
-      NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias,
-      defunti(id, nominativo, data_nascita, data_decesso, sesso, annotazioni)
-    `)
-    .eq('IdBlocco', blockId);
-  
-  if (error) {
-    console.error("Errore nel recupero dalla tabella 'loculi':", error);
-    // Try alternative column name if the first attempt failed
-    if (error.message.includes("does not exist")) {
-      console.log("Trying alternative column name 'id_blocco'...");
-      const altResponse = await supabase
-        .from('loculi')
-        .select(`
-          id, Numero, Fila, Annotazioni, id_blocco, TipoTomba, FilaDaAlto, 
-          NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias,
-          defunti(id, nominativo, data_nascita, data_decesso, sesso, annotazioni)
-        `)
-        .eq('id_blocco', blockId);
-      
-      return altResponse;
-    }
-  } else {
-    console.log(`Trovati ${data?.length || 0} loculi nella tabella 'loculi' per blockId ${blockId}`);
-    if (data && data.length > 0) {
-      console.log("Esempio di loculo trovato (loculi):", data[0]);
-    }
-  }
-    
-  return { data, error };
-}
-
-/**
- * Searches for defunti by name in the Defunto (uppercase) table
- */
-export async function searchDefuntiInUppercaseTable(blockId: number, searchTerm: string) {
-  const { data, error } = await supabase
-    .from('Defunto')
-    .select(`
-      Id, Nominativo, DataNascita, DataDecesso, Sesso,
-      Loculo!inner(Id, Numero, Fila, IdBlocco)
-    `)
-    .eq('Loculo.IdBlocco', blockId)
-    .ilike('Nominativo', `%${searchTerm}%`);
-    
-  return { data, error };
-}
-
-/**
- * Searches for defunti by name in the defunti (lowercase) table
- */
-export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm: string) {
-  const { data, error } = await supabase
-    .from('defunti')
-    .select(`
-      id, nominativo, data_nascita, data_decesso, sesso, annotazioni,
-      loculi!inner(id, Numero, Fila, IdBlocco)
-    `)
-    .eq('loculi.IdBlocco', blockId)
-    .ilike('nominativo', `%${searchTerm}%`);
-    
-  // If there's a column name error, try with alternative column name
-  if (error && error.message.includes("does not exist")) {
-    console.log("Trying alternative column name for search...");
-    const altResponse = await supabase
-      .from('defunti')
-      .select(`
-        id, nominativo, data_nascita, data_decesso, sesso, annotazioni,
-        loculi!inner(id, Numero, Fila, id_blocco)
-      `)
-      .eq('loculi.id_blocco', blockId)
-      .ilike('nominativo', `%${searchTerm}%`);
-      
-    return altResponse;
-  }
-    
-  return { data, error };
-}
-
-/**
- * Filters unique loculi that don't already exist in the current results
- */
-export function filterUniqueLoculi(newLoculi: any[], currentLoculi: Loculo[]): any[] {
-  return newLoculi.filter(
-    newLoculo => !currentLoculi.some(existingLoculo => {
-      // Handle both uppercase and lowercase ID fields
-      const existingId = typeof existingLoculo.Id === 'number' 
-        ? existingLoculo.Id 
-        : typeof existingLoculo.Id === 'string'
-          ? parseInt(existingLoculo.Id)
-          : -1;
-        
-      const newId = typeof newLoculo.Id === 'number' 
-        ? newLoculo.Id 
-        : typeof newLoculo.Id === 'string'
-          ? parseInt(newLoculo.Id)
-          : typeof newLoculo.id === 'number'
-            ? newLoculo.id
-            : typeof newLoculo.id === 'string'
-              ? parseInt(newLoculo.id)
-              : -2;
-        
-      return existingId === newId;
-    })
+export async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchResult> {
+  const { data: loculiData, error } = await fetchLoculiCombined(
+    fetchLoculiFromUppercaseTable,
+    fetchLoculiFromLowercaseTable,
+    blockId
   );
-}
-
-/**
- * Funzione di debug per ottenere informazioni sulle tabelle
- */
-export async function getTableInfo(tableName: string) {
-  console.log(`Verificando struttura della tabella ${tableName}`);
   
-  try {
-    // Per utilizzare un nome di tabella dinamico, dobbiamo verificare prima
-    const validTableNames = ['loculi', 'Loculo', 'defunti', 'Defunto'];
-    
-    if (!validTableNames.includes(tableName)) {
-      console.error(`Nome tabella non supportato: ${tableName}`);
-      return { columns: [], error: `Nome tabella non supportato: ${tableName}` };
-    }
-    
-    // Esegui una query per ottenere un singolo record
-    let data, error;
-    
-    if (tableName === 'loculi') {
-      const result = await supabase.from('loculi').select('id, Numero, Fila, IdBlocco, id_blocco').limit(1);
-      data = result.data;
-      error = result.error;
-    } else if (tableName === 'Loculo') {
-      const result = await supabase.from('Loculo').select('Id, Numero, Fila, IdBlocco').limit(1);
-      data = result.data;
-      error = result.error;
-    } else if (tableName === 'defunti') {
-      const result = await supabase.from('defunti').select('id, nominativo, data_nascita, data_decesso, sesso').limit(1);
-      data = result.data;
-      error = result.error;
-    } else if (tableName === 'Defunto') {
-      const result = await supabase.from('Defunto').select('Id, Nominativo, DataNascita, DataDecesso, Sesso').limit(1);
-      data = result.data;
-      error = result.error;
-    }
-    
-    if (error) {
-      console.error(`Errore nella lettura della tabella ${tableName}:`, error);
-      return { columns: [], error: error.message };
-    }
-    
-    if (!data || data.length === 0) {
-      console.log(`Nessun dato trovato nella tabella ${tableName}`);
-      return { columns: [], error: null };
-    }
-    
-    // Ottieni le colonne dal primo record
-    const columns = Object.keys(data[0]);
-    console.log(`Colonne nella tabella ${tableName}:`, columns);
-    
-    return { columns, error: null };
-  } catch (err: any) {
-    console.error(`Eccezione nel verificare la tabella ${tableName}:`, err);
-    return { columns: [], error: err.message };
+  if (error) {
+    return { data: [], error };
   }
+  
+  // Convert the data to the proper format if needed
+  let formattedData: Loculo[] = [];
+  
+  if (loculiData && loculiData.length > 0) {
+    console.log("Tipo del primo elemento:", typeof loculiData[0], Object.keys(loculiData[0]));
+    
+    // Check if we need to convert from old database format
+    if (loculiData[0] && ('id' in loculiData[0])) {
+      // Old format data - convert it
+      console.log("Converto i dati dal formato vecchio al formato nuovo");
+      formattedData = loculiData.map(loculo => 
+        convertDatabaseToLoculo(loculo as unknown as LoculoDatabaseLowercase)
+      );
+    } else {
+      // Already in the right format
+      console.log("I dati sono già nel formato corretto");
+      formattedData = loculiData as unknown as Loculo[];
+    }
+    
+    console.log("Dati formattati:", formattedData);
+  }
+  
+  return { data: formattedData, error: null };
 }

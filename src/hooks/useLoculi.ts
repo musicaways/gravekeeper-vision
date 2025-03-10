@@ -10,7 +10,8 @@ import { UseLoculiProps, UseLoculiResult, LoculiDataFetchResult } from "@/models
 import { 
   fetchLoculiFromUppercaseTable, 
   fetchLoculiFromLowercaseTable,
-  getTableInfo 
+  getTableInfo,
+  fetchLoculiData
 } from "@/services/loculiService";
 import { searchDefuntiByName } from "@/utils/defuntiSearchUtils";
 import { supabase } from "@/integrations/supabase/client";
