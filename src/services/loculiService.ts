@@ -51,23 +51,24 @@ export async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchR
   
   console.log("Loculi fetched from 'loculi' table:", loculiData);
   
-  // Convert the data to the proper format if needed
+  // Converti i dati al formato corretto se necessario
   let formattedData: Loculo[] = [];
   
   if (loculiData && loculiData.length > 0) {
-    console.log("Tipo del primo elemento:", typeof loculiData[0], Object.keys(loculiData[0]));
-    
-    // Check if we need to convert from old database format
-    if (loculiData[0] && ('id' in loculiData[0])) {
-      // Old format data - convert it
-      console.log("Converto i dati dal formato vecchio al formato nuovo");
-      formattedData = loculiData.map(loculo => 
-        convertDatabaseToLoculo(loculo as unknown as LoculoDatabaseLowercase)
-      );
-    } else {
-      // Already in the right format
-      console.log("I dati sono già nel formato corretto");
-      formattedData = loculiData as unknown as Loculo[];
+    // Semplificazione della logica di conversione per evitare problemi di tipo
+    try {
+      if (loculiData[0] && 'id' in loculiData[0]) {
+        console.log("Converto i dati dal formato vecchio al formato nuovo");
+        formattedData = loculiData.map(loculo => {
+          return convertDatabaseToLoculo(loculo as any);
+        });
+      } else {
+        console.log("I dati sono già nel formato corretto");
+        formattedData = loculiData as any;
+      }
+    } catch (err) {
+      console.error("Errore nella conversione dei dati:", err);
+      formattedData = loculiData as any;
     }
     
     console.log("Dati formattati:", formattedData);

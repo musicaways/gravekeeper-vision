@@ -66,42 +66,36 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         if (result.data.length === 0) {
           console.log("Nessun loculo trovato per il blocco", numericBlockId);
           
-          // Check if there's data in the tables at all
-          // Use specific columns instead of * to avoid type issues
-          const loculiCheck = await supabase
-            .from('loculi')
-            .select('id, Numero, Fila, IdBlocco')
-            .limit(5);
-          console.log("Sample loculi check:", loculiCheck);
-          
-          const loculoCheck = await supabase
-            .from('Loculo')
-            .select('Id, Numero, Fila, IdBlocco')
-            .limit(5);
-          console.log("Sample Loculo check:", loculoCheck);
-          
-          // Check database for any loculi with this blockId (try different field names)
-          console.log("Checking for loculi with block ID using alternative field names...");
-          
-          // Use explicit selection instead of * to avoid type recursion
+          // Verifica semplificata della presenza di dati nelle tabelle
           try {
+            const loculiCheck = await supabase
+              .from('loculi')
+              .select('id, Numero, Fila')
+              .limit(5);
+            console.log("Sample loculi check:", loculiCheck);
+            
+            const loculoCheck = await supabase
+              .from('Loculo')
+              .select('Id, Numero, Fila')
+              .limit(5);
+            console.log("Sample Loculo check:", loculoCheck);
+            
+            // Prova anche con nomi di colonna alternativi
+            console.log("Checking for loculi with block ID using alternative field names...");
+            
             const alternativeCheck1 = await supabase
               .from('loculi')
               .select('id, Numero, Fila')
               .eq('idblocco', numericBlockId);
             console.log("Check with 'idblocco':", alternativeCheck1);
-          } catch (err) {
-            console.error("Error checking 'idblocco':", err);
-          }
-          
-          try {
+            
             const alternativeCheck2 = await supabase
               .from('loculi')
               .select('id, Numero, Fila')
               .eq('id_blocco', numericBlockId);
             console.log("Check with 'id_blocco':", alternativeCheck2);
           } catch (err) {
-            console.error("Error checking 'id_blocco':", err);
+            console.error("Error in check queries:", err);
           }
         } else {
           console.log("Primo loculo trovato:", result.data[0]);
@@ -129,5 +123,3 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
 
   return { loculi, loading, error };
 }
-
-// Removed duplicate fetchLoculiData function
