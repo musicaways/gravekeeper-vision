@@ -31,9 +31,9 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {loculi.map((loculo, index) => {
-        const numero = isLoculoUppercase(loculo) ? loculo.Numero : loculo.numero;
-        const fila = isLoculoUppercase(loculo) ? loculo.Fila : loculo.fila;
-        const id = isLoculoUppercase(loculo) ? loculo.Id : loculo.id;
+        const numero = loculo.Numero;
+        const fila = loculo.Fila;
+        const id = loculo.Id;
         const defunti = getDefunti(loculo);
         const defuntiCount = getDefuntiCount(loculo);
         

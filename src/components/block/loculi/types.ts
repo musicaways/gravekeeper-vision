@@ -1,16 +1,22 @@
 
 // Type definitions for loculi data structures
 
-// Lowercase schema interfaces (from the 'loculi' table)
+// Lowercase schema interfaces (from the 'loculi' table with new column names)
 export interface LoculoLowercase {
-  id: string;
-  numero: number;
-  fila: number;
-  annotazioni?: string;
-  id_blocco: number;
-  tipo_tomba?: number;
+  Id: number;
+  Numero: number;
+  Fila: number;
+  Annotazioni?: string;
+  IdBlocco: number;
+  TipoTomba?: number;
   created_at?: string;
   updated_at?: string;
+  Alias?: string;
+  FilaDaAlto?: number;
+  NumeroPostiResti?: number;
+  NumeroPosti?: number;
+  Superficie?: number;
+  Concesso?: boolean;
   defunti?: DefuntoLowercase[];
 }
 
@@ -48,19 +54,14 @@ export type Defunto = DefuntoLowercase | DefuntoUppercase;
 
 // Type guard functions to check which type we're dealing with
 export function isLoculoLowercase(loculo: any): loculo is LoculoLowercase {
-  return loculo && ('id' in loculo || 'numero' in loculo || 'fila' in loculo);
+  return loculo && ('defunti' in loculo || loculo.defunti !== undefined);
 }
 
 export function isLoculoUppercase(loculo: any): loculo is LoculoUppercase {
-  return loculo && ('Id' in loculo || 'Numero' in loculo || 'Fila' in loculo);
+  return loculo && ('Defunti' in loculo || loculo.Defunti !== undefined);
 }
 
 // Helper function to safely get the ID regardless of case
-export function getLoculoId(loculo: Loculo): string | number | undefined {
-  if (isLoculoLowercase(loculo)) {
-    return loculo.id;
-  } else if (isLoculoUppercase(loculo)) {
-    return loculo.Id;
-  }
-  return undefined;
+export function getLoculoId(loculo: Loculo): number | undefined {
+  return loculo.Id;
 }

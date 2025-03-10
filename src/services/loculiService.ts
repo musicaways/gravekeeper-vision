@@ -27,7 +27,7 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
       *,
       defunti(*)
     `)
-    .eq('id_blocco', blockId);
+    .eq('IdBlocco', blockId);
     
   return { data, error };
 }
@@ -58,7 +58,7 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
       *,
       loculi!inner(*)
     `)
-    .eq('loculi.id_blocco', blockId)
+    .eq('loculi.IdBlocco', blockId)
     .ilike('nominativo', `%${searchTerm}%`);
     
   return { data, error };
@@ -70,21 +70,7 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
 export function filterUniqueLoculi(newLoculi: any[], currentLoculi: Loculo[]): Loculo[] {
   return newLoculi.filter(
     newLoculo => !currentLoculi.some(existingLoculo => {
-      // Get ID from existing loculo based on its type
-      const existingId = existingLoculo && 'id' in existingLoculo 
-        ? existingLoculo.id 
-        : existingLoculo && 'Id' in existingLoculo 
-          ? existingLoculo.Id 
-          : undefined;
-      
-      // Get ID from new loculo based on its type
-      const newId = newLoculo && 'id' in newLoculo 
-        ? newLoculo.id 
-        : newLoculo && 'Id' in newLoculo 
-          ? newLoculo.Id 
-          : undefined;
-      
-      return existingId === newId;
+      return existingLoculo.Id === newLoculo.Id;
     })
   );
 }

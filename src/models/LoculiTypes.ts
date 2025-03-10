@@ -1,5 +1,5 @@
 
-import { Loculo, LoculoLowercase, LoculoUppercase } from "@/components/block/loculi/types";
+import { Loculo } from "@/components/block/loculi/types";
 
 export interface UseLoculiProps {
   blockId: string;
