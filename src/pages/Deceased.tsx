@@ -10,6 +10,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpAZ, ArrowDownAZ, Calendar, MapPin, CalendarClock } from "lucide-react";
 
@@ -20,6 +24,7 @@ const Deceased = () => {
   const searchTerm = searchParams.get('search') || "";
   const [sortBy, setSortBy] = useState("name-asc"); // Default sort
   const [filterBy, setFilterBy] = useState("all"); // Default filter
+  const [selectedCemetery, setSelectedCemetery] = useState<string | null>(null);
 
   // Listen for search term changes in the URL
   useEffect(() => {
@@ -32,7 +37,16 @@ const Deceased = () => {
   };
 
   const handleFilter = (filterType: string) => {
+    // Reset cemetery selection when changing to a different filter type
+    if (filterType !== 'by-cemetery') {
+      setSelectedCemetery(null);
+    }
     setFilterBy(filterType);
+  };
+
+  const handleCemeterySelect = (cemeteryName: string) => {
+    setSelectedCemetery(cemeteryName);
+    setFilterBy('by-cemetery');
   };
 
   // Helper function to get the active sort option label
@@ -57,6 +71,10 @@ const Deceased = () => {
 
   // Helper function to get the active filter option label
   const getFilterLabel = () => {
+    if (filterBy === 'by-cemetery' && selectedCemetery) {
+      return `Cimitero: ${selectedCemetery}`;
+    }
+
     switch (filterBy) {
       case 'all':
         return 'Tutti';
@@ -64,10 +82,8 @@ const Deceased = () => {
         return 'Recenti (30 giorni)';
       case 'this-year':
         return 'Quest\'anno';
-      case 'has-cemetery':
-        return 'Con cimitero';
-      case 'without-cemetery':
-        return 'Senza cimitero';
+      case 'by-cemetery':
+        return 'Seleziona cimitero';
       default:
         return 'Filtra';
     }
@@ -175,27 +191,112 @@ const Deceased = () => {
               
               <DropdownMenuSeparator />
               
-              <DropdownMenuItem 
-                className={`text-xs ${filterBy === 'has-cemetery' ? 'bg-muted text-primary' : ''}`}
-                onClick={() => handleFilter('has-cemetery')}
-              >
-                Con cimitero
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className={`text-xs ${filterBy === 'without-cemetery' ? 'bg-muted text-primary' : ''}`}
-                onClick={() => handleFilter('without-cemetery')}
-              >
-                Senza cimitero
-              </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger 
+                  className={`text-xs ${filterBy === 'by-cemetery' ? 'bg-muted text-primary' : ''}`}
+                >
+                  <MapPin className="h-3.5 w-3.5 mr-2" />
+                  Filtra per cimitero
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="bg-background border-muted-foreground/20 text-xs">
+                    <DeceasedCemeteryOptions onCemeterySelect={handleCemeterySelect} selectedCemetery={selectedCemetery} />
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
       
       <div className="w-full max-w-none px-1 pb-8">
-        <DeceasedList searchTerm={searchTerm} sortBy={sortBy} filterBy={filterBy} />
+        <DeceasedList 
+          searchTerm={searchTerm} 
+          sortBy={sortBy} 
+          filterBy={filterBy} 
+          selectedCemetery={selectedCemetery} 
+        />
       </div>
     </div>
+  );
+};
+
+// This component loads and displays available cemeteries for filtering
+const DeceasedCemeteryOptions = ({ 
+  onCemeterySelect, 
+  selectedCemetery 
+}: { 
+  onCemeterySelect: (name: string) => void,
+  selectedCemetery: string | null 
+}) => {
+  const [cemeteries, setCemeteries] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Extract unique cemetery names from the deceased list
+    const fetchCemeteries = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('defunti')
+          .select(`
+            loculi (
+              Blocco (
+                Settore (
+                  Cimitero (
+                    Nome
+                  )
+                )
+              )
+            )
+          `);
+
+        if (error) {
+          console.error("Error fetching cemeteries:", error);
+          return;
+        }
+
+        // Extract and deduplicate cemetery names
+        const cemeterySet = new Set<string>();
+        
+        data?.forEach(item => {
+          const cemeteryName = item.loculi?.Blocco?.Settore?.Cimitero?.Nome;
+          if (cemeteryName) {
+            cemeterySet.add(cemeteryName);
+          }
+        });
+
+        const uniqueCemeteries = Array.from(cemeterySet).sort();
+        setCemeteries(uniqueCemeteries);
+      } catch (error) {
+        console.error("Error processing cemeteries:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCemeteries();
+  }, []);
+
+  if (loading) {
+    return <DropdownMenuItem disabled>Caricamento cimiteri...</DropdownMenuItem>;
+  }
+
+  if (cemeteries.length === 0) {
+    return <DropdownMenuItem disabled>Nessun cimitero disponibile</DropdownMenuItem>;
+  }
+
+  return (
+    <>
+      {cemeteries.map((cemetery) => (
+        <DropdownMenuItem
+          key={cemetery}
+          className={selectedCemetery === cemetery ? 'bg-muted text-primary' : ''}
+          onClick={() => onCemeterySelect(cemetery)}
+        >
+          {cemetery}
+        </DropdownMenuItem>
+      ))}
+    </>
   );
 };
 

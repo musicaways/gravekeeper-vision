@@ -38,9 +38,15 @@ interface DeceasedListProps {
   searchTerm: string;
   sortBy: string;
   filterBy: string;
+  selectedCemetery?: string | null;
 }
 
-const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy, filterBy }) => {
+const DeceasedList: React.FC<DeceasedListProps> = ({ 
+  searchTerm, 
+  sortBy, 
+  filterBy,
+  selectedCemetery = null
+}) => {
   const [loading, setLoading] = useState(true);
   const [deceased, setDeceased] = useState<DeceasedRecord[]>([]);
   const [filteredDeceased, setFilteredDeceased] = useState<DeceasedRecord[]>([]);
@@ -81,13 +87,13 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy, filterB
           return deathDate.getFullYear() === currentYear;
         });
         break;
-      case 'has-cemetery':
-        // Filter for records with cemetery information
-        resultSet = resultSet.filter(d => Boolean(d.cimitero_nome));
-        break;
-      case 'without-cemetery':
-        // Filter for records without cemetery information
-        resultSet = resultSet.filter(d => !d.cimitero_nome);
+      case 'by-cemetery':
+        // Filter for records by specific cemetery
+        if (selectedCemetery) {
+          resultSet = resultSet.filter(d => 
+            d.cimitero_nome === selectedCemetery
+          );
+        }
         break;
       case 'all':
       default:
@@ -141,7 +147,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({ searchTerm, sortBy, filterB
     }
     
     setFilteredDeceased(sortedData);
-  }, [sortBy, filterBy, deceased, searchTerm]);
+  }, [sortBy, filterBy, deceased, searchTerm, selectedCemetery]);
 
   const fetchDeceased = async () => {
     setLoading(true);
