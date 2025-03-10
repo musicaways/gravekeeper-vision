@@ -1,36 +1,37 @@
 
+import { Tabs } from "@/components/ui/tabs";
+import { BlockInfoTabContent } from "./content/BlockInfoTabContent";
+import { BlockLoculiTabContent } from "./content/BlockLoculiTabContent";
+import { BlockDocumentiTabContent } from "./content/BlockDocumentiTabContent";
+import { LoculiMigrationTab } from "../loculi/LoculiMigrationTab";
 import React from "react";
-import { TabsContent } from "@/components/ui/tabs";
-import BlockInfoTabContent from "./content/BlockInfoTabContent";
-import BlockLoculiTabContent from "./content/BlockLoculiTabContent";
-import BlockDocumentiTabContent from "./content/BlockDocumentiTabContent";
 
-interface BlockTabContentProps {
-  block: any;
-  blockId: string;
-  searchTerm?: string;
+export interface BlockTabContentProps {
+  blockId: number;
 }
 
-const BlockTabContent: React.FC<BlockTabContentProps> = ({ 
-  block, 
-  blockId, 
-  searchTerm = "" 
-}) => {
+export function BlockTabContent({ blockId }: BlockTabContentProps) {
   return (
-    <>
-      <TabsContent value="info" className="space-y-6 w-full">
-        <BlockInfoTabContent block={block} />
-      </TabsContent>
-
-      <TabsContent value="loculi" className="space-y-6 w-full">
-        <BlockLoculiTabContent blockId={blockId} searchTerm={searchTerm} />
-      </TabsContent>
+    <div className="w-full">
+      <Tabs.Content value="info" className="w-full">
+        <BlockInfoTabContent blockId={blockId} />
+      </Tabs.Content>
       
-      <TabsContent value="documenti" className="space-y-6 w-full">
+      <Tabs.Content value="loculi" className="w-full">
+        <BlockLoculiTabContent blockId={blockId} />
+      </Tabs.Content>
+      
+      <Tabs.Content value="map" className="w-full">
+        {/* Map tab content */}
+      </Tabs.Content>
+      
+      <Tabs.Content value="documents" className="w-full">
         <BlockDocumentiTabContent blockId={blockId} />
-      </TabsContent>
-    </>
+      </Tabs.Content>
+      
+      <Tabs.Content value="migration" className="w-full">
+        <LoculiMigrationTab blockId={blockId} />
+      </Tabs.Content>
+    </div>
   );
-};
-
-export default BlockTabContent;
+}
