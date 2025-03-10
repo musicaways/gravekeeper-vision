@@ -12,7 +12,7 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     // Controlla la tabella loculi_import
     const importResponse = await supabase
       .from('loculi_import')
-      .select('id, Numero, Fila, IdBlocco')
+      .select('id, Numero, Fila, IdBlocco, id_blocco')
       .limit(50);
       
     if (importResponse.error) {
@@ -25,7 +25,7 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     // Controlla la tabella loculi
     const loculiResponse = await supabase
       .from('loculi')
-      .select('id, Numero, Fila, IdBlocco')
+      .select('id, Numero, Fila, IdBlocco, id_blocco')
       .limit(50);
       
     if (loculiResponse.error) {
@@ -33,15 +33,31 @@ export async function checkLoculiMigrationStatus(blockId?: number) {
     } else {
       const loculiCount = loculiResponse.data?.length || 0;
       console.log(`Tabella loculi: ${loculiCount} record`);
+      
+      // Try to determine which columns are actually available
+      if (loculiCount > 0) {
+        const firstRecord = loculiResponse.data[0];
+        console.log("Available columns in loculi:", Object.keys(firstRecord));
+      }
     }
     
     // Se è stato specificato un blockId, controlla i loculi per quel blocco
     let blockCount = 0;
     if (blockId) {
-      const blockResponse = await supabase
+      // Try with IdBlocco first
+      let blockResponse = await supabase
         .from('loculi')
         .select('id, Numero, Fila, IdBlocco, TipoTomba')
         .eq('IdBlocco', blockId);
+        
+      // If error, try with id_blocco instead
+      if (blockResponse.error && blockResponse.error.message.includes("does not exist")) {
+        console.log("Trying with 'id_blocco' column instead of 'IdBlocco'");
+        blockResponse = await supabase
+          .from('loculi')
+          .select('id, Numero, Fila, id_blocco, TipoTomba')
+          .eq('id_blocco', blockId);
+      }
         
       if (blockResponse.error) {
         console.error(`Errore nel controllo dei loculi per il blocco ${blockId}:`, blockResponse.error);
@@ -133,7 +149,7 @@ export async function getTableMetadata(tableName: string) {
     let result;
     
     if (tableName === 'loculi') {
-      result = await supabase.from('loculi').select('id, Numero, Fila, IdBlocco').limit(1);
+      result = await supabase.from('loculi').select('id, Numero, Fila, IdBlocco, id_blocco').limit(1);
     } else if (tableName === 'Loculo') {
       result = await supabase.from('Loculo').select('Id, Numero, Fila, IdBlocco').limit(1);
     } else if (tableName === 'defunti') {

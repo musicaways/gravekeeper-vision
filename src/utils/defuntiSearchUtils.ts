@@ -38,6 +38,7 @@ export async function searchDefuntiByName(
     const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
     additionalLoculi = uniqueLoculi as Loculo[];
   } else {
+    console.log("No results from 'Defunto' table or error occurred, trying lowercase table");
     // Try lowercase table
     const { data: defuntiData, error: defuntiError } = 
       await searchDefuntiInLowercaseTable(blockId, searchTerm);
@@ -50,8 +51,11 @@ export async function searchDefuntiByName(
         .filter(d => d.loculi) // Ensure loculi is defined
         .map(d => d.loculi);
       
+      console.log("Extracted loculi from defunti:", loculiFromDefunti);
+      
       // Convert if needed (from old database format)
       if (loculiFromDefunti.length > 0 && loculiFromDefunti[0] && 'id' in loculiFromDefunti[0]) {
+        console.log("Converting loculi from database format");
         // We need to convert each loculo from database format to proper format
         const convertedLoculi = loculiFromDefunti.map(loculo => {
           // Type cast to ensure we're working with the right structure
@@ -65,6 +69,8 @@ export async function searchDefuntiByName(
       // Only include loculi that aren't already in the main results
       const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
       additionalLoculi = uniqueLoculi as Loculo[];
+    } else {
+      console.log("No results from 'defunti' table or error occurred:", defuntiError);
     }
   }
   
