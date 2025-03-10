@@ -58,7 +58,8 @@ export async function searchDefuntiByName(
           const dbLoculo = loculo as unknown as LoculoDatabaseLowercase;
           return convertDatabaseToLoculo(dbLoculo);
         });
-        loculiFromDefunti = convertedLoculi as unknown as LoculoLowercase[];
+        // Use type assertion to specify that these are now valid Loculo objects
+        loculiFromDefunti = convertedLoculi as any;
       }
       
       // Only include loculi that aren't already in the main results

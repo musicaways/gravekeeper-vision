@@ -32,7 +32,7 @@ export interface DefuntoDatabaseLowercase {
 // Lowercase schema interfaces (using new column names with capital letters)
 export interface LoculoLowercase {
   Id: number;
-  id?: string; // Add id field to fix type compatibility
+  id?: string; // Optional id field to fix type compatibility
   Numero: number;
   Fila: number;
   Annotazioni?: string;
@@ -100,6 +100,11 @@ export function getLoculoId(loculo: Loculo | LoculoDatabaseLowercase): number | 
   if (isLoculoDatabaseLowercase(loculo)) {
     return loculo.id;
   }
+  // Only access Id for LoculoUppercase, or Id/id for LoculoLowercase
+  if (isLoculoUppercase(loculo)) {
+    return loculo.Id;
+  }
+  // For LoculoLowercase, try both Id and id
   return loculo.Id || loculo.id;
 }
 
