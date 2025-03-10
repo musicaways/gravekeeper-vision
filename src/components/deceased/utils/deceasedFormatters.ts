@@ -1,5 +1,5 @@
 
-import { format, parseISO } from "date-fns";
+import { format, parseISO, differenceInYears } from "date-fns";
 import { it } from "date-fns/locale";
 
 /**
@@ -11,6 +11,29 @@ export const formatDate = (dateString: string | null): string => {
     return format(parseISO(dateString), "d MMM yyyy", { locale: it });
   } catch (error) {
     return "Data non valida";
+  }
+};
+
+/**
+ * Calculate age from birth date and death date
+ */
+export const calculateAge = (birthDateString: string | null, deathDateString: string | null): number | null => {
+  if (!birthDateString || !deathDateString) return null;
+  
+  try {
+    const birthDate = parseISO(birthDateString);
+    const deathDate = parseISO(deathDateString);
+    
+    // Verifica che le date siano valide
+    if (isNaN(birthDate.getTime()) || isNaN(deathDate.getTime())) {
+      return null;
+    }
+    
+    // Calcola la differenza in anni
+    return differenceInYears(deathDate, birthDate);
+  } catch (error) {
+    console.error("Errore nel calcolo dell'età:", error);
+    return null;
   }
 };
 

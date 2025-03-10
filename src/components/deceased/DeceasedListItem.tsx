@@ -3,7 +3,7 @@ import React from "react";
 import { UserRound, User, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DeceasedRecord } from "./types/deceased";
-import { formatDate, isFemale, getLoculoLink } from "./utils/deceasedFormatters";
+import { formatDate, isFemale, getLoculoLink, calculateAge } from "./utils/deceasedFormatters";
 import CemeteryInfo from "./components/CemeteryInfo";
 import LocationInfo from "./components/LocationInfo";
 import LoculoInfo from "./components/LoculoInfo";
@@ -20,6 +20,9 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const loculoLink = getLoculoLink(deceased);
   const cimiteroId = deceased.loculi?.Blocco?.Settore?.Cimitero?.Id;
   const bloccoId = deceased.loculi?.Blocco?.Id;
+  
+  // Calcoliamo l'età in base ai dati disponibili
+  const età = deceased.eta !== null ? deceased.eta : calculateAge(deceased.data_nascita || null, deceased.data_decesso || null);
 
   return (
     <div className="border rounded-md hover:bg-accent/5 transition-colors h-full flex flex-col">
@@ -43,7 +46,10 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
           {deceased.data_decesso && (
             <div className="flex items-center space-x-1 pl-13 ml-13 text-sm text-foreground/90">
               <Calendar className="h-3.5 w-3.5 mr-1" />
-              <span>Dec. {formatDate(deceased.data_decesso)}</span>
+              <span>
+                Dec. {formatDate(deceased.data_decesso)}
+                {età !== null && ` · ${età} anni`}
+              </span>
             </div>
           )}
         </div>

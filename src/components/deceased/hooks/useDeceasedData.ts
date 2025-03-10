@@ -130,6 +130,8 @@ export const useDeceasedData = ({
           id,
           nominativo,
           data_decesso,
+          data_nascita,
+          eta,
           loculi (
             id,
             numero,
@@ -160,6 +162,8 @@ export const useDeceasedData = ({
           id: item.id,
           nominativo: item.nominativo,
           data_decesso: item.data_decesso,
+          data_nascita: item.data_nascita,
+          eta: item.eta,
           cimitero_nome: item.loculi?.Blocco?.Settore?.Cimitero?.Nome || null,
           settore_nome: item.loculi?.Blocco?.Settore?.Nome || null,
           blocco_nome: item.loculi?.Blocco?.Nome || null,
