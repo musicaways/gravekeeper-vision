@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { migrateLoculiData, migrateDefuntiReferences, IdMapping } from "@/utils/loculiMigrationUtils";
+import { checkLoculiMigrationStatus, getTableMetadata } from "@/utils/loculiDebugUtils";
 import { toast } from "sonner";
-import { AlertCircle, ArrowRightLeft, Check, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowRightLeft, Check, Loader2, Bug } from "lucide-react";
 
 interface LoculiMigrationProps {
   blockId?: number;
@@ -14,6 +15,7 @@ export function LoculiMigration({ blockId }: LoculiMigrationProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [migrationComplete, setMigrationComplete] = useState(false);
   const [idMappings, setIdMappings] = useState<IdMapping[]>([]);
+  const [debugLoading, setDebugLoading] = useState(false);
 
   const handleMigration = async () => {
     if (isLoading) return;
@@ -39,6 +41,28 @@ export function LoculiMigration({ blockId }: LoculiMigrationProps) {
       toast.error("Si è verificato un errore durante la migrazione");
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleDebug = async () => {
+    if (debugLoading) return;
+    
+    setDebugLoading(true);
+    
+    try {
+      // Verifica lo stato della migrazione
+      await checkLoculiMigrationStatus(blockId);
+      
+      // Verifica i metadati delle tabelle
+      await getTableMetadata('loculi');
+      await getTableMetadata('defunti');
+      
+      toast.success("Diagnostica completata. Controlla la console per i dettagli.");
+    } catch (error) {
+      console.error("Errore durante la diagnostica:", error);
+      toast.error("Errore durante la diagnostica");
+    } finally {
+      setDebugLoading(false);
     }
   };
 
@@ -79,7 +103,7 @@ export function LoculiMigration({ blockId }: LoculiMigrationProps) {
         </div>
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2">
         <Button 
           onClick={handleMigration} 
           disabled={isLoading || migrationComplete}
@@ -99,6 +123,25 @@ export function LoculiMigration({ blockId }: LoculiMigrationProps) {
             <>
               <ArrowRightLeft className="mr-2 h-4 w-4" />
               Avvia migrazione
+            </>
+          )}
+        </Button>
+        
+        <Button 
+          onClick={handleDebug} 
+          disabled={debugLoading}
+          variant="outline"
+          className="w-full"
+        >
+          {debugLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Diagnostica in corso...
+            </>
+          ) : (
+            <>
+              <Bug className="mr-2 h-4 w-4" />
+              Verifica stato migrazione
             </>
           )}
         </Button>

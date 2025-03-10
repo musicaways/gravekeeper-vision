@@ -10,6 +10,8 @@ import {
  * Fetches loculi data from the Loculo (uppercase) table
  */
 export async function fetchLoculiFromUppercaseTable(blockId: number) {
+  console.log(`Tentativo di recupero loculi dalla tabella 'Loculo' con blockId: ${blockId}`);
+  
   const { data, error } = await supabase
     .from('Loculo')
     .select(`
@@ -18,6 +20,12 @@ export async function fetchLoculiFromUppercaseTable(blockId: number) {
     `)
     .eq('IdBlocco', blockId);
     
+  if (error) {
+    console.error("Errore nel recupero dalla tabella 'Loculo':", error);
+  } else {
+    console.log(`Trovati ${data?.length || 0} loculi nella tabella 'Loculo' per blockId ${blockId}`);
+  }
+  
   return { data, error };
 }
 
@@ -25,8 +33,9 @@ export async function fetchLoculiFromUppercaseTable(blockId: number) {
  * Fetches loculi data from the loculi (lowercase) table
  */
 export async function fetchLoculiFromLowercaseTable(blockId: number) {
-  console.log("Fetching loculi from lowercase table with blockId:", blockId);
+  console.log(`Tentativo di recupero loculi dalla tabella 'loculi' con blockId: ${blockId}`);
   
+  // Prova prima con il campo in maiuscolo (come dovrebbe essere dopo la migrazione)
   const { data, error } = await supabase
     .from('loculi')
     .select(`
@@ -36,9 +45,12 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
     .eq('IdBlocco', blockId);
   
   if (error) {
-    console.error("Error fetching from lowercase table:", error);
+    console.error("Errore nel recupero dalla tabella 'loculi':", error);
   } else {
-    console.log(`Found ${data?.length || 0} loculi in lowercase table for blockId ${blockId}`);
+    console.log(`Trovati ${data?.length || 0} loculi nella tabella 'loculi' per blockId ${blockId}`);
+    if (data && data.length > 0) {
+      console.log("Esempio di loculo trovato:", data[0]);
+    }
   }
     
   return { data, error };
@@ -102,4 +114,38 @@ export function filterUniqueLoculi(newLoculi: any[], currentLoculi: Loculo[]): a
       return existingId === newId;
     })
   );
+}
+
+/**
+ * Funzione di debug per ottenere informazioni sulle tabelle
+ */
+export async function getTableInfo(tableName: string) {
+  console.log(`Verificando struttura della tabella ${tableName}`);
+  
+  try {
+    // Esegui una query per ottenere un singolo record
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .limit(1);
+      
+    if (error) {
+      console.error(`Errore nella lettura della tabella ${tableName}:`, error);
+      return { columns: [], error: error.message };
+    }
+    
+    if (!data || data.length === 0) {
+      console.log(`Nessun dato trovato nella tabella ${tableName}`);
+      return { columns: [], error: null };
+    }
+    
+    // Ottieni le colonne dal primo record
+    const columns = Object.keys(data[0]);
+    console.log(`Colonne nella tabella ${tableName}:`, columns);
+    
+    return { columns, error: null };
+  } catch (err) {
+    console.error(`Eccezione nel verificare la tabella ${tableName}:`, err);
+    return { columns: [], error: err.message };
+  }
 }

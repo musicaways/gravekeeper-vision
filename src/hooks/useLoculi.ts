@@ -33,6 +33,14 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         
         console.log("Fetching loculi for block ID:", numericBlockId);
         
+        // Prova a recuperare i loculi sia dalla tabella uppercase che lowercase
+        const uppercaseResult = await fetchLoculiFromUppercaseTable(numericBlockId);
+        console.log("Uppercase table result:", uppercaseResult);
+        
+        const lowercaseResult = await fetchLoculiFromLowercaseTable(numericBlockId);
+        console.log("Lowercase table result:", lowercaseResult);
+        
+        // Recupera i dati usando la funzione helper
         const result = await fetchLoculiData(numericBlockId);
         
         if (result.error) {
@@ -40,6 +48,14 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         }
         
         console.log(`Caricati ${result.data.length} loculi per il blocco ${numericBlockId}`);
+        
+        // Verifica se abbiamo effettivamente dei dati
+        if (result.data.length === 0) {
+          console.log("Nessun loculo trovato per il blocco", numericBlockId);
+        } else {
+          console.log("Primo loculo trovato:", result.data[0]);
+        }
+        
         setLoculi(result.data);
         
         // If we have a search term, also search for defunti by nominativo
@@ -94,16 +110,22 @@ async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchResult> 
   let formattedData: Loculo[] = [];
   
   if (loculiData && loculiData.length > 0) {
+    console.log("Tipo del primo elemento:", typeof loculiData[0], Object.keys(loculiData[0]));
+    
     // Check if we need to convert from old database format
-    if (loculiData[0] && 'id' in loculiData[0]) {
+    if (loculiData[0] && ('id' in loculiData[0])) {
       // Old format data - convert it
+      console.log("Converto i dati dal formato vecchio al formato nuovo");
       formattedData = loculiData.map(loculo => 
         convertDatabaseToLoculo(loculo as unknown as LoculoDatabaseLowercase)
       );
     } else {
       // Already in the right format
+      console.log("I dati sono già nel formato corretto");
       formattedData = loculiData as unknown as Loculo[];
     }
+    
+    console.log("Dati formattati:", formattedData);
   }
   
   return { data: formattedData, error: null };
