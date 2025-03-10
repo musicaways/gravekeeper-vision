@@ -31,7 +31,7 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
       *,
       defunti(*)
     `)
-    .eq('id_blocco', blockId);
+    .eq('IdBlocco', blockId);
     
   return { data, error };
 }
@@ -62,7 +62,7 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
       *,
       loculi!inner(*)
     `)
-    .eq('loculi.id_blocco', blockId)
+    .eq('loculi.IdBlocco', blockId)
     .ilike('nominativo', `%${searchTerm}%`);
     
   return { data, error };

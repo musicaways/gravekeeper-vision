@@ -494,39 +494,57 @@ export type Database = {
       }
       loculi: {
         Row: {
-          annotazioni: string | null
+          Alias: string | null
+          Annotazioni: string | null
+          Concesso: boolean | null
           created_at: string | null
-          fila: number | null
+          Fila: number | null
+          FilaDaAlto: number | null
           id: string
-          id_blocco: number | null
-          numero: number | null
-          tipo_tomba: number | null
+          IdBlocco: number | null
+          Numero: number | null
+          NumeroPosti: number | null
+          NumeroPostiResti: number | null
+          Superficie: number | null
+          TipoTomba: number | null
           updated_at: string | null
         }
         Insert: {
-          annotazioni?: string | null
+          Alias?: string | null
+          Annotazioni?: string | null
+          Concesso?: boolean | null
           created_at?: string | null
-          fila?: number | null
+          Fila?: number | null
+          FilaDaAlto?: number | null
           id?: string
-          id_blocco?: number | null
-          numero?: number | null
-          tipo_tomba?: number | null
+          IdBlocco?: number | null
+          Numero?: number | null
+          NumeroPosti?: number | null
+          NumeroPostiResti?: number | null
+          Superficie?: number | null
+          TipoTomba?: number | null
           updated_at?: string | null
         }
         Update: {
-          annotazioni?: string | null
+          Alias?: string | null
+          Annotazioni?: string | null
+          Concesso?: boolean | null
           created_at?: string | null
-          fila?: number | null
+          Fila?: number | null
+          FilaDaAlto?: number | null
           id?: string
-          id_blocco?: number | null
-          numero?: number | null
-          tipo_tomba?: number | null
+          IdBlocco?: number | null
+          Numero?: number | null
+          NumeroPosti?: number | null
+          NumeroPostiResti?: number | null
+          Superficie?: number | null
+          TipoTomba?: number | null
           updated_at?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "loculi_id_blocco_fkey"
-            columns: ["id_blocco"]
+            columns: ["IdBlocco"]
             isOneToOne: false
             referencedRelation: "Blocco"
             referencedColumns: ["Id"]

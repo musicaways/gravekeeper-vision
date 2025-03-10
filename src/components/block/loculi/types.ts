@@ -4,14 +4,20 @@
 // Lowercase schema interfaces (from the database with lowercase column names)
 export interface LoculoDatabaseLowercase {
   id: string;
-  numero: number;
-  fila: number;
-  annotazioni?: string;
-  id_blocco: number;
-  tipo_tomba?: number;
+  Numero: number;
+  Fila: number;
+  Annotazioni?: string;
+  IdBlocco: number;
+  TipoTomba?: number;
   created_at?: string;
   updated_at?: string;
   defunti?: DefuntoDatabaseLowercase[];
+  Alias?: string;
+  FilaDaAlto?: number;
+  NumeroPostiResti?: number;
+  NumeroPosti?: number;
+  Superficie?: number;
+  Concesso?: boolean;
 }
 
 export interface DefuntoDatabaseLowercase {
@@ -85,7 +91,7 @@ export function isLoculoUppercase(loculo: any): loculo is LoculoUppercase {
 
 // Type guard for database lowercase schema (old format)
 export function isLoculoDatabaseLowercase(loculo: any): loculo is LoculoDatabaseLowercase {
-  return loculo && ('id' in loculo && 'numero' in loculo && 'fila' in loculo);
+  return loculo && ('id' in loculo && 'Numero' in loculo && 'Fila' in loculo);
 }
 
 // Helper function to safely get the ID regardless of case
@@ -100,13 +106,19 @@ export function getLoculoId(loculo: Loculo | LoculoDatabaseLowercase): number | 
 export function convertDatabaseToLoculo(dbLoculo: LoculoDatabaseLowercase): LoculoLowercase {
   return {
     Id: parseInt(dbLoculo.id.toString()),
-    Numero: dbLoculo.numero,
-    Fila: dbLoculo.fila,
-    Annotazioni: dbLoculo.annotazioni,
-    IdBlocco: dbLoculo.id_blocco,
-    TipoTomba: dbLoculo.tipo_tomba,
+    Numero: dbLoculo.Numero,
+    Fila: dbLoculo.Fila,
+    Annotazioni: dbLoculo.Annotazioni,
+    IdBlocco: dbLoculo.IdBlocco,
+    TipoTomba: dbLoculo.TipoTomba,
     created_at: dbLoculo.created_at,
     updated_at: dbLoculo.updated_at,
+    Alias: dbLoculo.Alias,
+    FilaDaAlto: dbLoculo.FilaDaAlto,
+    NumeroPostiResti: dbLoculo.NumeroPostiResti,
+    NumeroPosti: dbLoculo.NumeroPosti,
+    Superficie: dbLoculo.Superficie,
+    Concesso: dbLoculo.Concesso,
     defunti: dbLoculo.defunti
   };
 }
