@@ -13,7 +13,7 @@ export const decodeText = (text: string | null | undefined): string => {
   
   // Fix common encoding problems with special characters
   decoded = decoded
-    // Fix degree symbol (°) in various encodings
+    // Fix degree symbol (°) in various encodings - adding more patterns based on screenshots
     .replace(/Ã\u0082Â°/g, '°')
     .replace(/Ã\u0083Â°/g, '°') 
     .replace(/Ã\u00A0°/g, '°')
@@ -24,6 +24,13 @@ export const decodeText = (text: string | null | undefined): string => {
     .replace(/nÃ\u0082Â°/g, 'n°')
     .replace(/nÃ\u0083Â°/g, 'n°')
     .replace(/nÃ°/g, 'n°')
+    // Additional patterns found in new screenshots
+    .replace(/Ã\u00A7Â°/g, '°')
+    .replace(/Ã§Â°/g, '°')
+    .replace(/Ã\§Â°/g, '°')
+    .replace(/Â°/g, '°')
+    // Replace any sequence that looks like a corrupted degree symbol
+    .replace(/Ã[\u0080-\u00FF]Â°/g, '°')
     // Fix other common encoding issues
     .replace(/Ã¨/g, 'è')
     .replace(/Ã©/g, 'é')
