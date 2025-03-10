@@ -36,7 +36,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
           {loculi.map((loculo, index) => {
             const numero = loculo.Numero;
             const fila = loculo.Fila;
-            const id = loculo.Id ?? loculo.id;
+            const id = loculo.Id || (isLoculoLowercase(loculo) ? loculo.id : undefined);
             const defunti = getDefunti(loculo);
             const defuntiCount = getDefuntiCount(loculo);
             

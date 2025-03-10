@@ -123,28 +123,35 @@ export async function getTableInfo(tableName: string) {
   console.log(`Verificando struttura della tabella ${tableName}`);
   
   try {
-    // Esegui una query per ottenere un singolo record
-    const { data, error } = await supabase
-      .from(tableName)
-      .select('*')
-      .limit(1);
+    // Per utilizzare un nome di tabella dinamico, dobbiamo usare la corretta sintassi
+    // Non è possibile passare direttamente una stringa variabile a .from()
+    if (tableName === 'loculi' || tableName === 'Loculo' || tableName === 'defunti' || tableName === 'Defunto') {
+      // Esegui una query per ottenere un singolo record
+      const { data, error } = await supabase
+        .from(tableName as any)
+        .select('*')
+        .limit(1);
+        
+      if (error) {
+        console.error(`Errore nella lettura della tabella ${tableName}:`, error);
+        return { columns: [], error: error.message };
+      }
       
-    if (error) {
-      console.error(`Errore nella lettura della tabella ${tableName}:`, error);
-      return { columns: [], error: error.message };
+      if (!data || data.length === 0) {
+        console.log(`Nessun dato trovato nella tabella ${tableName}`);
+        return { columns: [], error: null };
+      }
+      
+      // Ottieni le colonne dal primo record
+      const columns = Object.keys(data[0]);
+      console.log(`Colonne nella tabella ${tableName}:`, columns);
+      
+      return { columns, error: null };
+    } else {
+      console.error(`Nome tabella non supportato: ${tableName}`);
+      return { columns: [], error: `Nome tabella non supportato: ${tableName}` };
     }
-    
-    if (!data || data.length === 0) {
-      console.log(`Nessun dato trovato nella tabella ${tableName}`);
-      return { columns: [], error: null };
-    }
-    
-    // Ottieni le colonne dal primo record
-    const columns = Object.keys(data[0]);
-    console.log(`Colonne nella tabella ${tableName}:`, columns);
-    
-    return { columns, error: null };
-  } catch (err) {
+  } catch (err: any) {
     console.error(`Eccezione nel verificare la tabella ${tableName}:`, err);
     return { columns: [], error: err.message };
   }
