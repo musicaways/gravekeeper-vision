@@ -553,51 +553,51 @@ export type Database = {
       }
       loculi_import: {
         Row: {
-          alias: string | null
-          annotazioni: string | null
-          concesso: boolean | null
+          Alias: string | null
+          Annotazioni: string | null
+          Concesso: boolean | null
           created_at: string | null
-          fila: number | null
-          filadaalto: number | null
+          Fila: number | null
+          FilaDaAlto: number | null
           id: number
-          idblocco: number | null
-          numero: number | null
-          numeroposti: number | null
-          numeropostiresti: number | null
-          superficie: number | null
-          tipotomba: number | null
+          IdBlocco: number | null
+          Numero: number | null
+          NumeroPosti: number | null
+          NumeroPostiResti: number | null
+          Superficie: number | null
+          TipoTomba: number | null
           updated_at: string | null
         }
         Insert: {
-          alias?: string | null
-          annotazioni?: string | null
-          concesso?: boolean | null
+          Alias?: string | null
+          Annotazioni?: string | null
+          Concesso?: boolean | null
           created_at?: string | null
-          fila?: number | null
-          filadaalto?: number | null
+          Fila?: number | null
+          FilaDaAlto?: number | null
           id: number
-          idblocco?: number | null
-          numero?: number | null
-          numeroposti?: number | null
-          numeropostiresti?: number | null
-          superficie?: number | null
-          tipotomba?: number | null
+          IdBlocco?: number | null
+          Numero?: number | null
+          NumeroPosti?: number | null
+          NumeroPostiResti?: number | null
+          Superficie?: number | null
+          TipoTomba?: number | null
           updated_at?: string | null
         }
         Update: {
-          alias?: string | null
-          annotazioni?: string | null
-          concesso?: boolean | null
+          Alias?: string | null
+          Annotazioni?: string | null
+          Concesso?: boolean | null
           created_at?: string | null
-          fila?: number | null
-          filadaalto?: number | null
+          Fila?: number | null
+          FilaDaAlto?: number | null
           id?: number
-          idblocco?: number | null
-          numero?: number | null
-          numeroposti?: number | null
-          numeropostiresti?: number | null
-          superficie?: number | null
-          tipotomba?: number | null
+          IdBlocco?: number | null
+          Numero?: number | null
+          NumeroPosti?: number | null
+          NumeroPostiResti?: number | null
+          Superficie?: number | null
+          TipoTomba?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1145,6 +1145,10 @@ export type Database = {
       get_complete_schema: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      migrate_loculi_data: {
+        Args: Record<PropertyKey, never>
+        Returns: string[]
       }
     }
     Enums: {

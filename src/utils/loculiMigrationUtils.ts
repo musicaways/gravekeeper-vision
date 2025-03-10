@@ -45,17 +45,17 @@ export async function migrateLoculiData(): Promise<IdMapping[]> {
       // Estrai i dati rilevanti per l'inserimento
       const {
         id: oldId,
-        numero,
-        fila,
-        annotazioni,
-        idblocco,
-        tipotomba,
-        alias,
-        filadaalto,
-        numeropostiresti,
-        numeroposti,
-        superficie,
-        concesso
+        Numero,
+        Fila,
+        Annotazioni,
+        IdBlocco,
+        TipoTomba,
+        Alias,
+        FilaDaAlto,
+        NumeroPostiResti,
+        NumeroPosti,
+        Superficie,
+        Concesso
       } = loculo;
       
       // Inserisci nella tabella loculi (con UUID generato automaticamente)
@@ -63,17 +63,17 @@ export async function migrateLoculiData(): Promise<IdMapping[]> {
         .from('loculi')
         .insert([
           {
-            Numero: numero,
-            Fila: fila,
-            Annotazioni: annotazioni,
-            IdBlocco: idblocco,
-            TipoTomba: tipotomba,
-            Alias: alias,
-            FilaDaAlto: filadaalto,
-            NumeroPostiResti: numeropostiresti,
-            NumeroPosti: numeroposti,
-            Superficie: superficie,
-            Concesso: concesso
+            Numero: Numero,
+            Fila: Fila,
+            Annotazioni: Annotazioni,
+            IdBlocco: IdBlocco,
+            TipoTomba: TipoTomba,
+            Alias: Alias,
+            FilaDaAlto: FilaDaAlto,
+            NumeroPostiResti: NumeroPostiResti,
+            NumeroPosti: NumeroPosti,
+            Superficie: Superficie,
+            Concesso: Concesso
           }
         ])
         .select('id');
@@ -165,3 +165,4 @@ export async function migrateDefuntiReferences(idMappings: IdMapping[]): Promise
     toast.error("Si è verificato un errore durante l'aggiornamento dei riferimenti dei defunti");
   }
 }
+

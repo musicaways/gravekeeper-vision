@@ -29,23 +29,22 @@ export function DataMigrationSettings() {
                   Risoluzione errore importazione CSV
                 </p>
                 <p className="text-sm text-amber-700 mt-1">
-                  Se stai ricevendo un errore di colonne incompatibili durante l'importazione del CSV, 
-                  assicurati che i nomi delle colonne nel file CSV corrispondano esattamente ai nomi delle 
-                  colonne nella tabella <code>loculi_import</code>. Le colonne necessarie sono:
+                  Per importare correttamente i dati, assicurati che il file CSV contenga le seguenti colonne
+                  con i nomi esattamente come mostrato di seguito (attenzione alle maiuscole/minuscole):
                 </p>
                 <ul className="text-sm text-amber-700 mt-1 list-disc list-inside">
                   <li>id</li>
-                  <li>numero</li>
-                  <li>fila</li>
-                  <li>annotazioni</li>
-                  <li>idblocco</li>
-                  <li>tipotomba</li>
-                  <li>alias</li>
-                  <li>filadaalto</li>
-                  <li>numeropostiresti</li>
-                  <li>numeroposti</li>
-                  <li>superficie</li>
-                  <li>concesso</li>
+                  <li>Numero</li>
+                  <li>Fila</li>
+                  <li>Annotazioni</li>
+                  <li>IdBlocco</li>
+                  <li>TipoTomba</li>
+                  <li>Alias</li>
+                  <li>FilaDaAlto</li>
+                  <li>NumeroPostiResti</li>
+                  <li>NumeroPosti</li>
+                  <li>Superficie</li>
+                  <li>Concesso</li>
                 </ul>
               </div>
             </div>
