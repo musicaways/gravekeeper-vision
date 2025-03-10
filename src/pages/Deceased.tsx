@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { SlidersHorizontal, ChevronDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DeceasedList from "@/components/deceased/DeceasedList";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
