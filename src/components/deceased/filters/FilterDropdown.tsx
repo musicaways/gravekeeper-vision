@@ -18,7 +18,7 @@ interface FilterDropdownProps {
   filterBy: string;
   selectedCemetery: string | null;
   onFilterChange: (filterType: string) => void;
-  onCemeterySelect: (cemeteryName: string) => void;
+  onCemeterySelect: (value: string | null) => void;
 }
 
 const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
@@ -91,8 +91,8 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
           <DropdownMenuPortal>
             <DropdownMenuSubContent className="bg-background border-muted-foreground/20 text-xs">
               <CemeteryOptions 
-                onCemeterySelect={onCemeterySelect} 
-                selectedCemetery={selectedCemetery} 
+                onSelectCemetery={onCemeterySelect}
+                selectedValue={selectedCemetery}
               />
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
