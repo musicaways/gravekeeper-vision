@@ -19,8 +19,11 @@ export async function getTableMetadata(tableName: string) {
     if (tableName === 'Loculo') {
       result = await supabase.from('Loculo').select('*').limit(1);
     } else if (tableName === 'defunti') { 
-      // Aggiunto supporto per la nuova tabella defunti
+      // Supporto per la nuova tabella defunti
       result = await supabase.from('defunti').select('*').limit(1);
+    } else if (tableName === 'Defunto') {
+      // Manteniamo il supporto per la vecchia tabella Defunto
+      result = await supabase.from('Defunto').select('*').limit(1);
     } else {
       result = await supabase.from(tableName as any).select('*').limit(1);
     }

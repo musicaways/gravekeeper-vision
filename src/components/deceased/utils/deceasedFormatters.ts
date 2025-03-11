@@ -54,16 +54,29 @@ export const isFemale = (name: string): boolean => {
 
 /**
  * Generate loculo link from the deceased record
+ * Ora gestisce sia il caso in cui abbiamo un oggetto loculi sia il caso in cui abbiamo solo l'id_loculo
  */
 export const getLoculoLink = (deceased: {
+  id_loculo?: string | null;
   loculi?: {
     Blocco?: {
       Id?: number;
     } | null;
   } | null;
 }): string => {
+  // Prima controlla se abbiamo l'oggetto loculi con le informazioni del blocco
   if (deceased.loculi?.Blocco?.Id) {
     return `/block/${deceased.loculi.Blocco.Id}`;
   }
+  
+  // Se non abbiamo l'oggetto loculi ma abbiamo l'id_loculo, potremmo
+  // non avere abbastanza informazioni per generare il link corretto
+  // In questo caso ritorniamo un link generico
+  if (deceased.id_loculo) {
+    // In una implementazione più completa, potremmo fare una query
+    // per ottenere l'ID del blocco dall'id_loculo
+    return `#loculo-${deceased.id_loculo}`;
+  }
+  
   return "#";
 };

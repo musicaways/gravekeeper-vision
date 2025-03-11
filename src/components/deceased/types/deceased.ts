@@ -1,6 +1,6 @@
 
 export interface DeceasedRecord {
-  id: string; // Ora è un UUID (string) invece di number o string
+  id: string; // UUID (string)
   nominativo: string;
   data_decesso: string | null;
   data_nascita: string | null;
@@ -13,6 +13,7 @@ export interface DeceasedRecord {
   annotazioni: string | null;
   sesso: string | null;
   stato_defunto: number | null;
+  id_loculo: string | null; // Ora è una stringa che contiene il valore originale numerico
   loculi: {
     id: string | number;
     Numero: number | null;
