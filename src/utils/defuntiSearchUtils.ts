@@ -52,27 +52,9 @@ export async function searchDefuntiByName(
         
         console.log("Extracted loculi from defunti:", loculiFromDefunti);
         
-        // Convert if needed (from old database format) using type assertion
-        if (loculiFromDefunti.length > 0 && 'id' in (loculiFromDefunti[0] as any)) {
-          console.log("Converting loculi from database format");
-          // Convert each loculo from database format to proper format
-          const convertedLoculi = loculiFromDefunti.map(loculo => {
-            // Type assertion to ensure we're working with the right structure
-            try {
-              return convertDatabaseToLoculo(loculo as unknown as LoculoDatabaseLowercase);
-            } catch (err) {
-              console.error("Error converting loculo:", err, loculo);
-              return loculo as unknown as Loculo;
-            }
-          });
-          
-          // Use type assertion to specify that these are now valid Loculo objects
-          additionalLoculi = convertedLoculi;
-        } else {
-          // Only include loculi that aren't already in the main results
-          const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
-          additionalLoculi = uniqueLoculi as Loculo[];
-        }
+        // Only include loculi that aren't already in the main results
+        const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
+        additionalLoculi = uniqueLoculi as Loculo[];
       } else {
         console.log("No results from 'defunti' table or error occurred:", defuntiError);
       }

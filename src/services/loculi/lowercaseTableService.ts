@@ -27,7 +27,7 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
           .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
           .eq('id_loculo', loculo.id);
         
-        // Attach defunti data to the loculo using type assertion to avoid property errors
+        // Attach defunti data to the loculo using type assertion
         (loculo as any).defunti = defuntiData || [];
       }
     }
@@ -40,13 +40,16 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
         console.log("Trying alternative column name 'id_blocco'...");
         
         // Use explicit field selection to avoid nested types
-        const { data: altData, error: altError } = await supabase
+        const altResponse = await supabase
           .from('loculi')
           .select(`
             id, Numero, Fila, Annotazioni, id_blocco, TipoTomba, FilaDaAlto, 
             NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias
           `)
           .eq('id_blocco', blockId);
+        
+        const altData = altResponse.data;
+        const altError = altResponse.error;
         
         // Fetch defunti separately
         if (altData && altData.length > 0) {
@@ -56,7 +59,7 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
               .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
               .eq('id_loculo', loculo.id);
             
-            // Attach defunti data using type assertion to avoid property errors
+            // Attach defunti data using type assertion
             (loculo as any).defunti = defuntiData || [];
           }
         }
@@ -114,7 +117,7 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
     }
     
     // Fetch the loculi with these IDs that also belong to the specified block
-    const { data: loculiData, error: loculiError } = await supabase
+    const loculiResponse = await supabase
       .from('loculi')
       .select(`
         id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba, FilaDaAlto, 
@@ -122,12 +125,15 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
       `)
       .eq('IdBlocco', blockId)
       .in('id', loculoIds);
+    
+    const loculiData = loculiResponse.data;
+    const loculiError = loculiResponse.error;
       
     if (loculiError) {
       return { data: [], error: loculiError };
     }
     
-    // Map defunti to their respective loculi using type assertion to avoid property errors
+    // Map defunti to their respective loculi using type assertion
     if (loculiData && loculiData.length > 0) {
       for (const loculo of loculiData) {
         // Use type assertion to assign defunti property

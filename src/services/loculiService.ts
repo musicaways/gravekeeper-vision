@@ -33,7 +33,7 @@ export async function fetchLoculiData(blockId: number): Promise<LoculiDataFetchR
         
   if (!loculoError && loculoData && loculoData.length > 0) {
     console.log("Loculi fetched from 'Loculo' table:", loculoData);
-    return { data: loculoData as Loculo[], error: null };
+    return { data: loculoData, error: null };
   } 
   
   console.log("Error or no data from 'Loculo' table:", loculoError);

@@ -46,14 +46,14 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         const loculoTableInfo = await getTableInfo('Loculo');
         console.log("Struttura tabella 'Loculo':", loculoTableInfo);
         
-        // Use type assertions to avoid recursion
+        // Use separate variables to avoid type recursion
         const uppercaseResult = await fetchLoculiFromUppercaseTable(numericBlockId);
         console.log("Uppercase table result:", uppercaseResult);
         
         const lowercaseResult = await fetchLoculiFromLowercaseTable(numericBlockId);
         console.log("Lowercase table result:", lowercaseResult);
         
-        // Retrieve data using the helper function - treat as simple data object to avoid type recursion
+        // Retrieve data using the helper function
         const result = await fetchLoculiData(numericBlockId);
         
         if (result.error) {
@@ -68,7 +68,7 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           
           // Simple check for data presence in tables
           try {
-            // Use simple queries with explicit column selection to avoid type recursion
+            // Use simple queries with explicit column selection
             const loculiCheck = await supabase
               .from('loculi')
               .select('id, Numero, Fila')
@@ -102,8 +102,8 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           console.log("Primo loculo trovato:", result.data[0]);
         }
         
-        // Use type assertion to avoid recursion
-        setLoculi(result.data as Loculo[]);
+        // Set loculi with explicit typing
+        setLoculi(result.data);
         
         // If we have a search term, also search for defunti by nominativo
         if (searchTerm) {
