@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { migrateLoculiData, migrateDefuntiReferences, IdMapping } from "@/utils/loculiMigrationUtils";
-import { checkLoculiMigrationStatus, getTableMetadata } from "@/utils/loculiDebugUtils";
+import { checkLoculiMigrationStatus, getTableMetadata } from "@/utils/debug";
 import { toast } from "sonner";
 import { AlertCircle, ArrowRightLeft, Check, Loader2, Bug } from "lucide-react";
 
