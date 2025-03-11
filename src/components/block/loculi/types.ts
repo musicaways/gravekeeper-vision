@@ -1,131 +1,57 @@
 
 // Type definitions for loculi data structures
 
-// Lowercase schema interfaces (from the database with lowercase column names)
-export interface LoculoDatabaseLowercase {
-  id: string | number;
+// Loculo structure from the database
+export interface LoculoType {
+  id: number;
   Numero: number;
   Fila: number;
   Annotazioni?: string;
   IdBlocco: number;
   TipoTomba?: number;
-  created_at?: string;
-  updated_at?: string;
-  defunti?: DefuntoDatabaseLowercase[];
   Alias?: string;
   FilaDaAlto?: number;
   NumeroPostiResti?: number;
   NumeroPosti?: number;
   Superficie?: number;
   Concesso?: boolean;
+  Defunti?: DefuntoType[];
 }
 
-export interface DefuntoDatabaseLowercase {
-  id: string | number;
-  nominativo: string;
+export interface DefuntoType {
+  Id?: number;
+  id?: number;
+  Nominativo?: string;
+  nominativo?: string;
+  DataNascita?: string | Date;
   data_nascita?: string | Date;
+  DataDecesso?: string | Date;
   data_decesso?: string | Date;
-  sesso?: string;
-  annotazioni?: string;
-}
-
-// Lowercase schema interfaces (using new column names with capital letters)
-export interface LoculoLowercase {
-  Id: number;
-  id?: string | number; // Optional id field to fix type compatibility
-  Numero: number;
-  Fila: number;
-  Annotazioni?: string;
-  IdBlocco: number;
-  TipoTomba?: number;
-  created_at?: string;
-  updated_at?: string;
-  Alias?: string;
-  FilaDaAlto?: number;
-  NumeroPostiResti?: number;
-  NumeroPosti?: number;
-  Superficie?: number;
-  Concesso?: boolean;
-  defunti?: DefuntoLowercase[];
-}
-
-export interface DefuntoLowercase {
-  id: string | number;
-  nominativo: string;
-  data_nascita?: string | Date;
-  data_decesso?: string | Date;
-  sesso?: string;
-  annotazioni?: string;
-}
-
-// Uppercase schema interfaces (from the 'Loculo' table)
-export interface LoculoUppercase {
-  Id: number;
-  Numero: number;
-  Fila: number;
-  Annotazioni?: string;
-  IdBlocco: number;
-  TipoTomba?: number;
-  Defunti?: DefuntoUppercase[];
-}
-
-export interface DefuntoUppercase {
-  Id: number;
-  Nominativo: string;
-  DataNascita?: string;
-  DataDecesso?: string;
   Sesso?: string;
+  sesso?: string;
+  annotazioni?: string;
 }
 
-// Union type to handle both structures
-export type Loculo = LoculoLowercase | LoculoUppercase;
-export type Defunto = DefuntoLowercase | DefuntoUppercase;
+// Union type to handle all structures (for backward compatibility)
+export type Loculo = LoculoType;
+export type Defunto = DefuntoType;
 
-// Type guard functions to check which type we're dealing with
-export function isLoculoLowercase(loculo: any): loculo is LoculoLowercase {
-  return loculo && ('defunti' in loculo || loculo.defunti !== undefined);
+// Helper function to safely get the ID
+export function getLoculoId(loculo: Loculo): number | undefined {
+  return loculo.id;
 }
 
-export function isLoculoUppercase(loculo: any): loculo is LoculoUppercase {
-  return loculo && ('Defunti' in loculo || loculo.Defunti !== undefined);
+// Helper function to get defunti count
+export function getDefuntiCount(loculo: Loculo): number {
+  return (loculo.Defunti?.length || 0);
 }
 
-// Type guard for database lowercase schema (old format)
-export function isLoculoDatabaseLowercase(loculo: any): loculo is LoculoDatabaseLowercase {
-  return loculo && ('id' in loculo && 'Numero' in loculo && 'Fila' in loculo);
+// Helper function to get defunti array
+export function getDefunti(loculo: Loculo): DefuntoType[] {
+  return loculo.Defunti || [];
 }
 
-// Helper function to safely get the ID regardless of case
-export function getLoculoId(loculo: Loculo | LoculoDatabaseLowercase): number | string | undefined {
-  if (isLoculoDatabaseLowercase(loculo)) {
-    return loculo.id;
-  }
-  // Only access Id for LoculoUppercase, or Id/id for LoculoLowercase
-  if (isLoculoUppercase(loculo)) {
-    return loculo.Id;
-  }
-  // For LoculoLowercase, try both Id and id
-  return loculo.Id || loculo.id;
-}
-
-// Helper function to convert database lowercase to proper Loculo type
-export function convertDatabaseToLoculo(dbLoculo: LoculoDatabaseLowercase): LoculoLowercase {
-  return {
-    Id: typeof dbLoculo.id === 'string' ? parseInt(dbLoculo.id) : dbLoculo.id as number,
-    id: dbLoculo.id, // Add the id field to maintain compatibility
-    Numero: dbLoculo.Numero,
-    Fila: dbLoculo.Fila,
-    Annotazioni: dbLoculo.Annotazioni,
-    IdBlocco: dbLoculo.IdBlocco,
-    TipoTomba: dbLoculo.TipoTomba,
-    created_at: dbLoculo.created_at,
-    updated_at: dbLoculo.updated_at,
-    Alias: dbLoculo.Alias,
-    FilaDaAlto: dbLoculo.FilaDaAlto,
-    NumeroPostiResti: dbLoculo.NumeroPostiResti,
-    NumeroPosti: dbLoculo.NumeroPosti,
-    Superficie: dbLoculo.Superficie,
-    Concesso: dbLoculo.Concesso,
-    defunti: dbLoculo.defunti
-  };
+// Helper function to get nominativo
+export function getNominativo(defunto: DefuntoType): string {
+  return defunto.Nominativo || defunto.nominativo || "Nome non disponibile";
 }

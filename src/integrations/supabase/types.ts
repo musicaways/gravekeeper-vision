@@ -420,15 +420,7 @@ export type Database = {
           sesso?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "defunti_id_loculo_fkey"
-            columns: ["id_loculo"]
-            isOneToOne: false
-            referencedRelation: "loculi"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       Defunto: {
         Row: {
@@ -464,15 +456,7 @@ export type Database = {
           Sesso?: string | null
           StatoDefunto?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "Defunto_IdLoculo_fkey"
-            columns: ["IdLoculo"]
-            isOneToOne: false
-            referencedRelation: "Loculo"
-            referencedColumns: ["Id"]
-          },
-        ]
+        Relationships: []
       }
       execute_sql: {
         Row: {
@@ -492,66 +476,7 @@ export type Database = {
         }
         Relationships: []
       }
-      loculi: {
-        Row: {
-          Alias: string | null
-          Annotazioni: string | null
-          Concesso: boolean | null
-          created_at: string | null
-          Fila: number | null
-          FilaDaAlto: number | null
-          id: string
-          IdBlocco: number | null
-          Numero: number | null
-          NumeroPosti: number | null
-          NumeroPostiResti: number | null
-          Superficie: number | null
-          TipoTomba: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          Alias?: string | null
-          Annotazioni?: string | null
-          Concesso?: boolean | null
-          created_at?: string | null
-          Fila?: number | null
-          FilaDaAlto?: number | null
-          id?: string
-          IdBlocco?: number | null
-          Numero?: number | null
-          NumeroPosti?: number | null
-          NumeroPostiResti?: number | null
-          Superficie?: number | null
-          TipoTomba?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          Alias?: string | null
-          Annotazioni?: string | null
-          Concesso?: boolean | null
-          created_at?: string | null
-          Fila?: number | null
-          FilaDaAlto?: number | null
-          id?: string
-          IdBlocco?: number | null
-          Numero?: number | null
-          NumeroPosti?: number | null
-          NumeroPostiResti?: number | null
-          Superficie?: number | null
-          TipoTomba?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "loculi_id_blocco_fkey"
-            columns: ["IdBlocco"]
-            isOneToOne: false
-            referencedRelation: "Blocco"
-            referencedColumns: ["Id"]
-          },
-        ]
-      }
-      loculi_import: {
+      Loculo: {
         Row: {
           Alias: string | null
           Annotazioni: string | null
@@ -600,39 +525,12 @@ export type Database = {
           TipoTomba?: number | null
           updated_at?: string | null
         }
-        Relationships: []
-      }
-      Loculo: {
-        Row: {
-          Annotazioni: string | null
-          Fila: number | null
-          Id: number
-          IdBlocco: number | null
-          Numero: number | null
-          TipoTomba: number | null
-        }
-        Insert: {
-          Annotazioni?: string | null
-          Fila?: number | null
-          Id: number
-          IdBlocco?: number | null
-          Numero?: number | null
-          TipoTomba?: number | null
-        }
-        Update: {
-          Annotazioni?: string | null
-          Fila?: number | null
-          Id?: number
-          IdBlocco?: number | null
-          Numero?: number | null
-          TipoTomba?: number | null
-        }
         Relationships: [
           {
-            foreignKeyName: "Loculo_TipoTomba_fkey"
-            columns: ["TipoTomba"]
+            foreignKeyName: "loculo_blocco_fk"
+            columns: ["IdBlocco"]
             isOneToOne: false
-            referencedRelation: "TipoLoculo"
+            referencedRelation: "Blocco"
             referencedColumns: ["Id"]
           },
         ]

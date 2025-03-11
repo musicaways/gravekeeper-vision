@@ -1,13 +1,12 @@
 
 import React, { useEffect } from "react";
-import { User, Users, Info, AlertCircle, Database, Layers } from "lucide-react";
+import { User, Users, AlertCircle, Database, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Loculo, isLoculoLowercase, isLoculoUppercase, isLoculoDatabaseLowercase } from "./types";
-import { Link } from "react-router-dom";
+import { Loculo, getDefuntiCount, getDefunti, getNominativo } from "./types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { checkLoculiMigrationStatus } from "@/utils/debug/loculiMigrationCheck";
 import { toast } from "sonner";
+import { checkBloccoRelationship } from "@/services/loculiService";
 
 interface LoculiListProps {
   loculi: Loculo[];
@@ -16,77 +15,44 @@ interface LoculiListProps {
 export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   useEffect(() => {
     // Log loculi data for debugging
-    console.log("LoculiList received loculi:", loculi);
+    console.log("LoculiList ricevuti loculi:", loculi);
     
     if (loculi.length > 0) {
-      console.log("Sample loculo:", loculi[0]);
+      console.log("Esempio loculo:", loculi[0]);
       
-      // Check the structure to help debug
+      // Controlla la struttura per il debug
       const firstLoculo = loculi[0];
-      console.log("Loculo structure:", {
-        hasId: 'Id' in firstLoculo,
-        hasLowercaseId: 'id' in firstLoculo,
+      console.log("Struttura loculo:", {
+        id: firstLoculo.id,
         properties: Object.keys(firstLoculo),
-        isUppercase: isLoculoUppercase(firstLoculo),
-        isLowercase: isLoculoLowercase(firstLoculo)
+        defunti: firstLoculo.Defunti
       });
     }
   }, [loculi]);
 
-  const getNominativo = (defunto: any) => {
-    return defunto.Nominativo || defunto.nominativo || "Nome non disponibile";
-  };
-
-  const getDefuntiCount = (loculo: Loculo) => {
-    if (isLoculoUppercase(loculo) && loculo.Defunti && loculo.Defunti.length > 0) 
-      return loculo.Defunti.length;
-    if (isLoculoLowercase(loculo) && loculo.defunti && loculo.defunti.length > 0) 
-      return loculo.defunti.length;
-    return 0;
-  };
-
-  const getDefunti = (loculo: Loculo) => {
-    if (isLoculoUppercase(loculo)) return loculo.Defunti || [];
-    if (isLoculoLowercase(loculo)) return loculo.defunti || [];
-    return [];
-  };
-
   const handleCheckMigration = async () => {
     try {
-      // Extract block ID from URL
+      // Estrai l'ID del blocco dall'URL
       const blockId = window.location.pathname.split('/').pop();
       if (blockId) {
-        toast.info("Verifica della migrazione in corso...");
-        const result = await checkLoculiMigrationStatus(parseInt(blockId));
-        console.log("Migration status check result:", result);
-        toast.success("Verifica della migrazione completata. Controlla la console per i dettagli.");
+        toast.info("Verifica della struttura dati in corso...");
+        const numericBlockId = parseInt(blockId);
+        
+        // Ora utilizziamo checkBloccoRelationship dal service
+        const result = await checkBloccoRelationship(numericBlockId);
+        console.log("Risultato verifica relazione blocco-loculi:", result);
+        
+        if (result.error) {
+          toast.error("Errore durante la verifica: " + result.error);
+        } else if (result.loculiCount === 0) {
+          toast.warning(`Nessun loculo trovato per il blocco ${blockId}`);
+        } else {
+          toast.success(`Trovati ${result.loculiCount} loculi per il blocco ${blockId}`);
+        }
       }
     } catch (error) {
-      console.error("Error checking migration status:", error);
-      toast.error("Errore durante la verifica della migrazione");
-    }
-  };
-
-  const handleFixLoculi = async () => {
-    try {
-      const blockId = window.location.pathname.split('/').pop();
-      if (!blockId) return;
-      
-      toast.info("Tentativo di riparazione dati in corso...");
-      
-      // Get block information for debugging
-      const baseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-      const apiKey = import.meta.env.VITE_SUPABASE_KEY || "";
-      
-      console.log("Dettagli del blocco:", {
-        id: blockId,
-        currentUrl: window.location.href
-      });
-      
-      toast.success("Verifica completata, controlla la console per maggiori dettagli");
-    } catch (error) {
-      console.error("Error attempting to fix loculi:", error);
-      toast.error("Errore durante il tentativo di riparazione");
+      console.error("Errore durante la verifica:", error);
+      toast.error("Errore durante la verifica della struttura dati");
     }
   };
 
@@ -97,8 +63,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
           {loculi.map((loculo, index) => {
             const numero = loculo.Numero;
             const fila = loculo.Fila;
-            const id = isLoculoUppercase(loculo) ? loculo.Id : 
-                      isLoculoLowercase(loculo) ? (loculo.Id || loculo.id) : undefined;
+            const id = loculo.id;
             const defunti = getDefunti(loculo);
             const defuntiCount = getDefuntiCount(loculo);
             
@@ -112,7 +77,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
                 
                 <div className="space-y-0 divide-y">
                   {defuntiCount > 0 ? (
-                    defunti.map((defunto: any, idx: number) => (
+                    defunti.map((defunto, idx) => (
                       <div key={idx} className="flex justify-between items-center p-3 hover:bg-muted/50 transition-colors">
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -147,7 +112,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
               Nessun loculo trovato per questo blocco. Assicurati che:
               <ul className="list-disc pl-5 mt-2 text-sm">
                 <li>Il blocco con ID {typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : ''} esista</li>
-                <li>I loculi siano stati correttamente migrati</li>
+                <li>I loculi siano stati correttamente associati a questo blocco</li>
                 <li>Il campo "IdBlocco" nei loculi sia correttamente impostato</li>
               </ul>
             </AlertDescription>
@@ -156,11 +121,6 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
           <div className="flex flex-col gap-3 mt-4">
             <Button onClick={handleCheckMigration} variant="outline" size="sm" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              Verifica stato migrazione
-            </Button>
-            
-            <Button onClick={handleFixLoculi} variant="outline" size="sm" className="flex items-center gap-2">
-              <Layers className="h-4 w-4" />
               Verifica relazioni blocco-loculi
             </Button>
             
