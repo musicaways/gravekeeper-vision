@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 export async function getTableMetadata(tableName: string) {
   try {
     // Check if it's a valid table name
-    const validTableNames = ['Loculo', 'Defunto', 'Blocco', 'Settore', 'Cimitero'];
+    const validTableNames = ['Loculo', 'Defunto', 'defunti', 'Blocco', 'Settore', 'Cimitero'];
     
     if (!validTableNames.includes(tableName)) {
       return { columns: [], error: `Nome tabella non supportato: ${tableName}` };
@@ -18,6 +18,9 @@ export async function getTableMetadata(tableName: string) {
     
     if (tableName === 'Loculo') {
       result = await supabase.from('Loculo').select('*').limit(1);
+    } else if (tableName === 'defunti') { 
+      // Aggiunto supporto per la nuova tabella defunti
+      result = await supabase.from('defunti').select('*').limit(1);
     } else {
       result = await supabase.from(tableName as any).select('*').limit(1);
     }

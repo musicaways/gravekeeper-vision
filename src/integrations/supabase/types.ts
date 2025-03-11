@@ -394,6 +394,7 @@ export type Database = {
           id_loculo: string | null
           nominativo: string
           sesso: string | null
+          stato_defunto: number | null
           updated_at: string | null
         }
         Insert: {
@@ -402,10 +403,11 @@ export type Database = {
           data_decesso?: string | null
           data_nascita?: string | null
           eta?: number | null
-          id?: string
+          id: string
           id_loculo?: string | null
           nominativo: string
           sesso?: string | null
+          stato_defunto?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -418,6 +420,7 @@ export type Database = {
           id_loculo?: string | null
           nominativo?: string
           sesso?: string | null
+          stato_defunto?: number | null
           updated_at?: string | null
         }
         Relationships: []

@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DeceasedRecord } from "../types/deceased";
 
@@ -11,169 +10,91 @@ interface UseDeceasedDataProps {
   selectedCemetery: string | null;
 }
 
-export const useDeceasedData = ({
-  searchTerm,
-  sortBy,
+export const useDeceasedData = ({ 
+  searchTerm, 
+  sortBy, 
   filterBy,
   selectedCemetery
 }: UseDeceasedDataProps) => {
   const [loading, setLoading] = useState(true);
   const [deceased, setDeceased] = useState<DeceasedRecord[]>([]);
-  const [filteredDeceased, setFilteredDeceased] = useState<DeceasedRecord[]>([]);
-  const { toast } = useToast();
 
-  // Fetch all deceased data
   useEffect(() => {
-    fetchDeceased();
-  }, []);
+    const fetchDeceased = async () => {
+      setLoading(true);
+      try {
+        // Utilizziamo la nuova tabella defunti invece di Defunto
+        let query = supabase
+          .from('defunti')
+          .select(`
+            id,
+            nominativo,
+            data_nascita,
+            data_decesso,
+            eta,
+            sesso,
+            annotazioni,
+            stato_defunto,
+            id_loculo
+          `)
+          .order(sortBy === 'name' ? 'nominativo' : 'data_decesso', { ascending: sortBy !== 'recent' });
 
-  // Apply filtering and sorting
-  useEffect(() => {
-    // Apply search filtering
-    let resultSet = deceased;
-    
-    if (searchTerm) {
-      resultSet = resultSet.filter(d => 
-        d.nominativo.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    // Apply additional filtering based on filterBy
-    switch (filterBy) {
-      case 'recent':
-        // Filter for records with death date in the last 30 days
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        resultSet = resultSet.filter(d => {
-          if (!d.data_decesso) return false;
-          const deathDate = new Date(d.data_decesso);
-          return deathDate >= thirtyDaysAgo;
-        });
-        break;
-      case 'this-year':
-        // Filter for records with death date in the current year
-        const currentYear = new Date().getFullYear();
-        resultSet = resultSet.filter(d => {
-          if (!d.data_decesso) return false;
-          const deathDate = new Date(d.data_decesso);
-          return deathDate.getFullYear() === currentYear;
-        });
-        break;
-      case 'by-cemetery':
-        // Filter for records by specific cemetery
-        if (selectedCemetery) {
-          resultSet = resultSet.filter(d => 
-            d.cimitero_nome === selectedCemetery
-          );
+        // Applicare filtri
+        if (filterBy === 'recent') {
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          query = query.gte('data_decesso', thirtyDaysAgo.toISOString().split('T')[0]);
+        } else if (filterBy === 'this-year') {
+          const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
+          query = query.gte('data_decesso', startOfYear);
         }
-        break;
-      case 'all':
-      default:
-        // No additional filtering
-        break;
-    }
-    
-    // Apply sorting
-    const sortedData = [...resultSet];
-    
-    switch (sortBy) {
-      case 'name-asc':
-        sortedData.sort((a, b) => (a.nominativo || '').localeCompare(b.nominativo || ''));
-        break;
-      case 'name-desc':
-        sortedData.sort((a, b) => (b.nominativo || '').localeCompare(a.nominativo || ''));
-        break;
-      case 'date-desc':
-        sortedData.sort((a, b) => {
-          // If dates are missing, place those entries at the end
-          if (!a.data_decesso) return 1;
-          if (!b.data_decesso) return -1;
-          return new Date(b.data_decesso).getTime() - new Date(a.data_decesso).getTime();
-        });
-        break;
-      case 'date-asc':
-        sortedData.sort((a, b) => {
-          // If dates are missing, place those entries at the end
-          if (!a.data_decesso) return 1;
-          if (!b.data_decesso) return -1;
-          return new Date(a.data_decesso).getTime() - new Date(b.data_decesso).getTime();
-        });
-        break;
-      case 'cemetery-asc':
-        sortedData.sort((a, b) => {
-          const cimA = a.cimitero_nome || '';
-          const cimB = b.cimitero_nome || '';
-          return cimA.localeCompare(cimB);
-        });
-        break;
-      case 'cemetery-desc':
-        sortedData.sort((a, b) => {
-          const cimA = a.cimitero_nome || '';
-          const cimB = b.cimitero_nome || '';
-          return cimB.localeCompare(cimA);
-        });
-        break;
-      default:
-        // Default to name ascending
-        sortedData.sort((a, b) => (a.nominativo || '').localeCompare(b.nominativo || ''));
-    }
-    
-    setFilteredDeceased(sortedData);
-  }, [sortBy, filterBy, deceased, searchTerm, selectedCemetery]);
 
-  const fetchDeceased = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('Defunto')
-        .select(`
-          Id,
-          Nominativo,
-          DataDecesso,
-          DataNascita,
-          Eta,
-          IdLoculo
-        `)
-        .order('Nominativo', { ascending: true })
-        .limit(50); // Limita i risultati per performance
+        // Applicare ricerca per nome
+        if (searchTerm.trim() !== '') {
+          query = query.ilike('nominativo', `%${searchTerm}%`);
+        }
 
-      if (error) {
-        throw error;
+        const { data, error } = await query;
+
+        if (error) {
+          console.error("Error fetching deceased data:", error);
+          setDeceased([]);
+        } else {
+          // Trasformare i dati nel formato richiesto da DeceasedRecord
+          const transformedData: DeceasedRecord[] = data.map(item => ({
+            id: item.id,
+            nominativo: item.nominativo || 'No name',
+            data_decesso: item.data_decesso,
+            data_nascita: item.data_nascita,
+            eta: item.eta,
+            annotazioni: item.annotazioni,
+            sesso: item.sesso,
+            stato_defunto: item.stato_defunto,
+            cimitero_nome: null, // Da riempire con join future
+            settore_nome: null,
+            blocco_nome: null,
+            loculo_numero: null,
+            loculo_fila: null,
+            loculi: null
+          }));
+          setDeceased(transformedData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch deceased:", error);
+        setDeceased([]);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Crea un array di record semplificati
-      const transformedData: DeceasedRecord[] = data.map(item => ({
-        id: item.Id,
-        nominativo: item.Nominativo || '',
-        data_decesso: item.DataDecesso,
-        data_nascita: item.DataNascita,
-        eta: item.Eta || null,
-        cimitero_nome: 'Non disponibile',
-        settore_nome: 'Non disponibile',
-        blocco_nome: 'Non disponibile',
-        loculo_numero: null,
-        loculo_fila: null,
-        loculi: null
-      }));
+    fetchDeceased();
+  }, [searchTerm, sortBy, filterBy, selectedCemetery]);
 
-      setDeceased(transformedData);
-      setFilteredDeceased(transformedData);
-      
-    } catch (error) {
-      console.error('Error fetching deceased:', error);
-      toast({
-        variant: "destructive",
-        title: "Errore",
-        description: "Impossibile caricare i dati dei defunti"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Filtro per cimitero viene gestito direttamente nel database per ora
+  const filteredDeceased = deceased;
 
   return {
     loading,
-    filteredDeceased,
-    fetchDeceased
+    filteredDeceased
   };
 };
