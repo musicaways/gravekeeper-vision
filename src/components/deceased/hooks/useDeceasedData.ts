@@ -35,7 +35,24 @@ export const useDeceasedData = ({
             sesso,
             annotazioni,
             stato_defunto,
-            id_loculo
+            id_loculo,
+            Loculo!left(
+              id,
+              Numero,
+              Fila,
+              Blocco:IdBlocco(
+                Id,
+                Nome,
+                Settore:IdSettore(
+                  Id,
+                  Nome,
+                  Cimitero:IdCimitero(
+                    Id,
+                    Nome
+                  )
+                )
+              )
+            )
           `)
           .order(sortBy === 'name' ? 'nominativo' : 'data_decesso', { ascending: sortBy !== 'recent' });
 
@@ -56,8 +73,7 @@ export const useDeceasedData = ({
 
         // Applicare filtro per cimitero se selezionato
         if (selectedCemetery && filterBy === 'by-cemetery') {
-          // Questa parte richiederà un approccio diverso dato che ora abbiamo solo l'id del loculo
-          // Potremmo implementarlo in futuro con una query più complessa
+          query = query.eq('Loculo.Blocco.Settore.Cimitero.Nome', selectedCemetery);
         }
 
         const { data, error } = await query;
@@ -66,66 +82,28 @@ export const useDeceasedData = ({
           console.error("Error fetching deceased data:", error);
           setDeceased([]);
         } else {
-          // Transform data and fetch loculo information
-          const transformedData: DeceasedRecord[] = await Promise.all(
-            data.map(async (item) => {
-              let loculoInfo = {
-                loculo_numero: null, 
-                loculo_fila: null,
-                cimitero_nome: null,
-                settore_nome: null,
-                blocco_nome: null,
-                loculi: null
-              };
-              
-              if (item.id_loculo) {
-                // Convert string id_loculo to number since the Loculo table uses numeric IDs
-                const loculoId = parseInt(item.id_loculo);
-                
-                if (!isNaN(loculoId)) {
-                  const { data: loculoData, error: loculoError } = await supabase
-                    .from('Loculo')
-                    .select(`
-                      id,
-                      Numero,
-                      Fila,
-                      Blocco:IdBlocco (
-                        Id,
-                        Nome,
-                        Settore:IdSettore (
-                          Id,
-                          Nome,
-                          Cimitero:IdCimitero (
-                            Id,
-                            Nome
-                          )
-                        )
-                      )
-                    `)
-                    .eq('id', loculoId)
-                    .single();
-                  
-                  if (!loculoError && loculoData) {
-                    loculoInfo = {
-                      loculo_numero: loculoData.Numero, 
-                      loculo_fila: loculoData.Fila,
-                      cimitero_nome: loculoData.Blocco?.Settore?.Cimitero?.Nome || null,
-                      settore_nome: loculoData.Blocco?.Settore?.Nome || null,
-                      blocco_nome: loculoData.Blocco?.Nome || null,
-                      loculi: loculoData
-                    };
-                  }
-                } else {
-                  console.warn(`Invalid loculo ID format: ${item.id_loculo}`);
-                }
-              }
-              
-              return {
-                ...item,
-                ...loculoInfo
-              };
-            })
-          );
+          // Transform data to match the DeceasedRecord structure
+          const transformedData: DeceasedRecord[] = data.map(item => {
+            const loculoData = item.Loculo;
+            
+            return {
+              id: item.id,
+              nominativo: item.nominativo,
+              data_nascita: item.data_nascita,
+              data_decesso: item.data_decesso,
+              eta: item.eta,
+              sesso: item.sesso,
+              annotazioni: item.annotazioni,
+              stato_defunto: item.stato_defunto,
+              id_loculo: item.id_loculo,
+              loculo_numero: loculoData?.Numero || null,
+              loculo_fila: loculoData?.Fila || null,
+              cimitero_nome: loculoData?.Blocco?.Settore?.Cimitero?.Nome || null,
+              settore_nome: loculoData?.Blocco?.Settore?.Nome || null,
+              blocco_nome: loculoData?.Blocco?.Nome || null,
+              loculi: loculoData || null
+            };
+          });
           
           setDeceased(transformedData);
         }
