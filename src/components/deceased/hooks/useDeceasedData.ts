@@ -66,8 +66,7 @@ export const useDeceasedData = ({
           console.error("Error fetching deceased data:", error);
           setDeceased([]);
         } else {
-          // Ora recuperiamo le informazioni aggiuntive dei loculi separatamente
-          // dato che id_loculo è una stringa che contiene il valore numerico originale
+          // Transform data and fetch loculo information
           const transformedData: DeceasedRecord[] = await Promise.all(
             data.map(async (item) => {
               let loculoInfo = {
@@ -80,38 +79,44 @@ export const useDeceasedData = ({
               };
               
               if (item.id_loculo) {
-                // Cerca le informazioni del loculo nella tabella Loculo
-                const { data: loculoData, error: loculoError } = await supabase
-                  .from('Loculo')
-                  .select(`
-                    id,
-                    Numero,
-                    Fila,
-                    Blocco:IdBlocco (
-                      Id,
-                      Nome,
-                      Settore:IdSettore (
+                // Convert string id_loculo to number since the Loculo table uses numeric IDs
+                const loculoId = parseInt(item.id_loculo);
+                
+                if (!isNaN(loculoId)) {
+                  const { data: loculoData, error: loculoError } = await supabase
+                    .from('Loculo')
+                    .select(`
+                      id,
+                      Numero,
+                      Fila,
+                      Blocco:IdBlocco (
                         Id,
                         Nome,
-                        Cimitero:IdCimitero (
+                        Settore:IdSettore (
                           Id,
-                          Nome
+                          Nome,
+                          Cimitero:IdCimitero (
+                            Id,
+                            Nome
+                          )
                         )
                       )
-                    )
-                  `)
-                  .eq('id', item.id_loculo)
-                  .single();
-                
-                if (!loculoError && loculoData) {
-                  loculoInfo = {
-                    loculo_numero: loculoData.Numero, 
-                    loculo_fila: loculoData.Fila,
-                    cimitero_nome: loculoData.Blocco?.Settore?.Cimitero?.Nome || null,
-                    settore_nome: loculoData.Blocco?.Settore?.Nome || null,
-                    blocco_nome: loculoData.Blocco?.Nome || null,
-                    loculi: loculoData
-                  };
+                    `)
+                    .eq('id', loculoId)
+                    .single();
+                  
+                  if (!loculoError && loculoData) {
+                    loculoInfo = {
+                      loculo_numero: loculoData.Numero, 
+                      loculo_fila: loculoData.Fila,
+                      cimitero_nome: loculoData.Blocco?.Settore?.Cimitero?.Nome || null,
+                      settore_nome: loculoData.Blocco?.Settore?.Nome || null,
+                      blocco_nome: loculoData.Blocco?.Nome || null,
+                      loculi: loculoData
+                    };
+                  }
+                } else {
+                  console.warn(`Invalid loculo ID format: ${item.id_loculo}`);
                 }
               }
               
@@ -135,11 +140,8 @@ export const useDeceasedData = ({
     fetchDeceased();
   }, [searchTerm, sortBy, filterBy, selectedCemetery]);
 
-  // Filtro per cimitero viene gestito direttamente nel database o nella trasformazione dati
-  const filteredDeceased = deceased;
-
   return {
     loading,
-    filteredDeceased
+    filteredDeceased: deceased
   };
 };
