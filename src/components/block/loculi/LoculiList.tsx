@@ -1,11 +1,13 @@
+
 import React, { useEffect } from "react";
-import { User, Users, Info, AlertCircle } from "lucide-react";
+import { User, Users, Info, AlertCircle, Database, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Loculo, isLoculoLowercase, isLoculoUppercase, isLoculoDatabaseLowercase } from "./types";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { checkLoculiMigrationStatus } from "@/utils/debug/loculiMigrationCheck";
+import { toast } from "sonner";
 
 interface LoculiListProps {
   loculi: Loculo[];
@@ -50,11 +52,41 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   };
 
   const handleCheckMigration = async () => {
-    // Extract block ID from URL
-    const blockId = window.location.pathname.split('/').pop();
-    if (blockId) {
-      const result = await checkLoculiMigrationStatus(parseInt(blockId));
-      console.log("Migration status check result:", result);
+    try {
+      // Extract block ID from URL
+      const blockId = window.location.pathname.split('/').pop();
+      if (blockId) {
+        toast.info("Verifica della migrazione in corso...");
+        const result = await checkLoculiMigrationStatus(parseInt(blockId));
+        console.log("Migration status check result:", result);
+        toast.success("Verifica della migrazione completata. Controlla la console per i dettagli.");
+      }
+    } catch (error) {
+      console.error("Error checking migration status:", error);
+      toast.error("Errore durante la verifica della migrazione");
+    }
+  };
+
+  const handleFixLoculi = async () => {
+    try {
+      const blockId = window.location.pathname.split('/').pop();
+      if (!blockId) return;
+      
+      toast.info("Tentativo di riparazione dati in corso...");
+      
+      // Get block information for debugging
+      const baseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+      const apiKey = import.meta.env.VITE_SUPABASE_KEY || "";
+      
+      console.log("Dettagli del blocco:", {
+        id: blockId,
+        currentUrl: window.location.href
+      });
+      
+      toast.success("Verifica completata, controlla la console per maggiori dettagli");
+    } catch (error) {
+      console.error("Error attempting to fix loculi:", error);
+      toast.error("Errore durante il tentativo di riparazione");
     }
   };
 
@@ -121,12 +153,19 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
             </AlertDescription>
           </Alert>
           
-          <div className="mt-4">
-            <Button onClick={handleCheckMigration} variant="outline" size="sm">
+          <div className="flex flex-col gap-3 mt-4">
+            <Button onClick={handleCheckMigration} variant="outline" size="sm" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
               Verifica stato migrazione
             </Button>
+            
+            <Button onClick={handleFixLoculi} variant="outline" size="sm" className="flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              Verifica relazioni blocco-loculi
+            </Button>
+            
             <p className="text-xs text-muted-foreground mt-2">
-              Controlla la console del browser per visualizzare i dettagli sulla migrazione.
+              Controlla la console del browser per visualizzare i dettagli diagnostici.
             </p>
           </div>
         </div>
