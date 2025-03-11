@@ -29,8 +29,7 @@ export async function fetchLoculiData(blockId: number) {
         NumeroPostiResti,
         NumeroPosti,
         Superficie,
-        Concesso,
-        Defunto!left(Id, Nominativo, DataNascita, DataDecesso, Sesso)
+        Concesso
       `)
       .eq('IdBlocco', blockId)
       .order('Fila', { ascending: true })
@@ -41,15 +40,25 @@ export async function fetchLoculiData(blockId: number) {
       return { data: [], error: error.message };
     }
 
-    // Trasforma i dati nel formato richiesto (gestione delle relazioni esterne)
+    // Ora prendiamo i defunti associati a questi loculi
+    const loculiIds = data.map(loculo => loculo.id);
+    
+    const { data: defunti, error: defuntiError } = await supabase
+      .from('Defunto')
+      .select('*')
+      .in('IdLoculo', loculiIds);
+      
+    if (defuntiError) {
+      console.error("Errore nel caricamento dei defunti:", defuntiError);
+    }
+    
+    // Assegniamo i defunti ai rispettivi loculi
     const processedData = data.map(loculo => {
-      // Controlla se ci sono defunti associati e li gestisce correttamente
-      if (loculo.Defunto) {
-        // Se è un array mantienilo, altrimenti creane uno
-        const defunti = Array.isArray(loculo.Defunto) ? loculo.Defunto : [loculo.Defunto];
-        return { ...loculo, Defunti: defunti, Defunto: undefined };
-      }
-      return { ...loculo, Defunti: [] };
+      const associatedDefunti = defunti?.filter(d => d.IdLoculo === loculo.id) || [];
+      return { 
+        ...loculo, 
+        Defunti: associatedDefunti 
+      };
     });
 
     console.log(`Caricati ${processedData.length} loculi per il blocco ${blockId}`);
@@ -78,40 +87,38 @@ export async function searchLoculi(blockId: number, searchTerm: string) {
 
     console.log(`Ricerca loculi con termine "${searchTerm}" nel blocco ${blockId}`);
     
-    // Ricerca per nominativo defunto semplificata per evitare errori con le relazioni
-    const { data, error } = await supabase
+    // Prima troviamo i loculi per il blocco
+    const { data: loculi, error: loculiError } = await supabase
+      .from('Loculo')
+      .select('*')
+      .eq('IdBlocco', blockId);
+      
+    if (loculiError) {
+      throw loculiError;
+    }
+    
+    // Ora cerchiamo i defunti che contengono il termine di ricerca
+    const { data: defunti, error: defuntiError } = await supabase
       .from('Defunto')
-      .select(`
-        Id,
-        Nominativo,
-        DataNascita,
-        DataDecesso,
-        Sesso,
-        IdLoculo
-      `)
+      .select('*')
       .like('Nominativo', `%${searchTerm}%`);
-
-    if (error) {
-      console.error("Errore nella ricerca dei loculi:", error);
-      return { data: [], error: error.message };
-    }
-
-    // Filtra solo i defunti relativi al blocco specificato
-    // Nota: questa è un'implementazione semplificata
-    const loculiData = await fetchLoculiData(blockId);
-    const loculiIds = loculiData.data.map(l => l.id);
-    
-    // Trova i defunti che appartengono a loculi del blocco
-    const relevantDefunti = data.filter(d => loculiIds.includes(d.IdLoculo));
-    
-    if (relevantDefunti.length === 0) {
-      console.log("Nessun defunto trovato con il termine di ricerca nel blocco specificato");
-      return { data: [], error: null };
+      
+    if (defuntiError) {
+      throw defuntiError;
     }
     
-    // Ottieni i loculi corrispondenti
-    const relevantLoculiIds = relevantDefunti.map(d => d.IdLoculo);
-    const filteredLoculi = loculiData.data.filter(l => relevantLoculiIds.includes(l.id));
+    // Filtra i loculi che hanno defunti che corrispondono alla ricerca
+    const loculiIds = loculi.map(l => l.id);
+    const relevantDefunti = defunti.filter(d => loculiIds.includes(d.IdLoculo));
+    const relevantLoculiIds = [...new Set(relevantDefunti.map(d => d.IdLoculo))];
+    
+    // Associa i defunti ai loculi corrispondenti
+    const filteredLoculi = loculi
+      .filter(l => relevantLoculiIds.includes(l.id))
+      .map(loculo => {
+        const associatedDefunti = defunti.filter(d => d.IdLoculo === loculo.id);
+        return { ...loculo, Defunti: associatedDefunti };
+      });
     
     console.log(`Trovati ${filteredLoculi.length} loculi corrispondenti al termine di ricerca`);
     
@@ -119,40 +126,6 @@ export async function searchLoculi(blockId: number, searchTerm: string) {
   } catch (err: any) {
     console.error("Errore durante la ricerca dei loculi:", err);
     return { data: [], error: err.message };
-  }
-}
-
-/**
- * Funzione di debug per ottenere informazioni sulle tabelle
- */
-export async function getTableInfo(tableName: string) {
-  console.log(`Verificando struttura della tabella ${tableName}`);
-  
-  try {
-    // Get table data based on the table name
-    const result = await supabase
-      .from(tableName)
-      .select('*')
-      .limit(1);
-    
-    if (result.error) {
-      console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, result.error);
-      return { columns: [], error: result.error.message };
-    }
-    
-    if (!result.data || result.data.length === 0) {
-      console.log(`Nessun dato trovato nella tabella ${tableName}`);
-      return { columns: [], error: null };
-    }
-    
-    // Estrai i nomi delle colonne
-    const columns = Object.keys(result.data[0]);
-    console.log(`Colonne nella tabella ${tableName}:`, columns);
-    
-    return { columns, error: null };
-  } catch (err: any) {
-    console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, err);
-    return { columns: [], error: err.message };
   }
 }
 
@@ -204,5 +177,42 @@ export async function checkBloccoRelationship(blockId: number) {
     console.error("Errore durante la verifica della relazione:", err);
     toast.error("Errore durante la verifica della relazione blocco-loculi");
     return { error: err.message };
+  }
+}
+
+/**
+ * Funzione di debug per ottenere informazioni sulle tabelle
+ */
+export async function getTableInfo(tableName: string) {
+  console.log(`Verificando struttura della tabella ${tableName}`);
+  
+  try {
+    // Get table data based on the table name
+    let result;
+    
+    if (tableName === 'Loculo') {
+      result = await supabase.from('Loculo').select('*').limit(1);
+    } else {
+      result = await supabase.from(tableName as any).select('*').limit(1);
+    }
+    
+    if (result.error) {
+      console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, result.error);
+      return { columns: [], error: result.error.message };
+    }
+    
+    if (!result.data || result.data.length === 0) {
+      console.log(`Nessun dato trovato nella tabella ${tableName}`);
+      return { columns: [], error: null };
+    }
+    
+    // Estrai i nomi delle colonne
+    const columns = Object.keys(result.data[0]);
+    console.log(`Colonne nella tabella ${tableName}:`, columns);
+    
+    return { columns, error: null };
+  } catch (err: any) {
+    console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, err);
+    return { columns: [], error: err.message };
   }
 }

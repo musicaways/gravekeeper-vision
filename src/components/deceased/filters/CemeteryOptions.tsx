@@ -1,39 +1,59 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
-interface CemeteryOptionsProps {
-  onCemeterySelect: (name: string) => void;
-  selectedCemetery: string | null;
+interface CemeteryOption {
+  value: string;
+  label: string;
 }
 
-const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({ 
-  onCemeterySelect, 
-  selectedCemetery 
+interface CemeteryOptionsProps {
+  onSelectCemetery: (value: string | null) => void;
+  selectedValue: string | null;
+}
+
+const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
+  onSelectCemetery,
+  selectedValue,
 }) => {
-  const [cemeteries, setCemeteries] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
+  const [cemeteries, setCemeteries] = useState<CemeteryOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Carica direttamente l'elenco dei cimiteri
     const fetchCemeteries = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('Cimitero')
-          .select('Nome')
-          .order('Nome', { ascending: true });
+          .select('Id, Nome')
+          .order('Nome');
 
-        if (error) {
-          console.error("Errore nel caricamento dei cimiteri:", error);
-          return;
-        }
+        if (error) throw error;
 
-        // Estrai i nomi dei cimiteri
-        const cemeteryNames = data?.map(item => item.Nome).filter(Boolean);
-        setCemeteries(cemeteryNames || []);
+        const options = data.map(item => ({
+          value: item.Nome,
+          label: item.Nome || 'Cimitero senza nome',
+        }));
+
+        setCemeteries(options);
       } catch (error) {
-        console.error("Errore nell'elaborazione dei cimiteri:", error);
+        console.error("Error fetching cemeteries:", error);
       } finally {
         setLoading(false);
       }
@@ -42,26 +62,75 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
     fetchCemeteries();
   }, []);
 
-  if (loading) {
-    return <DropdownMenuItem disabled>Caricamento cimiteri...</DropdownMenuItem>;
-  }
-
-  if (cemeteries.length === 0) {
-    return <DropdownMenuItem disabled>Nessun cimitero disponibile</DropdownMenuItem>;
-  }
+  const selectedLabel = selectedValue 
+    ? cemeteries.find(cemetery => cemetery.value === selectedValue)?.label || selectedValue
+    : "Seleziona cimitero";
 
   return (
-    <>
-      {cemeteries.map((cemetery) => (
-        <DropdownMenuItem
-          key={cemetery}
-          className={selectedCemetery === cemetery ? 'bg-muted text-primary' : ''}
-          onClick={() => onCemeterySelect(cemetery)}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
         >
-          {cemetery}
-        </DropdownMenuItem>
-      ))}
-    </>
+          {selectedLabel}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <Command>
+          <CommandInput placeholder="Cerca cimitero..." />
+          <CommandEmpty>Nessun cimitero trovato</CommandEmpty>
+          <CommandGroup>
+            {loading ? (
+              <CommandItem disabled>Caricamento...</CommandItem>
+            ) : (
+              <>
+                <CommandItem
+                  key="all"
+                  value="all"
+                  onSelect={() => {
+                    onSelectCemetery(null);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      !selectedValue ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  Tutti i cimiteri
+                </CommandItem>
+
+                {cemeteries.map((cemetery) => (
+                  <CommandItem
+                    key={cemetery.value}
+                    value={cemetery.value}
+                    onSelect={() => {
+                      onSelectCemetery(cemetery.value);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedValue === cemetery.value
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                    {cemetery.label}
+                  </CommandItem>
+                ))}
+              </>
+            )}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
 

@@ -147,7 +147,7 @@ export const useDeceasedData = ({
         nominativo: item.Nominativo || '',
         data_decesso: item.DataDecesso,
         data_nascita: item.DataNascita,
-        eta: item.Eta,
+        eta: item.Eta || null,
         cimitero_nome: 'Non disponibile',
         settore_nome: 'Non disponibile',
         blocco_nome: 'Non disponibile',

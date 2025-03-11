@@ -13,11 +13,16 @@ export async function getTableMetadata(tableName: string) {
       return { columns: [], error: `Nome tabella non supportato: ${tableName}` };
     }
     
-    // Usa la query diretta al database
-    const { data, error } = await supabase
-      .from(tableName)
-      .select('*')
-      .limit(1);
+    // Usa la query diretta alla tabella specifica
+    let result;
+    
+    if (tableName === 'Loculo') {
+      result = await supabase.from('Loculo').select('*').limit(1);
+    } else {
+      result = await supabase.from(tableName as any).select('*').limit(1);
+    }
+    
+    const { data, error } = result;
     
     if (error) {
       console.error(`Errore nel recupero dei metadati per la tabella ${tableName}:`, error);
