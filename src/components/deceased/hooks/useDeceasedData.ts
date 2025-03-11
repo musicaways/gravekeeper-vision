@@ -23,7 +23,7 @@ export const useDeceasedData = ({
     const fetchDeceased = async () => {
       setLoading(true);
       try {
-        // Utilizziamo la tabella defunti con join alle tabelle correlate
+        // Query the defunti table first
         let query = supabase
           .from('defunti')
           .select(`
@@ -35,24 +35,7 @@ export const useDeceasedData = ({
             sesso,
             annotazioni,
             stato_defunto,
-            id_loculo,
-            Loculo!left(
-              id,
-              Numero,
-              Fila,
-              Blocco:IdBlocco(
-                Id,
-                Nome,
-                Settore:IdSettore(
-                  Id,
-                  Nome,
-                  Cimitero:IdCimitero(
-                    Id,
-                    Nome
-                  )
-                )
-              )
-            )
+            id_loculo
           `)
           .order(sortBy === 'name' ? 'nominativo' : 'data_decesso', { ascending: sortBy !== 'recent' });
 
@@ -71,42 +54,92 @@ export const useDeceasedData = ({
           query = query.ilike('nominativo', `%${searchTerm}%`);
         }
 
-        // Applicare filtro per cimitero se selezionato
-        if (selectedCemetery && filterBy === 'by-cemetery') {
-          query = query.eq('Loculo.Blocco.Settore.Cimitero.Nome', selectedCemetery);
-        }
+        const { data: defuntiData, error: defuntiError } = await query;
 
-        const { data, error } = await query;
-
-        if (error) {
-          console.error("Error fetching deceased data:", error);
+        if (defuntiError) {
+          console.error("Error fetching deceased data:", defuntiError);
           setDeceased([]);
-        } else {
-          // Transform data to match the DeceasedRecord structure
-          const transformedData: DeceasedRecord[] = data.map(item => {
-            const loculoData = item.Loculo;
-            
-            return {
-              id: item.id,
-              nominativo: item.nominativo,
-              data_nascita: item.data_nascita,
-              data_decesso: item.data_decesso,
-              eta: item.eta,
-              sesso: item.sesso,
-              annotazioni: item.annotazioni,
-              stato_defunto: item.stato_defunto,
-              id_loculo: item.id_loculo,
-              loculo_numero: loculoData?.Numero || null,
-              loculo_fila: loculoData?.Fila || null,
-              cimitero_nome: loculoData?.Blocco?.Settore?.Cimitero?.Nome || null,
-              settore_nome: loculoData?.Blocco?.Settore?.Nome || null,
-              blocco_nome: loculoData?.Blocco?.Nome || null,
-              loculi: loculoData || null
-            };
-          });
-          
-          setDeceased(transformedData);
+          setLoading(false);
+          return;
         }
+
+        // Now we need to fetch the Loculo information for each record
+        // and apply cemetery filter if needed
+        const defuntiWithLoculiPromises = defuntiData.map(async (defunto) => {
+          let loculoData = null;
+
+          if (defunto.id_loculo) {
+            try {
+              const loculoId = parseInt(defunto.id_loculo);
+              
+              if (!isNaN(loculoId)) {
+                const { data: loculo, error: loculoError } = await supabase
+                  .from('Loculo')
+                  .select(`
+                    id,
+                    Numero,
+                    Fila,
+                    Blocco:IdBlocco(
+                      Id,
+                      Nome,
+                      Settore:IdSettore(
+                        Id,
+                        Nome,
+                        Cimitero:IdCimitero(
+                          Id,
+                          Nome
+                        )
+                      )
+                    )
+                  `)
+                  .eq('id', loculoId)
+                  .maybeSingle();
+
+                if (!loculoError && loculo) {
+                  loculoData = loculo;
+                }
+              }
+            } catch (error) {
+              console.error("Error fetching loculo:", error);
+            }
+          }
+          
+          // Filter by cemetery if needed
+          if (selectedCemetery && filterBy === 'by-cemetery') {
+            if (!loculoData || 
+                !loculoData.Blocco || 
+                !loculoData.Blocco.Settore || 
+                !loculoData.Blocco.Settore.Cimitero || 
+                loculoData.Blocco.Settore.Cimitero.Nome !== selectedCemetery) {
+              return null; // Skip this record if it doesn't match the cemetery filter
+            }
+          }
+
+          return {
+            id: defunto.id,
+            nominativo: defunto.nominativo,
+            data_nascita: defunto.data_nascita,
+            data_decesso: defunto.data_decesso,
+            eta: defunto.eta,
+            sesso: defunto.sesso,
+            annotazioni: defunto.annotazioni,
+            stato_defunto: defunto.stato_defunto,
+            id_loculo: defunto.id_loculo,
+            loculo_numero: loculoData?.Numero || null,
+            loculo_fila: loculoData?.Fila || null,
+            cimitero_nome: loculoData?.Blocco?.Settore?.Cimitero?.Nome || null,
+            settore_nome: loculoData?.Blocco?.Settore?.Nome || null,
+            blocco_nome: loculoData?.Blocco?.Nome || null,
+            loculi: loculoData
+          } as DeceasedRecord;
+        });
+
+        const defuntiWithLoculi = await Promise.all(defuntiWithLoculiPromises);
+        
+        // Filter out null records (those that didn't match the cemetery filter)
+        const filteredDeceased = defuntiWithLoculi.filter(record => record !== null) as DeceasedRecord[];
+        
+        setDeceased(filteredDeceased);
       } catch (error) {
         console.error("Failed to fetch deceased:", error);
         setDeceased([]);
