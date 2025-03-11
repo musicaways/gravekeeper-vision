@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { User, Users, Info, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +5,7 @@ import { Loculo, isLoculoLowercase, isLoculoUppercase, isLoculoDatabaseLowercase
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { checkLoculiMigrationStatus } from "@/utils/loculiDebugUtils";
+import { checkLoculiMigrationStatus } from "@/utils/debug/loculiMigrationCheck";
 
 interface LoculiListProps {
   loculi: Loculo[];
