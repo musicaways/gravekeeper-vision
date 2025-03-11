@@ -39,21 +39,7 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         
         console.log("Fetching loculi for block ID:", numericBlockId);
         
-        // Check table structure for debugging
-        const loculiTableInfo = await getTableInfo('loculi');
-        console.log("Struttura tabella 'loculi':", loculiTableInfo);
-        
-        const loculoTableInfo = await getTableInfo('Loculo');
-        console.log("Struttura tabella 'Loculo':", loculoTableInfo);
-        
-        // Use separate variables to avoid type recursion
-        const uppercaseResult = await fetchLoculiFromUppercaseTable(numericBlockId);
-        console.log("Uppercase table result:", uppercaseResult);
-        
-        const lowercaseResult = await fetchLoculiFromLowercaseTable(numericBlockId);
-        console.log("Lowercase table result:", lowercaseResult);
-        
-        // Retrieve data using the helper function
+        // Use the helper function to fetch data from both tables
         const result = await fetchLoculiData(numericBlockId);
         
         if (result.error) {
@@ -69,32 +55,24 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           // Simple check for data presence in tables
           try {
             // Use simple queries with explicit column selection
-            const loculiCheck = await supabase
+            const { data: loculiCheck } = await supabase
               .from('loculi')
-              .select('id, Numero, Fila')
+              .select('id, Numero, Fila, IdBlocco')
               .limit(5);
             console.log("Sample loculi check:", loculiCheck);
             
-            const loculoCheck = await supabase
+            const { data: loculoCheck } = await supabase
               .from('Loculo')
-              .select('Id, Numero, Fila')
+              .select('Id, Numero, Fila, IdBlocco')
               .limit(5);
             console.log("Sample Loculo check:", loculoCheck);
             
-            // Try alternative column names too
-            console.log("Checking for loculi with block ID using alternative field names...");
-            
-            const alternativeCheck1 = await supabase
+            // Check with the correct field name "IdBlocco"
+            const { data: blockCheck } = await supabase
               .from('loculi')
               .select('id, Numero, Fila')
-              .eq('idblocco', numericBlockId);
-            console.log("Check with 'idblocco':", alternativeCheck1);
-            
-            const alternativeCheck2 = await supabase
-              .from('loculi')
-              .select('id, Numero, Fila')
-              .eq('id_blocco', numericBlockId);
-            console.log("Check with 'id_blocco':", alternativeCheck2);
+              .eq('IdBlocco', numericBlockId);
+            console.log("Check with 'IdBlocco':", blockCheck);
           } catch (err) {
             console.error("Error in check queries:", err);
           }
@@ -102,7 +80,7 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           console.log("Primo loculo trovato:", result.data[0]);
         }
         
-        // Set loculi with explicit typing
+        // Set loculi
         setLoculi(result.data);
         
         // If we have a search term, also search for defunti by nominativo

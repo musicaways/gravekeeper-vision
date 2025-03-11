@@ -29,14 +29,14 @@ export async function searchDefuntiByName(
     if (!defuntoError && defuntoData && defuntoData.length > 0) {
       console.log("Defunti found in 'Defunto' table:", defuntoData);
       
-      // Extract unique loculi from defunti search results using type assertion
+      // Extract unique loculi from defunti search results
       const loculiFromDefunti = defuntoData
         .filter(d => d.Loculo) // Ensure Loculo is defined
         .map(d => d.Loculo);
       
       // Only include loculi that aren't already in the main results
       const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
-      additionalLoculi = uniqueLoculi as Loculo[];
+      additionalLoculi = uniqueLoculi;
     } else {
       console.log("No results from 'Defunto' table or error occurred, trying lowercase table");
       
@@ -47,14 +47,9 @@ export async function searchDefuntiByName(
       if (!defuntiError && defuntiData && defuntiData.length > 0) {
         console.log("Defunti found in 'defunti' table:", defuntiData);
         
-        // Extract unique loculi from defunti search results
-        let loculiFromDefunti = defuntiData;
-        
-        console.log("Extracted loculi from defunti:", loculiFromDefunti);
-        
         // Only include loculi that aren't already in the main results
-        const uniqueLoculi = filterUniqueLoculi(loculiFromDefunti, currentLoculi);
-        additionalLoculi = uniqueLoculi as Loculo[];
+        const uniqueLoculi = filterUniqueLoculi(defuntiData, currentLoculi);
+        additionalLoculi = uniqueLoculi;
       } else {
         console.log("No results from 'defunti' table or error occurred:", defuntiError);
       }

@@ -8,9 +8,8 @@ import { Loculo, Defunto } from "@/components/block/loculi/types";
 export async function fetchLoculiFromLowercaseTable(blockId: number) {
   console.log(`Tentativo di recupero loculi dalla tabella 'loculi' con blockId: ${blockId}`);
   
-  // Try with IdBlocco field first
   try {
-    // Use explicit type casting to break the recursive type reference
+    // Use the correct field name "IdBlocco" instead of "id_blocco"
     const { data, error } = await supabase
       .from('loculi')
       .select(`
@@ -19,67 +18,38 @@ export async function fetchLoculiFromLowercaseTable(blockId: number) {
       `)
       .eq('IdBlocco', blockId);
       
-    // Fetch defunti separately to avoid type recursion
+    // Handle error case
+    if (error) {
+      console.error("Errore nel recupero dalla tabella 'loculi':", error);
+      return { data: [], error };
+    }
+    
+    // If we have data, fetch defunti separately for each loculo
+    const enrichedData = [];
     if (data && data.length > 0) {
       for (const loculo of data) {
-        const { data: defuntiData } = await supabase
+        const loculoWithDefunti = { ...loculo, defunti: [] };
+        
+        // Fetch defunti for this loculo
+        const { data: defuntiData, error: defuntiError } = await supabase
           .from('defunti')
           .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
           .eq('id_loculo', loculo.id);
         
-        // Attach defunti data to the loculo using type assertion
-        (loculo as any).defunti = defuntiData || [];
+        if (!defuntiError && defuntiData) {
+          loculoWithDefunti.defunti = defuntiData;
+        }
+        
+        enrichedData.push(loculoWithDefunti);
       }
     }
       
-    if (error) {
-      console.error("Errore nel recupero dalla tabella 'loculi':", error);
-      
-      // If there's a column name error, try alternative column name
-      if (error.message && error.message.includes("does not exist")) {
-        console.log("Trying alternative column name 'id_blocco'...");
-        
-        // Use explicit field selection to avoid nested types
-        const altResponse = await supabase
-          .from('loculi')
-          .select(`
-            id, Numero, Fila, Annotazioni, id_blocco, TipoTomba, FilaDaAlto, 
-            NumeroPostiResti, NumeroPosti, Superficie, Concesso, Alias
-          `)
-          .eq('id_blocco', blockId);
-        
-        const altData = altResponse.data;
-        const altError = altResponse.error;
-        
-        // Fetch defunti separately
-        if (altData && altData.length > 0) {
-          for (const loculo of altData) {
-            const { data: defuntiData } = await supabase
-              .from('defunti')
-              .select('id, nominativo, data_nascita, data_decesso, sesso, annotazioni')
-              .eq('id_loculo', loculo.id);
-            
-            // Attach defunti data using type assertion
-            (loculo as any).defunti = defuntiData || [];
-          }
-        }
-        
-        // Check if altError exists before trying to access properties
-        if (altError) {
-          return { data: [], error: altError };
-        }
-        
-        return { data: altData || [], error: null };
-      }
-      
-      return { data: [], error };
+    console.log(`Trovati ${enrichedData.length || 0} loculi nella tabella 'loculi' per blockId ${blockId}`);
+    if (enrichedData.length > 0) {
+      console.log("Esempio di loculo trovato (loculi):", enrichedData[0]);
     }
     
-    console.log(`Trovati ${data?.length || 0} loculi nella tabella 'loculi' per blockId ${blockId}`);
-    if (data && data.length > 0) {
-      console.log("Esempio di loculo trovato (loculi):", data[0]);
-    }
-    return { data: data || [], error };
+    return { data: enrichedData, error: null };
   } catch (err) {
     console.error("Exception in fetchLoculiFromLowercaseTable:", err);
     return { data: [], error: err };
@@ -117,7 +87,8 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
     }
     
     // Fetch the loculi with these IDs that also belong to the specified block
-    const loculiResponse = await supabase
+    // Use the correct field name "IdBlocco" 
+    const { data: loculiData, error: loculiError } = await supabase
       .from('loculi')
       .select(`
         id, Numero, Fila, Annotazioni, IdBlocco, TipoTomba, FilaDaAlto, 
@@ -125,23 +96,24 @@ export async function searchDefuntiInLowercaseTable(blockId: number, searchTerm:
       `)
       .eq('IdBlocco', blockId)
       .in('id', loculoIds);
-    
-    const loculiData = loculiResponse.data;
-    const loculiError = loculiResponse.error;
       
     if (loculiError) {
       return { data: [], error: loculiError };
     }
     
-    // Map defunti to their respective loculi using type assertion
+    // Map defunti to their respective loculi
+    const enrichedLoculi = [];
     if (loculiData && loculiData.length > 0) {
       for (const loculo of loculiData) {
-        // Use type assertion to assign defunti property
-        (loculo as any).defunti = defuntiData.filter(d => d.id_loculo === loculo.id);
+        const matchingDefunti = defuntiData.filter(d => d.id_loculo === loculo.id);
+        enrichedLoculi.push({
+          ...loculo,
+          defunti: matchingDefunti
+        });
       }
     }
     
-    return { data: loculiData || [], error: null };
+    return { data: enrichedLoculi, error: null };
   } catch (err) {
     console.error("Exception in searchDefuntiInLowercaseTable:", err);
     return { data: [], error: err };
