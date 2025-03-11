@@ -30,7 +30,7 @@ export async function fetchLoculiData(blockId: number) {
         NumeroPosti,
         Superficie,
         Concesso,
-        Defunti:Defunto(Id, Nominativo, DataNascita, DataDecesso, Sesso)
+        Defunto!left(Id, Nominativo, DataNascita, DataDecesso, Sesso)
       `)
       .eq('IdBlocco', blockId)
       .order('Fila', { ascending: true })
@@ -41,15 +41,26 @@ export async function fetchLoculiData(blockId: number) {
       return { data: [], error: error.message };
     }
 
-    console.log(`Caricati ${data.length} loculi per il blocco ${blockId}`);
+    // Trasforma i dati nel formato richiesto (gestione delle relazioni esterne)
+    const processedData = data.map(loculo => {
+      // Controlla se ci sono defunti associati e li gestisce correttamente
+      if (loculo.Defunto) {
+        // Se è un array mantienilo, altrimenti creane uno
+        const defunti = Array.isArray(loculo.Defunto) ? loculo.Defunto : [loculo.Defunto];
+        return { ...loculo, Defunti: defunti, Defunto: undefined };
+      }
+      return { ...loculo, Defunti: [] };
+    });
+
+    console.log(`Caricati ${processedData.length} loculi per il blocco ${blockId}`);
     
-    if (data.length === 0) {
+    if (processedData.length === 0) {
       console.log("Nessun loculo trovato per il blocco", blockId);
     } else {
-      console.log("Esempio di loculo:", data[0]);
+      console.log("Esempio di loculo:", processedData[0]);
     }
 
-    return { data, error: null };
+    return { data: processedData, error: null };
   } catch (err: any) {
     console.error("Errore durante il caricamento dei loculi:", err);
     return { data: [], error: err.message };

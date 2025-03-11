@@ -16,42 +16,24 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Extract unique cemetery names from the deceased list
+    // Carica direttamente l'elenco dei cimiteri
     const fetchCemeteries = async () => {
       try {
         const { data, error } = await supabase
-          .from('defunti')
-          .select(`
-            loculi (
-              Blocco (
-                Settore (
-                  Cimitero (
-                    Nome
-                  )
-                )
-              )
-            )
-          `);
+          .from('Cimitero')
+          .select('Nome')
+          .order('Nome', { ascending: true });
 
         if (error) {
-          console.error("Error fetching cemeteries:", error);
+          console.error("Errore nel caricamento dei cimiteri:", error);
           return;
         }
 
-        // Extract and deduplicate cemetery names
-        const cemeterySet = new Set<string>();
-        
-        data?.forEach(item => {
-          const cemeteryName = item.loculi?.Blocco?.Settore?.Cimitero?.Nome;
-          if (cemeteryName) {
-            cemeterySet.add(cemeteryName);
-          }
-        });
-
-        const uniqueCemeteries = Array.from(cemeterySet).sort();
-        setCemeteries(uniqueCemeteries);
+        // Estrai i nomi dei cimiteri
+        const cemeteryNames = data?.map(item => item.Nome).filter(Boolean);
+        setCemeteries(cemeteryNames || []);
       } catch (error) {
-        console.error("Error processing cemeteries:", error);
+        console.error("Errore nell'elaborazione dei cimiteri:", error);
       } finally {
         setLoading(false);
       }

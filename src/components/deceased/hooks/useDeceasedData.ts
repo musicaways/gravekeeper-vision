@@ -125,52 +125,35 @@ export const useDeceasedData = ({
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('defunti')
+        .from('Defunto')
         .select(`
-          id,
-          nominativo,
-          data_decesso,
-          data_nascita,
-          eta,
-          loculi (
-            id,
-            Numero,
-            Fila,
-            Blocco (
-              Id,
-              Nome,
-              Settore (
-                Id,
-                Nome,
-                Cimitero (
-                  Id,
-                  Nome
-                )
-              )
-            )
-          )
+          Id as id,
+          Nominativo as nominativo,
+          DataDecesso as data_decesso,
+          DataNascita as data_nascita,
+          Eta as eta,
+          IdLoculo
         `)
-        .order('nominativo', { ascending: true });
+        .order('Nominativo', { ascending: true })
+        .limit(50); // Limita i risultati per performance
 
       if (error) {
         throw error;
       }
 
-      // Filter out records without loculi data first
-      const validData = data.filter(item => item.loculi);
-      
-      const transformedData: DeceasedRecord[] = validData.map(item => ({
+      // Crea un array di record semplificati
+      const transformedData: DeceasedRecord[] = data.map(item => ({
         id: item.id,
-        nominativo: item.nominativo,
+        nominativo: item.nominativo || '',
         data_decesso: item.data_decesso,
         data_nascita: item.data_nascita,
         eta: item.eta,
-        cimitero_nome: item.loculi?.Blocco?.Settore?.Cimitero?.Nome || null,
-        settore_nome: item.loculi?.Blocco?.Settore?.Nome || null,
-        blocco_nome: item.loculi?.Blocco?.Nome || null,
-        loculo_numero: item.loculi?.Numero || null,
-        loculo_fila: item.loculi?.Fila || null,
-        loculi: item.loculi
+        cimitero_nome: 'Non disponibile',
+        settore_nome: 'Non disponibile',
+        blocco_nome: 'Non disponibile',
+        loculo_numero: null,
+        loculo_fila: null,
+        loculi: null
       }));
 
       setDeceased(transformedData);

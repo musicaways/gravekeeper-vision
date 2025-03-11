@@ -1,6 +1,6 @@
 
 import React, { useEffect } from "react";
-import { User, Users, AlertCircle, Database, Layers } from "lucide-react";
+import { User, Users, AlertCircle, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Loculo, getDefuntiCount, getDefunti, getNominativo } from "./types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -132,4 +132,4 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
       )}
     </div>
   );
-};
+}
