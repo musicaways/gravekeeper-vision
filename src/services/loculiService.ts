@@ -78,7 +78,7 @@ export async function searchLoculi(blockId: number, searchTerm: string) {
 
     console.log(`Ricerca loculi con termine "${searchTerm}" nel blocco ${blockId}`);
     
-    // Ricerca per nominativo defunto
+    // Ricerca per nominativo defunto semplificata per evitare errori con le relazioni
     const { data, error } = await supabase
       .from('Defunto')
       .select(`
@@ -87,50 +87,35 @@ export async function searchLoculi(blockId: number, searchTerm: string) {
         DataNascita,
         DataDecesso,
         Sesso,
-        IdLoculo,
-        Loculo!inner(
-          id,
-          Numero,
-          Fila,
-          Annotazioni,
-          IdBlocco,
-          TipoTomba,
-          Alias,
-          FilaDaAlto,
-          NumeroPostiResti,
-          NumeroPosti,
-          Superficie,
-          Concesso
-        )
+        IdLoculo
       `)
-      .like('Nominativo', `%${searchTerm}%`)
-      .eq('Loculo.IdBlocco', blockId);
+      .like('Nominativo', `%${searchTerm}%`);
 
     if (error) {
       console.error("Errore nella ricerca dei loculi:", error);
       return { data: [], error: error.message };
     }
 
-    // Trasforma i risultati nel formato richiesto
-    const transformedData = data.map(defunto => {
-      const loculo = defunto.Loculo;
-      return {
-        ...loculo,
-        Defunti: [
-          {
-            Id: defunto.Id,
-            Nominativo: defunto.Nominativo,
-            DataNascita: defunto.DataNascita,
-            DataDecesso: defunto.DataDecesso,
-            Sesso: defunto.Sesso
-          }
-        ]
-      };
-    });
-
-    console.log(`Trovati ${transformedData.length} loculi corrispondenti al termine di ricerca`);
+    // Filtra solo i defunti relativi al blocco specificato
+    // Nota: questa è un'implementazione semplificata
+    const loculiData = await fetchLoculiData(blockId);
+    const loculiIds = loculiData.data.map(l => l.id);
     
-    return { data: transformedData, error: null };
+    // Trova i defunti che appartengono a loculi del blocco
+    const relevantDefunti = data.filter(d => loculiIds.includes(d.IdLoculo));
+    
+    if (relevantDefunti.length === 0) {
+      console.log("Nessun defunto trovato con il termine di ricerca nel blocco specificato");
+      return { data: [], error: null };
+    }
+    
+    // Ottieni i loculi corrispondenti
+    const relevantLoculiIds = relevantDefunti.map(d => d.IdLoculo);
+    const filteredLoculi = loculiData.data.filter(l => relevantLoculiIds.includes(l.id));
+    
+    console.log(`Trovati ${filteredLoculi.length} loculi corrispondenti al termine di ricerca`);
+    
+    return { data: filteredLoculi, error: null };
   } catch (err: any) {
     console.error("Errore durante la ricerca dei loculi:", err);
     return { data: [], error: err.message };

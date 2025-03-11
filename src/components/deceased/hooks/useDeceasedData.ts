@@ -127,11 +127,11 @@ export const useDeceasedData = ({
       const { data, error } = await supabase
         .from('Defunto')
         .select(`
-          Id as id,
-          Nominativo as nominativo,
-          DataDecesso as data_decesso,
-          DataNascita as data_nascita,
-          Eta as eta,
+          Id,
+          Nominativo,
+          DataDecesso,
+          DataNascita,
+          Eta,
           IdLoculo
         `)
         .order('Nominativo', { ascending: true })
@@ -143,11 +143,11 @@ export const useDeceasedData = ({
 
       // Crea un array di record semplificati
       const transformedData: DeceasedRecord[] = data.map(item => ({
-        id: item.id,
-        nominativo: item.nominativo || '',
-        data_decesso: item.data_decesso,
-        data_nascita: item.data_nascita,
-        eta: item.eta,
+        id: item.Id,
+        nominativo: item.Nominativo || '',
+        data_decesso: item.DataDecesso,
+        data_nascita: item.DataNascita,
+        eta: item.Eta,
         cimitero_nome: 'Non disponibile',
         settore_nome: 'Non disponibile',
         blocco_nome: 'Non disponibile',
