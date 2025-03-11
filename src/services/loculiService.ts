@@ -40,7 +40,7 @@ export async function fetchLoculiData(blockId: number) {
       return { data: [], error: error.message };
     }
 
-    // Ora prendiamo i defunti associati a questi loculi
+    // Step 1: Recupera vecchi defunti dalla tabella 'Defunto'
     const loculiIds = data.map(loculo => loculo.id);
     
     const { data: defunti, error: defuntiError } = await supabase
@@ -52,12 +52,31 @@ export async function fetchLoculiData(blockId: number) {
       console.error("Errore nel caricamento dei defunti:", defuntiError);
     }
     
-    // Assegniamo i defunti ai rispettivi loculi
+    // Step 2: Recupera nuovi defunti dalla tabella 'defunti'
+    const loculiIdsAsStrings = loculiIds.map(id => id.toString());
+    const { data: newDefunti, error: newDefuntiError } = await supabase
+      .from('defunti')
+      .select('*')
+      .in('id_loculo', loculiIdsAsStrings);
+    
+    if (newDefuntiError) {
+      console.error("Errore nel caricamento dei nuovi defunti:", newDefuntiError);
+    }
+    
+    // Step 3: Combina i due set di dati per ogni loculo
     const processedData = data.map(loculo => {
-      const associatedDefunti = defunti?.filter(d => d.IdLoculo === loculo.id) || [];
+      // Defunti dal vecchio schema
+      const oldAssociatedDefunti = defunti?.filter(d => d.IdLoculo === loculo.id) || [];
+      
+      // Defunti dal nuovo schema
+      const newAssociatedDefunti = newDefunti?.filter(d => d.id_loculo === loculo.id.toString()) || [];
+      
+      // Unisci i due array
+      const allDefunti = [...oldAssociatedDefunti, ...newAssociatedDefunti];
+      
       return { 
         ...loculo, 
-        Defunti: associatedDefunti 
+        Defunti: allDefunti 
       };
     });
 

@@ -83,6 +83,11 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
                           <User className="h-4 w-4 text-muted-foreground shrink-0" />
                           <span className="text-sm font-medium truncate">{getNominativo(defunto)}</span>
                         </div>
+                        {defunto.data_decesso && (
+                          <span className="text-xs text-muted-foreground">
+                            {defunto.data_decesso.toString().split('T')[0]}
+                          </span>
+                        )}
                       </div>
                     ))
                   ) : (

@@ -30,6 +30,7 @@ export interface DefuntoType {
   Sesso?: string;
   sesso?: string;
   annotazioni?: string;
+  stato_defunto?: number;
 }
 
 // Union type to handle all structures (for backward compatibility)
