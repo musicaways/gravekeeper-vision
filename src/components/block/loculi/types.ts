@@ -20,7 +20,7 @@ export interface LoculoType {
 
 export interface DefuntoType {
   Id?: number;
-  id?: number;
+  id?: number | string; // Updated to handle both number and string IDs
   Nominativo?: string;
   nominativo?: string;
   DataNascita?: string | Date;

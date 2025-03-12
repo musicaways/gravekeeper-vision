@@ -21,9 +21,14 @@ export function useLoculiWithDefunti({
     
     return loculi.map(loculo => ({
       ...loculo,
-      Defunti: defunti.filter(d => 
-        d.IdLoculo === loculo.id || d.id_loculo === loculo.id.toString()
-      )
+      Defunti: defunti.filter(d => {
+        // Handle both old and new ID formats
+        const defuntoLoculoId = d.IdLoculo || d.id_loculo;
+        const loculoId = loculo.id;
+        
+        return defuntoLoculoId == loculoId || // Use == for type coercion
+               (typeof defuntoLoculoId === 'string' && defuntoLoculoId === loculoId.toString());
+      })
     }));
   }, [loculi, defunti]);
 }

@@ -40,7 +40,25 @@ export function useDefuntiForLoculi({
           throw new Error(defuntiResult.error);
         }
         
-        setDefunti(defuntiResult.data);
+        // Ensure the data conforms to DefuntoType
+        const normalizedDefunti: DefuntoType[] = defuntiResult.data.map((defunto: any) => {
+          return {
+            Id: defunto.Id,
+            id: defunto.id,
+            Nominativo: defunto.Nominativo,
+            nominativo: defunto.nominativo,
+            DataNascita: defunto.DataNascita,
+            data_nascita: defunto.data_nascita,
+            DataDecesso: defunto.DataDecesso,
+            data_decesso: defunto.data_decesso,
+            Sesso: defunto.Sesso,
+            sesso: defunto.sesso,
+            annotazioni: defunto.annotazioni,
+            stato_defunto: defunto.stato_defunto || defunto.StatoDefunto
+          };
+        });
+        
+        setDefunti(normalizedDefunti);
       } catch (err: any) {
         console.error("Errore nel caricamento dei defunti:", err);
         setError(err.message);
