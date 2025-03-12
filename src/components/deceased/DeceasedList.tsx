@@ -32,6 +32,11 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  React.useEffect(() => {
+    // Reset to page 1 when filter/sort options change
+    setPage(1);
+  }, [sortBy, filterBy, selectedCemetery, searchTerm]);
+
   if (loading && page === 1) {
     return <DeceasedLoadingSkeleton />;
   }

@@ -65,7 +65,23 @@ export const useDeceasedData = ({
       }
       
       // Applica ordinamento
-      query = query.order(sortBy === 'name' ? 'nominativo' : 'data_decesso', { ascending: sortBy !== 'recent' });
+      switch (sortBy) {
+        case 'name-asc':
+          query = query.order('nominativo', { ascending: true });
+          break;
+        case 'name-desc':
+          query = query.order('nominativo', { ascending: false });
+          break;
+        case 'date-desc':
+          query = query.order('data_decesso', { ascending: false, nullsFirst: false });
+          break;
+        case 'date-asc':
+          query = query.order('data_decesso', { ascending: true, nullsFirst: false });
+          break;
+        // Gli ordinamenti per cimitero verranno applicati dopo
+        default:
+          query = query.order('nominativo', { ascending: true });
+      }
       
       // Applica paginazione
       query = query.range(from, to);
@@ -113,6 +129,7 @@ export const useDeceasedData = ({
           cimitero_nome: null,
           settore_nome: null,
           blocco_nome: null,
+          loculi: null
         })) as DeceasedRecord[];
         
         setDeceased(processedData);
@@ -140,7 +157,7 @@ export const useDeceasedData = ({
             )
           )
         `)
-        .in('id', loculiIds.map(id => parseInt(id)).filter(id => !isNaN(id)));
+        .in('id', loculiIds);
       
       if (loculiError) {
         console.error("Error fetching loculi:", loculiError);
@@ -155,20 +172,9 @@ export const useDeceasedData = ({
       }
       
       // Associa i dati del loculo ai defunti
-      const processedData = defuntiData.map(defunto => {
+      let processedData = defuntiData.map(defunto => {
         const loculoId = defunto.id_loculo;
-        const loculo = loculoId ? loculiMap.get(loculoId) : null;
-        
-        // Filtra per cimitero se necessario
-        if (selectedCemetery && filterBy === 'by-cemetery') {
-          if (!loculo || 
-              !loculo.Blocco || 
-              !loculo.Blocco.Settore || 
-              !loculo.Blocco.Settore.Cimitero || 
-              loculo.Blocco.Settore.Cimitero.Nome !== selectedCemetery) {
-            return null; // Salta questo record
-          }
-        }
+        const loculo = loculoId ? loculiMap.get(loculoId.toString()) : null;
         
         return {
           id: defunto.id,
@@ -185,10 +191,29 @@ export const useDeceasedData = ({
           cimitero_nome: loculo?.Blocco?.Settore?.Cimitero?.Nome || null,
           settore_nome: loculo?.Blocco?.Settore?.Nome || null,
           blocco_nome: loculo?.Blocco?.Nome || null,
+          loculi: loculo // Aggiungiamo l'oggetto loculo completo
         } as DeceasedRecord;
-      }).filter(Boolean);
+      });
       
-      setDeceased(processedData as DeceasedRecord[]);
+      // Filtra per cimitero se richiesto
+      if (selectedCemetery && filterBy === 'by-cemetery') {
+        processedData = processedData.filter(defunto => 
+          defunto.cimitero_nome === selectedCemetery
+        );
+      }
+      
+      // Ordinamento per cimitero dopo aver recuperato i dati completi
+      if (sortBy === 'cemetery-asc') {
+        processedData.sort((a, b) => {
+          return (a.cimitero_nome || '').localeCompare(b.cimitero_nome || '');
+        });
+      } else if (sortBy === 'cemetery-desc') {
+        processedData.sort((a, b) => {
+          return (b.cimitero_nome || '').localeCompare(a.cimitero_nome || '');
+        });
+      }
+      
+      setDeceased(processedData);
     } catch (error) {
       console.error("Failed to fetch deceased:", error);
       setDeceased([]);
