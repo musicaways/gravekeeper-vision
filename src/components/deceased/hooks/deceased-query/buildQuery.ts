@@ -39,11 +39,9 @@ export const buildDeceasedQuery = (
     console.log("Applying this-year filter, date:", startOfYear);
     query = query.gte('data_decesso', startOfYear);
   }
+  // Non fare nulla per 'by-cemetery' qui - il filtro viene applicato dopo aver recuperato i dati
+  // perché richiede informazioni dalla struttura Loculo -> Blocco -> Settore -> Cimitero
   
-  // Nota: il filtro per cimitero viene applicato dopo aver recuperato i dati
-  // perché richiede informazioni che sono disponibili solo facendo un join con
-  // la tabella Loculo -> Blocco -> Settore -> Cimitero
-
   // Applicare ricerca per nome, solo se il termine è valido
   if (searchQuery && searchQuery.trim() !== '') {
     console.log("Applying search filter:", searchQuery);

@@ -22,6 +22,7 @@ const Deceased = () => {
   }, [location.search]);
 
   const handleSort = (sortType: string) => {
+    console.log("Sort changed to:", sortType);
     setSortBy(sortType);
   };
 
@@ -29,8 +30,9 @@ const Deceased = () => {
     console.log("Filter type changed to:", filterType);
     setFilterBy(filterType);
     
-    // Reset cemetery selection when changing to a filter type that isn't cemetery-based
-    if (filterType !== 'by-cemetery') {
+    // Only reset cemetery selection when changing to a non-cemetery filter
+    if (filterType !== 'by-cemetery' && selectedCemetery) {
+      console.log("Resetting cemetery selection because filter changed to non-cemetery type");
       setSelectedCemetery(null);
     }
   };
@@ -40,11 +42,9 @@ const Deceased = () => {
     setSelectedCemetery(cemeteryName);
     
     // If a cemetery is selected, always use the by-cemetery filter
-    if (cemeteryName !== null) {
+    if (cemeteryName !== null && filterBy !== 'by-cemetery') {
+      console.log("Setting filter to by-cemetery because a cemetery was selected");
       setFilterBy('by-cemetery');
-    } else if (filterBy === 'by-cemetery') {
-      // If removing cemetery selection and we're on by-cemetery filter, reset to all
-      setFilterBy('all');
     }
   };
 
