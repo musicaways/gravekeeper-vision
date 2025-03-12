@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useDeceasedData } from "./hooks/useDeceasedData";
+import { useDeceasedData } from "./hooks/deceased-data";
 import DeceasedListItem from "./DeceasedListItem";
 import DeceasedEmptyState from "./DeceasedEmptyState";
 import DeceasedLoadingSkeleton from "./DeceasedLoadingSkeleton";
