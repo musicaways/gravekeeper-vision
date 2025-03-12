@@ -13,7 +13,7 @@ export const buildDeceasedQuery = (
   // Log per debugging
   console.log("Building query with filter:", filterBy, cemeteryId ? `and cemetery ID: ${cemeteryId}` : '');
   
-  // Costruisci la query di base con join su loculo per ottenere anche i dati del cimitero
+  // Build the base query - avoid using complex join syntax that causes schema cache errors
   let query = supabase
     .from('defunti')
     .select(`
@@ -25,27 +25,10 @@ export const buildDeceasedQuery = (
       sesso,
       annotazioni,
       stato_defunto,
-      id_loculo,
-      loculo:id_loculo(
-        id,
-        Numero,
-        Fila,
-        Blocco:IdBlocco(
-          Id, 
-          Nome,
-          Settore:IdSettore(
-            Id,
-            Nome,
-            Cimitero:IdCimitero(
-              Id,
-              Nome
-            )
-          )
-        )
-      )
+      id_loculo
     `, { count: 'exact' });
 
-  // Applicare filtri temporali
+  // Apply temporal filters
   if (filterBy === 'recent') {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -56,13 +39,9 @@ export const buildDeceasedQuery = (
     const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
     console.log("Applying this-year filter, date:", startOfYear);
     query = query.gte('data_decesso', startOfYear);
-  } else if (filterBy === 'by-cemetery' && cemeteryId) {
-    // Filtro diretto per cimitero utilizzando la foreign key path
-    console.log("Applying direct cemetery filter by ID:", cemeteryId);
-    query = query.eq('loculo.Blocco.Settore.Cimitero.Id', cemeteryId);
   }
   
-  // Applicare ricerca per nome, solo se il termine è valido
+  // Apply name search filter if valid
   if (searchQuery && searchQuery.trim() !== '') {
     console.log("Applying search filter:", searchQuery);
     query = query.ilike('nominativo', `%${searchQuery}%`);
@@ -86,7 +65,7 @@ export const applySorting = (query: any, sortBy: string) => {
       return query.order('data_decesso', { ascending: false, nullsFirst: false });
     case 'date-asc':
       return query.order('data_decesso', { ascending: true, nullsFirst: false });
-    // Gli ordinamenti per cimitero verranno applicati dopo
+    // Cemetery sorting will be applied after fetching the data
     default:
       return query.order('nominativo', { ascending: true });
   }

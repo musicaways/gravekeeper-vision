@@ -58,11 +58,12 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
     return <DeceasedLoadingSkeleton />;
   }
 
-  if (filteredDeceased.length === 0 && !loading) {
+  if ((filteredDeceased.length === 0 && !loading) || error) {
     return (
       <DeceasedEmptyState 
         searchTerm={searchTerm} 
         cemeteryName={selectedCemetery}
+        error={error}
         onClear={() => {}} 
       />
     );

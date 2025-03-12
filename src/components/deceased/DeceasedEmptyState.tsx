@@ -1,18 +1,32 @@
 
 import React from "react";
-import { FileQuestion } from "lucide-react";
+import { FileQuestion, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface DeceasedEmptyStateProps {
   searchTerm?: string;
   cemeteryName?: string | null;
+  error?: string | null;
   onClear: () => void;
 }
 
 const DeceasedEmptyState: React.FC<DeceasedEmptyStateProps> = ({ 
   searchTerm,
   cemeteryName,
+  error,
   onClear 
 }) => {
+  // If there's an error, show the error state
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <AlertTriangle className="h-5 w-5" />
+        <AlertTitle>Errore</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
+
   // Determine the primary reason for no results
   let title = "Nessun defunto trovato";
   let description = "Non sono stati trovati defunti con i criteri selezionati.";
