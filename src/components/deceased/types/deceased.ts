@@ -1,3 +1,4 @@
+
 export interface DeceasedRecord {
   id: string;
   nominativo: string;
@@ -15,4 +16,11 @@ export interface DeceasedRecord {
   settore_nome: string | null;
   blocco_nome: string | null;
   loculi: any | null;
+}
+
+export interface DeceasedListProps {
+  searchTerm: string;
+  sortBy: string;
+  filterBy: string;
+  selectedCemetery: string | null;
 }

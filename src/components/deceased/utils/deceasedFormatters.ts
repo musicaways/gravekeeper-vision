@@ -3,12 +3,13 @@ import { format, parseISO, differenceInYears } from "date-fns";
 import { it } from "date-fns/locale";
 
 /**
- * Format a date string to a readable format
+ * Format a date string or Date object to a readable format
  */
-export const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "Data non disponibile";
+export const formatDate = (date: string | Date | null): string => {
+  if (!date) return "Data non disponibile";
   try {
-    return format(parseISO(dateString), "d MMM yyyy", { locale: it });
+    const dateToFormat = typeof date === 'string' ? parseISO(date) : date;
+    return format(dateToFormat, "d MMM yyyy", { locale: it });
   } catch (error) {
     return "Data non valida";
   }
@@ -17,20 +18,20 @@ export const formatDate = (dateString: string | null): string => {
 /**
  * Calculate age from birth date and death date
  */
-export const calculateAge = (birthDateString: string | null, deathDateString: string | null): number | null => {
-  if (!birthDateString || !deathDateString) return null;
+export const calculateAge = (birthDate: Date | string | null, deathDate: Date | string | null): number | null => {
+  if (!birthDate || !deathDate) return null;
   
   try {
-    const birthDate = parseISO(birthDateString);
-    const deathDate = parseISO(deathDateString);
+    const birthDateObj = typeof birthDate === 'string' ? parseISO(birthDate) : birthDate;
+    const deathDateObj = typeof deathDate === 'string' ? parseISO(deathDate) : deathDate;
     
     // Verifica che le date siano valide
-    if (isNaN(birthDate.getTime()) || isNaN(deathDate.getTime())) {
+    if (isNaN(birthDateObj.getTime()) || isNaN(deathDateObj.getTime())) {
       return null;
     }
     
     // Calcola la differenza in anni
-    return differenceInYears(deathDate, birthDate);
+    return differenceInYears(deathDateObj, birthDateObj);
   } catch (error) {
     console.error("Errore nel calcolo dell'età:", error);
     return null;
@@ -54,10 +55,10 @@ export const isFemale = (name: string): boolean => {
 
 /**
  * Generate loculo link from the deceased record
- * Ora gestisce sia il caso in cui abbiamo un oggetto loculi sia il caso in cui abbiamo solo l'id_loculo
+ * Handle both string and number id_loculo
  */
 export const getLoculoLink = (deceased: {
-  id_loculo?: string | null;
+  id_loculo?: string | number | null;
   loculi?: {
     Blocco?: {
       Id?: number;
