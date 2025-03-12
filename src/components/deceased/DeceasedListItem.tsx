@@ -18,7 +18,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const textColor = "text-primary-dark";
   
   const loculoLink = getLoculoLink(deceased);
-  const cimiteroId = deceased.loculi?.Blocco?.Settore?.Cimitero?.Id;
+  const cimiteroId = deceased.cimitero_id || deceased.loculi?.Blocco?.Settore?.Cimitero?.Id;
   const bloccoId = deceased.loculi?.Blocco?.Id;
   
   // Calcoliamo l'età in base ai dati disponibili

@@ -186,11 +186,7 @@ const processWithLoculi = (
     
     // Estrai il nome del cimitero se disponibile
     const cemeteryName = loculo?.Blocco?.Settore?.Cimitero?.Nome || null;
-    
-    // Debug cemetery matching
-    if (selectedCemetery && cemeteryName) {
-      console.log(`Comparing cemeteries: "${cemeteryName}" === "${selectedCemetery}" ? ${cemeteryName === selectedCemetery}`);
-    }
+    const cemeteryId = loculo?.Blocco?.Settore?.Cimitero?.Id || null;
     
     return {
       id: defunto.id,
@@ -205,6 +201,7 @@ const processWithLoculi = (
       loculo_numero: loculo?.Numero || null,
       loculo_fila: loculo?.Fila || null,
       cimitero_nome: cemeteryName,
+      cimitero_id: cemeteryId,
       settore_nome: loculo?.Blocco?.Settore?.Nome || null,
       blocco_nome: loculo?.Blocco?.Nome || null,
       loculi: loculo // Aggiungiamo l'oggetto loculo completo
@@ -223,19 +220,27 @@ const processWithLoculi = (
   if (selectedCemetery) {
     console.log(`processWithLoculi - Applying cemetery filter for "${selectedCemetery}"`);
     
-    // Check for case-insensitive matching or potential leading/trailing spaces
-    const normalizedSelectedCemetery = selectedCemetery.trim().toLowerCase();
-    
-    // Apply case-insensitive cemetery filter
+    // Miglioramento: supporto per corrispondenza parziale del nome del cimitero
     const beforeFilterCount = processedData.length;
     processedData = processedData.filter(defunto => {
       if (!defunto.cimitero_nome) return false;
       
-      const normalizedCemeteryName = defunto.cimitero_nome.trim().toLowerCase();
-      const matches = normalizedCemeteryName === normalizedSelectedCemetery;
+      // Case insensitive e supporto per corrispondenza parziale
+      const cemeteryNameLower = defunto.cimitero_nome.toLowerCase();
+      const selectedCemeteryLower = selectedCemetery.toLowerCase();
       
-      // For debugging each record
-      console.log(`Record ${defunto.id}: cimitero '${defunto.cimitero_nome}' matches '${selectedCemetery}'? ${matches}`);
+      // Verifica se il nome selezionato è contenuto nel nome del cimitero o viceversa
+      const isPartialMatch = 
+        cemeteryNameLower.includes(selectedCemeteryLower) || 
+        selectedCemeteryLower.includes(cemeteryNameLower);
+      
+      // Verifica corrispondenza esatta (case-insensitive)
+      const isExactMatch = cemeteryNameLower === selectedCemeteryLower;
+      
+      // Utilizziamo sia la corrispondenza esatta che parziale
+      const matches = isExactMatch || isPartialMatch;
+      
+      console.log(`Cemetery match check for '${defunto.cimitero_nome}' vs '${selectedCemetery}': ${matches} (${defunto.id})`);
       
       return matches;
     });

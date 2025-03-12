@@ -1,41 +1,18 @@
-
 export interface DeceasedRecord {
-  id: string; // UUID (string)
+  id: string;
   nominativo: string;
-  data_decesso: string | null;
-  data_nascita: string | null;
-  eta: number | string | null;
-  cimitero_nome: string | null;
-  settore_nome: string | null;
-  blocco_nome: string | null;
+  data_nascita: Date | null;
+  data_decesso: Date | null;
+  eta: number | null;
+  sesso: string | null;
+  annotazioni: string | null;
+  stato_defunto: number | null;
+  id_loculo: string | number | null;
   loculo_numero: number | null;
   loculo_fila: number | null;
-  annotazioni: string | null;
-  sesso: string | null;
-  stato_defunto: number | null;
-  id_loculo: string | null; // Ora è una stringa che contiene il valore originale numerico
-  loculi: {
-    id: string | number;
-    Numero: number | null;
-    Fila: number | null;
-    Blocco: {
-      Id: number;
-      Nome: string | null;
-      Settore: {
-        Id: number;
-        Nome: string | null;
-        Cimitero: {
-          Id: number;
-          Nome: string | null;
-        } | null;
-      } | null;
-    } | null;
-  } | null;
-}
-
-export interface DeceasedListProps {
-  searchTerm: string;
-  sortBy: string;
-  filterBy: string;
-  selectedCemetery?: string | null;
+  cimitero_nome: string | null;
+  cimitero_id?: number | null;
+  settore_nome: string | null;
+  blocco_nome: string | null;
+  loculi: any | null;
 }
