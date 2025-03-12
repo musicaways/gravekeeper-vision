@@ -220,40 +220,46 @@ const processWithLoculi = (
   if (selectedCemetery) {
     console.log(`processWithLoculi - Applying cemetery filter for "${selectedCemetery}"`);
     
-    // FIXED: Miglioramento della logica per filtrare i cimiteri
     const beforeFilterCount = processedData.length;
     
-    // Normalizza il nome del cimitero selezionato (rimuovi spazi extra, rendi minuscolo)
-    const selectedCemeteryNormalized = selectedCemetery.toLowerCase().trim();
-    
+    // IMPROVED: Approccio più flessibile per il matching dei nomi dei cimiteri
     processedData = processedData.filter(defunto => {
       if (!defunto.cimitero_nome) return false;
       
-      // Normalizza il nome del cimitero del record
+      // 1. Normalizza i nomi (lowercase, trim)
+      const selectedCemeteryNormalized = selectedCemetery.toLowerCase().trim();
       const cemeteryNameNormalized = defunto.cimitero_nome.toLowerCase().trim();
       
-      // Debug info per ogni corrispondenza
-      console.log(`Cemetery filtering: [${cemeteryNameNormalized}] vs [${selectedCemeteryNormalized}] - ID: ${defunto.id}`);
+      // Log per debug
+      console.log(`Cemetery comparison: [${cemeteryNameNormalized}] vs [${selectedCemeteryNormalized}]`);
       
-      // Prima prova la corrispondenza esatta (case-insensitive)
+      // 2. Prova diversi tipi di corrispondenza
+      
+      // A. Corrispondenza esatta (case-insensitive)
       if (cemeteryNameNormalized === selectedCemeteryNormalized) {
-        console.log(`Exact match found for cemetery: ${defunto.cimitero_nome}`);
+        console.log(`Exact match found for ${defunto.id}: ${defunto.cimitero_nome}`);
         return true;
       }
       
-      // Poi prova la corrispondenza parziale in entrambe le direzioni
+      // B. Corrispondenza in entrambe le direzioni (uno è contenuto nell'altro)
       if (cemeteryNameNormalized.includes(selectedCemeteryNormalized) || 
           selectedCemeteryNormalized.includes(cemeteryNameNormalized)) {
-        console.log(`Partial match found for cemetery: ${defunto.cimitero_nome}`);
+        console.log(`Partial match found for ${defunto.id}: ${defunto.cimitero_nome}`);
         return true;
       }
       
-      // Prova una corrispondenza più permissiva per gestire differenze di caratteri speciali, spazi, ecc.
+      // C. Confronto semplificato (rimuovi spazi e caratteri speciali)
       const simplifiedSelected = selectedCemeteryNormalized.replace(/[^a-z0-9]/gi, '');
       const simplifiedName = cemeteryNameNormalized.replace(/[^a-z0-9]/gi, '');
       
       if (simplifiedName.includes(simplifiedSelected) || simplifiedSelected.includes(simplifiedName)) {
-        console.log(`Simplified match found for cemetery: ${defunto.cimitero_nome}`);
+        console.log(`Simplified match found for ${defunto.id}: ${defunto.cimitero_nome}`);
+        return true;
+      }
+      
+      // D. Verifica per ID del cimitero (se disponibile)
+      if (defunto.cimitero_id && selectedCemetery.includes(String(defunto.cimitero_id))) {
+        console.log(`ID match found for ${defunto.id}: ${defunto.cimitero_id}`);
         return true;
       }
       
@@ -262,27 +268,52 @@ const processWithLoculi = (
     
     console.log(`processWithLoculi - Records after cemetery filter: ${processedData.length}/${beforeFilterCount}`);
     
-    // Se non abbiamo trovato corrispondenze, proviamo una ricerca più ampia
+    // Se non abbiamo trovato corrispondenze, proviamo una ricerca per parole
     if (processedData.length === 0 && recordsWithCemeteryInfo.length > 0) {
-      console.log(`No matches found with strict filtering, trying broader search`);
+      console.log(`No matches found with strict filtering, trying word-by-word search`);
       
-      // Seleziona tutte le parole singole dal nome del cimitero
-      const words = selectedCemeteryNormalized.split(/\s+/).filter(w => w.length > 2);
+      // Dividi il nome del cimitero in parole e cerca corrispondenze parziali
+      const words = selectedCemetery.toLowerCase().split(/\s+/).filter(w => w.length > 2);
       
       if (words.length > 0) {
         console.log(`Trying word-by-word matching with: ${words.join(', ')}`);
         
         processedData = recordsWithCemeteryInfo.filter(defunto => {
-          if (!defunto.cimitero_nome) return false;
+          const cemeteryNameLower = defunto.cimitero_nome!.toLowerCase();
           
-          const cemeteryNameNormalized = defunto.cimitero_nome.toLowerCase();
+          // Cerca corrispondenze per qualsiasi parola
+          for (const word of words) {
+            if (cemeteryNameLower.includes(word)) {
+              console.log(`Word match found for ${defunto.id}: word "${word}" in "${defunto.cimitero_nome}"`);
+              return true;
+            }
+          }
           
-          // Cerca almeno una corrispondenza parziale con una parola
-          return words.some(word => cemeteryNameNormalized.includes(word));
+          return false;
         });
         
-        console.log(`Found ${processedData.length} records with broader search`);
+        console.log(`Found ${processedData.length} records with word-by-word search`);
       }
+    }
+    
+    // Ultima risorsa: confronto con Levenshtein distance o algoritmo simile
+    if (processedData.length === 0 && recordsWithCemeteryInfo.length > 0 && selectedCemetery.length > 3) {
+      console.log(`Still no matches, attempting to use similarity matching`);
+      
+      // Implementazione semplice di un confronto di similarità
+      processedData = recordsWithCemeteryInfo.filter(defunto => {
+        const cemeteryName = defunto.cimitero_nome!;
+        
+        // Verifica se le prime 3 lettere corrispondono
+        if (cemeteryName.substring(0, 3).toLowerCase() === selectedCemetery.substring(0, 3).toLowerCase()) {
+          console.log(`Prefix match found for ${defunto.id}: ${defunto.cimitero_nome}`);
+          return true;
+        }
+        
+        return false;
+      });
+      
+      console.log(`Found ${processedData.length} records with similarity matching`);
     }
   }
   
@@ -299,3 +330,4 @@ const processWithLoculi = (
   
   return processedData;
 };
+

@@ -15,6 +15,7 @@ import {
 interface CemeteryOption {
   value: string;
   label: string;
+  id?: number;
 }
 
 interface CemeteryOptionsProps {
@@ -48,6 +49,7 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
         const options = data.map(item => ({
           value: item.Nome,
           label: item.Nome || 'Cimitero senza nome',
+          id: item.Id
         }));
 
         setCemeteries(options);
@@ -63,9 +65,10 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
 
   const selectedLabel = selectedValue 
     ? cemeteries.find(cemetery => {
-        // Utilizziamo una logica di confronto più permissiva
+        // Normalizza e confronta i nomi dei cimiteri
         const cemeteryValue = cemetery.value.toLowerCase().trim();
         const selectedValueLower = selectedValue.toLowerCase().trim();
+        
         return cemeteryValue === selectedValueLower || 
                cemeteryValue.includes(selectedValueLower) || 
                selectedValueLower.includes(cemeteryValue);
@@ -152,7 +155,7 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
               <DropdownMenuItem
                 key={cemetery.value}
                 onClick={() => {
-                  console.log("Selected cemetery:", cemetery.value);
+                  console.log("Selected cemetery:", cemetery);
                   onSelectCemetery(cemetery.value);
                 }}
               >
