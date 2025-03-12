@@ -15,6 +15,7 @@ interface UseDeceasedDataProps {
   sortBy: string;
   filterBy: string;
   selectedCemetery: string | null;
+  selectedCemeteryId?: number | null;
   page?: number;
   pageSize?: number;
 }
@@ -24,6 +25,7 @@ export const useDeceasedData = ({
   sortBy, 
   filterBy,
   selectedCemetery,
+  selectedCemeteryId = null,
   page = 1,
   pageSize = 20
 }: UseDeceasedDataProps) => {
@@ -37,7 +39,7 @@ export const useDeceasedData = ({
     setLoading(true);
     try {
       console.log("Fetching deceased with params:", { 
-        searchQuery, sortBy, filterBy, selectedCemetery, page, pageSize 
+        searchQuery, sortBy, filterBy, selectedCemetery, selectedCemeteryId, page, pageSize 
       });
       
       // Costruisci la query con i filtri necessari
@@ -69,11 +71,11 @@ export const useDeceasedData = ({
       console.log(`Recovered ${defuntiData?.length || 0} deceased records from database`);
       
       // Processa i dati e associa le informazioni del loculo
-      // Passa sempre il selectedCemetery, anche se filterBy non è 'by-cemetery'
       const processedData = await processDeceasedData(
         supabase,
         defuntiData || [],
         selectedCemetery,
+        selectedCemeteryId,
         filterBy,
         sortBy
       );
@@ -87,7 +89,7 @@ export const useDeceasedData = ({
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, sortBy, filterBy, selectedCemetery]);
+  }, [page, pageSize, sortBy, filterBy, selectedCemetery, selectedCemeteryId]);
 
   // Usare un termine di ricerca con debounce per evitare troppe chiamate
   const debouncedSearch = useCallback(
@@ -101,7 +103,7 @@ export const useDeceasedData = ({
   // Effetto per avviare la ricerca quando cambiano i parametri
   useEffect(() => {
     console.log("Parameters changed in useDeceasedData", { 
-      searchTerm, sortBy, filterBy, selectedCemetery 
+      searchTerm, sortBy, filterBy, selectedCemetery, selectedCemeteryId 
     });
     
     // Avvia una nuova ricerca solo se il termine è cambiato
@@ -111,7 +113,7 @@ export const useDeceasedData = ({
       // Ricarica i dati quando cambiano altri parametri
       fetchDeceased(searchTerm);
     }
-  }, [searchTerm, sortBy, filterBy, selectedCemetery, page, pageSize, fetchDeceased, debouncedSearch, activeSearch]);
+  }, [searchTerm, sortBy, filterBy, selectedCemetery, selectedCemeteryId, page, pageSize, fetchDeceased, debouncedSearch, activeSearch]);
 
   return {
     loading,

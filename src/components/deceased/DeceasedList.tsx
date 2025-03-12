@@ -14,7 +14,8 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
   searchTerm, 
   sortBy, 
   filterBy,
-  selectedCemetery = null
+  selectedCemetery = null,
+  selectedCemeteryId = null
 }) => {
   const [page, setPage] = React.useState(1);
   const isMobile = useIsMobile();
@@ -25,6 +26,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
     sortBy,
     filterBy,
     selectedCemetery,
+    selectedCemeteryId,
     page,
     pageSize
   });
@@ -37,7 +39,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
   React.useEffect(() => {
     // Reset to page 1 when filter/sort options change
     setPage(1);
-  }, [sortBy, filterBy, selectedCemetery, searchTerm]);
+  }, [sortBy, filterBy, selectedCemetery, selectedCemeteryId, searchTerm]);
 
   if (loading && page === 1) {
     return <DeceasedLoadingSkeleton />;

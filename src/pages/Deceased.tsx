@@ -13,6 +13,7 @@ const Deceased = () => {
   const [sortBy, setSortBy] = useState("name-asc"); // Default sort
   const [filterBy, setFilterBy] = useState("all"); // Default filter
   const [selectedCemetery, setSelectedCemetery] = useState<string | null>(null);
+  const [selectedCemeteryId, setSelectedCemeteryId] = useState<number | null>(null);
   const isMobile = useIsMobile();
 
   // Listen for search term changes in the URL
@@ -34,12 +35,14 @@ const Deceased = () => {
     if (filterType !== 'by-cemetery' && selectedCemetery) {
       console.log("Resetting cemetery selection because filter changed to non-cemetery type");
       setSelectedCemetery(null);
+      setSelectedCemeteryId(null);
     }
   };
 
-  const handleCemeterySelect = (cemeteryName: string | null) => {
-    console.log("Cemetery selection changed to:", cemeteryName);
+  const handleCemeterySelect = (cemeteryName: string | null, cemeteryId?: number | null) => {
+    console.log("Cemetery selection changed to:", cemeteryName, "ID:", cemeteryId);
     setSelectedCemetery(cemeteryName);
+    setSelectedCemeteryId(cemeteryId || null);
     
     // If a cemetery is selected, always use the by-cemetery filter
     if (cemeteryName !== null && filterBy !== 'by-cemetery') {
@@ -61,7 +64,8 @@ const Deceased = () => {
             {isMobile && (
               <FilterDropdown 
                 filterBy={filterBy} 
-                selectedCemetery={selectedCemetery} 
+                selectedCemetery={selectedCemetery}
+                selectedCemeteryId={selectedCemeteryId} 
                 onFilterChange={handleFilter} 
                 onCemeterySelect={handleCemeterySelect} 
               />
@@ -71,7 +75,8 @@ const Deceased = () => {
           {!isMobile && (
             <FilterDropdown 
               filterBy={filterBy} 
-              selectedCemetery={selectedCemetery} 
+              selectedCemetery={selectedCemetery}
+              selectedCemeteryId={selectedCemeteryId} 
               onFilterChange={handleFilter} 
               onCemeterySelect={handleCemeterySelect} 
             />
@@ -84,7 +89,8 @@ const Deceased = () => {
           searchTerm={searchTerm} 
           sortBy={sortBy} 
           filterBy={filterBy} 
-          selectedCemetery={selectedCemetery} 
+          selectedCemetery={selectedCemetery}
+          selectedCemeteryId={selectedCemeteryId}
         />
       </div>
     </div>

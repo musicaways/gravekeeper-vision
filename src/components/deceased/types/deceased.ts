@@ -12,7 +12,7 @@ export interface DeceasedRecord {
   loculo_numero: number | null;
   loculo_fila: number | null;
   cimitero_nome: string | null;
-  cimitero_id?: number | null;
+  cimitero_id: number | null;
   settore_nome: string | null;
   blocco_nome: string | null;
   loculi: any | null;
@@ -23,4 +23,5 @@ export interface DeceasedListProps {
   sortBy: string;
   filterBy: string;
   selectedCemetery: string | null;
+  selectedCemeteryId?: number | null;
 }

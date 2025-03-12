@@ -20,13 +20,15 @@ import CemeteryOptions from "./CemeteryOptions";
 interface FilterDropdownProps {
   filterBy: string;
   selectedCemetery: string | null;
+  selectedCemeteryId?: number | null;
   onFilterChange: (filterType: string) => void;
-  onCemeterySelect: (value: string | null) => void;
+  onCemeterySelect: (value: string | null, cemeteryId?: number | null) => void;
 }
 
 const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
   filterBy, 
   selectedCemetery, 
+  selectedCemeteryId = null,
   onFilterChange, 
   onCemeterySelect 
 }) => {
@@ -52,8 +54,8 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   };
 
   // Function to handle cemetery selection
-  const handleCemeterySelect = (cemeteryName: string | null) => {
-    console.log("FilterDropdown - Cemetery selected:", cemeteryName);
+  const handleCemeterySelect = (cemeteryName: string | null, cemeteryId?: number | null) => {
+    console.log("FilterDropdown - Cemetery selected:", cemeteryName, "ID:", cemeteryId);
     
     if (cemeteryName) {
       // When selecting a cemetery, also set filter to 'by-cemetery'
@@ -66,7 +68,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
     }
     
     // Always pass the cemetery name to parent
-    onCemeterySelect(cemeteryName);
+    onCemeterySelect(cemeteryName, cemeteryId);
   };
 
   // Mobile version uses Sheet instead of dropdown for more space
@@ -95,7 +97,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 className="justify-start"
                 onClick={() => {
                   onFilterChange('all');
-                  onCemeterySelect(null);
+                  onCemeterySelect(null, null);
                 }}
               >
                 Tutti
@@ -107,7 +109,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 className="justify-start"
                 onClick={() => {
                   onFilterChange('recent');
-                  onCemeterySelect(null);
+                  onCemeterySelect(null, null);
                 }}
               >
                 Recenti (30 giorni)
@@ -119,7 +121,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 className="justify-start"
                 onClick={() => {
                   onFilterChange('this-year');
-                  onCemeterySelect(null);
+                  onCemeterySelect(null, null);
                 }}
               >
                 Quest'anno
@@ -161,7 +163,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
           className={`text-xs ${filterBy === 'all' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
           onClick={() => {
             onFilterChange('all');
-            onCemeterySelect(null);
+            onCemeterySelect(null, null);
           }}
         >
           Tutti
@@ -170,7 +172,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
           className={`text-xs ${filterBy === 'recent' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
           onClick={() => {
             onFilterChange('recent');
-            onCemeterySelect(null);
+            onCemeterySelect(null, null);
           }}
         >
           Recenti (30 giorni)
@@ -179,7 +181,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
           className={`text-xs ${filterBy === 'this-year' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
           onClick={() => {
             onFilterChange('this-year');
-            onCemeterySelect(null);
+            onCemeterySelect(null, null);
           }}
         >
           Quest'anno
