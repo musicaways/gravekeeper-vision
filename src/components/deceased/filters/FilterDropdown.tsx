@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Filter, ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import CemeteryOptions from "./CemeteryOptions";
+import CemeteryOptions from "./cemetery";
 
 interface FilterDropdownProps {
   filterBy: string;
