@@ -1,26 +1,29 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Loculo } from "@/components/block/loculi/types";
-import { fetchLoculiData, searchLoculi, fetchDefuntiForLoculi } from "@/services/loculi";
+import { fetchLoculiData, searchLoculi } from "@/services/loculi";
 
-interface UseLoculiProps {
+interface UseLoculiDataProps {
   blockId: string;
   searchTerm?: string;
 }
 
-interface UseLoculiResult {
+interface UseLoculiDataResult {
   loculi: Loculo[];
   loading: boolean;
   error: string | null;
+  loculiIds: (string | number)[];
 }
 
 /**
- * Custom hook per gestire i loculi
+ * Hook for fetching basic loculi data
  */
-export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLoculiResult {
+export function useLoculiData({ blockId, searchTerm = "" }: UseLoculiDataProps): UseLoculiDataResult {
   const [loculi, setLoculi] = useState<Loculo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loculiIds, setLoculiIds] = useState<(string | number)[]>([]);
 
   useEffect(() => {
     const fetchLoculi = async () => {
@@ -42,17 +45,9 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
           throw new Error(loculiResult.error);
         }
 
-        const loculiIds = loculiResult.data.map(l => l.id);
-        const defuntiResult = await fetchDefuntiForLoculi(loculiIds);
-
-        const loculiWithDefunti = loculiResult.data.map(loculo => ({
-          ...loculo,
-          Defunti: defuntiResult.data.filter(d => 
-            d.IdLoculo === loculo.id || d.id_loculo === loculo.id.toString()
-          )
-        }));
-        
-        setLoculi(loculiWithDefunti);
+        const ids = loculiResult.data.map(l => l.id);
+        setLoculiIds(ids);
+        setLoculi(loculiResult.data);
         
       } catch (err: any) {
         console.error("Errore nel caricamento dei loculi:", err);
@@ -66,5 +61,5 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
     fetchLoculi();
   }, [blockId, searchTerm]);
 
-  return { loculi, loading, error };
+  return { loculi, loading, error, loculiIds };
 }

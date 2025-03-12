@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useLoculi } from "@/hooks/useLoculi";
+import { useLoculi } from "@/hooks/loculi";
 import { LoculiLoading } from "../../loculi/LoculiLoading";
 import { LoculiError } from "../../loculi/LoculiError";
 import { LoculiEmptyState } from "../../loculi/LoculiEmptyState";
