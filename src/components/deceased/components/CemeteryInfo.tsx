@@ -14,7 +14,14 @@ const CemeteryInfo: React.FC<CemeteryInfoProps> = ({
 }) => {
   console.log("CemeteryInfo rendering:", { cimitero_nome, cimiteroId });
   
-  const hasValidId = typeof cimiteroId === 'number' && !isNaN(cimiteroId) && cimiteroId > 0;
+  // Verificare se l'ID è valido e non è null o undefined
+  const hasValidId = Boolean(
+    typeof cimiteroId === 'number' && 
+    !isNaN(cimiteroId) && 
+    cimiteroId > 0
+  );
+  
+  console.log("CemeteryInfo - Has valid ID:", hasValidId);
   
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors">

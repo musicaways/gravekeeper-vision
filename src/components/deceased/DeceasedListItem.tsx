@@ -27,6 +27,12 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   
   console.log("Link IDs:", { cimiteroId, bloccoId });
   
+  // Verifichiamo che i valori numerici siano validi
+  const validCimiteroId = typeof cimiteroId === 'number' && !isNaN(cimiteroId) && cimiteroId > 0 ? cimiteroId : null;
+  const validBloccoId = typeof bloccoId === 'number' && !isNaN(bloccoId) && bloccoId > 0 ? bloccoId : null;
+  
+  console.log("Valid IDs:", { validCimiteroId, validBloccoId });
+  
   // Calcoliamo l'età in base ai dati disponibili
   const età = deceased.eta !== null && deceased.eta !== undefined ? 
     deceased.eta : 
@@ -66,13 +72,13 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
       <div className="space-y-0 divide-y flex-grow flex flex-col">
         <CemeteryInfo 
           cimitero_nome={deceased.cimitero_nome}
-          cimiteroId={cimiteroId !== null ? Number(cimiteroId) : null}
+          cimiteroId={validCimiteroId}
         />
         
         <LocationInfo 
           settore_nome={deceased.settore_nome} 
           blocco_nome={deceased.blocco_nome}
-          bloccoId={bloccoId !== null ? Number(bloccoId) : null}
+          bloccoId={validBloccoId}
         />
         
         <LoculoInfo 

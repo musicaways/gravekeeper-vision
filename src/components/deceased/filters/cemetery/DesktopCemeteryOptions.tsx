@@ -1,13 +1,14 @@
 
 import React from "react";
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { CemeteryOption, CemeteryOptionsProps } from "./types";
+import { CemeteryOption } from "./types";
 
-interface DesktopCemeteryOptionsProps extends CemeteryOptionsProps {
+interface DesktopCemeteryOptionsProps {
   loading: boolean;
   cemeteries: CemeteryOption[];
+  selectedValue: string | null;
+  onSelectCemetery: (value: string | null) => void;
 }
 
 const DesktopCemeteryOptions: React.FC<DesktopCemeteryOptionsProps> = ({
@@ -16,37 +17,37 @@ const DesktopCemeteryOptions: React.FC<DesktopCemeteryOptionsProps> = ({
   selectedValue,
   onSelectCemetery
 }) => {
+  if (loading) {
+    return <DropdownMenuItem disabled>Caricamento cimiteri...</DropdownMenuItem>;
+  }
+
+  if (cemeteries.length === 0) {
+    return <DropdownMenuItem disabled>Nessun cimitero disponibile</DropdownMenuItem>;
+  }
+
   return (
-    <div className="w-full">
+    <>
+      {/* Opzione per cancellare la selezione */}
       <DropdownMenuItem 
-        className="font-medium"
+        className="text-xs"
         onClick={() => onSelectCemetery(null)}
       >
-        <Check className={cn("mr-2 h-4 w-4", !selectedValue ? "opacity-100" : "opacity-0")} />
-        Tutti i cimiteri
+        <span className="mr-auto">Nessun cimitero</span>
+        {selectedValue === null && <Check className="h-4 w-4 ml-2" />}
       </DropdownMenuItem>
       
-      {loading ? (
-        <DropdownMenuItem disabled>
-          Caricamento...
+      {/* Lista dei cimiteri */}
+      {cemeteries.map((cemetery) => (
+        <DropdownMenuItem 
+          key={cemetery.value} 
+          className="text-xs"
+          onClick={() => onSelectCemetery(cemetery.value)}
+        >
+          <span className="mr-auto truncate max-w-[160px]">{cemetery.label}</span>
+          {selectedValue === cemetery.value && <Check className="h-4 w-4 ml-2" />}
         </DropdownMenuItem>
-      ) : (
-        cemeteries.map((cemetery) => (
-          <DropdownMenuItem
-            key={cemetery.value}
-            onClick={() => onSelectCemetery(cemetery.value)}
-          >
-            <Check
-              className={cn(
-                "mr-2 h-4 w-4",
-                selectedValue === cemetery.value ? "opacity-100" : "opacity-0"
-              )}
-            />
-            {cemetery.label}
-          </DropdownMenuItem>
-        ))
-      )}
-    </div>
+      ))}
+    </>
   );
 };
 

@@ -9,7 +9,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
   DropdownMenuSubContent
-} from "@/components/ui/dropdown-menu/components";
+} from "@/components/ui/dropdown-menu";
 import CemeteryOptions from "../cemetery";
 import { FilterDropdownProps } from "./types";
 

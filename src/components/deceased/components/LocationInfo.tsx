@@ -19,7 +19,15 @@ const LocationInfo: React.FC<LocationInfoProps> = ({
   
   const decodedSettoreName = decodeText(settore_nome);
   const decodedBloccoName = decodeText(blocco_nome);
-  const hasValidId = typeof bloccoId === 'number' && !isNaN(bloccoId) && bloccoId > 0;
+  
+  // Verificare se l'ID è valido e non è null o undefined
+  const hasValidId = Boolean(
+    typeof bloccoId === 'number' && 
+    !isNaN(bloccoId) && 
+    bloccoId > 0
+  );
+  
+  console.log("LocationInfo - Has valid ID:", hasValidId);
 
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors">

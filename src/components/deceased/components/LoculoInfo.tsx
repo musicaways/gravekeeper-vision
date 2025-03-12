@@ -17,8 +17,15 @@ const LoculoInfo: React.FC<LoculoInfoProps> = ({
   console.log("LoculoInfo rendering:", { loculo_numero, loculo_fila, loculo_link });
   
   const hasLoculoInfo = loculo_numero !== null || loculo_fila !== null;
-  // Check if the loculo_link is a valid URL that we can navigate to
-  const isValidLink = loculo_link && loculo_link !== "#" && loculo_link !== "undefined" && loculo_link !== "null";
+  // Controlla se il loculo_link è un URL valido che possiamo navigare
+  const isValidLink = Boolean(
+    loculo_link && 
+    loculo_link !== "#" && 
+    loculo_link !== "undefined" && 
+    loculo_link !== "null"
+  );
+  
+  console.log("LoculoInfo - Valid link:", isValidLink);
 
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors mt-auto">
