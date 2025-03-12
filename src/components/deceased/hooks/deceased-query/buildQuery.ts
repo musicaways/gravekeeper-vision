@@ -7,12 +7,13 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export const buildDeceasedQuery = (
   supabase: SupabaseClient,
   filterBy: string,
-  searchQuery: string
+  searchQuery: string,
+  cemeteryId?: number | null
 ) => {
   // Log per debugging
-  console.log("Building query with filter:", filterBy);
+  console.log("Building query with filter:", filterBy, cemeteryId ? `and cemetery ID: ${cemeteryId}` : '');
   
-  // Costruisci la query di base
+  // Costruisci la query di base con join su loculo per ottenere anche i dati del cimitero
   let query = supabase
     .from('defunti')
     .select(`
@@ -24,7 +25,24 @@ export const buildDeceasedQuery = (
       sesso,
       annotazioni,
       stato_defunto,
-      id_loculo
+      id_loculo,
+      loculo:id_loculo(
+        id,
+        Numero,
+        Fila,
+        Blocco:IdBlocco(
+          Id, 
+          Nome,
+          Settore:IdSettore(
+            Id,
+            Nome,
+            Cimitero:IdCimitero(
+              Id,
+              Nome
+            )
+          )
+        )
+      )
     `, { count: 'exact' });
 
   // Applicare filtri temporali
@@ -38,9 +56,11 @@ export const buildDeceasedQuery = (
     const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
     console.log("Applying this-year filter, date:", startOfYear);
     query = query.gte('data_decesso', startOfYear);
+  } else if (filterBy === 'by-cemetery' && cemeteryId) {
+    // Filtro diretto per cimitero utilizzando la foreign key path
+    console.log("Applying direct cemetery filter by ID:", cemeteryId);
+    query = query.eq('loculo.Blocco.Settore.Cimitero.Id', cemeteryId);
   }
-  // Non fare nulla per 'by-cemetery' qui - il filtro viene applicato dopo aver recuperato i dati
-  // perché richiede informazioni dalla struttura Loculo -> Blocco -> Settore -> Cimitero
   
   // Applicare ricerca per nome, solo se il termine è valido
   if (searchQuery && searchQuery.trim() !== '') {

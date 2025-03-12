@@ -9,6 +9,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 const DeceasedList: React.FC<DeceasedListProps> = ({ 
   searchTerm, 
@@ -19,9 +20,10 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
 }) => {
   const [page, setPage] = React.useState(1);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const pageSize = isMobile ? 10 : 20; // Smaller page size on mobile
   
-  const { loading, filteredDeceased, totalCount, totalPages } = useDeceasedData({
+  const { loading, filteredDeceased, totalCount, totalPages, error } = useDeceasedData({
     searchTerm,
     sortBy,
     filterBy,
@@ -36,8 +38,19 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Show toast for filtering errors
   React.useEffect(() => {
-    // Reset to page 1 when filter/sort options change
+    if (error) {
+      toast({
+        title: "Errore",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+
+  // Reset to page 1 when filter/sort options change
+  React.useEffect(() => {
     setPage(1);
   }, [sortBy, filterBy, selectedCemetery, selectedCemeteryId, searchTerm]);
 
@@ -46,7 +59,13 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
   }
 
   if (filteredDeceased.length === 0 && !loading) {
-    return <DeceasedEmptyState searchTerm={searchTerm} onClear={() => {}} />;
+    return (
+      <DeceasedEmptyState 
+        searchTerm={searchTerm} 
+        cemeteryName={selectedCemetery}
+        onClear={() => {}} 
+      />
+    );
   }
 
   return (
