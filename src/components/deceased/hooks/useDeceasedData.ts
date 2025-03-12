@@ -67,13 +67,8 @@ export const useDeceasedData = ({
       // Debug: controlla i dati grezzi dei defunti
       console.log(`Recovered ${defuntiData?.length || 0} deceased records from database`);
       
-      // Converte i dati nel formato DeceasedRecord
-      const processedData = defuntiData ? defuntiData.map((defunto: any) => {
-        const loculo = defunto.loculo;
-        const blocco = loculo?.Blocco;
-        const settore = blocco?.Settore;
-        const cimitero = settore?.Cimitero;
-        
+      // Fase 2: Se c'è un filtro per cimitero, dobbiamo recuperare i dati dei loculi
+      let processedData = defuntiData ? defuntiData.map((defunto: any) => {
         return {
           id: defunto.id,
           nominativo: defunto.nominativo,
@@ -84,19 +79,112 @@ export const useDeceasedData = ({
           annotazioni: defunto.annotazioni,
           stato_defunto: defunto.stato_defunto,
           id_loculo: defunto.id_loculo,
-          loculo_numero: loculo?.Numero || null,
-          loculo_fila: loculo?.Fila || null,
-          cimitero_nome: cimitero?.Nome || null,
-          settore_nome: settore?.Nome || null,
-          blocco_nome: blocco?.Nome || null,
-          loculi: loculo
+          loculo_numero: null,
+          loculo_fila: null,
+          cimitero_nome: null,
+          settore_nome: null,
+          blocco_nome: null,
+          loculi: null
         } as DeceasedRecord;
       }) : [];
       
-      console.log(`After processing: ${processedData.length} deceased records to display`);
-      if (selectedCemetery) {
-        console.log("Cemetery filter results:", processedData.map(d => d.cimitero_nome));
+      // Se c'è un filtro per cimitero attivo, dobbiamo fare una query separata per i loculi
+      if (selectedCemetery && selectedCemetery.trim() !== '' && processedData.length > 0) {
+        console.log("Fetching cemetery data for selected cemetery:", selectedCemetery);
+        
+        // Ottieni tutti i loculi necessari
+        const loculiIds = processedData
+          .map(d => d.id_loculo)
+          .filter(Boolean);
+        
+        if (loculiIds.length > 0) {
+          // Ottieni informazioni sui cimiteri attraverso la gerarchia loculo -> blocco -> settore -> cimitero
+          const { data: loculiData, error: loculiError } = await supabase
+            .from('Loculo')
+            .select(`
+              id,
+              Numero,
+              Fila,
+              Blocco:IdBlocco(
+                Id,
+                Nome,
+                Settore:IdSettore(
+                  Id,
+                  Nome,
+                  Cimitero:IdCimitero(
+                    Id,
+                    Nome
+                  )
+                )
+              )
+            `);
+            
+          if (loculiError) {
+            console.error("Error fetching loculi data:", loculiError);
+          } else if (loculiData) {
+            console.log(`Found ${loculiData.length} loculi records`);
+            
+            // Create a map for quick lookup
+            const loculiMap = new Map();
+            loculiData.forEach(loculo => {
+              loculiMap.set(String(loculo.id), loculo);
+            });
+            
+            // For debugging: log all the cemetery names found in the data
+            const cemeteries = new Set();
+            loculiData.forEach(loculo => {
+              const cemeteryName = loculo?.Blocco?.Settore?.Cimitero?.Nome;
+              if (cemeteryName) cemeteries.add(cemeteryName);
+            });
+            console.log("Available cemeteries in data:", Array.from(cemeteries));
+            
+            // Enhance deceased data with loculo information
+            processedData = processedData.map(defunto => {
+              if (!defunto.id_loculo) return defunto;
+              
+              const loculo = loculiMap.get(String(defunto.id_loculo));
+              if (loculo) {
+                const cemeteryName = loculo?.Blocco?.Settore?.Cimitero?.Nome;
+                
+                return {
+                  ...defunto,
+                  loculo_numero: loculo.Numero,
+                  loculo_fila: loculo.Fila,
+                  cimitero_nome: cemeteryName,
+                  settore_nome: loculo?.Blocco?.Settore?.Nome,
+                  blocco_nome: loculo?.Blocco?.Nome,
+                  loculi: loculo
+                };
+              }
+              return defunto;
+            });
+            
+            // Filter by cemetery if selected
+            if (selectedCemetery) {
+              const lowerCaseCemetery = selectedCemetery.toLowerCase().trim();
+              
+              // Apply case-insensitive cemetery filter
+              const beforeFilterCount = processedData.length;
+              processedData = processedData.filter(defunto => {
+                if (!defunto.cimitero_nome) return false;
+                
+                const defuntoCemetery = defunto.cimitero_nome.toLowerCase().trim();
+                const match = defuntoCemetery.includes(lowerCaseCemetery) || 
+                               lowerCaseCemetery.includes(defuntoCemetery);
+                
+                // Debug each record
+                console.log(`Checking cemetery match for "${defunto.nominativo}": "${defuntoCemetery}" with "${lowerCaseCemetery}" => ${match}`);
+                
+                return match;
+              });
+              
+              console.log(`After cemetery filter: ${processedData.length}/${beforeFilterCount} records remain`);
+            }
+          }
+        }
       }
+      
+      console.log(`Final set: ${processedData.length} deceased records to display`);
       
       setDeceased(processedData);
     } catch (error) {

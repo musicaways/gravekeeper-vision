@@ -1,3 +1,3 @@
 
 export * from './buildQuery';
-export * from './processData';
+// We've moved the data processing logic to useDeceasedData.ts

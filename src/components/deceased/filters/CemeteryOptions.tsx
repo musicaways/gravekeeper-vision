@@ -35,6 +35,8 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
     const fetchCemeteries = async () => {
       try {
         setLoading(true);
+        console.log("Fetching cemetery options...");
+        
         const { data, error } = await supabase
           .from('Cimitero')
           .select('Id, Nome')
@@ -42,11 +44,14 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
 
         if (error) throw error;
 
+        console.log("Received cemetery data:", data);
+        
         const options = data.map(item => ({
           value: item.Nome,
           label: item.Nome || 'Cimitero senza nome',
         }));
 
+        console.log("Processed cemetery options:", options);
         setCemeteries(options);
       } catch (error) {
         console.error("Error fetching cemeteries:", error);
@@ -61,6 +66,8 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
   const selectedLabel = selectedValue 
     ? cemeteries.find(cemetery => cemetery.value === selectedValue)?.label || selectedValue
     : "Seleziona cimitero";
+
+  console.log("CemeteryOptions - Current selection:", selectedValue, "Label:", selectedLabel);
 
   // Simple dropdown for mobile to avoid Command component issues
   if (isMobile) {
@@ -112,46 +119,34 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
   // Desktop version with Popover + Command
   return (
     <div className="w-full">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            className="w-full justify-between"
+      <DropdownMenuItem 
+        className="font-medium"
+        onClick={() => onSelectCemetery(null)}
+      >
+        <Check className={cn("mr-2 h-4 w-4", !selectedValue ? "opacity-100" : "opacity-0")} />
+        Tutti i cimiteri
+      </DropdownMenuItem>
+      
+      {loading ? (
+        <DropdownMenuItem disabled>
+          Caricamento...
+        </DropdownMenuItem>
+      ) : (
+        cemeteries.map((cemetery) => (
+          <DropdownMenuItem
+            key={cemetery.value}
+            onClick={() => onSelectCemetery(cemetery.value)}
           >
-            {selectedLabel}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem 
-            className="font-medium"
-            onClick={() => onSelectCemetery(null)}
-          >
-            <Check className={cn("mr-2 h-4 w-4", !selectedValue ? "opacity-100" : "opacity-0")} />
-            Tutti i cimiteri
+            <Check
+              className={cn(
+                "mr-2 h-4 w-4",
+                selectedValue === cemetery.value ? "opacity-100" : "opacity-0"
+              )}
+            />
+            {cemetery.label}
           </DropdownMenuItem>
-          
-          {loading ? (
-            <DropdownMenuItem disabled>
-              Caricamento...
-            </DropdownMenuItem>
-          ) : (
-            cemeteries.map((cemetery) => (
-              <DropdownMenuItem
-                key={cemetery.value}
-                onClick={() => onSelectCemetery(cemetery.value)}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedValue === cemetery.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {cemetery.label}
-              </DropdownMenuItem>
-            ))
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        ))
+      )}
     </div>
   );
 };

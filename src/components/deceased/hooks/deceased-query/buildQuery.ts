@@ -14,37 +14,10 @@ export const buildDeceasedQuery = (
   console.log("Building query with filter:", filterBy);
   console.log("Selected cemetery:", selectedCemetery);
   
-  // Costruisci la query di base
+  // Start with a simple query that doesn't rely on foreign key relationships
   let query = supabase
     .from('defunti')
-    .select(`
-      id,
-      nominativo,
-      data_nascita,
-      data_decesso,
-      eta,
-      sesso,
-      annotazioni,
-      stato_defunto,
-      id_loculo,
-      loculo:id_loculo(
-        id,
-        Numero,
-        Fila,
-        Blocco:IdBlocco(
-          Id,
-          Nome,
-          Settore:IdSettore(
-            Id,
-            Nome,
-            Cimitero:IdCimitero(
-              Id,
-              Nome
-            )
-          )
-        )
-      )
-    `, { count: 'exact' });
+    .select('*', { count: 'exact' });
 
   // Applicare filtri temporali
   if (filterBy === 'recent') {
@@ -59,12 +32,8 @@ export const buildDeceasedQuery = (
     query = query.gte('data_decesso', startOfYear);
   }
   
-  // Apply cemetery filter directly in the query if specified
-  if (selectedCemetery && selectedCemetery.trim() !== '') {
-    console.log("Applying cemetery filter directly in query for:", selectedCemetery.trim());
-    // We need to use the contains operator with the foreign key path
-    query = query.filter('loculo.Blocco.Settore.Cimitero.Nome', 'ilike', `%${selectedCemetery.trim()}%`);
-  }
+  // Apply cemetery filter separately by first getting the IDs
+  // We'll handle the cemetery filtering after query execution
   
   // Applicare ricerca per nome, solo se il termine è valido
   if (searchQuery && searchQuery.trim() !== '') {
@@ -90,7 +59,6 @@ export const applySorting = (query: any, sortBy: string) => {
       return query.order('data_decesso', { ascending: false, nullsFirst: false });
     case 'date-asc':
       return query.order('data_decesso', { ascending: true, nullsFirst: false });
-    // Gli ordinamenti per cimitero verranno applicati dopo
     default:
       return query.order('nominativo', { ascending: true });
   }
