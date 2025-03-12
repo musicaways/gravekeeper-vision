@@ -6,8 +6,7 @@ import { debounce } from "@/lib/utils";
 import { 
   buildDeceasedQuery, 
   applySorting, 
-  applyPagination,
-  processDeceasedData 
+  applyPagination
 } from "./deceased-query";
 
 interface UseDeceasedDataProps {
@@ -41,7 +40,7 @@ export const useDeceasedData = ({
       });
       
       // Costruisci la query con i filtri necessari
-      let query = buildDeceasedQuery(supabase, filterBy, searchQuery);
+      let query = buildDeceasedQuery(supabase, filterBy, searchQuery, selectedCemetery);
       
       // Applica ordinamento
       query = applySorting(query, sortBy);
@@ -68,17 +67,36 @@ export const useDeceasedData = ({
       // Debug: controlla i dati grezzi dei defunti
       console.log(`Recovered ${defuntiData?.length || 0} deceased records from database`);
       
-      // Processa i dati e associa le informazioni del loculo
-      // Passa sempre il selectedCemetery, anche se filterBy non è 'by-cemetery'
-      const processedData = await processDeceasedData(
-        supabase,
-        defuntiData || [],
-        selectedCemetery,
-        filterBy,
-        sortBy
-      );
+      // Converte i dati nel formato DeceasedRecord
+      const processedData = defuntiData ? defuntiData.map((defunto: any) => {
+        const loculo = defunto.loculo;
+        const blocco = loculo?.Blocco;
+        const settore = blocco?.Settore;
+        const cimitero = settore?.Cimitero;
+        
+        return {
+          id: defunto.id,
+          nominativo: defunto.nominativo,
+          data_nascita: defunto.data_nascita,
+          data_decesso: defunto.data_decesso,
+          eta: defunto.eta,
+          sesso: defunto.sesso,
+          annotazioni: defunto.annotazioni,
+          stato_defunto: defunto.stato_defunto,
+          id_loculo: defunto.id_loculo,
+          loculo_numero: loculo?.Numero || null,
+          loculo_fila: loculo?.Fila || null,
+          cimitero_nome: cimitero?.Nome || null,
+          settore_nome: settore?.Nome || null,
+          blocco_nome: blocco?.Nome || null,
+          loculi: loculo
+        } as DeceasedRecord;
+      }) : [];
       
       console.log(`After processing: ${processedData.length} deceased records to display`);
+      if (selectedCemetery) {
+        console.log("Cemetery filter results:", processedData.map(d => d.cimitero_nome));
+      }
       
       setDeceased(processedData);
     } catch (error) {

@@ -54,19 +54,12 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   // Function to handle cemetery selection
   const handleCemeterySelect = (cemeteryName: string | null) => {
     console.log("FilterDropdown - Cemetery selected:", cemeteryName);
+    onCemeterySelect(cemeteryName);
     
-    if (cemeteryName) {
-      // When selecting a cemetery, also set filter to 'by-cemetery'
-      console.log("FilterDropdown - Setting filter to by-cemetery");
-      onFilterChange('by-cemetery');
-    } else if (filterBy === 'by-cemetery') {
-      // When deselecting cemetery while on by-cemetery filter, reset to 'all'
+    if (!cemeteryName && filterBy === 'by-cemetery') {
       console.log("FilterDropdown - Resetting filter to all");
       onFilterChange('all');
     }
-    
-    // Always pass the cemetery name to parent
-    onCemeterySelect(cemeteryName);
   };
 
   // Mobile version uses Sheet instead of dropdown for more space
