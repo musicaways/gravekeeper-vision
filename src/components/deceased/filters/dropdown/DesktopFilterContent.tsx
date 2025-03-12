@@ -2,13 +2,14 @@
 import React from "react";
 import { Check, MapPin } from "lucide-react";
 import { 
+  DropdownMenuGroup,
   DropdownMenuItem, 
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
   DropdownMenuSubContent
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu/components";
 import CemeteryOptions from "../cemetery";
 import { FilterDropdownProps } from "./types";
 
@@ -18,6 +19,8 @@ const DesktopFilterContent: React.FC<FilterDropdownProps> = ({
   onFilterChange,
   onCemeterySelect
 }) => {
+  console.log("DesktopFilterContent rendering with:", { filterBy, selectedCemetery });
+  
   // Function to handle cemetery selection
   const handleCemeterySelect = (cemeteryName: string | null) => {
     console.log("DesktopFilterContent - Cemetery selected:", cemeteryName);
@@ -30,10 +33,11 @@ const DesktopFilterContent: React.FC<FilterDropdownProps> = ({
   };
 
   return (
-    <>
+    <DropdownMenuGroup>
       <DropdownMenuItem 
         className={`text-xs ${filterBy === 'all' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
         onClick={() => {
+          console.log("DesktopFilterContent - Selected 'all' filter");
           onFilterChange('all');
           onCemeterySelect(null);
         }}
@@ -43,6 +47,7 @@ const DesktopFilterContent: React.FC<FilterDropdownProps> = ({
       <DropdownMenuItem 
         className={`text-xs ${filterBy === 'recent' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
         onClick={() => {
+          console.log("DesktopFilterContent - Selected 'recent' filter");
           onFilterChange('recent');
           onCemeterySelect(null);
         }}
@@ -52,6 +57,7 @@ const DesktopFilterContent: React.FC<FilterDropdownProps> = ({
       <DropdownMenuItem 
         className={`text-xs ${filterBy === 'this-year' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
         onClick={() => {
+          console.log("DesktopFilterContent - Selected 'this-year' filter");
           onFilterChange('this-year');
           onCemeterySelect(null);
         }}
@@ -77,7 +83,7 @@ const DesktopFilterContent: React.FC<FilterDropdownProps> = ({
           </DropdownMenuSubContent>
         </DropdownMenuPortal>
       </DropdownMenuSub>
-    </>
+    </DropdownMenuGroup>
   );
 };
 

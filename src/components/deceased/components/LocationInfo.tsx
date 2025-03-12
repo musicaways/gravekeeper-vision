@@ -15,8 +15,11 @@ const LocationInfo: React.FC<LocationInfoProps> = ({
   blocco_nome,
   bloccoId
 }) => {
+  console.log("LocationInfo rendering:", { settore_nome, blocco_nome, bloccoId });
+  
   const decodedSettoreName = decodeText(settore_nome);
   const decodedBloccoName = decodeText(blocco_nome);
+  const hasValidId = typeof bloccoId === 'number' && !isNaN(bloccoId) && bloccoId > 0;
 
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors">
@@ -24,7 +27,7 @@ const LocationInfo: React.FC<LocationInfoProps> = ({
       <div className="flex items-start gap-1">
         <MapPin className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
         {decodedSettoreName && decodedBloccoName ? (
-          bloccoId ? (
+          hasValidId ? (
             <Link 
               to={`/block/${bloccoId}`}
               className="text-sm font-medium text-foreground hover:underline truncate block"

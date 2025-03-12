@@ -12,13 +12,17 @@ const CemeteryInfo: React.FC<CemeteryInfoProps> = ({
   cimitero_nome,
   cimiteroId
 }) => {
+  console.log("CemeteryInfo rendering:", { cimitero_nome, cimiteroId });
+  
+  const hasValidId = typeof cimiteroId === 'number' && !isNaN(cimiteroId) && cimiteroId > 0;
+  
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors">
       <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Cimitero</p>
       {cimitero_nome ? (
         <div className="flex items-start gap-1">
           <Cross className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
-          {cimiteroId ? (
+          {hasValidId ? (
             <Link 
               to={`/cemetery/${cimiteroId}`}
               className="text-sm font-medium text-foreground hover:underline truncate block"

@@ -1,83 +1,114 @@
-
-import { format, parseISO, differenceInYears } from "date-fns";
+import { formatDistanceToNow, format, differenceInYears } from "date-fns";
 import { it } from "date-fns/locale";
+import { DeceasedRecord } from "../types/deceased";
 
-/**
- * Format a date string to a readable format
- */
-export const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "Data non disponibile";
+// Format date for display
+export const formatDate = (dateString: string | Date | null): string => {
+  if (!dateString) return "N/A";
+  
   try {
-    return format(parseISO(dateString), "d MMM yyyy", { locale: it });
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return format(date, "dd/MM/yyyy");
   } catch (error) {
+    console.error("Error formatting date:", error);
     return "Data non valida";
   }
 };
 
-/**
- * Calculate age from birth date and death date
- */
-export const calculateAge = (birthDateString: string | null, deathDateString: string | null): number | null => {
-  if (!birthDateString || !deathDateString) return null;
+// Determine if recently deceased (last 30 days)
+export const isRecentlyDeceased = (dateString: string | Date | null): boolean => {
+  if (!dateString) return false;
   
   try {
-    const birthDate = parseISO(birthDateString);
-    const deathDate = parseISO(deathDateString);
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
-    // Verifica che le date siano valide
-    if (isNaN(birthDate.getTime()) || isNaN(deathDate.getTime())) {
-      return null;
-    }
-    
-    // Calcola la differenza in anni
-    return differenceInYears(deathDate, birthDate);
+    return date >= thirtyDaysAgo;
   } catch (error) {
-    console.error("Errore nel calcolo dell'età:", error);
+    console.error("Error checking recent date:", error);
+    return false;
+  }
+};
+
+// Get time passed since date
+export const getTimeSince = (dateString: string | Date | null): string => {
+  if (!dateString) return "";
+  
+  try {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return formatDistanceToNow(date, { locale: it, addSuffix: true });
+  } catch (error) {
+    console.error("Error getting time since:", error);
+    return "";
+  }
+};
+
+// Determine gender based on the name
+export const isFemale = (name: string): boolean => {
+  if (!name || typeof name !== 'string') {
+    console.log("Invalid name provided to isFemale:", name);
+    return false;
+  }
+  
+  // Italian female names often end with 'a'
+  const cleanName = name.trim().split(' ')[0].toLowerCase();
+  
+  // Common female name indicators in Italian
+  const femaleIndicators = ['a', 'ia', 'na', 'lla', 'etta', 'ina'];
+  
+  // Special cases for names that end with 'a' but are male
+  const maleExceptions = ['andrea', 'luca', 'nicola', 'mattia', 'elia'];
+  
+  if (maleExceptions.includes(cleanName)) {
+    return false;
+  }
+  
+  // Check if the name ends with any of the female indicators
+  return femaleIndicators.some(indicator => cleanName.endsWith(indicator));
+};
+
+// Calculate age between birth and death dates
+export const calculateAge = (birthDate: Date | string | null, deathDate: Date | string | null): number | null => {
+  if (!birthDate || !deathDate) {
+    console.log("Missing birth or death date for age calculation:", { birthDate, deathDate });
+    return null;
+  }
+  
+  try {
+    const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
+    const death = typeof deathDate === 'string' ? new Date(deathDate) : deathDate;
+    
+    return differenceInYears(death, birth);
+  } catch (error) {
+    console.error("Error calculating age:", error);
     return null;
   }
 };
 
-/**
- * Determine if a name is likely female based on common Italian name endings
- */
-export const isFemale = (name: string): boolean => {
-  if (!name) return false;
-  
-  const lowercaseName = name.toLowerCase();
-  // Common Italian female name endings
-  const femaleEndings = ['a', 'na', 'lla', 'etta', 'ina'];
-  
-  // Check for common Italian female name endings
-  return femaleEndings.some(ending => {
-    const nameParts = lowercaseName.split(' ');
-    if (nameParts.length === 0) return false;
-    const nameOnly = nameParts[0]; // Get first name
-    return nameOnly.endsWith(ending);
+// Generate a link to the loculo page
+export const getLoculoLink = (deceased: DeceasedRecord): string => {
+  console.log("getLoculoLink called with:", {
+    id_loculo: deceased.id_loculo,
+    loculi: deceased.loculi
   });
-};
-
-/**
- * Generate loculo link from the deceased record
- */
-export const getLoculoLink = (deceased: {
-  id_loculo?: string | null;
-  loculi?: {
-    Blocco?: {
-      Id?: number;
-    } | null;
-  } | null;
-}): string => {
-  // Verifica se abbiamo l'oggetto loculi con le informazioni del blocco
-  if (deceased?.loculi?.Blocco?.Id) {
-    return `/block/${deceased.loculi.Blocco.Id}`;
+  
+  // Se non abbiamo l'ID del loculo, non possiamo generare un link
+  if (!deceased.id_loculo) {
+    console.log("No loculo ID available");
+    return "#";
   }
   
-  // Se non abbiamo informazioni complete sul blocco ma abbiamo l'id_loculo
-  if (deceased?.id_loculo) {
-    // Con solo l'id_loculo non possiamo generare un link diretto al blocco
-    // Ritorniamo un link generico che potrebbe essere elaborato ulteriormente
-    return `#`;
+  // Se abbiamo i dati del loculo, creiamo un link più specifico
+  if (deceased.loculi && deceased.loculi.Blocco) {
+    const bloccoId = deceased.loculi.Blocco.Id;
+    if (bloccoId) {
+      console.log(`Creating link to /block/${bloccoId}/loculi/${deceased.id_loculo}`);
+      return `/block/${bloccoId}/loculi/${deceased.id_loculo}`;
+    }
   }
   
-  return "#";
+  // Se abbiamo solo l'ID del loculo, creiamo un link generico
+  console.log(`Creating generic link to /loculi/${deceased.id_loculo}`);
+  return `/loculi/${deceased.id_loculo}`;
 };

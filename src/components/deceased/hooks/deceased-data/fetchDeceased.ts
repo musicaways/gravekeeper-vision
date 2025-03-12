@@ -75,6 +75,8 @@ export const fetchDeceased = async ({
       } as DeceasedRecord;
     }) : [];
     
+    console.log("Initial processed data:", processedData);
+    
     // Se c'è un filtro per cimitero attivo, dobbiamo fare una query separata per i loculi
     if (selectedCemetery && selectedCemetery.trim() !== '' && processedData.length > 0) {
       console.log("Fetching cemetery data for selected cemetery:", selectedCemetery);
@@ -83,6 +85,8 @@ export const fetchDeceased = async ({
       const loculiIds = processedData
         .map(d => d.id_loculo)
         .filter(Boolean);
+      
+      console.log("Loculo IDs to fetch:", loculiIds);
       
       if (loculiIds.length > 0) {
         // Ottieni informazioni sui cimiteri attraverso la gerarchia loculo -> blocco -> settore -> cimitero
@@ -110,6 +114,7 @@ export const fetchDeceased = async ({
           console.error("Error fetching loculi data:", loculiError);
         } else if (loculiData) {
           console.log(`Found ${loculiData.length} loculi records`);
+          console.log("Sample loculo data:", loculiData[0]);
           
           // Create a map for quick lookup
           const loculiMap = new Map();
@@ -145,6 +150,8 @@ export const fetchDeceased = async ({
             }
             return defunto;
           });
+          
+          console.log("Enhanced data with loculo information:", processedData.slice(0, 2));
           
           // Filter by cemetery if selected
           if (selectedCemetery) {

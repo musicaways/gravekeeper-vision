@@ -11,6 +11,8 @@ const MobileFilterContent: React.FC<FilterDropdownProps> = ({
   onFilterChange,
   onCemeterySelect
 }) => {
+  console.log("MobileFilterContent rendering with:", { filterBy, selectedCemetery });
+  
   // Function to handle cemetery selection
   const handleCemeterySelect = (cemeteryName: string | null) => {
     console.log("MobileFilterContent - Cemetery selected:", cemeteryName);
@@ -32,6 +34,7 @@ const MobileFilterContent: React.FC<FilterDropdownProps> = ({
           size="sm"
           className="justify-start"
           onClick={() => {
+            console.log("MobileFilterContent - Selected 'all' filter");
             onFilterChange('all');
             onCemeterySelect(null);
           }}
@@ -44,6 +47,7 @@ const MobileFilterContent: React.FC<FilterDropdownProps> = ({
           size="sm"
           className="justify-start"
           onClick={() => {
+            console.log("MobileFilterContent - Selected 'recent' filter");
             onFilterChange('recent');
             onCemeterySelect(null);
           }}
@@ -56,6 +60,7 @@ const MobileFilterContent: React.FC<FilterDropdownProps> = ({
           size="sm"
           className="justify-start"
           onClick={() => {
+            console.log("MobileFilterContent - Selected 'this-year' filter");
             onFilterChange('this-year');
             onCemeterySelect(null);
           }}
