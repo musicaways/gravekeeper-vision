@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { User, Users, AlertCircle, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +5,7 @@ import { Loculo, getDefuntiCount, getDefunti, getNominativo } from "./types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { checkBloccoRelationship } from "@/services/loculiService";
+import { checkBloccoRelationship } from "@/services/loculi";
 
 interface LoculiListProps {
   loculi: Loculo[];

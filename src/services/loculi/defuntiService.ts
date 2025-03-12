@@ -7,17 +7,21 @@ import { DefuntoType } from "@/components/block/loculi/types";
  */
 export async function fetchDefuntiForLoculi(loculiIds: (string | number)[]) {
   try {
+    // Convert all IDs to numbers for the first query
+    const numericLoculiIds = loculiIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
+    
     // Step 1: Recupera vecchi defunti dalla tabella 'Defunto'
     const { data: defunti, error: defuntiError } = await supabase
       .from('Defunto')
       .select('*')
-      .in('IdLoculo', loculiIds);
+      .in('IdLoculo', numericLoculiIds);
       
     if (defuntiError) {
       console.error("Errore nel caricamento dei defunti:", defuntiError);
     }
     
     // Step 2: Recupera nuovi defunti dalla tabella 'defunti'
+    // For the new table we need string IDs
     const loculiIdsAsStrings = loculiIds.map(id => id.toString());
     const { data: newDefunti, error: newDefuntiError } = await supabase
       .from('defunti')
