@@ -8,6 +8,7 @@ import { DeceasedListProps } from "./types/deceased";
 import { Pagination } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DeceasedList: React.FC<DeceasedListProps> = ({ 
   searchTerm, 
@@ -16,7 +17,8 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
   selectedCemetery = null
 }) => {
   const [page, setPage] = React.useState(1);
-  const pageSize = 20;
+  const isMobile = useIsMobile();
+  const pageSize = isMobile ? 10 : 20; // Smaller page size on mobile
   
   const { loading, filteredDeceased, totalCount, totalPages } = useDeceasedData({
     searchTerm,
@@ -47,7 +49,7 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-1">
+      <div className={`grid gap-4 w-full px-1 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
         {filteredDeceased.map((deceased) => (
           <DeceasedListItem key={deceased.id} deceased={deceased} />
         ))}
@@ -67,7 +69,11 @@ const DeceasedList: React.FC<DeceasedListProps> = ({
             </Button>
             
             <span className="text-sm mx-2">
-              Pagina {page} di {totalPages} ({totalCount} risultati)
+              {isMobile ? (
+                <>{page}/{totalPages}</>
+              ) : (
+                <>Pagina {page} di {totalPages} ({totalCount} risultati)</>
+              )}
             </span>
             
             <Button 

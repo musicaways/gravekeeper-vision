@@ -1,21 +1,16 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CemeteryOption {
   value: string;
@@ -34,6 +29,7 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
   const [open, setOpen] = useState(false);
   const [cemeteries, setCemeteries] = useState<CemeteryOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchCemeteries = async () => {
@@ -66,71 +62,97 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
     ? cemeteries.find(cemetery => cemetery.value === selectedValue)?.label || selectedValue
     : "Seleziona cimitero";
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {selectedLabel}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder="Cerca cimitero..." />
-          <CommandEmpty>Nessun cimitero trovato</CommandEmpty>
-          <CommandGroup>
-            {loading ? (
-              <CommandItem disabled>Caricamento...</CommandItem>
-            ) : (
-              <>
-                <CommandItem
-                  key="all"
-                  value="all"
-                  onSelect={() => {
-                    onSelectCemetery(null);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      !selectedValue ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  Tutti i cimiteri
-                </CommandItem>
+  // Simple dropdown for mobile to avoid Command component issues
+  if (isMobile) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between text-xs"
+          >
+            {selectedLabel}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuItem 
+            className="text-xs font-medium"
+            onClick={() => onSelectCemetery(null)}
+          >
+            <Check className={cn("mr-2 h-3.5 w-3.5", !selectedValue ? "opacity-100" : "opacity-0")} />
+            Tutti i cimiteri
+          </DropdownMenuItem>
+          
+          {loading ? (
+            <DropdownMenuItem disabled className="text-xs">
+              Caricamento...
+            </DropdownMenuItem>
+          ) : (
+            cemeteries.map((cemetery) => (
+              <DropdownMenuItem
+                key={cemetery.value}
+                className="text-xs"
+                onClick={() => onSelectCemetery(cemetery.value)}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-3.5 w-3.5",
+                    selectedValue === cemetery.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {cemetery.label}
+              </DropdownMenuItem>
+            ))
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
-                {cemeteries.map((cemetery) => (
-                  <CommandItem
-                    key={cemetery.value}
-                    value={cemetery.value}
-                    onSelect={() => {
-                      onSelectCemetery(cemetery.value);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedValue === cemetery.value
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                    {cemetery.label}
-                  </CommandItem>
-                ))}
-              </>
-            )}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+  // Desktop version with Popover + Command
+  return (
+    <div className="w-full">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between"
+          >
+            {selectedLabel}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuItem 
+            className="font-medium"
+            onClick={() => onSelectCemetery(null)}
+          >
+            <Check className={cn("mr-2 h-4 w-4", !selectedValue ? "opacity-100" : "opacity-0")} />
+            Tutti i cimiteri
+          </DropdownMenuItem>
+          
+          {loading ? (
+            <DropdownMenuItem disabled>
+              Caricamento...
+            </DropdownMenuItem>
+          ) : (
+            cemeteries.map((cemetery) => (
+              <DropdownMenuItem
+                key={cemetery.value}
+                onClick={() => onSelectCemetery(cemetery.value)}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selectedValue === cemetery.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {cemetery.label}
+              </DropdownMenuItem>
+            ))
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

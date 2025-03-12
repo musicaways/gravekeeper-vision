@@ -4,6 +4,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import SortDropdown from "@/components/deceased/filters/SortDropdown";
 import FilterDropdown from "@/components/deceased/filters/FilterDropdown";
 import DeceasedList from "@/components/deceased/DeceasedList";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Deceased = () => {
   const location = useLocation();
@@ -12,6 +13,7 @@ const Deceased = () => {
   const [sortBy, setSortBy] = useState("name-asc"); // Default sort
   const [filterBy, setFilterBy] = useState("all"); // Default filter
   const [selectedCemetery, setSelectedCemetery] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   // Listen for search term changes in the URL
   useEffect(() => {
@@ -39,18 +41,31 @@ const Deceased = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="w-full max-w-none px-1 py-2">
-        <div className="mb-3 flex gap-2">
-          <SortDropdown 
-            sortBy={sortBy} 
-            onSortChange={handleSort} 
-          />
+        <div className={`mb-3 ${isMobile ? 'flex flex-col gap-2' : 'flex gap-2'}`}>
+          <div className={`${isMobile ? 'flex justify-between' : ''}`}>
+            <SortDropdown 
+              sortBy={sortBy} 
+              onSortChange={handleSort} 
+            />
+            
+            {isMobile && (
+              <FilterDropdown 
+                filterBy={filterBy} 
+                selectedCemetery={selectedCemetery} 
+                onFilterChange={handleFilter} 
+                onCemeterySelect={handleCemeterySelect} 
+              />
+            )}
+          </div>
           
-          <FilterDropdown 
-            filterBy={filterBy} 
-            selectedCemetery={selectedCemetery} 
-            onFilterChange={handleFilter} 
-            onCemeterySelect={handleCemeterySelect} 
-          />
+          {!isMobile && (
+            <FilterDropdown 
+              filterBy={filterBy} 
+              selectedCemetery={selectedCemetery} 
+              onFilterChange={handleFilter} 
+              onCemeterySelect={handleCemeterySelect} 
+            />
+          )}
         </div>
       </div>
       
