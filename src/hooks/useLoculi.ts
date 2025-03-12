@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Loculo } from "@/components/block/loculi/types";
-import { fetchLoculiData, searchLoculi } from "@/services/loculiService";
+import { fetchLoculiData, searchLoculi, fetchDefuntiForLoculi } from "@/services/loculi";
 
 interface UseLoculiProps {
   blockId: string;
@@ -29,26 +28,31 @@ export function useLoculi({ blockId, searchTerm = "" }: UseLoculiProps): UseLocu
         setLoading(true);
         setError(null);
         
-        // Converti l'ID blocco in numero
         const numericBlockId = parseInt(blockId, 10);
         
         if (isNaN(numericBlockId)) {
           throw new Error("ID blocco non valido: deve essere un numero");
         }
         
-        console.log("Caricamento loculi per il blocco ID:", numericBlockId);
-        
-        // Utilizza la funzione appropriata in base alla presenza di searchTerm
-        const result = searchTerm 
+        const loculiResult = searchTerm 
           ? await searchLoculi(numericBlockId, searchTerm)
           : await fetchLoculiData(numericBlockId);
         
-        if (result.error) {
-          throw new Error(result.error);
+        if (loculiResult.error) {
+          throw new Error(loculiResult.error);
         }
+
+        const loculiIds = loculiResult.data.map(l => l.id);
+        const defuntiResult = await fetchDefuntiForLoculi(loculiIds);
+
+        const loculiWithDefunti = loculiResult.data.map(loculo => ({
+          ...loculo,
+          Defunti: defuntiResult.data.filter(d => 
+            d.IdLoculo === loculo.id || d.id_loculo === loculo.id.toString()
+          )
+        }));
         
-        console.log(`Caricati ${result.data.length} loculi per il blocco ${numericBlockId}`);
-        setLoculi(result.data);
+        setLoculi(loculiWithDefunti);
         
       } catch (err: any) {
         console.error("Errore nel caricamento dei loculi:", err);
