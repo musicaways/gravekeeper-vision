@@ -7,17 +7,25 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export const buildDeceasedQuery = (
   supabase: SupabaseClient,
   filterBy: string,
-  searchQuery: string,
-  selectedCemetery: string | null
+  searchQuery: string
 ) => {
   // Log per debugging
   console.log("Building query with filter:", filterBy);
-  console.log("Selected cemetery:", selectedCemetery);
   
-  // Start with a simple query that doesn't rely on foreign key relationships
+  // Costruisci la query di base
   let query = supabase
     .from('defunti')
-    .select('*', { count: 'exact' });
+    .select(`
+      id,
+      nominativo,
+      data_nascita,
+      data_decesso,
+      eta,
+      sesso,
+      annotazioni,
+      stato_defunto,
+      id_loculo
+    `, { count: 'exact' });
 
   // Applicare filtri temporali
   if (filterBy === 'recent') {
@@ -31,9 +39,8 @@ export const buildDeceasedQuery = (
     console.log("Applying this-year filter, date:", startOfYear);
     query = query.gte('data_decesso', startOfYear);
   }
-  
-  // Apply cemetery filter separately by first getting the IDs
-  // We'll handle the cemetery filtering after query execution
+  // Non fare nulla per 'by-cemetery' qui - il filtro viene applicato dopo aver recuperato i dati
+  // perché richiede informazioni dalla struttura Loculo -> Blocco -> Settore -> Cimitero
   
   // Applicare ricerca per nome, solo se il termine è valido
   if (searchQuery && searchQuery.trim() !== '') {
@@ -59,6 +66,7 @@ export const applySorting = (query: any, sortBy: string) => {
       return query.order('data_decesso', { ascending: false, nullsFirst: false });
     case 'date-asc':
       return query.order('data_decesso', { ascending: true, nullsFirst: false });
+    // Gli ordinamenti per cimitero verranno applicati dopo
     default:
       return query.order('nominativo', { ascending: true });
   }

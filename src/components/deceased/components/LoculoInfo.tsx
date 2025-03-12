@@ -14,47 +14,23 @@ const LoculoInfo: React.FC<LoculoInfoProps> = ({
   loculo_fila,
   loculo_link
 }) => {
-  console.log("LoculoInfo rendering:", { loculo_numero, loculo_fila, loculo_link });
-  
-  const hasLoculoInfo = loculo_numero !== null || loculo_fila !== null;
-  // Controlla se il loculo_link è un URL valido che possiamo navigare
-  const isValidLink = Boolean(
-    loculo_link && 
-    loculo_link !== "#" && 
-    loculo_link !== "undefined" && 
-    loculo_link !== "null"
-  );
-  
-  console.log("LoculoInfo - Valid link:", isValidLink);
-
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors mt-auto">
       <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Loculo</p>
-      {hasLoculoInfo ? (
+      {(loculo_numero || loculo_fila) ? (
         <div className="flex items-start gap-1">
           <Layers className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
-          {isValidLink ? (
-            <Link 
-              to={loculo_link} 
-              className="text-sm font-medium text-foreground hover:underline truncate block"
-            >
-              {loculo_numero && loculo_fila 
-                ? `Numero ${loculo_numero}, Fila ${loculo_fila}`
-                : loculo_numero
-                  ? `Numero ${loculo_numero}`
-                  : `Fila ${loculo_fila}`
-              }
-            </Link>
-          ) : (
-            <span className="text-sm font-medium truncate">
-              {loculo_numero && loculo_fila 
-                ? `Numero ${loculo_numero}, Fila ${loculo_fila}`
-                : loculo_numero
-                  ? `Numero ${loculo_numero}`
-                  : `Fila ${loculo_fila}`
-              }
-            </span>
-          )}
+          <Link 
+            to={loculo_link} 
+            className="text-sm font-medium text-foreground hover:underline truncate block"
+          >
+            {loculo_numero && loculo_fila 
+              ? `Numero ${loculo_numero}, Fila ${loculo_fila}`
+              : loculo_numero
+                ? `Numero ${loculo_numero}`
+                : `Fila ${loculo_fila}`
+            }
+          </Link>
         </div>
       ) : (
         <p className="text-sm font-medium truncate">N/A</p>

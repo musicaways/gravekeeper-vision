@@ -15,19 +15,8 @@ const LocationInfo: React.FC<LocationInfoProps> = ({
   blocco_nome,
   bloccoId
 }) => {
-  console.log("LocationInfo rendering:", { settore_nome, blocco_nome, bloccoId });
-  
   const decodedSettoreName = decodeText(settore_nome);
   const decodedBloccoName = decodeText(blocco_nome);
-  
-  // Verificare se l'ID è valido e non è null o undefined
-  const hasValidId = Boolean(
-    typeof bloccoId === 'number' && 
-    !isNaN(bloccoId) && 
-    bloccoId > 0
-  );
-  
-  console.log("LocationInfo - Has valid ID:", hasValidId);
 
   return (
     <div className="p-3 hover:bg-muted/50 transition-colors">
@@ -35,22 +24,18 @@ const LocationInfo: React.FC<LocationInfoProps> = ({
       <div className="flex items-start gap-1">
         <MapPin className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
         {decodedSettoreName && decodedBloccoName ? (
-          hasValidId ? (
-            <Link 
-              to={`/block/${bloccoId}`}
-              className="text-sm font-medium text-foreground hover:underline truncate block"
-            >
-              {decodedSettoreName} - {decodedBloccoName}
-            </Link>
-          ) : (
-            <span className="text-sm font-medium truncate">{decodedSettoreName} - {decodedBloccoName}</span>
-          )
+          <Link 
+            to={bloccoId ? `/block/${bloccoId}` : "#"}
+            className="text-sm font-medium text-foreground hover:underline truncate block"
+          >
+            {decodedSettoreName} - {decodedBloccoName}
+          </Link>
         ) : decodedSettoreName ? (
-          <span className="text-sm font-medium truncate">{decodedSettoreName}</span>
+          <p className="text-sm font-medium truncate">{decodedSettoreName}</p>
         ) : decodedBloccoName ? (
-          <span className="text-sm font-medium truncate">{decodedBloccoName}</span>
+          <p className="text-sm font-medium truncate">{decodedBloccoName}</p>
         ) : (
-          <span className="text-sm font-medium truncate">N/A</span>
+          <p className="text-sm font-medium truncate">N/A</p>
         )}
       </div>
     </div>

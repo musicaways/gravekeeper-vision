@@ -1,81 +1,36 @@
 
-import { DeceasedRecord } from "../types/deceased";
+import { format, parseISO, differenceInYears } from "date-fns";
+import { it } from "date-fns/locale";
 
 /**
- * Formatta una data in formato leggibile italiano
+ * Format a date string to a readable format
  */
-export const formatDate = (date: string | Date | null): string => {
-  if (!date) return 'N/A';
-  
+export const formatDate = (dateString: string | null): string => {
+  if (!dateString) return "Data non disponibile";
   try {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    
-    // Controlla se la data è valida
-    if (isNaN(d.getTime())) {
-      return 'Data non valida';
-    }
-    
-    return d.toLocaleDateString('it-IT', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return format(parseISO(dateString), "d MMM yyyy", { locale: it });
   } catch (error) {
-    console.error("Errore nella formattazione della data:", error);
-    return 'Errore data';
+    return "Data non valida";
   }
 };
 
 /**
- * Controlla se il nome è femminile (euristico)
+ * Calculate age from birth date and death date
  */
-export const isFemale = (name: string): boolean => {
-  if (!name || typeof name !== 'string') {
-    console.log("Invalid name provided to isFemale:", name);
-    return false;
-  }
-  
-  // Nomi che terminano in 'a' sono generalmente femminili in italiano
-  // (con alcune eccezioni)
-  const exceptions = ['andrea', 'luca', 'mattia', 'nicola', 'elia'];
-  
-  const nameParts = name.toLowerCase().trim().split(' ');
-  const firstName = nameParts[0];
-  
-  if (exceptions.includes(firstName)) {
-    return false;
-  }
-  
-  return firstName.endsWith('a');
-};
-
-/**
- * Calcola l'età in base alla data di nascita e decesso
- */
-export const calculateAge = (
-  birthDate: string | Date | null, 
-  deathDate: string | Date | null
-): number | null => {
-  if (!birthDate || !deathDate) return null;
+export const calculateAge = (birthDateString: string | null, deathDateString: string | null): number | null => {
+  if (!birthDateString || !deathDateString) return null;
   
   try {
-    const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
-    const death = typeof deathDate === 'string' ? new Date(deathDate) : deathDate;
+    const birthDate = parseISO(birthDateString);
+    const deathDate = parseISO(deathDateString);
     
-    // Controlla se le date sono valide
-    if (isNaN(birth.getTime()) || isNaN(death.getTime())) {
+    // Verifica che le date siano valide
+    if (isNaN(birthDate.getTime()) || isNaN(deathDate.getTime())) {
       return null;
     }
     
-    // Calcola l'età
-    let age = death.getFullYear() - birth.getFullYear();
-    const m = death.getMonth() - birth.getMonth();
-    
-    if (m < 0 || (m === 0 && death.getDate() < birth.getDate())) {
-      age--;
-    }
-    
-    return age;
+    // Calcola la differenza in anni
+    return differenceInYears(deathDate, birthDate);
   } catch (error) {
     console.error("Errore nel calcolo dell'età:", error);
     return null;
@@ -83,36 +38,45 @@ export const calculateAge = (
 };
 
 /**
- * Genera il link al loculo
+ * Determine if a name is likely female based on common Italian name endings
  */
-export const getLoculoLink = (deceased: DeceasedRecord): string => {
-  console.log("getLoculoLink called with:", {
-    id_loculo: deceased.id_loculo,
-    loculi: deceased.loculi
+export const isFemale = (name: string): boolean => {
+  const lowercaseName = name.toLowerCase();
+  // Common Italian female name endings
+  const femaleEndings = ['a', 'na', 'lla', 'etta', 'ina'];
+  
+  // Check for common Italian female name endings
+  return femaleEndings.some(ending => {
+    const nameOnly = lowercaseName.split(' ')[0]; // Get first name
+    return nameOnly.endsWith(ending);
   });
-  
-  // Se non abbiamo un ID del loculo, non possiamo creare un link
-  if (!deceased.id_loculo) {
-    return '#';
+};
+
+/**
+ * Generate loculo link from the deceased record
+ * Ora gestisce sia il caso in cui abbiamo un oggetto loculi sia il caso in cui abbiamo solo l'id_loculo
+ */
+export const getLoculoLink = (deceased: {
+  id_loculo?: string | null;
+  loculi?: {
+    Blocco?: {
+      Id?: number;
+    } | null;
+  } | null;
+}): string => {
+  // Prima controlla se abbiamo l'oggetto loculi con le informazioni del blocco
+  if (deceased.loculi?.Blocco?.Id) {
+    return `/block/${deceased.loculi.Blocco.Id}`;
   }
   
-  // Se abbiamo l'oggetto loculo completo con relazioni
-  if (deceased.loculi && 
-      deceased.loculi.Blocco && 
-      deceased.loculi.Blocco.Id && 
-      deceased.loculi.Blocco.Settore && 
-      deceased.loculi.Blocco.Settore.Cimitero && 
-      deceased.loculi.Blocco.Settore.Cimitero.Id) {
-    
-    const cimiteroId = deceased.loculi.Blocco.Settore.Cimitero.Id;
-    const bloccoId = deceased.loculi.Blocco.Id;
-    
-    console.log(`Creating detailed link with cimiteroId=${cimiteroId}, bloccoId=${bloccoId}, loculoId=${deceased.id_loculo}`);
-    
-    return `/cemetery/${cimiteroId}/block/${bloccoId}/loculi/${deceased.id_loculo}`;
+  // Se non abbiamo l'oggetto loculi ma abbiamo l'id_loculo, potremmo
+  // non avere abbastanza informazioni per generare il link corretto
+  // In questo caso ritorniamo un link generico
+  if (deceased.id_loculo) {
+    // In una implementazione più completa, potremmo fare una query
+    // per ottenere l'ID del blocco dall'id_loculo
+    return `#loculo-${deceased.id_loculo}`;
   }
   
-  // Fallback: link generico al loculo
-  console.log(`Creating generic link to /loculi/${deceased.id_loculo}`);
-  return `/loculi/${deceased.id_loculo}`;
+  return "#";
 };

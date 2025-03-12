@@ -18,25 +18,11 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const textColor = "text-primary-dark";
   
   const loculoLink = getLoculoLink(deceased);
-  console.log("DeceasedListItem rendering for:", deceased.nominativo);
-  console.log("LoculoLink:", loculoLink);
-  
-  // Estrai i dati necessari per i link
-  const cimiteroId = deceased.loculi?.Blocco?.Settore?.Cimitero?.Id || null;
-  const bloccoId = deceased.loculi?.Blocco?.Id || null;
-  
-  console.log("Link IDs:", { cimiteroId, bloccoId });
-  
-  // Verifichiamo che i valori numerici siano validi
-  const validCimiteroId = typeof cimiteroId === 'number' && !isNaN(cimiteroId) && cimiteroId > 0 ? cimiteroId : null;
-  const validBloccoId = typeof bloccoId === 'number' && !isNaN(bloccoId) && bloccoId > 0 ? bloccoId : null;
-  
-  console.log("Valid IDs:", { validCimiteroId, validBloccoId });
+  const cimiteroId = deceased.loculi?.Blocco?.Settore?.Cimitero?.Id;
+  const bloccoId = deceased.loculi?.Blocco?.Id;
   
   // Calcoliamo l'età in base ai dati disponibili
-  const età = deceased.eta !== null && deceased.eta !== undefined ? 
-    deceased.eta : 
-    calculateAge(deceased.data_nascita || null, deceased.data_decesso || null);
+  const età = deceased.eta !== null ? deceased.eta : calculateAge(deceased.data_nascita || null, deceased.data_decesso || null);
 
   return (
     <div className="border rounded-md hover:bg-accent/5 transition-colors h-full flex flex-col">
@@ -46,7 +32,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
         <div className="flex flex-col space-y-1">
           <div className="flex items-center space-x-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 border-2 border-primary/30 shadow-sm backdrop-blur-sm shrink-0">
-              {isFemale(deceased.nominativo || "") ? (
+              {isFemale(deceased.nominativo) ? (
                 <UserRound className="h-5 w-5 text-primary-dark" />
               ) : (
                 <User className="h-5 w-5 text-primary-dark" />
@@ -62,7 +48,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
               <Calendar className="h-3.5 w-3.5 mr-1" />
               <span>
                 Dec. {formatDate(deceased.data_decesso)}
-                {età !== null && età !== undefined && ` · ${età} anni`}
+                {età !== null && ` · ${età} anni`}
               </span>
             </div>
           )}
@@ -72,13 +58,13 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
       <div className="space-y-0 divide-y flex-grow flex flex-col">
         <CemeteryInfo 
           cimitero_nome={deceased.cimitero_nome}
-          cimiteroId={validCimiteroId}
+          cimiteroId={cimiteroId}
         />
         
         <LocationInfo 
           settore_nome={deceased.settore_nome} 
           blocco_nome={deceased.blocco_nome}
-          bloccoId={validBloccoId}
+          bloccoId={bloccoId}
         />
         
         <LoculoInfo 
