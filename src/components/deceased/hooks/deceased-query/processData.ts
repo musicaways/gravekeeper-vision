@@ -25,8 +25,7 @@ export const processDeceasedData = async (
     return mapDeceasedWithoutLoculi(defuntiData);
   }
   
-  // Query in batch per i loculi
-  // Convertiamo i loculiIds in numeri quando possibile
+  // Convertiamo i loculiIds in numeri quando possibile per la query
   const numericLoculiIds = loculiIds
     .map(id => {
       // Se è già un numero, lo restituiamo com'è
@@ -48,6 +47,8 @@ export const processDeceasedData = async (
   }
   
   try {
+    console.log("Fetching loculo data for IDs:", numericLoculiIds);
+    
     const { data: loculiData, error: loculiError } = await supabase
       .from('Loculo')
       .select(`
@@ -74,7 +75,17 @@ export const processDeceasedData = async (
       return mapDeceasedWithoutLoculi(defuntiData);
     }
     
-    return processWithLoculi(defuntiData, loculiData, selectedCemetery, filterBy, sortBy);
+    if (loculiData && loculiData.length > 0) {
+      console.log("Found loculi data:", loculiData.length, "records");
+      console.log("Sample loculo data:", loculiData[0]);
+    } else {
+      console.log("No loculi data found for the given IDs");
+    }
+    
+    // Processa i dati con le informazioni dei loculi
+    let processedData = processWithLoculi(defuntiData, loculiData, selectedCemetery, filterBy, sortBy);
+    
+    return processedData;
   } catch (error) {
     console.error("Unexpected error in processDeceasedData:", error);
     return mapDeceasedWithoutLoculi(defuntiData);
@@ -118,19 +129,24 @@ const processWithLoculi = (
   const loculiMap = new Map();
   if (loculiData) {
     loculiData.forEach(loculo => {
+      // Assicuriamoci che l'ID sia sempre una stringa per la coerenza nelle ricerche
       loculiMap.set(loculo.id.toString(), loculo);
     });
   }
   
-  // Associa i dati del loculo ai defunti
+  // Log the entire loculiMap to debug
+  console.log("Loculi map size:", loculiMap.size);
+  
+  // Associa i dati del loculo ai defunti e crea i record completi
   let processedData = defuntiData.map(defunto => {
     const loculoId = defunto.id_loculo;
     let loculo = null;
     
     // Tenta di trovare il loculo con diverse strategie
     if (loculoId) {
-      // Prova prima come stringa
-      loculo = loculiMap.get(loculoId.toString());
+      // Prima prova come stringa
+      const loculoIdStr = loculoId.toString();
+      loculo = loculiMap.get(loculoIdStr);
       
       // Se non trovato, prova a convertire in numero
       if (!loculo && typeof loculoId === 'string') {
@@ -139,7 +155,15 @@ const processWithLoculi = (
           loculo = loculiMap.get(numId.toString());
         }
       }
+      
+      // Log per debugging
+      if (!loculo) {
+        console.log(`No loculo found for ID: ${loculoId} (${typeof loculoId})`);
+      }
     }
+    
+    // Estrai il nome del cimitero se disponibile
+    const cemeteryName = loculo?.Blocco?.Settore?.Cimitero?.Nome || null;
     
     return {
       id: defunto.id,
@@ -153,28 +177,36 @@ const processWithLoculi = (
       id_loculo: defunto.id_loculo,
       loculo_numero: loculo?.Numero || null,
       loculo_fila: loculo?.Fila || null,
-      cimitero_nome: loculo?.Blocco?.Settore?.Cimitero?.Nome || null,
+      cimitero_nome: cemeteryName,
       settore_nome: loculo?.Blocco?.Settore?.Nome || null,
       blocco_nome: loculo?.Blocco?.Nome || null,
       loculi: loculo // Aggiungiamo l'oggetto loculo completo
     } as DeceasedRecord;
   });
   
-  // Aggiungiamo log per debugging
-  console.log("Numero totale defunti prima del filtro:", processedData.length);
+  // Aggiungiamo log dettagliati per debugging
+  const beforeFilterCount = processedData.length;
+  console.log("Numero totale defunti prima del filtro cimitero:", beforeFilterCount);
   console.log("Filtro cimitero selezionato:", selectedCemetery);
   console.log("Tipo filtro:", filterBy);
   
-  // Filtra per cimitero se richiesto
-  if (selectedCemetery && filterBy === 'by-cemetery') {
+  if (selectedCemetery && (filterBy === 'by-cemetery' || filterBy === 'all')) {
+    // Logging per debugging: controlla quanti record hanno questo cimitero
+    const recordsWithCemetery = processedData.filter(d => d.cimitero_nome === selectedCemetery);
+    console.log(`Trovati ${recordsWithCemetery.length} defunti nel cimitero ${selectedCemetery}`);
+    
+    // Applica il filtro per cimitero
     console.log("Applicazione filtro per cimitero:", selectedCemetery);
+    processedData = processedData.filter(defunto => {
+      const matches = defunto.cimitero_nome === selectedCemetery;
+      // Per debugging di ogni record
+      if (defunto.cimitero_nome) {
+        console.log(`Record ${defunto.id}: cimitero '${defunto.cimitero_nome}' matches '${selectedCemetery}'? ${matches}`);
+      }
+      return matches;
+    });
     
-    const filteredData = processedData.filter(defunto => 
-      defunto.cimitero_nome === selectedCemetery
-    );
-    
-    console.log("Numero defunti dopo filtro cimitero:", filteredData.length);
-    processedData = filteredData;
+    console.log("Numero defunti dopo filtro cimitero:", processedData.length);
   }
   
   // Ordinamento per cimitero dopo aver recuperato i dati completi
@@ -190,4 +222,3 @@ const processWithLoculi = (
   
   return processedData;
 };
-

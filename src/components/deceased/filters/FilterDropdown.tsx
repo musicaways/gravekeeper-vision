@@ -33,7 +33,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const isMobile = useIsMobile();
   
   const getFilterLabel = () => {
-    if (filterBy === 'by-cemetery' && selectedCemetery) {
+    if (selectedCemetery) {
       return `${isMobile ? '' : 'Cimitero: '}${selectedCemetery}`;
     }
 
@@ -48,6 +48,16 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
         return 'Seleziona cimitero';
       default:
         return 'Filtra';
+    }
+  };
+
+  // Function to handle cemetery selection
+  const handleCemeterySelect = (cemeteryName: string | null) => {
+    console.log("Cemetery selected:", cemeteryName);
+    onCemeterySelect(cemeteryName);
+    // Always set filter to by-cemetery when a cemetery is selected
+    if (cemeteryName) {
+      onFilterChange('by-cemetery');
     }
   };
 
@@ -72,28 +82,37 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
             
             <div className="grid grid-cols-1 gap-2">
               <Button 
-                variant={filterBy === 'all' ? "default" : "outline"}
+                variant={filterBy === 'all' && !selectedCemetery ? "default" : "outline"}
                 size="sm"
                 className="justify-start"
-                onClick={() => onFilterChange('all')}
+                onClick={() => {
+                  onFilterChange('all');
+                  onCemeterySelect(null);
+                }}
               >
                 Tutti
               </Button>
               
               <Button 
-                variant={filterBy === 'recent' ? "default" : "outline"}
+                variant={filterBy === 'recent' && !selectedCemetery ? "default" : "outline"}
                 size="sm"
                 className="justify-start"
-                onClick={() => onFilterChange('recent')}
+                onClick={() => {
+                  onFilterChange('recent');
+                  onCemeterySelect(null);
+                }}
               >
                 Recenti (30 giorni)
               </Button>
               
               <Button 
-                variant={filterBy === 'this-year' ? "default" : "outline"}
+                variant={filterBy === 'this-year' && !selectedCemetery ? "default" : "outline"}
                 size="sm"
                 className="justify-start"
-                onClick={() => onFilterChange('this-year')}
+                onClick={() => {
+                  onFilterChange('this-year');
+                  onCemeterySelect(null);
+                }}
               >
                 Quest'anno
               </Button>
@@ -105,7 +124,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 Filtra per cimitero
               </h4>
               <CemeteryOptions 
-                onSelectCemetery={onCemeterySelect}
+                onSelectCemetery={handleCemeterySelect}
                 selectedValue={selectedCemetery}
               />
             </div>
@@ -131,20 +150,29 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="bg-background border-muted-foreground/20 w-48">
         <DropdownMenuItem 
-          className={`text-xs ${filterBy === 'all' ? 'bg-muted text-primary' : ''}`}
-          onClick={() => onFilterChange('all')}
+          className={`text-xs ${filterBy === 'all' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
+          onClick={() => {
+            onFilterChange('all');
+            onCemeterySelect(null);
+          }}
         >
           Tutti
         </DropdownMenuItem>
         <DropdownMenuItem 
-          className={`text-xs ${filterBy === 'recent' ? 'bg-muted text-primary' : ''}`}
-          onClick={() => onFilterChange('recent')}
+          className={`text-xs ${filterBy === 'recent' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
+          onClick={() => {
+            onFilterChange('recent');
+            onCemeterySelect(null);
+          }}
         >
           Recenti (30 giorni)
         </DropdownMenuItem>
         <DropdownMenuItem 
-          className={`text-xs ${filterBy === 'this-year' ? 'bg-muted text-primary' : ''}`}
-          onClick={() => onFilterChange('this-year')}
+          className={`text-xs ${filterBy === 'this-year' && !selectedCemetery ? 'bg-muted text-primary' : ''}`}
+          onClick={() => {
+            onFilterChange('this-year');
+            onCemeterySelect(null);
+          }}
         >
           Quest'anno
         </DropdownMenuItem>
@@ -153,7 +181,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
         
         <DropdownMenuSub>
           <DropdownMenuSubTrigger 
-            className={`text-xs ${filterBy === 'by-cemetery' ? 'bg-muted text-primary' : ''}`}
+            className={`text-xs ${selectedCemetery ? 'bg-muted text-primary' : ''}`}
           >
             <MapPin className="h-3.5 w-3.5 mr-2" />
             Filtra per cimitero
@@ -161,7 +189,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
           <DropdownMenuPortal>
             <DropdownMenuSubContent className="bg-background border-muted-foreground/20 text-xs">
               <CemeteryOptions 
-                onSelectCemetery={onCemeterySelect}
+                onSelectCemetery={handleCemeterySelect}
                 selectedValue={selectedCemetery}
               />
             </DropdownMenuSubContent>

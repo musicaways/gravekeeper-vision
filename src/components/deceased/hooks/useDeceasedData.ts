@@ -36,6 +36,10 @@ export const useDeceasedData = ({
   const fetchDeceased = useCallback(async (searchQuery: string) => {
     setLoading(true);
     try {
+      console.log("Fetching deceased with params:", { 
+        searchQuery, sortBy, filterBy, selectedCemetery, page, pageSize 
+      });
+      
       // Costruisci la query con i filtri necessari
       let query = buildDeceasedQuery(supabase, filterBy, searchQuery);
       
@@ -61,7 +65,11 @@ export const useDeceasedData = ({
         setTotalCount(count);
       }
 
+      // Debug: controlla i dati grezzi dei defunti
+      console.log(`Recovered ${defuntiData?.length || 0} deceased records from database`);
+      
       // Processa i dati e associa le informazioni del loculo
+      // Passa sempre il selectedCemetery, anche se filterBy non è 'by-cemetery'
       const processedData = await processDeceasedData(
         supabase,
         defuntiData || [],
@@ -69,6 +77,8 @@ export const useDeceasedData = ({
         filterBy,
         sortBy
       );
+      
+      console.log(`After processing: ${processedData.length} deceased records to display`);
       
       setDeceased(processedData);
     } catch (error) {
@@ -90,6 +100,10 @@ export const useDeceasedData = ({
 
   // Effetto per avviare la ricerca quando cambiano i parametri
   useEffect(() => {
+    console.log("Parameters changed in useDeceasedData", { 
+      searchTerm, sortBy, filterBy, selectedCemetery 
+    });
+    
     // Avvia una nuova ricerca solo se il termine è cambiato
     if (searchTerm !== activeSearch) {
       debouncedSearch(searchTerm);

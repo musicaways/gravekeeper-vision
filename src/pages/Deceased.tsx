@@ -26,16 +26,26 @@ const Deceased = () => {
   };
 
   const handleFilter = (filterType: string) => {
-    // Reset cemetery selection when changing to a different filter type
+    console.log("Filter type changed to:", filterType);
+    setFilterBy(filterType);
+    
+    // Reset cemetery selection when changing to a filter type that isn't cemetery-based
     if (filterType !== 'by-cemetery') {
       setSelectedCemetery(null);
     }
-    setFilterBy(filterType);
   };
 
-  const handleCemeterySelect = (cemeteryName: string) => {
+  const handleCemeterySelect = (cemeteryName: string | null) => {
+    console.log("Cemetery selection changed to:", cemeteryName);
     setSelectedCemetery(cemeteryName);
-    setFilterBy('by-cemetery');
+    
+    // If a cemetery is selected, always use the by-cemetery filter
+    if (cemeteryName !== null) {
+      setFilterBy('by-cemetery');
+    } else if (filterBy === 'by-cemetery') {
+      // If removing cemetery selection and we're on by-cemetery filter, reset to all
+      setFilterBy('all');
+    }
   };
 
   return (

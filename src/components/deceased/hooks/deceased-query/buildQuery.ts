@@ -27,7 +27,7 @@ export const buildDeceasedQuery = (
       id_loculo
     `, { count: 'exact' });
 
-  // Applicare filtri
+  // Applicare filtri temporali
   if (filterBy === 'recent') {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -39,6 +39,10 @@ export const buildDeceasedQuery = (
     console.log("Applying this-year filter, date:", startOfYear);
     query = query.gte('data_decesso', startOfYear);
   }
+  
+  // Nota: il filtro per cimitero viene applicato dopo aver recuperato i dati
+  // perché richiede informazioni che sono disponibili solo facendo un join con
+  // la tabella Loculo -> Blocco -> Settore -> Cimitero
 
   // Applicare ricerca per nome, solo se il termine è valido
   if (searchQuery && searchQuery.trim() !== '') {
