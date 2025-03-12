@@ -18,12 +18,16 @@ const CemeteryInfo: React.FC<CemeteryInfoProps> = ({
       {cimitero_nome ? (
         <div className="flex items-start gap-1">
           <Cross className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
-          <Link 
-            to={cimiteroId ? `/cemetery/${cimiteroId}` : "#"} 
-            className="text-sm font-medium text-foreground hover:underline truncate block"
-          >
-            {cimitero_nome}
-          </Link>
+          {cimiteroId ? (
+            <Link 
+              to={`/cemetery/${cimiteroId}`}
+              className="text-sm font-medium text-foreground hover:underline truncate block"
+            >
+              {cimitero_nome}
+            </Link>
+          ) : (
+            <span className="text-sm font-medium truncate">{cimitero_nome}</span>
+          )}
         </div>
       ) : (
         <p className="text-sm font-medium truncate">N/A</p>

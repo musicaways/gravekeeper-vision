@@ -18,8 +18,10 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const textColor = "text-primary-dark";
   
   const loculoLink = getLoculoLink(deceased);
-  const cimiteroId = deceased.loculi?.Blocco?.Settore?.Cimitero?.Id;
-  const bloccoId = deceased.loculi?.Blocco?.Id;
+  
+  // Estrai i dati necessari per i link
+  const cimiteroId = deceased.loculi?.Blocco?.Settore?.Cimitero?.Id || null;
+  const bloccoId = deceased.loculi?.Blocco?.Id || null;
   
   // Calcoliamo l'età in base ai dati disponibili
   const età = deceased.eta !== null ? deceased.eta : calculateAge(deceased.data_nascita || null, deceased.data_decesso || null);
@@ -48,7 +50,7 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
               <Calendar className="h-3.5 w-3.5 mr-1" />
               <span>
                 Dec. {formatDate(deceased.data_decesso)}
-                {età !== null && ` · ${età} anni`}
+                {età !== null && età !== undefined && ` · ${età} anni`}
               </span>
             </div>
           )}

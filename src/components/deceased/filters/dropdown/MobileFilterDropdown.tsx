@@ -30,7 +30,9 @@ const MobileFilterDropdown: React.FC<FilterDropdownProps> = (props) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <FilterButton label={getFilterLabel()} />
+        <div>
+          <FilterButton label={getFilterLabel()} />
+        </div>
       </SheetTrigger>
       <SheetContent side="bottom" className="px-1 pb-8 pt-6">
         <MobileFilterContent {...props} />

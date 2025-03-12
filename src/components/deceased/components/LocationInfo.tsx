@@ -24,18 +24,22 @@ const LocationInfo: React.FC<LocationInfoProps> = ({
       <div className="flex items-start gap-1">
         <MapPin className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
         {decodedSettoreName && decodedBloccoName ? (
-          <Link 
-            to={bloccoId ? `/block/${bloccoId}` : "#"}
-            className="text-sm font-medium text-foreground hover:underline truncate block"
-          >
-            {decodedSettoreName} - {decodedBloccoName}
-          </Link>
+          bloccoId ? (
+            <Link 
+              to={`/block/${bloccoId}`}
+              className="text-sm font-medium text-foreground hover:underline truncate block"
+            >
+              {decodedSettoreName} - {decodedBloccoName}
+            </Link>
+          ) : (
+            <span className="text-sm font-medium truncate">{decodedSettoreName} - {decodedBloccoName}</span>
+          )
         ) : decodedSettoreName ? (
-          <p className="text-sm font-medium truncate">{decodedSettoreName}</p>
+          <span className="text-sm font-medium truncate">{decodedSettoreName}</span>
         ) : decodedBloccoName ? (
-          <p className="text-sm font-medium truncate">{decodedBloccoName}</p>
+          <span className="text-sm font-medium truncate">{decodedBloccoName}</span>
         ) : (
-          <p className="text-sm font-medium truncate">N/A</p>
+          <span className="text-sm font-medium truncate">N/A</span>
         )}
       </div>
     </div>

@@ -34,7 +34,9 @@ const DesktopFilterDropdown: React.FC<FilterDropdownProps> = (props) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <FilterButton label={getFilterLabel()} />
+        <div>
+          <FilterButton label={getFilterLabel()} />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="bg-background border-muted-foreground/20 w-48">
         <DesktopFilterContent {...props} />
