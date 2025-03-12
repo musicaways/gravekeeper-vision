@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { 
@@ -81,4 +80,21 @@ export function generateId(prefix: string = ""): string {
   const timestamp = new Date().getTime().toString(36);
   const randomChars = Math.random().toString(36).substring(2, 8);
   return `${prefix}${timestamp}${randomChars}`;
+}
+
+/**
+ * Crea una versione con debounce di una funzione
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  
+  return function(...args: Parameters<T>) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
 }

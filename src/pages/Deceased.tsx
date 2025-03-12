@@ -1,13 +1,13 @@
 
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import SortDropdown from "@/components/deceased/filters/SortDropdown";
 import FilterDropdown from "@/components/deceased/filters/FilterDropdown";
 import DeceasedList from "@/components/deceased/DeceasedList";
 
 const Deceased = () => {
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
+  const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get('search') || "";
   const [sortBy, setSortBy] = useState("name-asc"); // Default sort
   const [filterBy, setFilterBy] = useState("all"); // Default filter

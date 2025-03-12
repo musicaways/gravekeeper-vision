@@ -2,7 +2,7 @@
 import DesktopSearch from "./search/DesktopSearch";
 import MobileSearch from "./search/MobileSearch";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 interface GlobalSearchProps {
@@ -12,6 +12,7 @@ interface GlobalSearchProps {
 const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const navigate = useNavigate();
   const [initialSyncDone, setInitialSyncDone] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   
@@ -32,10 +33,27 @@ const GlobalSearch = ({ onSearch }: GlobalSearchProps) => {
     }
   }, [location.search, onSearch, initialSyncDone]);
   
-  const handleSearch = (term: string) => {
+  const handleSearch = (term: string, shouldNavigate = false) => {
     setSearchValue(term);
-    if (onSearch) {
-      onSearch(term);
+    
+    if (shouldNavigate) {
+      // Solo quando l'utente preme invio aggiorniamo l'URL e facciamo la ricerca
+      const params = new URLSearchParams(location.search);
+      
+      if (term) {
+        params.set('search', term);
+      } else {
+        params.delete('search');
+      }
+      
+      // Update URL without reloading the page
+      const newUrl = `${location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+      navigate(newUrl, { replace: true });
+      
+      // Avvia la ricerca
+      if (onSearch) {
+        onSearch(term);
+      }
     }
   };
   

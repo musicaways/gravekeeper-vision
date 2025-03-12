@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, KeyboardEvent } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface MobileSearchProps {
-  onSearch?: (searchTerm: string) => void;
+  onSearch?: (searchTerm: string, shouldNavigate?: boolean) => void;
   value?: string;
 }
 
@@ -22,25 +22,28 @@ const MobileSearch = ({ onSearch, value = "" }: MobileSearchProps) => {
     setSearchTerm(value);
   }, [value]);
   
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setSearchTerm(newValue);
-    if (onSearch) {
-      onSearch(newValue);
-    }
   };
   
   const handleClear = () => {
     setSearchTerm("");
-    if (onSearch) {
-      onSearch("");
+  };
+  
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (onSearch) {
+        onSearch(searchTerm, true);
+        setOpen(false);
+      }
     }
   };
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) {
-      onSearch(searchTerm);
+      onSearch(searchTerm, true);
     }
     setOpen(false);
   };
@@ -58,10 +61,11 @@ const MobileSearch = ({ onSearch, value = "" }: MobileSearchProps) => {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Cerca..."
+              placeholder="Cerca e premi Invio..."
               className="pl-9 pr-9 w-full rounded-lg border-muted focus:border-primary/50 transition-all duration-300 text-sm"
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
               autoFocus
             />
             {searchTerm && (
