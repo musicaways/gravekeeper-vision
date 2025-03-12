@@ -138,6 +138,10 @@ export const useDeceasedData = ({
       }
       
       // Query in batch per i loculi
+      // Convertire i loculiIds in numeri per la query
+      const numericLoculiIds = loculiIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id)
+                                       .filter(id => !isNaN(id as number));
+      
       const { data: loculiData, error: loculiError } = await supabase
         .from('Loculo')
         .select(`
@@ -157,7 +161,7 @@ export const useDeceasedData = ({
             )
           )
         `)
-        .in('id', loculiIds);
+        .in('id', numericLoculiIds);
       
       if (loculiError) {
         console.error("Error fetching loculi:", loculiError);
