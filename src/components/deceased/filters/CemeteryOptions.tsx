@@ -42,6 +42,9 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
 
         if (error) throw error;
 
+        // Log per debug
+        console.log("CemeteryOptions - Fetched cemeteries:", data);
+
         const options = data.map(item => ({
           value: item.Nome,
           label: item.Nome || 'Cimitero senza nome',
@@ -59,7 +62,14 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
   }, []);
 
   const selectedLabel = selectedValue 
-    ? cemeteries.find(cemetery => cemetery.value === selectedValue)?.label || selectedValue
+    ? cemeteries.find(cemetery => {
+        // Utilizziamo una logica di confronto più permissiva
+        const cemeteryValue = cemetery.value.toLowerCase().trim();
+        const selectedValueLower = selectedValue.toLowerCase().trim();
+        return cemeteryValue === selectedValueLower || 
+               cemeteryValue.includes(selectedValueLower) || 
+               selectedValueLower.includes(cemeteryValue);
+      })?.label || selectedValue
     : "Seleziona cimitero";
 
   // Simple dropdown for mobile to avoid Command component issues
@@ -92,7 +102,10 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
               <DropdownMenuItem
                 key={cemetery.value}
                 className="text-xs"
-                onClick={() => onSelectCemetery(cemetery.value)}
+                onClick={() => {
+                  console.log("Selected cemetery:", cemetery.value);
+                  onSelectCemetery(cemetery.value);
+                }}
               >
                 <Check
                   className={cn(
@@ -138,7 +151,10 @@ const CemeteryOptions: React.FC<CemeteryOptionsProps> = ({
             cemeteries.map((cemetery) => (
               <DropdownMenuItem
                 key={cemetery.value}
-                onClick={() => onSelectCemetery(cemetery.value)}
+                onClick={() => {
+                  console.log("Selected cemetery:", cemetery.value);
+                  onSelectCemetery(cemetery.value);
+                }}
               >
                 <Check
                   className={cn(

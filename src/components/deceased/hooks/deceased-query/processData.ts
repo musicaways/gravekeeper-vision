@@ -220,32 +220,70 @@ const processWithLoculi = (
   if (selectedCemetery) {
     console.log(`processWithLoculi - Applying cemetery filter for "${selectedCemetery}"`);
     
-    // Miglioramento: supporto per corrispondenza parziale del nome del cimitero
+    // FIXED: Miglioramento della logica per filtrare i cimiteri
     const beforeFilterCount = processedData.length;
+    
+    // Normalizza il nome del cimitero selezionato (rimuovi spazi extra, rendi minuscolo)
+    const selectedCemeteryNormalized = selectedCemetery.toLowerCase().trim();
+    
     processedData = processedData.filter(defunto => {
       if (!defunto.cimitero_nome) return false;
       
-      // Case insensitive e supporto per corrispondenza parziale
-      const cemeteryNameLower = defunto.cimitero_nome.toLowerCase();
-      const selectedCemeteryLower = selectedCemetery.toLowerCase();
+      // Normalizza il nome del cimitero del record
+      const cemeteryNameNormalized = defunto.cimitero_nome.toLowerCase().trim();
       
-      // Verifica se il nome selezionato è contenuto nel nome del cimitero o viceversa
-      const isPartialMatch = 
-        cemeteryNameLower.includes(selectedCemeteryLower) || 
-        selectedCemeteryLower.includes(cemeteryNameLower);
+      // Debug info per ogni corrispondenza
+      console.log(`Cemetery filtering: [${cemeteryNameNormalized}] vs [${selectedCemeteryNormalized}] - ID: ${defunto.id}`);
       
-      // Verifica corrispondenza esatta (case-insensitive)
-      const isExactMatch = cemeteryNameLower === selectedCemeteryLower;
+      // Prima prova la corrispondenza esatta (case-insensitive)
+      if (cemeteryNameNormalized === selectedCemeteryNormalized) {
+        console.log(`Exact match found for cemetery: ${defunto.cimitero_nome}`);
+        return true;
+      }
       
-      // Utilizziamo sia la corrispondenza esatta che parziale
-      const matches = isExactMatch || isPartialMatch;
+      // Poi prova la corrispondenza parziale in entrambe le direzioni
+      if (cemeteryNameNormalized.includes(selectedCemeteryNormalized) || 
+          selectedCemeteryNormalized.includes(cemeteryNameNormalized)) {
+        console.log(`Partial match found for cemetery: ${defunto.cimitero_nome}`);
+        return true;
+      }
       
-      console.log(`Cemetery match check for '${defunto.cimitero_nome}' vs '${selectedCemetery}': ${matches} (${defunto.id})`);
+      // Prova una corrispondenza più permissiva per gestire differenze di caratteri speciali, spazi, ecc.
+      const simplifiedSelected = selectedCemeteryNormalized.replace(/[^a-z0-9]/gi, '');
+      const simplifiedName = cemeteryNameNormalized.replace(/[^a-z0-9]/gi, '');
       
-      return matches;
+      if (simplifiedName.includes(simplifiedSelected) || simplifiedSelected.includes(simplifiedName)) {
+        console.log(`Simplified match found for cemetery: ${defunto.cimitero_nome}`);
+        return true;
+      }
+      
+      return false;
     });
     
     console.log(`processWithLoculi - Records after cemetery filter: ${processedData.length}/${beforeFilterCount}`);
+    
+    // Se non abbiamo trovato corrispondenze, proviamo una ricerca più ampia
+    if (processedData.length === 0 && recordsWithCemeteryInfo.length > 0) {
+      console.log(`No matches found with strict filtering, trying broader search`);
+      
+      // Seleziona tutte le parole singole dal nome del cimitero
+      const words = selectedCemeteryNormalized.split(/\s+/).filter(w => w.length > 2);
+      
+      if (words.length > 0) {
+        console.log(`Trying word-by-word matching with: ${words.join(', ')}`);
+        
+        processedData = recordsWithCemeteryInfo.filter(defunto => {
+          if (!defunto.cimitero_nome) return false;
+          
+          const cemeteryNameNormalized = defunto.cimitero_nome.toLowerCase();
+          
+          // Cerca almeno una corrispondenza parziale con una parola
+          return words.some(word => cemeteryNameNormalized.includes(word));
+        });
+        
+        console.log(`Found ${processedData.length} records with broader search`);
+      }
+    }
   }
   
   // Ordinamento per cimitero dopo aver recuperato i dati completi
