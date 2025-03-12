@@ -26,38 +26,59 @@ export const processDeceasedData = async (
   }
   
   // Query in batch per i loculi
-  // Convertire i loculiIds in numeri per la query
+  // Convertiamo i loculiIds in numeri quando possibile
   const numericLoculiIds = loculiIds
-    .map(id => typeof id === 'string' ? parseInt(id, 10) : id)
-    .filter(id => !isNaN(id as number));
+    .map(id => {
+      // Se è già un numero, lo restituiamo com'è
+      if (typeof id === 'number') return id;
+      
+      // Se è una stringa, proviamo a convertirla in numero
+      if (typeof id === 'string') {
+        const numId = parseInt(id, 10);
+        return !isNaN(numId) ? numId : null;
+      }
+      
+      return null;
+    })
+    .filter(id => id !== null);
   
-  const { data: loculiData, error: loculiError } = await supabase
-    .from('Loculo')
-    .select(`
-      id,
-      Numero,
-      Fila,
-      Blocco:IdBlocco(
-        Id,
-        Nome,
-        Settore:IdSettore(
-          Id,
-          Nome,
-          Cimitero:IdCimitero(
-            Id,
-            Nome
-          )
-        )
-      )
-    `)
-    .in('id', numericLoculiIds);
-  
-  if (loculiError) {
-    console.error("Error fetching loculi:", loculiError);
+  // Se non abbiamo ID validi dopo la conversione, restituiamo i dati senza info loculo
+  if (numericLoculiIds.length === 0) {
     return mapDeceasedWithoutLoculi(defuntiData);
   }
   
-  return processWithLoculi(defuntiData, loculiData, selectedCemetery, filterBy, sortBy);
+  try {
+    const { data: loculiData, error: loculiError } = await supabase
+      .from('Loculo')
+      .select(`
+        id,
+        Numero,
+        Fila,
+        Blocco:IdBlocco(
+          Id,
+          Nome,
+          Settore:IdSettore(
+            Id,
+            Nome,
+            Cimitero:IdCimitero(
+              Id,
+              Nome
+            )
+          )
+        )
+      `)
+      .in('id', numericLoculiIds);
+    
+    if (loculiError) {
+      console.error("Error fetching loculi:", loculiError);
+      return mapDeceasedWithoutLoculi(defuntiData);
+    }
+    
+    return processWithLoculi(defuntiData, loculiData, selectedCemetery, filterBy, sortBy);
+  } catch (error) {
+    console.error("Unexpected error in processDeceasedData:", error);
+    return mapDeceasedWithoutLoculi(defuntiData);
+  }
 };
 
 /**
@@ -104,7 +125,21 @@ const processWithLoculi = (
   // Associa i dati del loculo ai defunti
   let processedData = defuntiData.map(defunto => {
     const loculoId = defunto.id_loculo;
-    const loculo = loculoId ? loculiMap.get(loculoId.toString()) : null;
+    let loculo = null;
+    
+    // Tenta di trovare il loculo con diverse strategie
+    if (loculoId) {
+      // Prova prima come stringa
+      loculo = loculiMap.get(loculoId.toString());
+      
+      // Se non trovato, prova a convertire in numero
+      if (!loculo && typeof loculoId === 'string') {
+        const numId = parseInt(loculoId, 10);
+        if (!isNaN(numId)) {
+          loculo = loculiMap.get(numId.toString());
+        }
+      }
+    }
     
     return {
       id: defunto.id,
@@ -125,11 +160,21 @@ const processWithLoculi = (
     } as DeceasedRecord;
   });
   
+  // Aggiungiamo log per debugging
+  console.log("Numero totale defunti prima del filtro:", processedData.length);
+  console.log("Filtro cimitero selezionato:", selectedCemetery);
+  console.log("Tipo filtro:", filterBy);
+  
   // Filtra per cimitero se richiesto
   if (selectedCemetery && filterBy === 'by-cemetery') {
-    processedData = processedData.filter(defunto => 
+    console.log("Applicazione filtro per cimitero:", selectedCemetery);
+    
+    const filteredData = processedData.filter(defunto => 
       defunto.cimitero_nome === selectedCemetery
     );
+    
+    console.log("Numero defunti dopo filtro cimitero:", filteredData.length);
+    processedData = filteredData;
   }
   
   // Ordinamento per cimitero dopo aver recuperato i dati completi
@@ -145,3 +190,4 @@ const processWithLoculi = (
   
   return processedData;
 };
+

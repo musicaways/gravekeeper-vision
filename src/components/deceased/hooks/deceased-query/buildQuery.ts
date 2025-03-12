@@ -9,6 +9,9 @@ export const buildDeceasedQuery = (
   filterBy: string,
   searchQuery: string
 ) => {
+  // Log per debugging
+  console.log("Building query with filter:", filterBy);
+  
   // Costruisci la query di base
   let query = supabase
     .from('defunti')
@@ -28,14 +31,18 @@ export const buildDeceasedQuery = (
   if (filterBy === 'recent') {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    query = query.gte('data_decesso', thirtyDaysAgo.toISOString().split('T')[0]);
+    const dateString = thirtyDaysAgo.toISOString().split('T')[0];
+    console.log("Applying recent filter, date:", dateString);
+    query = query.gte('data_decesso', dateString);
   } else if (filterBy === 'this-year') {
     const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
+    console.log("Applying this-year filter, date:", startOfYear);
     query = query.gte('data_decesso', startOfYear);
   }
 
   // Applicare ricerca per nome, solo se il termine è valido
   if (searchQuery && searchQuery.trim() !== '') {
+    console.log("Applying search filter:", searchQuery);
     query = query.ilike('nominativo', `%${searchQuery}%`);
   }
   
@@ -46,6 +53,8 @@ export const buildDeceasedQuery = (
  * Apply sorting to the query
  */
 export const applySorting = (query: any, sortBy: string) => {
+  console.log("Applying sorting:", sortBy);
+  
   switch (sortBy) {
     case 'name-asc':
       return query.order('nominativo', { ascending: true });
@@ -67,5 +76,6 @@ export const applySorting = (query: any, sortBy: string) => {
 export const applyPagination = (query: any, page: number, pageSize: number) => {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
+  console.log(`Applying pagination: page ${page}, size ${pageSize}, range ${from}-${to}`);
   return query.range(from, to);
 };
