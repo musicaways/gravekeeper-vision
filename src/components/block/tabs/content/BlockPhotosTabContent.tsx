@@ -49,10 +49,12 @@ const BlockPhotosTabContent: React.FC<BlockPhotosTabContentProps> = ({ blockId }
         </Alert>
       )}
       
-      <PhotoGalleryCard 
-        blockId={blockId}
-        refreshKey={refreshKey}
-      />
+      <div className="w-full max-w-screen-lg mx-auto">
+        <PhotoGalleryCard 
+          blockId={blockId}
+          refreshKey={refreshKey}
+        />
+      </div>
 
       <PhotoUploadButton 
         onClick={() => setUploadDialogOpen(true)} 
