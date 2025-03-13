@@ -9,7 +9,7 @@ interface BlockMapDisplayProps {
 }
 
 const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
-  const { isLoaded, loadError } = useGoogleMapsApi();
+  const { isLoaded, isError, loadingError } = useGoogleMapsApi();
   const [mapUrl, setMapUrl] = useState<string | null>(null);
   const [showFallback, setShowFallback] = useState(false);
   
@@ -32,7 +32,7 @@ const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
     setShowFallback(true);
   };
   
-  if (loadError || showFallback || !block.Latitudine || !block.Longitudine) {
+  if (isError || showFallback || !block.Latitudine || !block.Longitudine) {
     return <BlockMapEmpty />;
   }
   
