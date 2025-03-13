@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import BlockInfoDisplay from "./BlockInfoDisplay";
 import BlockInfoEditForm from "./BlockInfoEditForm";
 import { formatBlockData, updateBlockInfo } from "./utils/blockInfoUtils";
+import { BlockFormData } from "./types/blockFormTypes";
 
 interface BlockInfoCardProps {
   block: any;
@@ -20,7 +21,7 @@ const BlockInfoCard: React.FC<BlockInfoCardProps> = ({ block }) => {
     setIsEditing(!isEditing);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: BlockFormData) => {
     try {
       console.log("Saving block data:", data);
       
@@ -63,6 +64,7 @@ const BlockInfoCard: React.FC<BlockInfoCardProps> = ({ block }) => {
   return <BlockInfoDisplay 
     block={block} 
     onEditClick={handleEditToggle} 
+    canEdit={canEdit}
   />;
 };
 

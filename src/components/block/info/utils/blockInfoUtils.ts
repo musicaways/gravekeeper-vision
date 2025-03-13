@@ -1,8 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { BlockFormData } from "../types/blockFormTypes";
 
 // Formatta i dati per l'aggiornamento in Supabase
-export const formatBlockData = (data: any) => {
+export const formatBlockData = (data: BlockFormData) => {
   return {
     Nome: data.Nome,
     Codice: data.Codice,
@@ -14,6 +15,7 @@ export const formatBlockData = (data: any) => {
     NumeroLoculi: data.NumeroLoculi,
     NumeroFile: data.NumeroFile,
     DataCreazione: data.DataCreazione || null,
+    FotoCopertina: data.FotoCopertina || null,
   };
 };
 
