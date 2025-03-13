@@ -36,10 +36,10 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
       Descrizione: decodeText(block.Descrizione) || "",
       Note: decodeText(block.Note) || "",
       Indirizzo: decodeText(block.Indirizzo) || "",
-      Latitudine: block.Latitudine ? String(block.Latitudine) : "",
-      Longitudine: block.Longitudine ? String(block.Longitudine) : "",
-      NumeroLoculi: block.NumeroLoculi ? String(block.NumeroLoculi) : "",
-      NumeroFile: block.NumeroFile ? String(block.NumeroFile) : "",
+      Latitudine: block.Latitudine !== null ? String(block.Latitudine) : "",
+      Longitudine: block.Longitudine !== null ? String(block.Longitudine) : "",
+      NumeroLoculi: block.NumeroLoculi !== null ? String(block.NumeroLoculi) : "",
+      NumeroFile: block.NumeroFile !== null ? String(block.NumeroFile) : "",
       DataCreazione: block.DataCreazione || "",
     }
   });

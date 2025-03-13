@@ -28,7 +28,7 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
     onSuccess: onSave
   });
   
-  // Inizializzazione del form
+  // Inizializzazione del form con le stringhe
   const form = useForm<BlockFormData>({
     resolver: zodResolver(blockFormSchema),
     defaultValues: {
@@ -37,10 +37,10 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
       Descrizione: block.Descrizione || "",
       Note: block.Note || "",
       Indirizzo: block.Indirizzo || "",
-      NumeroLoculi: block.NumeroLoculi ? String(block.NumeroLoculi) : "",
-      NumeroFile: block.NumeroFile ? String(block.NumeroFile) : "",
-      Latitudine: block.Latitudine ? String(block.Latitudine) : "",
-      Longitudine: block.Longitudine ? String(block.Longitudine) : "",
+      NumeroLoculi: block.NumeroLoculi !== null ? String(block.NumeroLoculi) : "",
+      NumeroFile: block.NumeroFile !== null ? String(block.NumeroFile) : "",
+      Latitudine: block.Latitudine !== null ? String(block.Latitudine) : "",
+      Longitudine: block.Longitudine !== null ? String(block.Longitudine) : "",
       DataCreazione: block.DataCreazione || "",
     }
   });

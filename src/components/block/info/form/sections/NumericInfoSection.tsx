@@ -18,7 +18,7 @@ const NumericInfoSection: React.FC<NumericInfoSectionProps> = ({ control }) => {
           <FormItem>
             <FormLabel>Numero Loculi</FormLabel>
             <FormControl>
-              <Input type="number" {...field} />
+              <Input {...field} type="number" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -32,7 +32,7 @@ const NumericInfoSection: React.FC<NumericInfoSectionProps> = ({ control }) => {
           <FormItem>
             <FormLabel>Numero File</FormLabel>
             <FormControl>
-              <Input type="number" {...field} />
+              <Input {...field} type="number" />
             </FormControl>
             <FormMessage />
           </FormItem>
