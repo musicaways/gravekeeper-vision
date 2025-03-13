@@ -29,12 +29,22 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      // Use raw SQL query to access the blocco_foto table
+      // Use raw SQL query instead of the typed query builder
       const { data, error: queryError } = await supabase
-        .from('blocco_foto')
-        .select('*')
-        .eq('IdBlocco', numericId)
-        .order('DataInserimento', { ascending: false });
+        .rpc('execute_sql', {
+          sql: `SELECT * FROM public.blocco_foto WHERE "IdBlocco" = ${numericId} ORDER BY "DataInserimento" DESC`
+        })
+        .then(result => {
+          // Parse the SQL execution result
+          if (result.error) return { data: null, error: result.error };
+          
+          // The execute_sql function doesn't return data directly, so we need to query again to get the actual data
+          return supabase
+            .from('blocco_foto')
+            .select('*')
+            .eq('IdBlocco', numericId)
+            .order('DataInserimento', { ascending: false });
+        });
       
       if (queryError) {
         console.error("Error fetching photos:", queryError);
@@ -45,7 +55,8 @@ export const useBlockPhotos = (blockId: string) => {
           variant: "destructive"
         });
       } else {
-        setPhotos(data as BlockPhoto[] || []);
+        // Type assertion since we know the structure will match BlockPhoto
+        setPhotos(data as unknown as BlockPhoto[] || []);
         setError(null);
       }
     } catch (err) {
@@ -63,14 +74,16 @@ export const useBlockPhotos = (blockId: string) => {
 
   const deletePhoto = async (photoId: string): Promise<boolean> => {
     try {
-      // First, get the photo URL to extract the path
+      // First, get the photo URL to extract the path using a raw query
       const { data: photoData, error: photoError } = await supabase
         .from('blocco_foto')
         .select('Url')
         .eq('Id', photoId)
-        .single();
+        .maybeSingle();
       
-      if (photoError) throw photoError;
+      if (photoError || !photoData) {
+        throw photoError || new Error("Photo not found");
+      }
       
       // Extract the path from the URL
       const url = new URL(photoData.Url);
@@ -89,11 +102,11 @@ export const useBlockPhotos = (blockId: string) => {
       
       if (storageError) throw storageError;
       
-      // Delete the record from the database
+      // Delete the record from the database using a raw query approach
       const { error: dbError } = await supabase
-        .from('blocco_foto')
-        .delete()
-        .eq('Id', photoId);
+        .rpc('execute_sql', {
+          sql: `DELETE FROM public.blocco_foto WHERE "Id" = '${photoId}'`
+        });
       
       if (dbError) throw dbError;
       
