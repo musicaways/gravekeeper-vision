@@ -46,9 +46,9 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      // Add robust null check before trying to access properties
+      // Safely check if table exists with proper null checks
       let exists = false;
-      if (tableExistsData !== null && Array.isArray(tableExistsData) && tableExistsData.length > 0) {
+      if (tableExistsData && Array.isArray(tableExistsData) && tableExistsData.length > 0) {
         const firstRow = tableExistsData[0];
         if (firstRow && typeof firstRow === 'object' && 'exists' in firstRow) {
           exists = Boolean(firstRow.exists);
@@ -78,7 +78,7 @@ export const useBlockPhotos = (blockId: string) => {
         });
       } else {
         // Add explicit null check before trying to use the data
-        const photosData = data !== null && Array.isArray(data) ? data : [];
+        const photosData = data && Array.isArray(data) ? data : [];
         setPhotos(photosData as unknown as BlockPhoto[]);
         setError(null);
       }
