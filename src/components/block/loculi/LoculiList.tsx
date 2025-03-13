@@ -58,9 +58,9 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-1">
       {loculi.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {loculi.map((loculo, index) => {
             const numero = loculo.Numero;
             const fila = loculo.Fila;
@@ -69,7 +69,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
             const defuntiCount = getDefuntiCount(loculo);
             
             return (
-              <div key={id ?? index} className="border rounded-md hover:bg-accent/5 transition-colors">
+              <div key={id ?? index} className="border rounded-md hover:bg-accent/5 transition-colors shadow-sm">
                 <div className="bg-primary/10 px-3 py-2 rounded-t-md border-b">
                   <h3 className="font-medium text-base text-primary-dark">
                     Numero {numero}, Fila {fila}
