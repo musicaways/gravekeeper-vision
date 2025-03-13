@@ -1,8 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PhotoUploadDialog from "../../photos/PhotoUploadDialog";
 import PhotoUploadButton from "../../photos/PhotoUploadButton";
 import PhotoGalleryCard from "../../photos/PhotoGalleryCard";
+import { setupPhotoDatabaseResources } from "../../photos/utils/databaseSetup";
 
 interface BlockPhotosTabContentProps {
   blockId: string;
@@ -11,6 +12,16 @@ interface BlockPhotosTabContentProps {
 const BlockPhotosTabContent: React.FC<BlockPhotosTabContentProps> = ({ blockId }) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const initializeResources = async () => {
+      await setupPhotoDatabaseResources();
+      setIsReady(true);
+    };
+
+    initializeResources();
+  }, []);
 
   const handleUploadComplete = () => {
     setRefreshKey(prev => prev + 1);

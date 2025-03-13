@@ -29,6 +29,32 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
+      // Check if table exists first
+      const { data: tableExists, error: checkError } = await supabase
+        .rpc('execute_sql', {
+          sql: `SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_schema = 'public'
+            AND table_name = 'blocco_foto'
+          )`
+        });
+      
+      if (checkError) {
+        console.error("Error checking table existence:", checkError);
+        setPhotos([]);
+        setLoading(false);
+        return;
+      }
+      
+      // If table doesn't exist yet, just return empty photos array
+      const exists = Array.isArray(tableExists) && tableExists.length > 0 ? tableExists[0].exists : false;
+      if (!exists) {
+        console.log("blocco_foto table doesn't exist yet");
+        setPhotos([]);
+        setLoading(false);
+        return;
+      }
+      
       // Use rpc with a raw SQL query to bypass TypeScript type checking
       const { data, error: queryError } = await supabase
         .rpc('execute_sql', {
