@@ -152,6 +152,44 @@ export type Database = {
           },
         ]
       }
+      blocco_foto: {
+        Row: {
+          DataInserimento: string | null
+          Descrizione: string | null
+          Id: string
+          IdBlocco: number
+          NomeFile: string | null
+          TipoFile: string | null
+          Url: string
+        }
+        Insert: {
+          DataInserimento?: string | null
+          Descrizione?: string | null
+          Id?: string
+          IdBlocco: number
+          NomeFile?: string | null
+          TipoFile?: string | null
+          Url: string
+        }
+        Update: {
+          DataInserimento?: string | null
+          Descrizione?: string | null
+          Id?: string
+          IdBlocco?: number
+          NomeFile?: string | null
+          TipoFile?: string | null
+          Url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocco_foto_idblocco_fkey"
+            columns: ["IdBlocco"]
+            isOneToOne: false
+            referencedRelation: "Blocco"
+            referencedColumns: ["Id"]
+          },
+        ]
+      }
       Cimitero: {
         Row: {
           active: boolean | null

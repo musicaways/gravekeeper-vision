@@ -47,9 +47,14 @@ export const useBlockPhotos = (blockId: string) => {
       }
       
       // If table doesn't exist yet, just return empty photos array
-      const exists = tableExists !== null && Array.isArray(tableExists) && tableExists.length > 0 
-        ? tableExists[0]?.exists === true 
-        : false;
+      // Add explicit null check before trying to access properties
+      let exists = false;
+      if (tableExists !== null && Array.isArray(tableExists) && tableExists.length > 0) {
+        const firstRow = tableExists[0];
+        if (firstRow && typeof firstRow === 'object' && 'exists' in firstRow) {
+          exists = firstRow.exists === true;
+        }
+      }
         
       if (!exists) {
         console.log("blocco_foto table doesn't exist yet");
@@ -73,10 +78,8 @@ export const useBlockPhotos = (blockId: string) => {
           variant: "destructive"
         });
       } else {
-        // Since execute_sql doesn't return the actual data directly, we need to parse the results
-        // The results will be in the first element of the data array if successful
-        // First check if data is null, then if it's an array with content
-        const photosData = data !== null && Array.isArray(data) && data.length > 0 ? data : [];
+        // Add explicit null check before trying to use the data
+        const photosData = data !== null && Array.isArray(data) ? data : [];
         setPhotos(photosData as unknown as BlockPhoto[]);
         setError(null);
       }
@@ -106,7 +109,7 @@ export const useBlockPhotos = (blockId: string) => {
         throw photoError || new Error("Photo not found");
       }
       
-      // Safely access the data array
+      // Safely access the data array with explicit null checks
       const resultArray = Array.isArray(data) ? data : [];
       if (resultArray.length === 0) {
         throw new Error("Photo not found");
