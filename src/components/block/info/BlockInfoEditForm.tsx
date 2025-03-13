@@ -2,7 +2,6 @@
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,32 +12,23 @@ import {
   TextAreaSection,
   LocationSection
 } from "./form/sections";
-
-// Validazione dati del form tramite Zod - fixed to handle string inputs that will be converted to numbers
-const blockFormSchema = z.object({
-  Nome: z.string().optional(),
-  Codice: z.string().optional(),
-  Descrizione: z.string().optional(),
-  Note: z.string().optional(),
-  Indirizzo: z.string().optional(),
-  Latitudine: z.string().transform((val) => val === "" ? null : parseFloat(val)).nullable().optional(),
-  Longitudine: z.string().transform((val) => val === "" ? null : parseFloat(val)).nullable().optional(),
-  NumeroLoculi: z.string().transform((val) => val === "" ? null : parseInt(val, 10)).nullable().optional(),
-  NumeroFile: z.string().transform((val) => val === "" ? null : parseInt(val, 10)).nullable().optional(),
-  DataCreazione: z.string().optional(),
-});
-
-type BlockFormValues = z.infer<typeof blockFormSchema>;
+import { blockFormSchema, BlockFormData } from "./types/blockFormTypes";
+import { useBlockFormSubmit } from "./hooks/useBlockFormSubmit";
 
 interface BlockInfoEditFormProps {
   block: any;
-  onSave: (data: BlockFormValues) => void;
+  onSave: (data: BlockFormData) => void;
   onCancel: () => void;
 }
 
 const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, onCancel }) => {
+  const { submitBlockForm, isSubmitting } = useBlockFormSubmit({ 
+    blockId: block.Id,
+    onSuccess: () => {} // We'll handle success in the onSubmit function
+  });
+
   // Inizializzazione del form con i dati attuali - fixed to use strings for all inputs
-  const form = useForm<BlockFormValues>({
+  const form = useForm<BlockFormData>({
     resolver: zodResolver(blockFormSchema),
     defaultValues: {
       Nome: decodeText(block.Nome) || "",
@@ -54,9 +44,12 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
     }
   });
 
-  function onSubmit(data: BlockFormValues) {
+  async function onSubmit(data: BlockFormData) {
     console.log("Form data submitted:", data);
-    onSave(data);
+    const success = await submitBlockForm(data);
+    if (success) {
+      onSave(data);
+    }
   }
 
   return (
@@ -93,10 +86,12 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
             <LocationSection control={form.control} />
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               Annulla
             </Button>
-            <Button type="submit">Salva modifiche</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Salvataggio..." : "Salva modifiche"}
+            </Button>
           </CardFooter>
         </form>
       </Form>

@@ -2,11 +2,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
   BasicInfoSection,
@@ -14,22 +12,8 @@ import {
   TextAreaSection,
   LocationSection
 } from "./form/sections";
-
-// Schema di validazione
-const blockFormSchema = z.object({
-  Nome: z.string().min(1, "Il nome è obbligatorio"),
-  Codice: z.string().optional(),
-  Descrizione: z.string().optional(),
-  Note: z.string().optional(),
-  Indirizzo: z.string().optional(),
-  NumeroLoculi: z.string().transform(val => val === "" ? null : parseInt(val, 10)).nullable().optional(),
-  NumeroFile: z.string().transform(val => val === "" ? null : parseInt(val, 10)).nullable().optional(),
-  Latitudine: z.string().transform(val => val === "" ? null : parseFloat(val)).nullable().optional(),
-  Longitudine: z.string().transform(val => val === "" ? null : parseFloat(val)).nullable().optional(),
-  DataCreazione: z.string().optional(),
-});
-
-type BlockFormData = z.infer<typeof blockFormSchema>;
+import { blockFormSchema, BlockFormData } from "./types/blockFormTypes";
+import { useBlockFormSubmit } from "./hooks/useBlockFormSubmit";
 
 interface BlockInfoFormProps {
   block: any;
@@ -39,6 +23,10 @@ interface BlockInfoFormProps {
 
 const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }) => {
   const { toast } = useToast();
+  const { submitBlockForm, isSubmitting } = useBlockFormSubmit({ 
+    blockId: block.Id,
+    onSuccess: onSave
+  });
   
   // Inizializzazione del form
   const form = useForm<BlockFormData>({
@@ -58,31 +46,9 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
   });
 
   const onSubmit = async (data: BlockFormData) => {
-    try {
-      console.log("Form data:", data);
-
-      const { error } = await supabase
-        .from('Blocco')
-        .update(data)
-        .eq('Id', block.Id);
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Modifiche salvate",
-        description: "Le informazioni del blocco sono state aggiornate con successo",
-      });
-
+    const success = await submitBlockForm(data);
+    if (success) {
       onSave();
-    } catch (error: any) {
-      console.error("Error updating block:", error);
-      toast({
-        variant: "destructive",
-        title: "Errore",
-        description: `Non è stato possibile salvare le modifiche: ${error.message || 'Errore sconosciuto'}`,
-      });
     }
   };
 
@@ -117,10 +83,12 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
           </CardContent>
 
           <CardFooter className="bg-muted/50 px-4 md:px-6 py-4 flex justify-between">
-            <Button variant="outline" type="button" onClick={onCancel}>
+            <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
               Annulla
             </Button>
-            <Button type="submit">Salva modifiche</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Salvataggio..." : "Salva modifiche"}
+            </Button>
           </CardFooter>
         </form>
       </Form>
