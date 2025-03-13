@@ -4,11 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { decodeText } from "@/utils/textFormatters";
+import { 
+  BasicInfoSection,
+  NumericInfoSection,
+  TextAreaSection,
+  LocationSection
+} from "./form/sections";
 
 // Validazione dati del form tramite Zod - fixed to handle string inputs that will be converted to numbers
 const blockFormSchema = z.object({
@@ -64,165 +68,29 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             {/* Informazioni di base */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="Nome"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome del blocco" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="Codice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Codice</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Codice del blocco" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <BasicInfoSection control={form.control} />
             
             {/* Numeri */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="NumeroLoculi"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Numero Loculi</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="NumeroFile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Numero File</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <NumericInfoSection control={form.control} />
             
             {/* Descrizione */}
-            <FormField
+            <TextAreaSection 
               control={form.control}
               name="Descrizione"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrizione</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Inserisci una descrizione del blocco"
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Descrizione"
+              placeholder="Inserisci una descrizione del blocco"
             />
             
             {/* Note */}
-            <FormField
+            <TextAreaSection 
               control={form.control}
               name="Note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Inserisci eventuali note"
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Note"
+              placeholder="Inserisci eventuali note"
             />
             
-            {/* Indirizzo */}
-            <FormField
-              control={form.control}
-              name="Indirizzo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Indirizzo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Indirizzo del blocco" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            {/* Data di costruzione */}
-            <FormField
-              control={form.control}
-              name="DataCreazione"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data di costruzione</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            {/* Coordinate */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="Latitudine"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Latitudine</FormLabel>
-                    <FormControl>
-                      <Input type="text" placeholder="es. 41.902782" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="Longitudine"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Longitudine</FormLabel>
-                    <FormControl>
-                      <Input type="text" placeholder="es. 12.496366" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Indirizzo e coordinate */}
+            <LocationSection control={form.control} />
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button type="button" variant="outline" onClick={onCancel}>
