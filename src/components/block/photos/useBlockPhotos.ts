@@ -30,7 +30,7 @@ export const useBlockPhotos = (blockId: string) => {
       }
       
       // Check if table exists first
-      const { data: tableExists, error: checkError } = await supabase
+      const { data: tableExistsData, error: checkError } = await supabase
         .rpc('execute_sql', {
           sql: `SELECT EXISTS (
             SELECT FROM information_schema.tables 
@@ -46,11 +46,10 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      // If table doesn't exist yet, just return empty photos array
-      // Add explicit null check before trying to access properties
+      // Add robust null check before trying to access properties
       let exists = false;
-      if (tableExists !== null && Array.isArray(tableExists) && tableExists.length > 0) {
-        const firstRow = tableExists[0];
+      if (tableExistsData !== null && Array.isArray(tableExistsData) && tableExistsData.length > 0) {
+        const firstRow = tableExistsData[0];
         if (firstRow && typeof firstRow === 'object' && 'exists' in firstRow) {
           exists = firstRow.exists === true;
         }

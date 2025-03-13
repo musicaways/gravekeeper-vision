@@ -32,11 +32,31 @@ export const ensureBlockPhotoTableExists = async (): Promise<boolean> => {
       return true;
     }
     
-    // If table doesn't exist, call the edge function to create it
-    const { error: functionError } = await supabase.functions.invoke("create_blocco_foto_table");
+    // If table doesn't exist, create it directly with SQL rather than calling the edge function
+    const { error: createError } = await supabase.rpc('execute_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS public.blocco_foto (
+          "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          "IdBlocco" INTEGER NOT NULL,
+          "NomeFile" TEXT,
+          "TipoFile" TEXT,
+          "Descrizione" TEXT,
+          "Url" TEXT NOT NULL,
+          "DataInserimento" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Ensure the UUID extension is available
+        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        
+        -- Add foreign key constraint if needed
+        ALTER TABLE public.blocco_foto 
+        ADD CONSTRAINT blocco_foto_idblocco_fkey 
+        FOREIGN KEY ("IdBlocco") REFERENCES public."Blocco"("Id");
+      `
+    });
     
-    if (functionError) {
-      console.error("Error creating table:", functionError);
+    if (createError) {
+      console.error("Error creating table:", createError);
       return false;
     }
     
@@ -65,13 +85,26 @@ export const ensurePhotoStorageBucketExists = async (): Promise<boolean> => {
       return true;
     }
     
-    // Create the bucket if it doesn't exist
-    const { error: createError } = await supabase.storage.createBucket('cimitero-foto', {
-      public: true, // Allow public access
-      fileSizeLimit: 5242880, // 5MB
+    // Try to create the bucket using SQL directly to bypass RLS
+    const { error: createError } = await supabase.rpc('execute_sql', {
+      sql: `
+        INSERT INTO storage.buckets (id, name, public)
+        VALUES ('cimitero-foto', 'Foto dei Blocchi Cimitero', true);
+        
+        -- Create a policy to allow public read access
+        INSERT INTO storage.policies (name, definition, bucket_id)
+        VALUES ('Public Read Access', '(bucket_id = ''cimitero-foto''::text)', 'cimitero-foto');
+        
+        -- Create a policy for authenticated uploads
+        INSERT INTO storage.policies (name, definition, bucket_id)
+        VALUES ('Authenticated Uploads', '(bucket_id = ''cimitero-foto''::text AND auth.role() = ''authenticated''::text)', 'cimitero-foto');
+      `
     });
     
-    if (createError) throw createError;
+    if (createError) {
+      console.error("Error creating bucket with SQL:", createError);
+      return false;
+    }
     
     return true;
   } catch (error) {

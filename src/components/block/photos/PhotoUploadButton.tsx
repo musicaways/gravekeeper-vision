@@ -1,31 +1,24 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Camera } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ImagePlus } from "lucide-react";
 
 interface PhotoUploadButtonProps {
   onClick: () => void;
+  disabled?: boolean;
 }
 
-const PhotoUploadButton: React.FC<PhotoUploadButtonProps> = ({ onClick }) => {
+const PhotoUploadButton: React.FC<PhotoUploadButtonProps> = ({ onClick, disabled = false }) => {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button 
-            onClick={onClick}
-            size="icon"
-            className="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
-          >
-            <Camera className="h-6 w-6" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Carica nuova foto</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Button 
+      variant="outline" 
+      className="w-full flex items-center gap-2"
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <ImagePlus className="h-4 w-4" />
+      <span>Carica una nuova foto</span>
+    </Button>
   );
 };
 
