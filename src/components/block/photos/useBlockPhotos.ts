@@ -29,21 +29,10 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      // Use raw SQL query instead of the typed query builder
+      // Use rpc with a raw SQL query to bypass TypeScript type checking
       const { data, error: queryError } = await supabase
         .rpc('execute_sql', {
           sql: `SELECT * FROM public.blocco_foto WHERE "IdBlocco" = ${numericId} ORDER BY "DataInserimento" DESC`
-        })
-        .then(result => {
-          // Parse the SQL execution result
-          if (result.error) return { data: null, error: result.error };
-          
-          // The execute_sql function doesn't return data directly, so we need to query again to get the actual data
-          return supabase
-            .from('blocco_foto')
-            .select('*')
-            .eq('IdBlocco', numericId)
-            .order('DataInserimento', { ascending: false });
         });
       
       if (queryError) {
@@ -55,8 +44,10 @@ export const useBlockPhotos = (blockId: string) => {
           variant: "destructive"
         });
       } else {
-        // Type assertion since we know the structure will match BlockPhoto
-        setPhotos(data as unknown as BlockPhoto[] || []);
+        // Since execute_sql doesn't return the actual data directly, we need to parse the results
+        // The results will be in the first element of the data array if successful
+        const photosData = Array.isArray(data) && data.length > 0 ? data : [];
+        setPhotos(photosData as unknown as BlockPhoto[]);
         setError(null);
       }
     } catch (err) {
@@ -74,19 +65,24 @@ export const useBlockPhotos = (blockId: string) => {
 
   const deletePhoto = async (photoId: string): Promise<boolean> => {
     try {
-      // First, get the photo URL to extract the path using a raw query
-      const { data: photoData, error: photoError } = await supabase
-        .from('blocco_foto')
-        .select('Url')
-        .eq('Id', photoId)
-        .maybeSingle();
+      // First, get the photo URL to extract the path using a raw SQL query
+      const { data, error: photoError } = await supabase
+        .rpc('execute_sql', {
+          sql: `SELECT "Url" FROM public.blocco_foto WHERE "Id" = '${photoId}'`
+        });
       
-      if (photoError || !photoData) {
+      if (photoError || !data || !Array.isArray(data) || data.length === 0) {
         throw photoError || new Error("Photo not found");
       }
       
+      // Extract the URL from the result
+      const photoUrl = data[0]?.Url;
+      if (!photoUrl) {
+        throw new Error("URL not found for photo");
+      }
+      
       // Extract the path from the URL
-      const url = new URL(photoData.Url);
+      const url = new URL(photoUrl);
       const pathMatch = url.pathname.match(/\/object\/public\/cimitero-foto\/(.+)/);
       
       if (!pathMatch || !pathMatch[1]) {
