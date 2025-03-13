@@ -8,6 +8,7 @@ export const blockFormSchema = z.object({
   Descrizione: z.string().optional(),
   Note: z.string().optional(),
   Indirizzo: z.string().optional(),
+  // Use consistent string typing for numeric fields in the form
   NumeroLoculi: z.string().optional().nullable().transform(val => 
     val === "" || val === null || val === undefined ? null : Number(val)
   ),

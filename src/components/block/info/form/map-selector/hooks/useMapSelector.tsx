@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface UseMapSelectorProps {
-  initialLat?: number;
-  initialLng?: number;
+  initialLat?: number | string;
+  initialLng?: number | string;
   onSelectLocation: (lat: number, lng: number) => void;
 }
 
@@ -17,7 +17,12 @@ export function useMapSelector({
   const [googleMap, setGoogleMap] = useState<any | null>(null);
   const [marker, setMarker] = useState<any | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<{lat: number, lng: number} | null>(
-    initialLat && initialLng ? { lat: initialLat, lng: initialLng } : null
+    initialLat !== undefined && initialLng !== undefined 
+      ? { 
+          lat: typeof initialLat === 'string' ? parseFloat(initialLat) : initialLat, 
+          lng: typeof initialLng === 'string' ? parseFloat(initialLng) : initialLng 
+        } 
+      : null
   );
   const { toast } = useToast();
 

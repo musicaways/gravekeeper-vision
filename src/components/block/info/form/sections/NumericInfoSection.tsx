@@ -22,6 +22,10 @@ const NumericInfoSection: React.FC<NumericInfoSectionProps> = ({ control }) => {
                 type="number" 
                 {...field} 
                 value={field.value === null || field.value === undefined ? "" : field.value}
+                onChange={e => {
+                  // Ensure we're handling the value as a string for the form
+                  field.onChange(e.target.value);
+                }}
               />
             </FormControl>
             <FormMessage />
@@ -40,6 +44,10 @@ const NumericInfoSection: React.FC<NumericInfoSectionProps> = ({ control }) => {
                 type="number" 
                 {...field} 
                 value={field.value === null || field.value === undefined ? "" : field.value}
+                onChange={e => {
+                  // Ensure we're handling the value as a string for the form
+                  field.onChange(e.target.value);
+                }}
               />
             </FormControl>
             <FormMessage />

@@ -18,18 +18,16 @@ export const useBlockFormSubmit = ({ blockId, onSuccess }: UseBlockFormSubmitPro
       setIsSubmitting(true);
       console.log("Form data to submit:", data);
 
-      // Assicuriamoci che i valori numerici siano corretti per Supabase
-      // The transformation should already be handled by the zod schema
-      // but we'll ensure it here as well for data safety
+      // Ensure all numeric fields are properly converted from strings to numbers (or null)
       const formattedData = {
         ...data,
-        NumeroLoculi: data.NumeroLoculi === null || data.NumeroLoculi === undefined ? null : 
+        NumeroLoculi: data.NumeroLoculi === null || data.NumeroLoculi === undefined || data.NumeroLoculi === "" ? null : 
           typeof data.NumeroLoculi === 'string' ? Number(data.NumeroLoculi) : data.NumeroLoculi,
-        NumeroFile: data.NumeroFile === null || data.NumeroFile === undefined ? null : 
+        NumeroFile: data.NumeroFile === null || data.NumeroFile === undefined || data.NumeroFile === "" ? null : 
           typeof data.NumeroFile === 'string' ? Number(data.NumeroFile) : data.NumeroFile,
-        Latitudine: data.Latitudine === null || data.Latitudine === undefined ? null : 
+        Latitudine: data.Latitudine === null || data.Latitudine === undefined || data.Latitudine === "" ? null : 
           typeof data.Latitudine === 'string' ? Number(data.Latitudine) : data.Latitudine,
-        Longitudine: data.Longitudine === null || data.Longitudine === undefined ? null : 
+        Longitudine: data.Longitudine === null || data.Longitudine === undefined || data.Longitudine === "" ? null : 
           typeof data.Longitudine === 'string' ? Number(data.Longitudine) : data.Longitudine,
       };
 
