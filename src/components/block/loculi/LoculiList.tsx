@@ -58,9 +58,9 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   };
 
   return (
-    <div className="space-y-4 px-[1.2px]">
+    <div className="space-y-4">
       {loculi.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
           {loculi.map((loculo, index) => {
             const numero = loculo.Numero;
             const fila = loculo.Fila;
