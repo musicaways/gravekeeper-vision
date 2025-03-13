@@ -1,9 +1,6 @@
 
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Map, AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useBlockMap } from "./hooks/useBlockMap";
+import React, { useState, useEffect } from "react";
+import useGoogleMapsApi from "@/hooks/useGoogleMapsApi";
 import BlockMapImage from "./components/BlockMapImage";
 import BlockMapEmpty from "./components/BlockMapEmpty";
 
@@ -12,40 +9,38 @@ interface BlockMapDisplayProps {
 }
 
 const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
-  const { mapUrl, loading, error } = useBlockMap(block);
-  const [imageError, setImageError] = useState(false);
-
-  const handleImageError = () => {
-    setImageError(true);
+  const { isLoaded, loadError } = useGoogleMapsApi();
+  const [mapUrl, setMapUrl] = useState<string | null>(null);
+  const [showFallback, setShowFallback] = useState(false);
+  
+  useEffect(() => {
+    if (isLoaded && block.Latitudine && block.Longitudine) {
+      const zoom = 18;
+      const size = "600x400";
+      const scale = 2; // Retina display
+      const lat = block.Latitudine;
+      const lng = block.Longitudine;
+      
+      // Create Google Maps Static API URL with marker
+      const googleMapsApiKey = localStorage.getItem('googleMapsApiKey') || process.env.VITE_GOOGLE_MAPS_API_KEY;
+      setMapUrl(`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=${size}&scale=${scale}&markers=color:blue%7C${lat},${lng}&key=${googleMapsApiKey}`);
+    }
+  }, [isLoaded, block]);
+  
+  const handleMapError = () => {
+    console.error("Failed to load Google Maps image");
+    setShowFallback(true);
   };
-
-  return (
-    <Card className="w-full shadow-sm">
-      <CardContent className="px-4 md:px-6 py-4 md:py-6">
-        <h3 className="text-xl font-medium mb-4 flex items-center gap-2">
-          <Map className="h-5 w-5" />
-          Mappa del blocco
-        </h3>
-        
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        
-        {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <span className="ml-2">Caricamento mappa...</span>
-          </div>
-        ) : mapUrl && !imageError ? (
-          <BlockMapImage mapUrl={mapUrl} onError={handleImageError} />
-        ) : (
-          <BlockMapEmpty />
-        )}
-      </CardContent>
-    </Card>
-  );
+  
+  if (loadError || showFallback || !block.Latitudine || !block.Longitudine) {
+    return <BlockMapEmpty />;
+  }
+  
+  if (!mapUrl) {
+    return <div className="h-[400px] flex items-center justify-center">Caricamento della mappa...</div>;
+  }
+  
+  return <BlockMapImage mapUrl={mapUrl} onError={handleMapError} />;
 };
 
 export default BlockMapDisplay;

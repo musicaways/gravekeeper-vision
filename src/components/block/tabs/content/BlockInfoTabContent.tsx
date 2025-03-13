@@ -8,7 +8,7 @@ interface BlockInfoTabContentProps {
 
 const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
   return (
-    <div className="space-y-6">
+    <div className="w-full px-1">
       <BlockInfoCard block={block} />
     </div>
   );
