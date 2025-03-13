@@ -55,9 +55,9 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
         }
       }, 500);
       
-      // Perform the upload
+      // Perform the upload - using the correct 'documents' bucket
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('block-documents')
+        .from('documents')
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false,
@@ -77,14 +77,14 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       
       // 3. Get the URL of the uploaded file
       const { data: publicUrlData } = supabase.storage
-        .from('block-documents')
+        .from('documents')
         .getPublicUrl(filePath);
       
       const fileUrl = publicUrlData.publicUrl;
       
       console.log("Public URL obtained:", fileUrl);
       
-      // 4. Save metadata to the database
+      // 4. Save metadata to the database - using the correct lowercase column names
       console.log("Saving metadata to database...");
       const { error: dbError } = await supabase
         .from('bloccodocumenti')

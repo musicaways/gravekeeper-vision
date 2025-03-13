@@ -45,6 +45,8 @@ const BlockDocuments: React.FC<BlockDocumentsProps> = ({ blockId }) => {
     type: doc.type
   }));
 
+  console.log("Documents loaded:", documents.length, "for block:", blockId);
+  
   return (
     <div className="w-full">
       <Card className="w-full shadow-sm mb-6">
@@ -91,7 +93,7 @@ const BlockDocuments: React.FC<BlockDocumentsProps> = ({ blockId }) => {
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         document={documentToDelete}
-        onDelete={() => handleDelete(documentToDelete?.id)}
+        onDelete={() => documentToDelete && handleDelete(documentToDelete.id)}
       />
 
       {/* Document Viewer */}
@@ -100,7 +102,7 @@ const BlockDocuments: React.FC<BlockDocumentsProps> = ({ blockId }) => {
         open={viewerOpen}
         initialIndex={selectedDocIndex}
         onClose={() => setViewerOpen(false)}
-        onDeleteFile={handleDelete}
+        onDeleteFile={(id) => handleDelete(id)}
       />
     </div>
   );

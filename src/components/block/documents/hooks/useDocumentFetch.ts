@@ -25,6 +25,7 @@ export const useDocumentFetch = (blockId: string) => {
         return;
       }
 
+      console.log("Fetching documents for block:", numericId);
       const { data, error } = await supabase
         .from('bloccodocumenti')
         .select('*')
@@ -40,6 +41,7 @@ export const useDocumentFetch = (blockId: string) => {
         });
         setDocuments([]);
       } else {
+        console.log("Documents data received:", data);
         // Transform the data to match our DocumentItem interface
         const formattedDocuments = data.map(doc => {
           // Extract file extension for type

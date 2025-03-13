@@ -31,7 +31,7 @@ export const useDocumentDelete = ({ blockId, onSuccess }: UseDocumentDeleteOptio
       
       console.log("Deleting document with ID:", documentId);
       
-      // 1. Delete from database
+      // 1. Delete from database - using the correct lowercase table name
       const { error: dbError } = await supabase
         .from('bloccodocumenti')
         .delete()
