@@ -6,6 +6,7 @@ import GalleryLoading from "./GalleryLoading";
 import PhotoGrid from "./PhotoGrid";
 import ImageLightbox from "@/components/ui/image-lightbox";
 import { cn } from "@/lib/utils";
+import { LightboxImage } from "@/components/ui/image-lightbox/types";
 
 interface BlockGalleryProps {
   blockId: string;
@@ -29,17 +30,16 @@ const BlockGallery: React.FC<BlockGalleryProps> = ({
     setLightboxOpen(true);
   };
 
-  const handlePhotoDelete = async (photoId: string) => {
+  const handlePhotoDelete = async (photoId: string): Promise<void> => {
     const success = await deletePhoto(photoId);
     if (success) {
       setLightboxOpen(false);
     }
-    return success;
   };
 
   // Transform the photos for the lightbox
-  const lightboxImages = photos.map(photo => ({
-    src: photo.Url,
+  const lightboxImages: LightboxImage[] = photos.map(photo => ({
+    url: photo.Url,
     alt: photo.Descrizione || "Foto",
     id: photo.Id,
     title: photo.NomeFile || "Foto",

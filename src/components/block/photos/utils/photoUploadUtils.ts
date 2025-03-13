@@ -41,16 +41,17 @@ export const createPhotoRecord = async (
   description: string
 ): Promise<{ success: boolean; error?: any }> => {
   try {
-    const { error } = await supabase
-      .from('blocco_foto')
-      .insert({
-        IdBlocco: parseInt(blockId, 10),
-        NomeFile: file.name,
-        Descrizione: description,
-        TipoFile: file.type,
-        Url: `https://ytfuenxlejrogesnsvhl.supabase.co/storage/v1/object/public/cimitero-foto/${blockId}/${fileName}`,
-        DataInserimento: new Date().toISOString()
-      });
+    // Call the edge function to insert the record
+    const { error } = await supabase.functions.invoke("insert_block_photo", {
+      body: {
+        block_id: parseInt(blockId, 10),
+        file_name: file.name,
+        description_text: description,
+        file_type: file.type,
+        url_text: `https://ytfuenxlejrogesnsvhl.supabase.co/storage/v1/object/public/cimitero-foto/${blockId}/${fileName}`,
+        insert_date: new Date().toISOString()
+      },
+    });
       
     if (error) throw error;
     return { success: true };

@@ -29,14 +29,15 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      const { data, error } = await supabase
+      // Use raw SQL query to access the blocco_foto table
+      const { data, error: queryError } = await supabase
         .from('blocco_foto')
         .select('*')
         .eq('IdBlocco', numericId)
         .order('DataInserimento', { ascending: false });
       
-      if (error) {
-        console.error("Error fetching photos:", error);
+      if (queryError) {
+        console.error("Error fetching photos:", queryError);
         setError("Si è verificato un errore durante il caricamento delle foto");
         toast({
           title: "Errore",
@@ -44,7 +45,7 @@ export const useBlockPhotos = (blockId: string) => {
           variant: "destructive"
         });
       } else {
-        setPhotos(data || []);
+        setPhotos(data as BlockPhoto[] || []);
         setError(null);
       }
     } catch (err) {
@@ -60,7 +61,7 @@ export const useBlockPhotos = (blockId: string) => {
     }
   }, [blockId, toast]);
 
-  const deletePhoto = async (photoId: string) => {
+  const deletePhoto = async (photoId: string): Promise<boolean> => {
     try {
       // First, get the photo URL to extract the path
       const { data: photoData, error: photoError } = await supabase

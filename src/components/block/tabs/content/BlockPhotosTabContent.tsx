@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
-import { PhotoUploadDialog } from "../../photos/PhotoUploadDialog";
-import { PhotoUploadButton } from "../../photos/PhotoUploadButton";
-import { PhotoGalleryCard } from "../../photos/PhotoGalleryCard";
+import PhotoUploadDialog from "../../photos/PhotoUploadDialog";
+import PhotoUploadButton from "../../photos/PhotoUploadButton";
+import PhotoGalleryCard from "../../photos/PhotoGalleryCard";
 
 interface BlockPhotosTabContentProps {
   blockId: string;
