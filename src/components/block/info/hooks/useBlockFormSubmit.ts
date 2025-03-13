@@ -18,12 +18,24 @@ export const useBlockFormSubmit = ({ blockId, onSuccess }: UseBlockFormSubmitPro
       setIsSubmitting(true);
       console.log("Form data to submit:", data);
 
+      // Assicuriamoci che i valori numerici siano corretti per Supabase
+      const formattedData = {
+        ...data,
+        NumeroLoculi: data.NumeroLoculi === null ? null : Number(data.NumeroLoculi),
+        NumeroFile: data.NumeroFile === null ? null : Number(data.NumeroFile),
+        Latitudine: data.Latitudine === null ? null : Number(data.Latitudine),
+        Longitudine: data.Longitudine === null ? null : Number(data.Longitudine),
+      };
+
+      console.log("Formatted data for Supabase:", formattedData);
+
       const { error } = await supabase
         .from('Blocco')
-        .update(data)
+        .update(formattedData)
         .eq('Id', blockId);
 
       if (error) {
+        console.error("Supabase error:", error);
         throw error;
       }
 

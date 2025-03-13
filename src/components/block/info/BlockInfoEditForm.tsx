@@ -27,7 +27,7 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
     onSuccess: () => {} // We'll handle success in the onSubmit function
   });
 
-  // Inizializzazione del form con i dati attuali - fixed to use strings for all inputs
+  // Inizializzazione del form con i valori convertiti correttamente
   const form = useForm<BlockFormData>({
     resolver: zodResolver(blockFormSchema),
     defaultValues: {
@@ -36,10 +36,10 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
       Descrizione: decodeText(block.Descrizione) || "",
       Note: decodeText(block.Note) || "",
       Indirizzo: decodeText(block.Indirizzo) || "",
-      Latitudine: block.Latitudine !== null ? String(block.Latitudine) : "",
-      Longitudine: block.Longitudine !== null ? String(block.Longitudine) : "",
-      NumeroLoculi: block.NumeroLoculi !== null ? String(block.NumeroLoculi) : "",
-      NumeroFile: block.NumeroFile !== null ? String(block.NumeroFile) : "",
+      Latitudine: block.Latitudine || null,
+      Longitudine: block.Longitudine || null,
+      NumeroLoculi: block.NumeroLoculi || null,
+      NumeroFile: block.NumeroFile || null,
       DataCreazione: block.DataCreazione || "",
     }
   });
