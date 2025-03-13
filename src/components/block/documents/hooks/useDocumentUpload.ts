@@ -84,24 +84,23 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       
       console.log("Public URL obtained:", fileUrl);
       
-      // 4. Save metadata directly to the database using normal insert
-      // This matches the approach used in cemetery documents
-      console.log("Saving metadata to database directly...");
+      // 4. Save metadata using the Supabase Edge Function
+      console.log("Saving metadata using Edge Function...");
       
-      const { error: dbError } = await supabase
-        .from('bloccodocumenti')
-        .insert({
+      const { data, error: fnError } = await supabase.functions.invoke('insert-block-document', {
+        body: JSON.stringify({
           idblocco: numericId,
           nomefile: values.filename,
           descrizione: values.description,
           tipofile: fileExt?.toUpperCase() || 'FILE',
           url: fileUrl,
           datainserimento: new Date().toISOString()
-        });
+        })
+      });
       
-      if (dbError) {
-        console.error("Database insert failed:", dbError);
-        throw dbError;
+      if (fnError) {
+        console.error("Edge function error:", fnError);
+        throw new Error(`Errore durante il salvataggio dei metadati: ${fnError.message}`);
       }
       
       console.log("Upload process completed successfully");
