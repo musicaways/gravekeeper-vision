@@ -59,9 +59,9 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
       {loculi.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <>
           {loculi.map((loculo, index) => {
             const numero = loculo.Numero;
             const fila = loculo.Fila;
@@ -110,9 +110,9 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
               </div>
             );
           })}
-        </div>
+        </>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 col-span-full">
           <Alert variant="destructive" className="mt-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
