@@ -96,11 +96,16 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       <FormField
         control={control}
         name="DataCreazione"
-        render={({ field }) => (
+        render={({ field: { value, onChange, ...rest } }) => (
           <FormItem>
             <FormLabel>Data di costruzione</FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input 
+                type="date" 
+                value={value || ''} 
+                onChange={onChange}
+                {...rest} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -13,7 +13,7 @@ export const blockFormSchema = z.object({
   NumeroFile: z.string().optional(),
   Latitudine: z.string().optional(),
   Longitudine: z.string().optional(),
-  DataCreazione: z.string().optional(),
+  DataCreazione: z.string().optional().nullable(),
   FotoCopertina: z.string().optional().nullable(),
   coverImage: z.any().optional().nullable() // Per gestire il file di upload dell'immagine
 });

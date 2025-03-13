@@ -19,12 +19,15 @@ export const useBlockFormSubmit = ({ blockId, onSuccess }: UseBlockFormSubmitPro
       console.log("Form data to submit:", data);
 
       // Ensure all numeric fields are properly converted from strings to numbers (or null)
+      // And make sure the date field is handled properly
       const formattedData = {
         ...data,
         NumeroLoculi: data.NumeroLoculi === null || data.NumeroLoculi === undefined || data.NumeroLoculi === "" ? null : Number(data.NumeroLoculi),
         NumeroFile: data.NumeroFile === null || data.NumeroFile === undefined || data.NumeroFile === "" ? null : Number(data.NumeroFile),
         Latitudine: data.Latitudine === null || data.Latitudine === undefined || data.Latitudine === "" ? null : Number(data.Latitudine),
         Longitudine: data.Longitudine === null || data.Longitudine === undefined || data.Longitudine === "" ? null : Number(data.Longitudine),
+        // Make sure DataCreazione is either a valid date string or null (not an empty string)
+        DataCreazione: data.DataCreazione === null || data.DataCreazione === undefined || data.DataCreazione === "" ? null : data.DataCreazione,
       };
 
       console.log("Formatted data for Supabase:", formattedData);
