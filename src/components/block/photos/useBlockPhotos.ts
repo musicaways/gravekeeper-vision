@@ -51,7 +51,7 @@ export const useBlockPhotos = (blockId: string) => {
       if (tableExistsData !== null && Array.isArray(tableExistsData) && tableExistsData.length > 0) {
         const firstRow = tableExistsData[0];
         if (firstRow && typeof firstRow === 'object' && 'exists' in firstRow) {
-          exists = firstRow.exists === true;
+          exists = Boolean(firstRow.exists);
         }
       }
         

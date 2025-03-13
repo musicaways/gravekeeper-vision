@@ -23,7 +23,7 @@ export const ensureBlockPhotoTableExists = async (): Promise<boolean> => {
     if (data !== null && Array.isArray(data) && data.length > 0) {
       const firstRow = data[0];
       if (firstRow && typeof firstRow === 'object' && 'exists' in firstRow) {
-        exists = firstRow.exists === true;
+        exists = Boolean(firstRow.exists);
       }
     }
     
