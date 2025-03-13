@@ -8,10 +8,34 @@ export const blockFormSchema = z.object({
   Descrizione: z.string().optional(),
   Note: z.string().optional(),
   Indirizzo: z.string().optional(),
-  NumeroLoculi: z.string().transform(val => val === "" ? null : parseInt(val, 10)).nullable().optional(),
-  NumeroFile: z.string().transform(val => val === "" ? null : parseInt(val, 10)).nullable().optional(),
-  Latitudine: z.string().transform(val => val === "" ? null : parseFloat(val)).nullable().optional(),
-  Longitudine: z.string().transform(val => val === "" ? null : parseFloat(val)).nullable().optional(),
+  NumeroLoculi: z.string()
+    .optional()
+    .transform(val => {
+      if (!val || val === "") return null;
+      const parsed = parseInt(val, 10);
+      return isNaN(parsed) ? null : parsed;
+    }),
+  NumeroFile: z.string()
+    .optional()
+    .transform(val => {
+      if (!val || val === "") return null;
+      const parsed = parseInt(val, 10);
+      return isNaN(parsed) ? null : parsed;
+    }),
+  Latitudine: z.string()
+    .optional()
+    .transform(val => {
+      if (!val || val === "") return null;
+      const parsed = parseFloat(val);
+      return isNaN(parsed) ? null : parsed;
+    }),
+  Longitudine: z.string()
+    .optional()
+    .transform(val => {
+      if (!val || val === "") return null;
+      const parsed = parseFloat(val);
+      return isNaN(parsed) ? null : parsed;
+    }),
   DataCreazione: z.string().optional(),
 });
 
