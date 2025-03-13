@@ -84,23 +84,45 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       
       console.log("Public URL obtained:", fileUrl);
       
-      // 4. Save metadata using the Supabase Edge Function
-      console.log("Saving metadata using Edge Function...");
+      // 4. Try direct database insert first (this is less prone to errors)
+      console.log("Saving metadata to database directly...");
       
-      const { data, error: fnError } = await supabase.functions.invoke('insert-block-document', {
-        body: JSON.stringify({
-          idblocco: numericId,
-          nomefile: values.filename,
-          descrizione: values.description,
-          tipofile: fileExt?.toUpperCase() || 'FILE',
-          url: fileUrl,
-          datainserimento: new Date().toISOString()
-        })
-      });
-      
-      if (fnError) {
-        console.error("Edge function error:", fnError);
-        throw new Error(`Errore durante il salvataggio dei metadati: ${fnError.message}`);
+      try {
+        const { error: dbError } = await supabase
+          .from('bloccodocumenti')
+          .insert({
+            idblocco: numericId,
+            nomefile: values.filename,
+            descrizione: values.description,
+            tipofile: fileExt?.toUpperCase() || 'FILE',
+            url: fileUrl,
+            datainserimento: new Date().toISOString()
+          });
+        
+        if (dbError) {
+          console.error("Database insert failed:", dbError);
+          // If direct insert fails, fallback to edge function
+          console.log("Falling back to edge function...");
+          
+          const { data, error: fnError } = await supabase.functions.invoke('insert-block-document', {
+            body: JSON.stringify({
+              idblocco: numericId,
+              nomefile: values.filename,
+              descrizione: values.description,
+              tipofile: fileExt?.toUpperCase() || 'FILE',
+              url: fileUrl,
+              datainserimento: new Date().toISOString()
+            })
+          });
+          
+          if (fnError) {
+            console.error("Edge function error:", fnError);
+            throw new Error(`Errore durante il salvataggio dei metadati: ${fnError.message}`);
+          }
+        }
+      } catch (insertError) {
+        console.error("Error during metadata insertion:", insertError);
+        throw new Error(`Errore durante il salvataggio dei metadati: ${insertError instanceof Error ? insertError.message : 'Errore sconosciuto'}`);
       }
       
       console.log("Upload process completed successfully");
