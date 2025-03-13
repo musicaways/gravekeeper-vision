@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import useGoogleMapsApi from "@/hooks/useGoogleMapsApi";
+import { useGoogleMapsApi } from "@/hooks/useGoogleMapsApi";
 import BlockMapImage from "./components/BlockMapImage";
 import BlockMapEmpty from "./components/BlockMapEmpty";
 

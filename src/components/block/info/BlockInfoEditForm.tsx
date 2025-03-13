@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -44,8 +43,8 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
       Indirizzo: decodeText(block.Indirizzo) || "",
       Latitudine: block.Latitudine ? String(block.Latitudine) : "",
       Longitudine: block.Longitudine ? String(block.Longitudine) : "",
-      NumeroLoculi: block.NumeroLoculi !== undefined ? String(block.NumeroLoculi) : "",
-      NumeroFile: block.NumeroFile !== undefined ? String(block.NumeroFile) : "",
+      NumeroLoculi: block.NumeroLoculi ? String(block.NumeroLoculi) : "",
+      NumeroFile: block.NumeroFile ? String(block.NumeroFile) : "",
       DataCreazione: block.DataCreazione || "",
     }
   });
