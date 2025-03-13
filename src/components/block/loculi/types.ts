@@ -31,6 +31,8 @@ export interface DefuntoType {
   sesso?: string;
   annotazioni?: string;
   stato_defunto?: number;
+  IdLoculo?: number | string;
+  id_loculo?: number | string;
 }
 
 // Union type to handle all structures (for backward compatibility)
@@ -44,11 +46,17 @@ export function getLoculoId(loculo: Loculo): number | undefined {
 
 // Helper function to get defunti count
 export function getDefuntiCount(loculo: Loculo): number {
-  return (loculo.Defunti?.length || 0);
+  if (!loculo.Defunti) {
+    return 0;
+  }
+  return loculo.Defunti.length || 0;
 }
 
 // Helper function to get defunti array
 export function getDefunti(loculo: Loculo): DefuntoType[] {
+  if (!loculo.Defunti) {
+    return [];
+  }
   return loculo.Defunti || [];
 }
 

@@ -29,16 +29,21 @@ export function useDefuntiForLoculi({
     const fetchDefunti = async () => {
       // Skip if requested or if there are no loculi IDs
       if (skip || loculiIds.length === 0) {
+        console.log("Skipping defunti fetch due to skip flag or empty loculiIds");
         return;
       }
 
       try {
         setLoading(true);
+        console.log(`Fetching defunti for ${loculiIds.length} loculi`);
+        
         const defuntiResult = await fetchDefuntiForLoculi(loculiIds);
         
         if (defuntiResult.error) {
           throw new Error(defuntiResult.error);
         }
+        
+        console.log(`Fetched ${defuntiResult.data.length} defunti records`);
         
         // Ensure the data conforms to DefuntoType
         const normalizedDefunti: DefuntoType[] = defuntiResult.data.map((defunto: any) => {
@@ -54,13 +59,16 @@ export function useDefuntiForLoculi({
             Sesso: defunto.Sesso,
             sesso: defunto.sesso,
             annotazioni: defunto.annotazioni,
-            stato_defunto: defunto.stato_defunto || defunto.StatoDefunto
+            stato_defunto: defunto.stato_defunto || defunto.StatoDefunto,
+            IdLoculo: defunto.IdLoculo,
+            id_loculo: defunto.id_loculo
           };
         });
         
+        console.log("Normalized defunti data:", normalizedDefunti);
         setDefunti(normalizedDefunti);
       } catch (err: any) {
-        console.error("Errore nel caricamento dei defunti:", err);
+        console.error("Error loading defunti:", err);
         setError(err.message);
       } finally {
         setLoading(false);

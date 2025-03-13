@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { User, Users, AlertCircle, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -14,32 +15,33 @@ interface LoculiListProps {
 export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   useEffect(() => {
     // Log loculi data for debugging
-    console.log("LoculiList ricevuti loculi:", loculi);
+    console.log("LoculiList received loculi:", loculi);
     
     if (loculi.length > 0) {
-      console.log("Esempio loculo:", loculi[0]);
+      console.log("Example loculo:", loculi[0]);
       
-      // Controlla la struttura per il debug
+      // Check structure for debugging
       const firstLoculo = loculi[0];
-      console.log("Struttura loculo:", {
+      console.log("Loculo structure:", {
         id: firstLoculo.id,
         properties: Object.keys(firstLoculo),
-        defunti: firstLoculo.Defunti
+        defunti: firstLoculo.Defunti || 'No Defunti array',
+        defuntiCount: getDefuntiCount(firstLoculo)
       });
     }
   }, [loculi]);
 
   const handleCheckMigration = async () => {
     try {
-      // Estrai l'ID del blocco dall'URL
+      // Extract block ID from URL
       const blockId = window.location.pathname.split('/').pop();
       if (blockId) {
         toast.info("Verifica della struttura dati in corso...");
         const numericBlockId = parseInt(blockId);
         
-        // Ora utilizziamo checkBloccoRelationship dal service
+        // Now use checkBloccoRelationship from service
         const result = await checkBloccoRelationship(numericBlockId);
-        console.log("Risultato verifica relazione blocco-loculi:", result);
+        console.log("Block-loculi relationship check result:", result);
         
         if (result.error) {
           toast.error("Errore durante la verifica: " + result.error);
@@ -50,7 +52,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
         }
       }
     } catch (error) {
-      console.error("Errore durante la verifica:", error);
+      console.error("Error during verification:", error);
       toast.error("Errore durante la verifica della struttura dati");
     }
   };
@@ -82,9 +84,9 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
                           <User className="h-4 w-4 text-muted-foreground shrink-0" />
                           <span className="text-sm font-medium truncate">{getNominativo(defunto)}</span>
                         </div>
-                        {defunto.data_decesso && (
+                        {(defunto.data_decesso || defunto.DataDecesso) && (
                           <span className="text-xs text-muted-foreground">
-                            {defunto.data_decesso.toString().split('T')[0]}
+                            {(defunto.data_decesso || defunto.DataDecesso).toString().split('T')[0]}
                           </span>
                         )}
                       </div>

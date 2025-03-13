@@ -15,20 +15,42 @@ export function useLoculiWithDefunti({
   defunti 
 }: UseLoculiWithDefuntiProps): Loculo[] {
   return useMemo(() => {
-    if (defunti.length === 0) {
+    if (!defunti || defunti.length === 0) {
+      console.log("No defunti data to process");
       return loculi;
     }
     
-    return loculi.map(loculo => ({
-      ...loculo,
-      Defunti: defunti.filter(d => {
-        // Handle both old and new ID formats
-        const defuntoLoculoId = d.IdLoculo || d.id_loculo;
+    if (!loculi || loculi.length === 0) {
+      console.log("No loculi data to process");
+      return [];
+    }
+    
+    console.log(`Processing ${defunti.length} defunti records for ${loculi.length} loculi`);
+    
+    return loculi.map(loculo => {
+      // Find all defunti records that belong to this loculo
+      const loculoDefunti = defunti.filter(defunto => {
+        // Handle different ID formats (string or number)
+        const defuntoLoculoId = defunto.IdLoculo || defunto.id_loculo;
         const loculoId = loculo.id;
         
+        // For debugging
+        if (defuntoLoculoId && (defuntoLoculoId == loculoId || 
+            (typeof defuntoLoculoId === 'string' && defuntoLoculoId === loculoId.toString()))) {
+          console.log(`Found defunto ${defunto.Nominativo || defunto.nominativo} for loculo ${loculoId}`);
+        }
+        
+        // Check different ways the ID might match
         return defuntoLoculoId == loculoId || // Use == for type coercion
-               (typeof defuntoLoculoId === 'string' && defuntoLoculoId === loculoId.toString());
-      })
-    }));
+               (typeof defuntoLoculoId === 'string' && defuntoLoculoId === loculoId.toString()) ||
+               (typeof loculoId === 'string' && loculoId === defuntoLoculoId.toString());
+      });
+      
+      // Return loculo with associated defunti
+      return {
+        ...loculo,
+        Defunti: loculoDefunti
+      };
+    });
   }, [loculi, defunti]);
 }
