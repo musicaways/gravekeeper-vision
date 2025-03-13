@@ -3,6 +3,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import BlockInfoTabContent from "./content/BlockInfoTabContent";
 import BlockLoculiTabContent from "./content/BlockLoculiTabContent";
 import BlockDocumentiTabContent from "./content/BlockDocumentiTabContent";
+import BlockPhotosTabContent from "./content/BlockPhotosTabContent";
 import React from "react";
 
 export interface BlockTabContentProps {
@@ -22,11 +23,11 @@ export function BlockTabContent({ blockId, block, searchTerm = "" }: BlockTabCon
         <BlockLoculiTabContent blockId={blockId.toString()} searchTerm={searchTerm} />
       </TabsContent>
       
-      <TabsContent value="map" className="w-full max-w-none">
-        {/* Map tab content */}
+      <TabsContent value="photos" className="w-full max-w-none">
+        <BlockPhotosTabContent blockId={blockId.toString()} />
       </TabsContent>
       
-      <TabsContent value="documents" className="w-full max-w-none">
+      <TabsContent value="files" className="w-full max-w-none">
         <BlockDocumentiTabContent blockId={blockId.toString()} />
       </TabsContent>
     </>

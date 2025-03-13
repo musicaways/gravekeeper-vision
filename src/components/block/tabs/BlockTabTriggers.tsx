@@ -1,6 +1,6 @@
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Info, List, Map } from "lucide-react";
+import { FileText, Info, List, Images } from "lucide-react";
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -30,19 +30,19 @@ export function BlockTabTriggers({ defaultTab = "loculi" }: BlockTabTriggersProp
           </TabsTrigger>
           
           <TabsTrigger 
-            value="map" 
+            value="photos" 
             className="flex items-center gap-1.5 px-4 py-2"
           >
-            <Map className="h-4 w-4" />
-            <span>Mappa</span>
+            <Images className="h-4 w-4" />
+            <span>Foto</span>
           </TabsTrigger>
           
           <TabsTrigger 
-            value="documents" 
+            value="files" 
             className="flex items-center gap-1.5 px-4 py-2"
           >
             <FileText className="h-4 w-4" />
-            <span>Documenti</span>
+            <span>File</span>
           </TabsTrigger>
         </TabsList>
       </ScrollArea>

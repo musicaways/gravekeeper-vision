@@ -33,7 +33,7 @@ export const BlockTabs: React.FC<BlockTabsProps> = ({
     } else {
       const savedTab = localStorage.getItem(`block-${id}-tab`);
       // Verify that the tab saved is one of those available
-      const availableTabs = ["info", "loculi", "documenti", "map", "migration"];
+      const availableTabs = ["info", "loculi", "photos", "files", "migration"];
       if (savedTab && availableTabs.includes(savedTab)) {
         setActiveTab(savedTab);
       }
@@ -70,4 +70,4 @@ export const BlockTabs: React.FC<BlockTabsProps> = ({
       </div>
     </Tabs>
   );
-}
+};
