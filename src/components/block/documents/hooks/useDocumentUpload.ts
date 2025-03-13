@@ -84,28 +84,24 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       
       console.log("Public URL obtained:", fileUrl);
       
-      // 4. Save metadata to the database using the Edge Function
-      // This approach bypasses RLS issues by using a Supabase Edge Function with admin privileges
-      console.log("Saving metadata using Edge Function...");
+      // 4. Save metadata directly to the database using normal insert
+      // This matches the approach used in cemetery documents
+      console.log("Saving metadata to database directly...");
       
-      const response = await fetch(`/api/supabase-functions/insert-block-document`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { error: dbError } = await supabase
+        .from('bloccodocumenti')
+        .insert({
           idblocco: numericId,
           nomefile: values.filename,
           descrizione: values.description,
           tipofile: fileExt?.toUpperCase() || 'FILE',
           url: fileUrl,
           datainserimento: new Date().toISOString()
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Errore durante il salvataggio dei metadati: ${errorData.error || 'Errore sconosciuto'}`);
+        });
+      
+      if (dbError) {
+        console.error("Database insert failed:", dbError);
+        throw dbError;
       }
       
       console.log("Upload process completed successfully");
