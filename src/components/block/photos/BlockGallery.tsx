@@ -7,7 +7,6 @@ import PhotoGrid from "./PhotoGrid";
 import ImageLightbox from "@/components/ui/image-lightbox";
 import { cn } from "@/lib/utils";
 import { LightboxImage } from "@/components/ui/image-lightbox/types";
-import { useGalleryLayout } from "@/components/cemetery/photos/galleryUtils";
 
 interface BlockGalleryProps {
   blockId: string;
@@ -27,7 +26,6 @@ const BlockGallery: React.FC<BlockGalleryProps> = ({
   const { photos, loading, refetch, deletePhoto } = useBlockPhotos(blockId);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const { gridClass, aspectClass } = useGalleryLayout(columns, aspect);
 
   // Use refreshKey to trigger refetch when it changes
   useEffect(() => {
@@ -67,23 +65,13 @@ const BlockGallery: React.FC<BlockGalleryProps> = ({
         <GalleryLoading />
       ) : (
         <>
-          <div className={`grid ${gridClass} gap-3`}>
-            {photos.map((photo, index) => (
-              <div 
-                key={photo.Id} 
-                className="group relative cursor-pointer overflow-hidden rounded-md"
-                onClick={() => handlePhotoClick(index)}
-              >
-                <div className={`bg-muted ${aspectClass}`}>
-                  <img 
-                    src={photo.Url} 
-                    alt={photo.Descrizione || `Foto`} 
-                    className="object-cover w-full h-full transition-transform duration-200 group-hover:scale-105" 
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+          <PhotoGrid 
+            photos={photos}
+            loading={loading}
+            columns={columns} 
+            aspect={aspect}
+            onPhotoClick={handlePhotoClick}
+          />
           
           <ImageLightbox 
             images={lightboxImages}
