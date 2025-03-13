@@ -68,7 +68,7 @@ const BlockGallery: React.FC<BlockGalleryProps> = ({
           <PhotoGrid 
             photos={photos}
             loading={loading}
-            columns={columns} 
+            columns={3} 
             aspect={aspect}
             onPhotoClick={handlePhotoClick}
           />
