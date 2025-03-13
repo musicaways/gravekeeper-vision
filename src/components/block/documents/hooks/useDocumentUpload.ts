@@ -85,10 +85,10 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       console.log("Public URL obtained:", fileUrl);
       
       // 4. Save metadata to the database using the Edge Function
-      // This approccio bypasses RLS issues by using a Supabase Edge Function with admin privileges
+      // This approach bypasses RLS issues by using a Supabase Edge Function with admin privileges
       console.log("Saving metadata using Edge Function...");
       
-      const response = await fetch(`${window.location.origin}/api/supabase-functions/insert-block-document`, {
+      const response = await fetch(`/api/supabase-functions/insert-block-document`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

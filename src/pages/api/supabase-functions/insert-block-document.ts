@@ -1,21 +1,44 @@
 
-import { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "@/integrations/supabase/client";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+// Define types to replace Next.js types
+interface RequestData {
+  idblocco: number;
+  nomefile: string;
+  descrizione?: string;
+  tipofile?: string;
+  url: string;
+  datainserimento: string;
+}
+
+interface Request {
+  method: string;
+  body: string | null;
+}
+
+interface Response {
+  status: (code: number) => Response;
+  json: (data: any) => void;
+}
+
+export default async function handler(req: Request, res: Response) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Ottieni il token dell'utente dalla richiesta
-    const { user } = await supabase.auth.getUser();
+    // Get the user session
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     
-    if (!user) {
+    if (sessionError || !sessionData.session?.user) {
+      console.error("Authentication error:", sessionError);
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
-    // Chiama l'Edge Function di Supabase
+    // Parse request body
+    const requestBody: RequestData = req.body ? JSON.parse(req.body) : {};
+    
+    // Call the Supabase Edge Function
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/insert-block-document`,
       {
@@ -24,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
-        body: JSON.stringify(req.body),
+        body: JSON.stringify(requestBody),
       }
     );
     
