@@ -42,9 +42,6 @@ const BlockInfoDisplay: React.FC<BlockInfoDisplayProps> = ({ block, onEditClick,
       
       <Separator className="my-3" />
       
-      {/* Sezione mappa */}
-      <BlockMapSection block={block} />
-      
       {/* Descrizione */}
       {hasDescription && (
         <BlockTextSection title="Descrizione" content={decodeText(block.Descrizione)} />
@@ -60,6 +57,11 @@ const BlockInfoDisplay: React.FC<BlockInfoDisplayProps> = ({ block, onEditClick,
       
       {/* Info sui servizi */}
       <BlockServicesInfo block={block} />
+      
+      {/* Sezione mappa - spostata in fondo */}
+      {block.Latitudine && block.Longitudine && (
+        <BlockMapSection block={block} />
+      )}
     </div>
   );
 };

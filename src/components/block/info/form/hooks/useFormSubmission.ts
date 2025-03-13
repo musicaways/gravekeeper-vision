@@ -26,11 +26,20 @@ export const useFormSubmission = ({ block, onSuccess }: UseFormSubmissionProps) 
       let coverImageUrl = block.FotoCopertina;
       
       if (data.coverImage instanceof File) {
-        const { uploadBlockCoverImage } = await import("../../utils/coverImageUtils");
-        const newImageUrl = await uploadBlockCoverImage(block.Id, data.coverImage);
-        if (newImageUrl) {
-          coverImageUrl = newImageUrl;
-        } else {
+        try {
+          const { uploadBlockCoverImage } = await import("../../utils/coverImageUtils");
+          const newImageUrl = await uploadBlockCoverImage(block.Id, data.coverImage);
+          if (newImageUrl) {
+            coverImageUrl = newImageUrl;
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Errore",
+              description: "Impossibile caricare l'immagine di copertina. Le altre informazioni verranno aggiornate."
+            });
+          }
+        } catch (error) {
+          console.error("Error uploading cover image:", error);
           toast({
             variant: "destructive",
             title: "Errore",
@@ -42,11 +51,15 @@ export const useFormSubmission = ({ block, onSuccess }: UseFormSubmissionProps) 
       // Add the cover image URL to the form data
       const dataToSave = {
         ...data,
-        FotoCopertina: coverImageUrl
+        FotoCopertina: coverImageUrl,
+        // Assicurati che la data sia null se è vuota
+        DataCreazione: data.DataCreazione ? data.DataCreazione : null
       };
       
       // Remove the File object as it can't be sent to the API
       delete dataToSave.coverImage;
+      
+      console.log("Form data to submit:", dataToSave);
       
       const success = await submitBlockForm(dataToSave);
       if (success) {

@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useGoogleMapsApi } from "@/hooks/useGoogleMapsApi";
-import BlockMapImage from "./components/BlockMapImage";
+import { Loader2 } from "lucide-react";
 import BlockMapEmpty from "./components/BlockMapEmpty";
 
 interface BlockMapDisplayProps {
@@ -9,38 +9,77 @@ interface BlockMapDisplayProps {
 }
 
 const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
-  const { isLoaded, isError, loadingError } = useGoogleMapsApi();
-  const [mapUrl, setMapUrl] = useState<string | null>(null);
-  const [showFallback, setShowFallback] = useState(false);
+  const { isLoaded, isError } = useGoogleMapsApi();
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<google.maps.Map | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
   
   useEffect(() => {
-    if (isLoaded && block.Latitudine && block.Longitudine) {
-      const zoom = 18;
-      const size = "600x400";
-      const scale = 2; // Retina display
-      const lat = block.Latitudine;
-      const lng = block.Longitudine;
+    if (!isLoaded || !mapRef.current || !block.Latitudine || !block.Longitudine) return;
+    
+    try {
+      // Inizializza la mappa
+      const mapOptions: google.maps.MapOptions = {
+        center: { lat: parseFloat(block.Latitudine), lng: parseFloat(block.Longitudine) },
+        zoom: 18,
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+          position: google.maps.ControlPosition.TOP_RIGHT,
+        },
+        streetViewControl: false,
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_TOP,
+        },
+        zoomControl: true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_CENTER,
+        },
+        gestureHandling: "greedy", // Per consentire lo zoom con un dito su mobile
+      };
       
-      // Create Google Maps Static API URL with marker
-      const googleMapsApiKey = localStorage.getItem('googleMapsApiKey') || process.env.VITE_GOOGLE_MAPS_API_KEY;
-      setMapUrl(`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=${size}&scale=${scale}&markers=color:blue%7C${lat},${lng}&key=${googleMapsApiKey}`);
+      mapInstance.current = new google.maps.Map(mapRef.current, mapOptions);
+      
+      // Aggiungi il marker
+      markerRef.current = new google.maps.Marker({
+        position: { 
+          lat: parseFloat(block.Latitudine), 
+          lng: parseFloat(block.Longitudine) 
+        },
+        map: mapInstance.current,
+        title: block.Nome || "Blocco",
+        animation: google.maps.Animation.DROP,
+      });
+      
+      setMapLoaded(true);
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      setShowError(true);
     }
-  }, [isLoaded, block]);
+  }, [isLoaded, block.Latitudine, block.Longitudine, block.Nome]);
   
-  const handleMapError = () => {
-    console.error("Failed to load Google Maps image");
-    setShowFallback(true);
-  };
-  
-  if (isError || showFallback || !block.Latitudine || !block.Longitudine) {
+  if (isError || showError || !block.Latitudine || !block.Longitudine) {
     return <BlockMapEmpty />;
   }
   
-  if (!mapUrl) {
-    return <div className="h-[400px] flex items-center justify-center">Caricamento della mappa...</div>;
-  }
-  
-  return <BlockMapImage mapUrl={mapUrl} onError={handleMapError} />;
+  return (
+    <div className="rounded-md overflow-hidden border border-border bg-gradient-to-b from-sky-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 h-[400px] relative">
+      <div
+        ref={mapRef}
+        className="w-full h-full"
+        style={{ touchAction: 'pan-x pan-y', willChange: 'transform' }}
+      />
+      {!mapLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default BlockMapDisplay;
