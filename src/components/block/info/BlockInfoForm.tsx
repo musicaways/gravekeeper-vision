@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -27,6 +27,7 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
     blockId: block.Id,
     onSuccess: onSave
   });
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
   
   // Inizializzazione del form con i valori convertiti correttamente
   const form = useForm<BlockFormData>({
@@ -37,13 +38,62 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
       Descrizione: block.Descrizione || "",
       Note: block.Note || "",
       Indirizzo: block.Indirizzo || "",
-      NumeroLoculi: block.NumeroLoculi || null,
-      NumeroFile: block.NumeroFile || null,
-      Latitudine: block.Latitudine || null,
-      Longitudine: block.Longitudine || null,
+      NumeroLoculi: block.NumeroLoculi !== null ? String(block.NumeroLoculi) : "",
+      NumeroFile: block.NumeroFile !== null ? String(block.NumeroFile) : "",
+      Latitudine: block.Latitudine !== null ? String(block.Latitudine) : "",
+      Longitudine: block.Longitudine !== null ? String(block.Longitudine) : "",
       DataCreazione: block.DataCreazione || "",
     }
   });
+
+  const getGPSCoordinates = () => {
+    if (!navigator.geolocation) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: "La geolocalizzazione non è supportata da questo browser."
+      });
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // Success - Update form with coordinates
+        form.setValue('Latitudine', position.coords.latitude.toString());
+        form.setValue('Longitudine', position.coords.longitude.toString());
+        setIsGettingLocation(false);
+        
+        toast({
+          title: "Posizione acquisita",
+          description: "Le coordinate GPS sono state aggiornate con successo."
+        });
+      },
+      (error) => {
+        // Error
+        setIsGettingLocation(false);
+        let errorMessage = "Impossibile ottenere la posizione";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Permesso di geolocalizzazione negato.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Informazioni sulla posizione non disponibili.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Richiesta di posizione scaduta.";
+            break;
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Errore di geolocalizzazione",
+          description: errorMessage
+        });
+      }
+    );
+  };
 
   const onSubmit = async (data: BlockFormData) => {
     console.log("Form data submitted:", data);
@@ -80,7 +130,12 @@ const BlockInfoForm: React.FC<BlockInfoFormProps> = ({ block, onSave, onCancel }
             <NumericInfoSection control={form.control} />
             
             {/* Posizione */}
-            <LocationSection control={form.control} />
+            <LocationSection 
+              control={form.control} 
+              isGettingLocation={isGettingLocation}
+              getGPSCoordinates={getGPSCoordinates}
+              onOpenMapSelector={() => {}}
+            />
           </CardContent>
 
           <CardFooter className="bg-muted/50 px-4 md:px-6 py-4 flex justify-between">

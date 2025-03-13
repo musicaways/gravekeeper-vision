@@ -8,16 +8,16 @@ import { MapPin, Map } from "lucide-react";
 
 interface LocationSectionProps {
   control: Control<any>;
-  isGettingLocation: boolean;
-  getGPSCoordinates: () => void;
-  onOpenMapSelector: () => void;
+  isGettingLocation?: boolean;
+  getGPSCoordinates?: () => void;
+  onOpenMapSelector?: () => void;
 }
 
 const LocationSection: React.FC<LocationSectionProps> = ({ 
   control,
-  isGettingLocation,
-  getGPSCoordinates,
-  onOpenMapSelector
+  isGettingLocation = false,
+  getGPSCoordinates = () => {},
+  onOpenMapSelector = () => {}
 }) => {
   return (
     <div className="space-y-4">

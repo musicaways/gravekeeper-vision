@@ -45,7 +45,7 @@ export function useMapSelector({
         url: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
         scaledSize: new window.google.maps.Size(32, 32),
       },
-      title: "Posizione del blocco"
+      title: "Posizione del cimitero"
     });
     
     // Add drag event to the marker

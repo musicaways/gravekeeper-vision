@@ -19,12 +19,18 @@ export const useBlockFormSubmit = ({ blockId, onSuccess }: UseBlockFormSubmitPro
       console.log("Form data to submit:", data);
 
       // Assicuriamoci che i valori numerici siano corretti per Supabase
+      // The transformation should already be handled by the zod schema
+      // but we'll ensure it here as well for data safety
       const formattedData = {
         ...data,
-        NumeroLoculi: data.NumeroLoculi === null ? null : Number(data.NumeroLoculi),
-        NumeroFile: data.NumeroFile === null ? null : Number(data.NumeroFile),
-        Latitudine: data.Latitudine === null ? null : Number(data.Latitudine),
-        Longitudine: data.Longitudine === null ? null : Number(data.Longitudine),
+        NumeroLoculi: data.NumeroLoculi === null || data.NumeroLoculi === undefined ? null : 
+          typeof data.NumeroLoculi === 'string' ? Number(data.NumeroLoculi) : data.NumeroLoculi,
+        NumeroFile: data.NumeroFile === null || data.NumeroFile === undefined ? null : 
+          typeof data.NumeroFile === 'string' ? Number(data.NumeroFile) : data.NumeroFile,
+        Latitudine: data.Latitudine === null || data.Latitudine === undefined ? null : 
+          typeof data.Latitudine === 'string' ? Number(data.Latitudine) : data.Latitudine,
+        Longitudine: data.Longitudine === null || data.Longitudine === undefined ? null : 
+          typeof data.Longitudine === 'string' ? Number(data.Longitudine) : data.Longitudine,
       };
 
       console.log("Formatted data for Supabase:", formattedData);
