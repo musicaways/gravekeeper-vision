@@ -11,7 +11,7 @@ interface PhotoGalleryCardProps {
 const PhotoGalleryCard: React.FC<PhotoGalleryCardProps> = ({ blockId, refreshKey }) => {
   return (
     <Card className="shadow-md w-full">
-      <CardContent className="px-4 py-2">
+      <CardContent className="p-2 sm:p-3">
         <BlockGallery 
           blockId={blockId} 
           columns={3} 

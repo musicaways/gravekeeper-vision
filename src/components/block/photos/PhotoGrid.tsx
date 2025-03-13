@@ -21,8 +21,8 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   aspect,
   onPhotoClick 
 }) => {
-  // Always use columns = 3 for block gallery to match cemetery gallery
-  const { gridClass, aspectClass } = useGalleryLayout(3, aspect);
+  // Get the grid and aspect classes
+  const { gridClass, aspectClass } = useGalleryLayout(columns, aspect);
 
   if (loading) {
     return <GalleryLoading />;
@@ -33,7 +33,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className={`grid ${gridClass} gap-2`}>
       {photos.map((photo, index) => (
         <PhotoItem 
           key={photo.Id} 
