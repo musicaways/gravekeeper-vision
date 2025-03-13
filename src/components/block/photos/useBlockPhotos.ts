@@ -47,7 +47,10 @@ export const useBlockPhotos = (blockId: string) => {
       }
       
       // If table doesn't exist yet, just return empty photos array
-      const exists = Array.isArray(tableExists) && tableExists.length > 0 ? tableExists[0].exists : false;
+      const exists = tableExists !== null && Array.isArray(tableExists) && tableExists.length > 0 
+        ? tableExists[0]?.exists === true 
+        : false;
+        
       if (!exists) {
         console.log("blocco_foto table doesn't exist yet");
         setPhotos([]);

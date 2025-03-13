@@ -18,7 +18,10 @@ export const ensureBlockPhotoTableExists = async (): Promise<boolean> => {
     
     if (error) throw error;
     
-    const exists = Array.isArray(data) && data.length > 0 ? data[0].exists : false;
+    // Safely check the existence value with proper null checks
+    const exists = data !== null && Array.isArray(data) && data.length > 0 
+      ? data[0]?.exists === true 
+      : false;
     
     // If table already exists, we're good
     if (exists) {
