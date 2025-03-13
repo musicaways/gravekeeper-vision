@@ -7,14 +7,14 @@ export const useDocumentDownload = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
 
-  const handleDownload = async (document: DocumentItemType) => {
+  const handleDownload = async (documentItem: DocumentItemType) => {
     try {
       setIsDownloading(true);
 
-      console.log("Starting download for document:", document.name);
+      console.log("Starting download for document:", documentItem.name);
       
       // Attempt to fetch the file
-      const response = await fetch(document.url);
+      const response = await fetch(documentItem.url);
       
       if (!response.ok) {
         throw new Error(`Failed to download: ${response.statusText}`);
@@ -29,7 +29,7 @@ export const useDocumentDownload = () => {
       // Create a temporary link element to trigger the download
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = document.name;
+      link.download = documentItem.name;
       
       // Append the link to the body
       document.body.appendChild(link);
@@ -45,7 +45,7 @@ export const useDocumentDownload = () => {
       
       toast({
         title: "File scaricato",
-        description: `${document.name} è stato scaricato con successo`
+        description: `${documentItem.name} è stato scaricato con successo`
       });
     } catch (error) {
       console.error("Error during download:", error);
