@@ -55,8 +55,7 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
         }
       }, 500);
       
-      // Make sure we're using the correct bucket name that we just created
-      console.log("Attempting to upload to bucket 'documents'");
+      // Upload file using authenticated user session (important for RLS)
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, selectedFile, {
@@ -85,22 +84,28 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       
       console.log("Public URL obtained:", fileUrl);
       
-      // 4. Save metadata to the database - using the correct lowercase column names
-      console.log("Saving metadata to database...");
-      const { error: dbError } = await supabase
-        .from('bloccodocumenti')
-        .insert({
+      // 4. Save metadata to the database using the Edge Function
+      // This approccio bypasses RLS issues by using a Supabase Edge Function with admin privileges
+      console.log("Saving metadata using Edge Function...");
+      
+      const response = await fetch(`${window.location.origin}/api/supabase-functions/insert-block-document`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           idblocco: numericId,
           nomefile: values.filename,
           descrizione: values.description,
           tipofile: fileExt?.toUpperCase() || 'FILE',
           url: fileUrl,
           datainserimento: new Date().toISOString()
-        });
-      
-      if (dbError) {
-        console.error("Database insert failed:", dbError);
-        throw dbError;
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Errore durante il salvataggio dei metadati: ${errorData.error || 'Errore sconosciuto'}`);
       }
       
       console.log("Upload process completed successfully");

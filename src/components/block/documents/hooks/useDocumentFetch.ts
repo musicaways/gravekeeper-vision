@@ -26,6 +26,9 @@ export const useDocumentFetch = (blockId: string) => {
       }
 
       console.log("Fetching documents for block:", numericId);
+      
+      // Utilizziamo l'API di Supabase direttamente per evitare problemi di RLS
+      // Se l'utente è autenticato, questa query dovrebbe funzionare
       const { data, error } = await supabase
         .from('bloccodocumenti')
         .select('*')
