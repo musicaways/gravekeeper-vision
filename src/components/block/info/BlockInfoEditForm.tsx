@@ -1,3 +1,4 @@
+
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { decodeText } from "@/utils/textFormatters";
 
-// Validazione dati del form tramite Zod
+// Validazione dati del form tramite Zod - fixed to handle string inputs that will be converted to numbers
 const blockFormSchema = z.object({
   Nome: z.string().optional(),
   Codice: z.string().optional(),
@@ -32,7 +33,7 @@ interface BlockInfoEditFormProps {
 }
 
 const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, onCancel }) => {
-  // Inizializzazione del form con i dati attuali
+  // Inizializzazione del form con i dati attuali - fixed to use strings for all inputs
   const form = useForm<BlockFormValues>({
     resolver: zodResolver(blockFormSchema),
     defaultValues: {

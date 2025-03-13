@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ScrollText } from "lucide-react";
 
 interface BlockTextSectionProps {
   title: string;
@@ -13,21 +14,23 @@ const BlockTextSection: React.FC<BlockTextSectionProps> = ({ title, content }) =
   const formatMultilineText = (text: string) => {
     if (!text) return null;
     return text.split('\n').map((line, i) => (
-      <p key={i} className="text-sm md:text-base text-muted-foreground mb-1">
+      <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-2 last:mb-0">
         {line || <br />}
       </p>
     ));
   };
 
   return (
-    <Card className="w-full shadow-sm rounded-lg bg-card">
-      <CardContent className="p-6">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">{title}</h3>
-        <div className="rounded-md">
-          {formatMultilineText(content)}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="w-full">
+      <div className="flex items-center mb-3">
+        <ScrollText className="h-5 w-5 text-primary mr-2.5" />
+        <h3 className="text-base font-medium text-foreground">{title}</h3>
+      </div>
+      <div className="pl-7 pr-1 mb-4">
+        {formatMultilineText(content)}
+      </div>
+      <Separator className="mb-4" />
+    </div>
   );
 };
 

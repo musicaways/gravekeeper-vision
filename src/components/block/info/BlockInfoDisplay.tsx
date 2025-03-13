@@ -17,8 +17,8 @@ const BlockInfoDisplay: React.FC<BlockInfoDisplayProps> = ({ block, onEditClick 
   const canEdit = !!user;
 
   return (
-    <div className="w-full shadow-sm relative mx-auto">
-      <div className="space-y-1">
+    <div className="w-full relative mx-auto">
+      <div className="space-y-4">
         <BlockTextSection title="Descrizione" content={block.Descrizione} />
         <BlockTextSection title="Note" content={block.Note} />
         
