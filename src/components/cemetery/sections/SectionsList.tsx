@@ -16,7 +16,7 @@ interface SectionsListProps {
 export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, error }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-1 w-full max-w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-[1.2px] w-full max-w-full">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="border rounded-md p-4">
             <Skeleton className="h-5 w-3/4 mb-2" />
@@ -30,7 +30,7 @@ export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, e
 
   if (error) {
     return (
-      <Alert variant="destructive" className="mx-1 w-full">
+      <Alert variant="destructive" className="mx-[1.2px] w-full">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>{error}</AlertDescription>
       </Alert>
@@ -39,14 +39,14 @@ export const SectionsList: React.FC<SectionsListProps> = ({ sections, loading, e
 
   if (sections.length === 0) {
     return (
-      <div className="text-center py-10 px-1 w-full">
+      <div className="text-center py-10 px-[1.2px] w-full">
         <p className="text-muted-foreground">Nessun settore disponibile per questo cimitero</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-1 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-[1.2px] w-full">
       {sections.map((section) => (
         <div key={section.Id} className="border rounded-md hover:bg-accent/5 transition-colors">
           <div className="bg-primary/10 px-3 py-2 rounded-t-md border-b">
