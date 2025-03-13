@@ -6,7 +6,6 @@ import { BlockFormData } from "../../types/blockFormTypes";
 
 export const useLocationHandlers = (form: UseFormReturn<BlockFormData>) => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const [showMapSelector, setShowMapSelector] = useState(false);
   const { toast } = useToast();
 
   const getGPSCoordinates = () => {
@@ -58,29 +57,8 @@ export const useLocationHandlers = (form: UseFormReturn<BlockFormData>) => {
     );
   };
 
-  const handleMapLocationSelect = (lat: number, lng: number) => {
-    form.setValue('Latitudine', lat.toString(), { shouldValidate: true });
-    form.setValue('Longitudine', lng.toString(), { shouldValidate: true });
-    setShowMapSelector(false);
-  };
-
-  // Get initial coordinates for the map
-  const getInitialCoordinates = () => {
-    const latValue = form.getValues('Latitudine');
-    const lngValue = form.getValues('Longitudine');
-    
-    return {
-      lat: latValue ? parseFloat(latValue) : undefined,
-      lng: lngValue ? parseFloat(lngValue) : undefined
-    };
-  };
-
   return {
     isGettingLocation,
-    showMapSelector,
-    setShowMapSelector,
-    getGPSCoordinates,
-    handleMapLocationSelect,
-    getInitialCoordinates
+    getGPSCoordinates
   };
 };

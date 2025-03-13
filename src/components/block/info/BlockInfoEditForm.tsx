@@ -2,7 +2,6 @@
 import React from "react";
 import { FormProvider } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import MapSelectorDialog from "./form/map-selector/MapSelectorDialog";
 import CoverImageSection from "./form/sections/CoverImageSection";
 import { 
   BasicInfoSection,
@@ -29,11 +28,7 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
   // Location-related handlers
   const {
     isGettingLocation,
-    showMapSelector,
-    setShowMapSelector,
-    getGPSCoordinates,
-    handleMapLocationSelect,
-    getInitialCoordinates
+    getGPSCoordinates
   } = useLocationHandlers(form);
   
   // Form submission logic
@@ -41,8 +36,6 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
     block,
     onSuccess: onSave
   });
-
-  const { lat: initialLat, lng: initialLng } = getInitialCoordinates();
 
   return (
     <div className="w-full mb-6">
@@ -76,7 +69,6 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
               control={form.control}
               isGettingLocation={isGettingLocation}
               getGPSCoordinates={getGPSCoordinates}
-              onOpenMapSelector={() => setShowMapSelector(true)}
             />
             
             <NumericInfoSection control={form.control} />
@@ -89,14 +81,6 @@ const BlockInfoEditForm: React.FC<BlockInfoEditFormProps> = ({ block, onSave, on
           </form>
         </Form>
       </FormProvider>
-      
-      <MapSelectorDialog
-        isOpen={showMapSelector}
-        onOpenChange={setShowMapSelector}
-        onSelectLocation={handleMapLocationSelect}
-        initialLat={initialLat}
-        initialLng={initialLng}
-      />
     </div>
   );
 };

@@ -1,10 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { MapPin, Map } from "lucide-react";
+import MapSelectorDialog from "../map-selector/MapSelectorDialog";
+import { useFormContext } from "react-hook-form";
 
 interface LocationSectionProps {
   control: Control<any>;
@@ -17,8 +19,33 @@ const LocationSection: React.FC<LocationSectionProps> = ({
   control,
   isGettingLocation = false,
   getGPSCoordinates = () => {},
-  onOpenMapSelector = () => {}
+  onOpenMapSelector
 }) => {
+  const [showMapSelector, setShowMapSelector] = useState(false);
+  const form = useFormContext();
+  
+  // Get current lat/lng values from the form to pass to the map selector
+  const getInitialCoordinates = () => {
+    const latValue = form.getValues('Latitudine');
+    const lngValue = form.getValues('Longitudine');
+    
+    return {
+      lat: latValue ? parseFloat(latValue) : undefined,
+      lng: lngValue ? parseFloat(lngValue) : undefined
+    };
+  };
+  
+  const handleMapLocationSelect = (lat: number, lng: number) => {
+    form.setValue('Latitudine', lat.toString(), { shouldValidate: true });
+    form.setValue('Longitudine', lng.toString(), { shouldValidate: true });
+    setShowMapSelector(false);
+  };
+  
+  // Get initial coordinates for the map
+  const { lat: initialLat, lng: initialLng } = getInitialCoordinates();
+  
+  const handleOpenMapSelector = onOpenMapSelector || (() => setShowMapSelector(true));
+  
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Posizione</h3>
@@ -80,7 +107,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={onOpenMapSelector}
+                  onClick={handleOpenMapSelector}
                   className="h-10 w-10 flex-shrink-0"
                   title="Seleziona sulla mappa"
                 >
@@ -111,6 +138,16 @@ const LocationSection: React.FC<LocationSectionProps> = ({
           </FormItem>
         )}
       />
+      
+      {!onOpenMapSelector && (
+        <MapSelectorDialog 
+          isOpen={showMapSelector} 
+          onOpenChange={setShowMapSelector}
+          onSelectLocation={handleMapLocationSelect}
+          initialLat={initialLat}
+          initialLng={initialLng}
+        />
+      )}
     </div>
   );
 };
