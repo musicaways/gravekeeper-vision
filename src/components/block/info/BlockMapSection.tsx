@@ -42,7 +42,7 @@ const BlockMapSection: React.FC<BlockMapSectionProps> = ({ block }) => {
       {showMap && <BlockMapDisplay block={block} />}
       
       {showMap && (
-        <div className="mt-3 flex justify-center">
+        <div className="mt-3 flex justify-start">
           <Button
             variant="outline"
             size="sm"

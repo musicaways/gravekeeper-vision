@@ -91,7 +91,7 @@ const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
   }
   
   return (
-    <div className="rounded-md overflow-hidden border border-border bg-gradient-to-b from-sky-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 h-[400px] relative">
+    <div className="rounded-md overflow-hidden border border-border bg-gradient-to-b from-sky-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 h-[400px] relative z-0">
       <div
         ref={mapRef}
         className="w-full h-full"
