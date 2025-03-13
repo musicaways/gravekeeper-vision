@@ -26,23 +26,25 @@ const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
         zoom: 18,
         mapTypeId: google.maps.MapTypeId.HYBRID,
         mapTypeControl: true,
-        mapTypeControlOptions: {
-          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-          position: google.maps.ControlPosition.TOP_RIGHT,
-        },
         streetViewControl: false,
         fullscreenControl: true,
-        fullscreenControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_TOP,
-        },
         zoomControl: true,
-        zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_CENTER,
-        },
         gestureHandling: "greedy", // Per consentire lo zoom con un dito su mobile
       };
       
       mapInstance.current = new google.maps.Map(mapRef.current, mapOptions);
+      
+      // Configura le opzioni di controllo del tipo di mappa dopo l'inizializzazione
+      if (mapInstance.current) {
+        mapInstance.current.setOptions({
+          zoomControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_CENTER,
+          },
+          fullscreenControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_TOP,
+          }
+        });
+      }
       
       // Aggiungi il marker
       markerRef.current = new google.maps.Marker({
