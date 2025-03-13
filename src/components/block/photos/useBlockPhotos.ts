@@ -46,7 +46,7 @@ export const useBlockPhotos = (blockId: string) => {
       } else {
         // Since execute_sql doesn't return the actual data directly, we need to parse the results
         // The results will be in the first element of the data array if successful
-        const photosData = Array.isArray(data) && data.length > 0 ? data : [];
+        const photosData = data !== null && Array.isArray(data) && data.length > 0 ? data : [];
         setPhotos(photosData as unknown as BlockPhoto[]);
         setError(null);
       }
@@ -71,12 +71,20 @@ export const useBlockPhotos = (blockId: string) => {
           sql: `SELECT "Url" FROM public.blocco_foto WHERE "Id" = '${photoId}'`
         });
       
-      if (photoError || !data || !Array.isArray(data) || data.length === 0) {
+      // Check if data exists and has the expected structure
+      if (photoError || !data) {
         throw photoError || new Error("Photo not found");
       }
       
-      // Extract the URL from the result
-      const photoUrl = data[0]?.Url;
+      // Safely access the data array
+      const resultArray = Array.isArray(data) ? data : [];
+      if (resultArray.length === 0) {
+        throw new Error("Photo not found");
+      }
+      
+      // Extract the URL from the result (type assertion to any to access properties)
+      const firstResult = resultArray[0] as any;
+      const photoUrl = firstResult?.Url;
       if (!photoUrl) {
         throw new Error("URL not found for photo");
       }
