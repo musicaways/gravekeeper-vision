@@ -11,14 +11,19 @@ import { compressImage } from "../../photos/utils/imageCompression";
  */
 export const uploadBlockCoverImage = async (blockId: number | string, file: File): Promise<string | null> => {
   try {
+    console.log(`Starting cover image upload for block ${blockId}`);
+
     // First compress the image to reduce size
     const compressedImage = await compressImage(file);
+    console.log("Image compressed successfully");
     
     // Generate a unique filename
     const fileExt = file.name.split('.').pop();
     const fileName = `cover-${blockId}-${Date.now()}.${fileExt}`;
     
-    // Upload to block-covers bucket (will be created if it doesn't exist)
+    console.log(`Uploading to block-covers bucket with filename: ${fileName}`);
+    
+    // Upload to block-covers bucket (bucket should exist now)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('block-covers')
       .upload(fileName, compressedImage, {
@@ -31,10 +36,14 @@ export const uploadBlockCoverImage = async (blockId: number | string, file: File
       return null;
     }
     
+    console.log("Image uploaded successfully, getting public URL");
+    
     // Get public URL
     const { data: publicUrlData } = supabase.storage
       .from('block-covers')
       .getPublicUrl(fileName);
+    
+    console.log("Public URL obtained:", publicUrlData.publicUrl);
     
     return publicUrlData.publicUrl;
   } catch (error) {

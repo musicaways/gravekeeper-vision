@@ -3,6 +3,7 @@ import { useState } from "react";
 import { BlockFormData } from "../../types/blockFormTypes";
 import { useBlockFormSubmit } from "../../hooks/useBlockFormSubmit";
 import { useToast } from "@/hooks/use-toast";
+import { uploadBlockCoverImage } from "../../utils/coverImageUtils";
 
 interface UseFormSubmissionProps {
   block: any;
@@ -26,26 +27,22 @@ export const useFormSubmission = ({ block, onSuccess }: UseFormSubmissionProps) 
       let coverImageUrl = block.FotoCopertina;
       
       if (data.coverImage instanceof File) {
-        try {
-          const { uploadBlockCoverImage } = await import("../../utils/coverImageUtils");
-          const newImageUrl = await uploadBlockCoverImage(block.Id, data.coverImage);
-          if (newImageUrl) {
-            coverImageUrl = newImageUrl;
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Errore",
-              description: "Impossibile caricare l'immagine di copertina. Le altre informazioni verranno aggiornate."
-            });
-          }
-        } catch (error) {
-          console.error("Error uploading cover image:", error);
+        console.log("New cover image detected, starting upload...");
+        const newImageUrl = await uploadBlockCoverImage(block.Id, data.coverImage);
+        
+        if (newImageUrl) {
+          console.log("Cover image uploaded successfully:", newImageUrl);
+          coverImageUrl = newImageUrl;
+        } else {
+          console.error("Failed to upload cover image");
           toast({
             variant: "destructive",
             title: "Errore",
             description: "Impossibile caricare l'immagine di copertina. Le altre informazioni verranno aggiornate."
           });
         }
+      } else {
+        console.log("No new cover image to upload, keeping existing image:", coverImageUrl);
       }
       
       // Add the cover image URL to the form data
@@ -63,6 +60,7 @@ export const useFormSubmission = ({ block, onSuccess }: UseFormSubmissionProps) 
       
       const success = await submitBlockForm(dataToSave);
       if (success) {
+        console.log("Form data saved successfully");
         onSuccess(dataToSave);
       }
     } catch (error: any) {
