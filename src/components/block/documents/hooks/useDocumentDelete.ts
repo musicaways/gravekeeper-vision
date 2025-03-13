@@ -33,9 +33,9 @@ export const useDocumentDelete = ({ blockId, onSuccess }: UseDocumentDeleteOptio
       
       // 1. Delete from database
       const { error: dbError } = await supabase
-        .from('BloccoDocumenti')
+        .from('bloccodocumenti')
         .delete()
-        .eq('Id', documentId);
+        .eq('id', documentId);
       
       if (dbError) {
         console.error("Error deleting from database:", dbError);

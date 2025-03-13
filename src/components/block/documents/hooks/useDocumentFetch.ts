@@ -26,10 +26,10 @@ export const useDocumentFetch = (blockId: string) => {
       }
 
       const { data, error } = await supabase
-        .from('BloccoDocumenti')
+        .from('bloccodocumenti')
         .select('*')
-        .eq('IdBlocco', numericId)
-        .order('DataInserimento', { ascending: false });
+        .eq('idblocco', numericId)
+        .order('datainserimento', { ascending: false });
         
       if (error) {
         console.error("Errore nel caricamento dei documenti:", error);
@@ -43,22 +43,22 @@ export const useDocumentFetch = (blockId: string) => {
         // Transform the data to match our DocumentItem interface
         const formattedDocuments = data.map(doc => {
           // Extract file extension for type
-          const fileExtension = doc.TipoFile || doc.NomeFile.split('.').pop()?.toUpperCase() || 'FILE';
+          const fileExtension = doc.tipofile || doc.nomefile.split('.').pop()?.toUpperCase() || 'FILE';
           
           // Format date
-          const date = doc.DataInserimento 
-            ? new Date(doc.DataInserimento).toLocaleDateString('it-IT') 
+          const date = doc.datainserimento 
+            ? new Date(doc.datainserimento).toLocaleDateString('it-IT') 
             : 'Data non disponibile';
           
           return {
-            id: doc.Id,
-            name: doc.NomeFile,
-            description: doc.Descrizione || '',
+            id: doc.id,
+            name: doc.nomefile,
+            description: doc.descrizione || '',
             type: fileExtension,
             // We don't have size information from the database
             size: 'N/A',
             date: date,
-            url: doc.Url
+            url: doc.url
           };
         });
         

@@ -87,14 +87,14 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       // 4. Save metadata to the database
       console.log("Saving metadata to database...");
       const { error: dbError } = await supabase
-        .from('BloccoDocumenti')
+        .from('bloccodocumenti')
         .insert({
-          IdBlocco: numericId,
-          NomeFile: values.filename,
-          Descrizione: values.description,
-          TipoFile: fileExt?.toUpperCase() || 'FILE',
-          Url: fileUrl,
-          DataInserimento: new Date().toISOString()
+          idblocco: numericId,
+          nomefile: values.filename,
+          descrizione: values.description,
+          tipofile: fileExt?.toUpperCase() || 'FILE',
+          url: fileUrl,
+          datainserimento: new Date().toISOString()
         });
       
       if (dbError) {

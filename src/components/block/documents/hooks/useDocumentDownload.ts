@@ -4,56 +4,60 @@ import { useToast } from "@/hooks/use-toast";
 import { DocumentItemType } from "@/components/cemetery/documents/types";
 
 export const useDocumentDownload = () => {
-  const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
+  const { toast } = useToast();
 
-  const handleDownload = async (documentItem: DocumentItemType) => {
+  const handleDownload = async (document: DocumentItemType) => {
     try {
       setIsDownloading(true);
+
+      console.log("Starting download for document:", document.name);
       
-      // For PDFs and some document types, just opening might be better
-      if (documentItem.type?.toLowerCase() === 'pdf') {
-        window.open(documentItem.url, '_blank');
-        
-        toast({
-          title: "PDF aperto",
-          description: `Il file "${documentItem.name}" si aprirà in una nuova scheda.`,
-        });
-      } else {
-        // For other files, use the fetch and download approach
-        const response = await fetch(documentItem.url);
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = downloadUrl;
-        a.download = documentItem.name || 'document';
-        document.body.appendChild(a);
-        a.click();
-        
-        // Clean up
-        window.URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
-        
-        toast({
-          title: "Download avviato",
-          description: `Il file "${documentItem.name}" è stato scaricato.`,
-        });
+      // Attempt to fetch the file
+      const response = await fetch(document.url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to download: ${response.statusText}`);
       }
-    } catch (error) {
-      console.error("Download error:", error);
+      
+      // Get the file as a blob
+      const blob = await response.blob();
+      
+      // Create a URL for the blob
+      const downloadUrl = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element to trigger the download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = document.name;
+      
+      // Append the link to the body
+      document.body.appendChild(link);
+      
+      // Trigger the download
+      link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(link);
+      
+      console.log("Document download completed successfully");
+      
       toast({
-        variant: "destructive",
-        title: "Errore di download",
-        description: "Non è stato possibile scaricare il documento. Riprova più tardi.",
+        title: "File scaricato",
+        description: `${document.name} è stato scaricato con successo`
+      });
+    } catch (error) {
+      console.error("Error during download:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il download del file",
+        variant: "destructive"
       });
     } finally {
       setIsDownloading(false);
     }
   };
 
-  return { handleDownload, isDownloading };
+  return { isDownloading, handleDownload };
 };
