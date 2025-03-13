@@ -34,24 +34,39 @@ const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
       
       mapInstance.current = new google.maps.Map(mapRef.current, mapOptions);
       
-      // Configura le opzioni di controllo individualmente invece di utilizzare setOptions
-      if (mapInstance.current) {
-        // Imposta la posizione del controllo zoom
-        const zoomControlDiv = document.querySelector('.gm-control-active.gm-zoom-control');
-        if (zoomControlDiv && zoomControlDiv.parentElement && zoomControlDiv.parentElement.parentElement) {
-          mapInstance.current.controls[google.maps.ControlPosition.RIGHT_CENTER].push(
-            zoomControlDiv.parentElement.parentElement
-          );
+      // Posiziona i controlli dopo il caricamento della mappa, usando un approccio alternativo
+      // perché il tipo Map non ha la proprietà controls nelle definizioni di tipi
+      setTimeout(() => {
+        if (mapInstance.current) {
+          // Imposta i controlli usando l'API di eventi di Google Maps
+          const setControlPositions = () => {
+            // Crea un controllo personalizzato per la posizione dello zoom
+            const zoomControlDiv = document.querySelector('.gm-control-active.gm-zoom-control');
+            if (zoomControlDiv && zoomControlDiv.parentElement && zoomControlDiv.parentElement.parentElement) {
+              // Rimuovi il controllo dalla sua posizione attuale nel DOM
+              const zoomParent = zoomControlDiv.parentElement.parentElement;
+              zoomParent.style.position = 'absolute';
+              zoomParent.style.right = '10px';
+              zoomParent.style.top = '50%';
+              zoomParent.style.transform = 'translateY(-50%)';
+            }
+            
+            // Imposta la posizione del controllo fullscreen
+            const fullscreenControlDiv = document.querySelector('.gm-fullscreen-control');
+            if (fullscreenControlDiv && fullscreenControlDiv.parentElement) {
+              // Rimuovi il controllo dalla sua posizione attuale nel DOM
+              const fullscreenParent = fullscreenControlDiv.parentElement;
+              fullscreenParent.style.position = 'absolute';
+              fullscreenParent.style.right = '10px';
+              fullscreenParent.style.top = '10px';
+            }
+          };
+          
+          // Esegui la funzione di posizionamento dopo un breve ritardo per assicurarsi
+          // che i controlli siano stati renderizzati nel DOM
+          setTimeout(setControlPositions, 300);
         }
-        
-        // Imposta la posizione del controllo fullscreen
-        const fullscreenControlDiv = document.querySelector('.gm-fullscreen-control');
-        if (fullscreenControlDiv && fullscreenControlDiv.parentElement) {
-          mapInstance.current.controls[google.maps.ControlPosition.RIGHT_TOP].push(
-            fullscreenControlDiv.parentElement
-          );
-        }
-      }
+      }, 100);
       
       // Aggiungi il marker
       markerRef.current = new google.maps.Marker({
