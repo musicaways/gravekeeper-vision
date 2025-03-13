@@ -20,9 +20,7 @@ const BlockInfoDisplay: React.FC<BlockInfoDisplayProps> = ({ block, onEditClick,
 
   return (
     <div className="space-y-3 relative">
-      <div className="flex justify-end items-start">
-        {canEdit && <BlockEditButton onClick={onEditClick} />}
-      </div>
+      {canEdit && <BlockEditButton onClick={onEditClick} />}
       
       <Separator className="my-3" />
       

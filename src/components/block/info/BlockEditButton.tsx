@@ -1,7 +1,8 @@
 
 import React from "react";
-import { Edit } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BlockEditButtonProps {
   onClick: () => void;
@@ -9,15 +10,22 @@ interface BlockEditButtonProps {
 
 const BlockEditButton: React.FC<BlockEditButtonProps> = ({ onClick }) => {
   return (
-    <Button
-      onClick={onClick}
-      size="sm"
-      variant="outline"
-      className="flex items-center gap-1 z-10 relative"
-    >
-      <Edit className="h-4 w-4" />
-      <span>Modifica</span>
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            onClick={onClick}
+            size="icon"
+            className="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
+          >
+            <Pencil className="h-6 w-6" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Modifica informazioni</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
