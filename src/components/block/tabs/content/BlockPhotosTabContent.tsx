@@ -1,6 +1,8 @@
 
 import React, { useState } from "react";
-import { PhotoUploadDialog, PhotoUploadButton, PhotoGalleryCard } from "../../../cemetery/photos";
+import { PhotoUploadDialog } from "../../photos/PhotoUploadDialog";
+import { PhotoUploadButton } from "../../photos/PhotoUploadButton";
+import { PhotoGalleryCard } from "../../photos/PhotoGalleryCard";
 
 interface BlockPhotosTabContentProps {
   blockId: string;
@@ -17,14 +19,14 @@ const BlockPhotosTabContent: React.FC<BlockPhotosTabContentProps> = ({ blockId }
   return (
     <div className="px-1 w-full space-y-4">
       <PhotoGalleryCard 
-        cemeteryId={blockId}
+        blockId={blockId}
         refreshKey={refreshKey}
       />
 
       <PhotoUploadButton onClick={() => setUploadDialogOpen(true)} />
 
       <PhotoUploadDialog 
-        cemeteryId={blockId}
+        blockId={blockId}
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
         onUploadComplete={handleUploadComplete}
