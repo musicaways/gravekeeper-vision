@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { checkBloccoRelationship } from "@/services/loculi";
+import { Link } from "react-router-dom";
 
 interface LoculiListProps {
   loculi: Loculo[];
