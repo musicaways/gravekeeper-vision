@@ -17,9 +17,15 @@ const DeceasedListItem: React.FC<DeceasedItemProps> = ({ deceased }) => {
   const backgroundColor = "bg-primary/10"; // Match the bg-primary/10 from SectionsList
   const textColor = "text-primary-dark";
   
+  // Calculate bloccoId - make sure we pass it correctly
+  const bloccoId = deceased.loculi?.Blocco?.Id || 
+                  deceased.loculi?.IdBlocco || 
+                  null;
+  
   const loculoLink = getLoculoLink(deceased);
-  const cimiteroId = deceased.cimitero_id || deceased.loculi?.Blocco?.Settore?.Cimitero?.Id;
-  const bloccoId = deceased.loculi?.Blocco?.Id;
+  const cimiteroId = deceased.cimitero_id || 
+                    deceased.loculi?.Blocco?.Settore?.Cimitero?.Id ||
+                    null;
   
   // Calcoliamo l'età in base ai dati disponibili
   const età = deceased.eta !== null ? deceased.eta : calculateAge(deceased.data_nascita || null, deceased.data_decesso || null);
