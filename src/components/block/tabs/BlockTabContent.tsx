@@ -13,22 +13,22 @@ export interface BlockTabContentProps {
 
 export function BlockTabContent({ blockId, block, searchTerm = "" }: BlockTabContentProps) {
   return (
-    <div className="w-full">
-      <TabsContent value="info" className="w-full">
+    <>
+      <TabsContent value="info" className="w-full max-w-none">
         <BlockInfoTabContent block={block} />
       </TabsContent>
       
-      <TabsContent value="loculi" className="w-full">
+      <TabsContent value="loculi" className="w-full max-w-none">
         <BlockLoculiTabContent blockId={blockId.toString()} searchTerm={searchTerm} />
       </TabsContent>
       
-      <TabsContent value="map" className="w-full">
+      <TabsContent value="map" className="w-full max-w-none">
         {/* Map tab content */}
       </TabsContent>
       
-      <TabsContent value="documents" className="w-full">
+      <TabsContent value="documents" className="w-full max-w-none">
         <BlockDocumentiTabContent blockId={blockId.toString()} />
       </TabsContent>
-    </div>
+    </>
   );
 }

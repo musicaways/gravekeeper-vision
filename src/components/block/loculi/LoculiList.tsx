@@ -7,7 +7,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { checkBloccoRelationship } from "@/services/loculi";
-import { Link } from "react-router-dom";
 
 interface LoculiListProps {
   loculi: Loculo[];
@@ -88,7 +87,7 @@ export const LoculiList: React.FC<LoculiListProps> = ({ loculi }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-[1.2px] w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
       {loculi.map((loculo, index) => {
         const numero = loculo.Numero;
         const fila = loculo.Fila;

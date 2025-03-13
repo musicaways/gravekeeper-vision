@@ -2,6 +2,7 @@
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Info, List, Map } from "lucide-react";
 import React from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface BlockTabTriggersProps {
   defaultTab?: string;
@@ -9,38 +10,42 @@ export interface BlockTabTriggersProps {
 
 export function BlockTabTriggers({ defaultTab = "loculi" }: BlockTabTriggersProps) {
   return (
-    <TabsList className="border-b overflow-x-auto scrollbar-none w-full flex">
-      <TabsTrigger 
-        value="info" 
-        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-      >
-        <Info className="h-4 w-4 mr-2" />
-        <span>Info</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="loculi" 
-        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-      >
-        <List className="h-4 w-4 mr-2" />
-        <span>Loculi</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="map" 
-        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-      >
-        <Map className="h-4 w-4 mr-2" />
-        <span>Mappa</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="documents" 
-        className="flex items-center px-4 py-2 data-[state=active]:text-primary"
-      >
-        <FileText className="h-4 w-4 mr-2" />
-        <span>Documenti</span>
-      </TabsTrigger>
-    </TabsList>
+    <div className="relative w-full overflow-hidden px-1">
+      <ScrollArea className="w-full scrollbar-hide" orientation="horizontal">
+        <TabsList className="w-full flex justify-start p-1">
+          <TabsTrigger 
+            value="info" 
+            className="flex items-center gap-1.5 px-4 py-2"
+          >
+            <Info className="h-4 w-4" />
+            <span>Info</span>
+          </TabsTrigger>
+          
+          <TabsTrigger 
+            value="loculi" 
+            className="flex items-center gap-1.5 px-4 py-2"
+          >
+            <List className="h-4 w-4" />
+            <span>Loculi</span>
+          </TabsTrigger>
+          
+          <TabsTrigger 
+            value="map" 
+            className="flex items-center gap-1.5 px-4 py-2"
+          >
+            <Map className="h-4 w-4" />
+            <span>Mappa</span>
+          </TabsTrigger>
+          
+          <TabsTrigger 
+            value="documents" 
+            className="flex items-center gap-1.5 px-4 py-2"
+          >
+            <FileText className="h-4 w-4" />
+            <span>Documenti</span>
+          </TabsTrigger>
+        </TabsList>
+      </ScrollArea>
+    </div>
   );
 }
