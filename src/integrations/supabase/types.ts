@@ -190,6 +190,36 @@ export type Database = {
           },
         ]
       }
+      bloccodocumenti: {
+        Row: {
+          datainserimento: string | null
+          descrizione: string | null
+          id: string
+          idblocco: number
+          nomefile: string
+          tipofile: string
+          url: string
+        }
+        Insert: {
+          datainserimento?: string | null
+          descrizione?: string | null
+          id?: string
+          idblocco: number
+          nomefile: string
+          tipofile: string
+          url: string
+        }
+        Update: {
+          datainserimento?: string | null
+          descrizione?: string | null
+          id?: string
+          idblocco?: number
+          nomefile?: string
+          tipofile?: string
+          url?: string
+        }
+        Relationships: []
+      }
       Cimitero: {
         Row: {
           active: boolean | null
