@@ -46,6 +46,7 @@ export const useBlockPhotos = (blockId: string) => {
       } else {
         // Since execute_sql doesn't return the actual data directly, we need to parse the results
         // The results will be in the first element of the data array if successful
+        // First check if data is null, then if it's an array with content
         const photosData = data !== null && Array.isArray(data) && data.length > 0 ? data : [];
         setPhotos(photosData as unknown as BlockPhoto[]);
         setError(null);
@@ -72,7 +73,7 @@ export const useBlockPhotos = (blockId: string) => {
         });
       
       // Check if data exists and has the expected structure
-      if (photoError || !data) {
+      if (photoError || data === null) {
         throw photoError || new Error("Photo not found");
       }
       
