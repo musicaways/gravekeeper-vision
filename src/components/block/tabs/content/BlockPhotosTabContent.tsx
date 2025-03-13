@@ -41,7 +41,7 @@ const BlockPhotosTabContent: React.FC<BlockPhotosTabContentProps> = ({ blockId }
   };
 
   return (
-    <div className="px-1 w-full">
+    <div className="w-full">
       {setupError && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />

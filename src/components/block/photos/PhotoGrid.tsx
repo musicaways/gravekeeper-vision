@@ -33,7 +33,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   }
 
   return (
-    <div className={`grid ${gridClass} gap-1`}>
+    <div className="grid grid-cols-3 gap-2">
       {photos.map((photo, index) => (
         <PhotoItem 
           key={photo.Id} 

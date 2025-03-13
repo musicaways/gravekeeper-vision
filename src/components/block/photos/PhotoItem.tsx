@@ -14,7 +14,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ photo, aspectClass, onClick }) =>
       className="group relative cursor-pointer overflow-hidden rounded-md"
       onClick={onClick}
     >
-      <div className={`bg-muted ${aspectClass}`}>
+      <div className="aspect-square bg-muted">
         <img 
           src={photo.Url} 
           alt={photo.Descrizione || `Foto`} 

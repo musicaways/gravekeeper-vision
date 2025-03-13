@@ -60,7 +60,7 @@ const BlockGallery: React.FC<BlockGalleryProps> = ({
   }
 
   return (
-    <div className={cn("p-3", className)}>
+    <div className={cn("p-0", className)}>
       {loading ? (
         <GalleryLoading />
       ) : (

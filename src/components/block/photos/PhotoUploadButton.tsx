@@ -17,7 +17,7 @@ const PhotoUploadButton: React.FC<PhotoUploadButtonProps> = ({ onClick, disabled
           <Button 
             onClick={onClick}
             size="icon"
-            className="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+            className="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600"
             disabled={disabled}
           >
             <Camera className="h-6 w-6" />
