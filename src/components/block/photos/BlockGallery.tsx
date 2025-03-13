@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useBlockPhotos } from "./useBlockPhotos";
 import GalleryEmptyState from "./GalleryEmptyState";
 import GalleryLoading from "./GalleryLoading";
@@ -13,17 +13,24 @@ interface BlockGalleryProps {
   columns?: 1 | 2 | 3 | 4;
   aspect?: "square" | "video" | "wide";
   className?: string;
+  refreshKey?: number; // Added refreshKey prop
 }
 
 const BlockGallery: React.FC<BlockGalleryProps> = ({ 
   blockId,
   columns = 3,
   aspect = "square",
-  className
+  className,
+  refreshKey = 0
 }) => {
   const { photos, loading, refetch, deletePhoto } = useBlockPhotos(blockId);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  // Use refreshKey to trigger refetch when it changes
+  useEffect(() => {
+    refetch();
+  }, [refreshKey, refetch]);
 
   const handlePhotoClick = (index: number) => {
     setCurrentPhotoIndex(index);

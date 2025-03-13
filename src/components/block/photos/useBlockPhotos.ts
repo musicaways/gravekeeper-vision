@@ -29,63 +29,31 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      // Check if table exists first
-      const { data: tableExistsData, error: checkError } = await supabase
-        .rpc('execute_sql', {
-          sql: `SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_schema = 'public'
-            AND table_name = 'blocco_foto'
-          )`
-        });
+      // First, directly try to query the table - if it exists, this will work
+      const { data: directQueryData, error: directQueryError } = await supabase
+        .from('blocco_foto')
+        .select('*')
+        .eq('IdBlocco', numericId)
+        .order('DataInserimento', { ascending: false });
       
-      if (checkError) {
-        console.error("Error checking table existence:", checkError);
-        setPhotos([]);
-        setLoading(false);
-        return;
-      }
-      
-      // Safely check if table exists with proper type handling
-      let exists = false;
-      if (tableExistsData && Array.isArray(tableExistsData)) {
-        // Explicitly cast to an array of records with potential 'exists' property
-        const records = tableExistsData as Array<Record<string, unknown>>;
-        if (records.length > 0 && records[0] && typeof records[0] === 'object') {
-          exists = Boolean(records[0].exists);
+      if (directQueryError) {
+        // If error is not about table not existing, it's a real error
+        if (!directQueryError.message.includes('relation "public.blocco_foto" does not exist')) {
+          console.error("Error fetching photos:", directQueryError);
+          setError("Si è verificato un errore durante il caricamento delle foto");
+          return;
         }
-      }
         
-      if (!exists) {
+        // Table doesn't exist yet
         console.log("blocco_foto table doesn't exist yet");
         setPhotos([]);
         setLoading(false);
         return;
       }
       
-      // Use rpc with a raw SQL query to bypass TypeScript type checking
-      const { data, error: queryError } = await supabase
-        .rpc('execute_sql', {
-          sql: `SELECT * FROM public.blocco_foto WHERE "IdBlocco" = ${numericId} ORDER BY "DataInserimento" DESC`
-        });
-      
-      if (queryError) {
-        console.error("Error fetching photos:", queryError);
-        setError("Si è verificato un errore durante il caricamento delle foto");
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore durante il caricamento delle foto",
-          variant: "destructive"
-        });
-      } else {
-        // Cast data with proper type checking
-        let photosData: any[] = [];
-        if (data && Array.isArray(data)) {
-          photosData = data;
-        }
-        setPhotos(photosData as BlockPhoto[]);
-        setError(null);
-      }
+      // If we got here, the query worked and table exists
+      setPhotos(directQueryData as BlockPhoto[]);
+      setError(null);
     } catch (err) {
       console.error("Error fetching photos:", err);
       setError("Si è verificato un errore durante il caricamento delle foto");
@@ -103,24 +71,16 @@ export const useBlockPhotos = (blockId: string) => {
     try {
       // First, get the photo URL to extract the path using a raw SQL query
       const { data, error: photoError } = await supabase
-        .rpc('execute_sql', {
-          sql: `SELECT "Url" FROM public.blocco_foto WHERE "Id" = '${photoId}'`
-        });
+        .from('blocco_foto')
+        .select('Url')
+        .eq('Id', photoId)
+        .single();
       
-      // Check if data exists and has the expected structure
-      if (photoError || data === null) {
+      if (photoError || !data) {
         throw photoError || new Error("Photo not found");
       }
       
-      // Safely access the data array with explicit null checks
-      const resultArray = Array.isArray(data) ? data : [];
-      if (resultArray.length === 0) {
-        throw new Error("Photo not found");
-      }
-      
-      // Extract the URL from the result (type assertion to any to access properties)
-      const firstResult = resultArray[0] as any;
-      const photoUrl = firstResult?.Url;
+      const photoUrl = data.Url;
       if (!photoUrl) {
         throw new Error("URL not found for photo");
       }
@@ -142,11 +102,11 @@ export const useBlockPhotos = (blockId: string) => {
       
       if (storageError) throw storageError;
       
-      // Delete the record from the database using a raw query approach
+      // Delete the record from the database
       const { error: dbError } = await supabase
-        .rpc('execute_sql', {
-          sql: `DELETE FROM public.blocco_foto WHERE "Id" = '${photoId}'`
-        });
+        .from('blocco_foto')
+        .delete()
+        .eq('Id', photoId);
       
       if (dbError) throw dbError;
       

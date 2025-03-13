@@ -34,7 +34,12 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
 
   const handleUpload = async () => {
     if (!selectedFile) return;
-    await uploadPhoto(selectedFile, photoDescription);
+    
+    const result = await uploadPhoto(selectedFile, photoDescription);
+    if (result) {
+      // Call onUploadComplete to refresh the gallery
+      onUploadComplete();
+    }
   };
 
   const resetForm = () => {

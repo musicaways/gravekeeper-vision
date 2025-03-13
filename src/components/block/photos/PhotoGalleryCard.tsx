@@ -17,7 +17,7 @@ const PhotoGalleryCard: React.FC<PhotoGalleryCardProps> = ({ blockId, refreshKey
           columns={4} 
           aspect="square" 
           className="mt-0"
-          key={refreshKey}
+          refreshKey={refreshKey}
         />
       </CardContent>
     </Card>

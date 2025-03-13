@@ -7,33 +7,23 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const ensureBlockPhotoTableExists = async (): Promise<boolean> => {
   try {
-    // First check if table exists
-    const { data, error } = await supabase.rpc('execute_sql', {
-      sql: `SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public'
-        AND table_name = 'blocco_foto'
-      )`
-    });
+    // First directly check if we can query the table
+    const { data: testData, error: testError } = await supabase
+      .from('blocco_foto')
+      .select('count(*)', { count: 'exact', head: true });
     
-    if (error) throw error;
-    
-    // Safely check the existence value with proper null checks
-    let exists = false;
-    if (data && Array.isArray(data)) {
-      // Explicitly cast data to an array of records with an 'exists' property
-      const records = data as Array<Record<string, unknown>>;
-      if (records.length > 0 && records[0] && typeof records[0] === 'object') {
-        exists = Boolean(records[0].exists);
-      }
-    }
-    
-    // If table already exists, we're good
-    if (exists) {
+    // If no error, the table exists
+    if (!testError) {
       return true;
     }
     
-    // If table doesn't exist, create it directly with SQL rather than calling the edge function
+    // If error is not about table not existing, it's a different problem
+    if (!testError.message.includes('relation "public.blocco_foto" does not exist')) {
+      console.error("Error checking blocco_foto table:", testError);
+      return false;
+    }
+    
+    // If table doesn't exist, create it
     const { error: createError } = await supabase.rpc('execute_sql', {
       sql: `
         CREATE TABLE IF NOT EXISTS public.blocco_foto (
@@ -49,10 +39,23 @@ export const ensureBlockPhotoTableExists = async (): Promise<boolean> => {
         -- Ensure the UUID extension is available
         CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
         
-        -- Add foreign key constraint if needed
-        ALTER TABLE public.blocco_foto 
-        ADD CONSTRAINT blocco_foto_idblocco_fkey 
-        FOREIGN KEY ("IdBlocco") REFERENCES public."Blocco"("Id");
+        -- Add foreign key constraint if the Blocco table exists
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name = 'Blocco'
+          ) THEN
+            BEGIN
+              ALTER TABLE public.blocco_foto 
+              ADD CONSTRAINT blocco_foto_idblocco_fkey 
+              FOREIGN KEY ("IdBlocco") REFERENCES public."Blocco"("Id");
+            EXCEPTION WHEN duplicate_object THEN
+              -- Constraint already exists, ignore
+              NULL;
+            END;
+          END IF;
+        END $$;
       `
     });
     
@@ -86,19 +89,38 @@ export const ensurePhotoStorageBucketExists = async (): Promise<boolean> => {
       return true;
     }
     
-    // Try to create the bucket using SQL directly to bypass RLS
+    // Try to create the bucket using SQL
     const { error: createError } = await supabase.rpc('execute_sql', {
       sql: `
-        INSERT INTO storage.buckets (id, name, public)
-        VALUES ('cimitero-foto', 'Foto dei Blocchi Cimitero', true);
-        
-        -- Create a policy to allow public read access
-        INSERT INTO storage.policies (name, definition, bucket_id)
-        VALUES ('Public Read Access', '(bucket_id = ''cimitero-foto''::text)', 'cimitero-foto');
-        
-        -- Create a policy for authenticated uploads
-        INSERT INTO storage.policies (name, definition, bucket_id)
-        VALUES ('Authenticated Uploads', '(bucket_id = ''cimitero-foto''::text AND auth.role() = ''authenticated''::text)', 'cimitero-foto');
+        DO $$
+        BEGIN
+          -- Try to create the bucket
+          BEGIN
+            INSERT INTO storage.buckets (id, name, public)
+            VALUES ('cimitero-foto', 'Foto dei Blocchi Cimitero', true);
+          EXCEPTION WHEN unique_violation THEN
+            -- Bucket already exists, ignore
+            NULL;
+          END;
+          
+          -- Create a policy to allow public read access
+          BEGIN
+            INSERT INTO storage.policies (name, definition, bucket_id)
+            VALUES ('Public Read Access', '(bucket_id = ''cimitero-foto''::text)', 'cimitero-foto');
+          EXCEPTION WHEN unique_violation THEN
+            -- Policy already exists, ignore
+            NULL;
+          END;
+          
+          -- Create a policy for authenticated uploads
+          BEGIN
+            INSERT INTO storage.policies (name, definition, bucket_id)
+            VALUES ('Authenticated Uploads', '(bucket_id = ''cimitero-foto''::text AND auth.role() = ''authenticated''::text)', 'cimitero-foto');
+          EXCEPTION WHEN unique_violation THEN
+            -- Policy already exists, ignore
+            NULL;
+          END;
+        END $$;
       `
     });
     

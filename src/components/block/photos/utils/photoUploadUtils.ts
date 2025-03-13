@@ -41,17 +41,32 @@ export const createPhotoRecord = async (
   description: string
 ): Promise<{ success: boolean; error?: any }> => {
   try {
-    // Call the edge function to insert the record
-    const { error } = await supabase.functions.invoke("insert_block_photo", {
-      body: {
-        block_id: parseInt(blockId, 10),
-        file_name: file.name,
-        description_text: description,
-        file_type: file.type,
-        url_text: `https://ytfuenxlejrogesnsvhl.supabase.co/storage/v1/object/public/cimitero-foto/${blockId}/${fileName}`,
-        insert_date: new Date().toISOString()
-      },
+    // First ensure the table exists
+    await supabase.rpc('execute_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS public.blocco_foto (
+          "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          "IdBlocco" INTEGER NOT NULL,
+          "NomeFile" TEXT,
+          "TipoFile" TEXT,
+          "Descrizione" TEXT,
+          "Url" TEXT NOT NULL,
+          "DataInserimento" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+      `
     });
+    
+    // Insert the record directly
+    const { error } = await supabase
+      .from('blocco_foto')
+      .insert({
+        IdBlocco: parseInt(blockId, 10),
+        NomeFile: file.name,
+        Descrizione: description,
+        TipoFile: file.type,
+        Url: `https://ytfuenxlejrogesnsvhl.supabase.co/storage/v1/object/public/cimitero-foto/${blockId}/${fileName}`,
+        DataInserimento: new Date().toISOString()
+      });
       
     if (error) throw error;
     return { success: true };
@@ -74,15 +89,66 @@ export const uploadFileToStorage = async (
   fileContent: Blob | File
 ): Promise<{ success: boolean; error?: any }> => {
   try {
+    // First, ensure the bucket exists
+    await ensureBucketExists();
+    
     const { error } = await supabase.storage
       .from('cimitero-foto')
-      .upload(`${blockId}/${fileName}`, fileContent);
+      .upload(`${blockId}/${fileName}`, fileContent, {
+        cacheControl: '3600',
+        upsert: false
+      });
       
     if (error) throw error;
     return { success: true };
   } catch (error) {
     console.error("Error uploading file to storage:", error);
     return { success: false, error };
+  }
+};
+
+/**
+ * Ensures the storage bucket exists
+ */
+const ensureBucketExists = async (): Promise<void> => {
+  try {
+    // Check if bucket exists
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) throw listError;
+    
+    const bucketExists = buckets.some(b => b.name === 'cimitero-foto');
+    
+    // If bucket already exists, we're good
+    if (bucketExists) {
+      return;
+    }
+    
+    // Try to create the bucket if it doesn't exist
+    await supabase.rpc('execute_sql', {
+      sql: `
+        BEGIN;
+        
+        -- Create the bucket if it doesn't exist
+        INSERT INTO storage.buckets (id, name, public)
+        VALUES ('cimitero-foto', 'Foto dei Blocchi Cimitero', true)
+        ON CONFLICT (id) DO NOTHING;
+        
+        -- Set up public access policy
+        INSERT INTO storage.policies (name, definition, bucket_id)
+        VALUES ('Public Read Access', '(bucket_id = ''cimitero-foto''::text)', 'cimitero-foto')
+        ON CONFLICT ON CONSTRAINT policies_pkey DO NOTHING;
+        
+        -- Set up authenticated uploads policy
+        INSERT INTO storage.policies (name, definition, bucket_id)
+        VALUES ('Authenticated Uploads', '(bucket_id = ''cimitero-foto''::text AND auth.role() = ''authenticated''::text)', 'cimitero-foto')
+        ON CONFLICT ON CONSTRAINT policies_pkey DO NOTHING;
+        
+        COMMIT;
+      `
+    });
+  } catch (error) {
+    console.error("Error ensuring bucket exists:", error);
   }
 };
 

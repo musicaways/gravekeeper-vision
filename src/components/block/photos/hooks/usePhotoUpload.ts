@@ -32,19 +32,23 @@ export const usePhotoUpload = ({ blockId, onSuccess }: UsePhotoUploadProps) => {
       const fileName = generateUniqueFileName(file.name);
       setUploadProgress(50);
       
-      // Create the database record
-      const recordResult = await createPhotoRecord(blockId, file, fileName, description);
-      if (!recordResult.success) throw recordResult.error;
-      setUploadProgress(70);
-      
-      // Upload the actual file to storage
+      // Upload the actual file to storage first
       const uploadResult = await uploadFileToStorage(blockId, fileName, fileToUpload);
       if (!uploadResult.success) throw uploadResult.error;
+      setUploadProgress(70);
+      
+      // Then create the database record
+      const recordResult = await createPhotoRecord(blockId, file, fileName, description);
+      if (!recordResult.success) throw recordResult.error;
       
       setUploadProgress(100);
       showUploadResultToast(true);
       
-      onSuccess();
+      // Give a moment before calling onSuccess to ensure the UI updates
+      setTimeout(() => {
+        onSuccess();
+      }, 500);
+      
       return true;
     } catch (error) {
       console.error("Error during upload process:", error);
@@ -52,7 +56,9 @@ export const usePhotoUpload = ({ blockId, onSuccess }: UsePhotoUploadProps) => {
       return false;
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
+      setTimeout(() => {
+        setUploadProgress(0);
+      }, 1000);
     }
   };
 
