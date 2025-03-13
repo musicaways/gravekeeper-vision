@@ -42,29 +42,35 @@ export const useDocumentFetch = (blockId: string) => {
         setDocuments([]);
       } else {
         console.log("Documents data received:", data);
-        // Transform the data to match our DocumentItem interface
-        const formattedDocuments = data.map(doc => {
-          // Extract file extension for type
-          const fileExtension = doc.tipofile || doc.nomefile.split('.').pop()?.toUpperCase() || 'FILE';
+        if (!data || data.length === 0) {
+          console.log("No documents found for block:", numericId);
+          setDocuments([]);
+        } else {
+          // Transform the data to match our DocumentItem interface
+          const formattedDocuments = data.map(doc => {
+            // Extract file extension for type
+            const fileExtension = doc.tipofile || doc.nomefile.split('.').pop()?.toUpperCase() || 'FILE';
+            
+            // Format date
+            const date = doc.datainserimento 
+              ? new Date(doc.datainserimento).toLocaleDateString('it-IT') 
+              : 'Data non disponibile';
+            
+            return {
+              id: doc.id,
+              name: doc.nomefile,
+              description: doc.descrizione || '',
+              type: fileExtension,
+              // We don't have size information from the database
+              size: 'N/A',
+              date: date,
+              url: doc.url
+            };
+          });
           
-          // Format date
-          const date = doc.datainserimento 
-            ? new Date(doc.datainserimento).toLocaleDateString('it-IT') 
-            : 'Data non disponibile';
-          
-          return {
-            id: doc.id,
-            name: doc.nomefile,
-            description: doc.descrizione || '',
-            type: fileExtension,
-            // We don't have size information from the database
-            size: 'N/A',
-            date: date,
-            url: doc.url
-          };
-        });
-        
-        setDocuments(formattedDocuments);
+          console.log("Formatted documents:", formattedDocuments);
+          setDocuments(formattedDocuments);
+        }
       }
     } catch (err) {
       console.error("Errore nel caricamento dei documenti:", err);

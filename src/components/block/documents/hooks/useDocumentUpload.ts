@@ -40,7 +40,7 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
       else if (fileExt === 'bmp') contentType = 'image/bmp';
       
       console.log("Using content type:", contentType);
-      console.log("Starting file upload to storage bucket...");
+      console.log("Starting file upload to storage bucket 'documents'...");
       setUploadProgress(30);
       
       // 2. Upload the file to Supabase Storage
@@ -55,7 +55,8 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
         }
       }, 500);
       
-      // Perform the upload - using the correct 'documents' bucket
+      // Make sure we're using the correct bucket name that we just created
+      console.log("Attempting to upload to bucket 'documents'");
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, selectedFile, {
@@ -110,10 +111,14 @@ export const useDocumentUpload = (blockId: string, onSuccess: () => void) => {
         description: `${values.filename} è stato caricato con successo`,
       });
       
+      // Close the dialog first
       setIsUploadDialogOpen(false);
       
-      // Refresh the document list
-      onSuccess();
+      // Use setTimeout to ensure the state updates correctly before triggering the refetch
+      setTimeout(() => {
+        // Refresh the document list
+        onSuccess();
+      }, 300);
       
     } catch (error) {
       console.error("Complete upload error:", error);

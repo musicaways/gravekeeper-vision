@@ -88,7 +88,11 @@ export const useDocumentDelete = ({ blockId, onSuccess }: UseDocumentDeleteOptio
         description: docToDelete ? `${docToDelete.name} è stato eliminato con successo` : "Documento eliminato con successo",
       });
       
-      onSuccess();
+      // Use setTimeout to ensure state updates correctly
+      setTimeout(() => {
+        onSuccess();
+      }, 300);
+      
     } catch (error) {
       console.error("Error during deletion:", error);
       toast({

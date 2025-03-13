@@ -97,13 +97,15 @@ const BlockDocuments: React.FC<BlockDocumentsProps> = ({ blockId }) => {
       />
 
       {/* Document Viewer */}
-      <DocumentViewer
-        files={viewerFiles}
-        open={viewerOpen}
-        initialIndex={selectedDocIndex}
-        onClose={() => setViewerOpen(false)}
-        onDeleteFile={(id) => handleDelete(id)}
-      />
+      {viewerFiles.length > 0 && (
+        <DocumentViewer
+          files={viewerFiles}
+          open={viewerOpen}
+          initialIndex={selectedDocIndex}
+          onClose={() => setViewerOpen(false)}
+          onDeleteFile={(id) => handleDelete(id)}
+        />
+      )}
     </div>
   );
 };
