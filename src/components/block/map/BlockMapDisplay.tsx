@@ -34,16 +34,23 @@ const BlockMapDisplay: React.FC<BlockMapDisplayProps> = ({ block }) => {
       
       mapInstance.current = new google.maps.Map(mapRef.current, mapOptions);
       
-      // Configura le opzioni di controllo del tipo di mappa dopo l'inizializzazione
+      // Configura le opzioni di controllo individualmente invece di utilizzare setOptions
       if (mapInstance.current) {
-        mapInstance.current.setOptions({
-          zoomControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_CENTER,
-          },
-          fullscreenControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_TOP,
-          }
-        });
+        // Imposta la posizione del controllo zoom
+        const zoomControlDiv = document.querySelector('.gm-control-active.gm-zoom-control');
+        if (zoomControlDiv && zoomControlDiv.parentElement && zoomControlDiv.parentElement.parentElement) {
+          mapInstance.current.controls[google.maps.ControlPosition.RIGHT_CENTER].push(
+            zoomControlDiv.parentElement.parentElement
+          );
+        }
+        
+        // Imposta la posizione del controllo fullscreen
+        const fullscreenControlDiv = document.querySelector('.gm-fullscreen-control');
+        if (fullscreenControlDiv && fullscreenControlDiv.parentElement) {
+          mapInstance.current.controls[google.maps.ControlPosition.RIGHT_TOP].push(
+            fullscreenControlDiv.parentElement
+          );
+        }
       }
       
       // Aggiungi il marker
