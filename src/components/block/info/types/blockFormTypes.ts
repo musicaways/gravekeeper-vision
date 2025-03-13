@@ -9,18 +9,10 @@ export const blockFormSchema = z.object({
   Note: z.string().optional(),
   Indirizzo: z.string().optional(),
   // Use consistent string typing for numeric fields in the form
-  NumeroLoculi: z.string().optional().nullable().transform(val => 
-    val === "" || val === null || val === undefined ? null : Number(val)
-  ),
-  NumeroFile: z.string().optional().nullable().transform(val => 
-    val === "" || val === null || val === undefined ? null : Number(val)
-  ),
-  Latitudine: z.string().optional().nullable().transform(val => 
-    val === "" || val === null || val === undefined ? null : Number(val)
-  ),
-  Longitudine: z.string().optional().nullable().transform(val => 
-    val === "" || val === null || val === undefined ? null : Number(val)
-  ),
+  NumeroLoculi: z.string().optional(),
+  NumeroFile: z.string().optional(),
+  Latitudine: z.string().optional(),
+  Longitudine: z.string().optional(),
   DataCreazione: z.string().optional(),
   FotoCopertina: z.string().optional().nullable(),
   coverImage: z.any().optional().nullable() // Per gestire il file di upload dell'immagine

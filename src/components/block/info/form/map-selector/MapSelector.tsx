@@ -6,8 +6,8 @@ import { useMapSelector } from "./hooks/useMapSelector";
 
 interface MapSelectorProps {
   onSelectLocation: (lat: number, lng: number) => void;
-  initialLat?: number;
-  initialLng?: number;
+  initialLat?: number | string;
+  initialLng?: number | string;
 }
 
 const MapSelector: React.FC<MapSelectorProps> = ({ 

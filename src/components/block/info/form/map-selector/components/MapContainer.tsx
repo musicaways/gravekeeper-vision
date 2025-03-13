@@ -7,8 +7,8 @@ import { ErrorDisplay } from ".";
 
 interface MapContainerProps {
   mapRef: React.RefObject<HTMLDivElement>;
-  initialLat: number;
-  initialLng: number;
+  initialLat: number | string;
+  initialLng: number | string;
   initializeMarker: (map: any, position: {lat: number, lng: number}) => any;
   setMarker: (marker: any) => void;
   setSelectedPosition: (position: {lat: number, lng: number} | null) => void;
@@ -35,9 +35,13 @@ const MapContainer: React.FC<MapContainerProps> = ({
     mapInitializedRef.current = true;
 
     try {
+      // Convert coordinates to numbers
+      const lat = typeof initialLat === 'string' ? parseFloat(initialLat) : initialLat;
+      const lng = typeof initialLng === 'string' ? parseFloat(initialLng) : initialLng;
+
       // Create the map
       const map = new window.google.maps.Map(mapRef.current, {
-        center: { lat: initialLat, lng: initialLng },
+        center: { lat, lng },
         zoom: 18,
         streetViewControl: false,
         mapTypeControl: true,
@@ -58,8 +62,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
       });
 
       // Create initial marker if we have initial coordinates
-      if (initialLat && initialLng) {
-        const initialPosition = { lat: initialLat, lng: initialLng };
+      if (lat && lng) {
+        const initialPosition = { lat, lng };
         const newMarker = initializeMarker(map, initialPosition);
         setMarker(newMarker);
         setSelectedPosition(initialPosition);
