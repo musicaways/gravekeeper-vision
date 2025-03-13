@@ -46,12 +46,13 @@ export const useBlockPhotos = (blockId: string) => {
         return;
       }
       
-      // Safely check if table exists with proper null checks
+      // Safely check if table exists with proper type handling
       let exists = false;
-      if (tableExistsData && Array.isArray(tableExistsData) && tableExistsData.length > 0) {
-        const firstRow = tableExistsData[0];
-        if (firstRow && typeof firstRow === 'object' && 'exists' in firstRow) {
-          exists = Boolean(firstRow.exists);
+      if (tableExistsData && Array.isArray(tableExistsData)) {
+        // Explicitly cast to an array of records with potential 'exists' property
+        const records = tableExistsData as Array<Record<string, unknown>>;
+        if (records.length > 0 && records[0] && typeof records[0] === 'object') {
+          exists = Boolean(records[0].exists);
         }
       }
         
@@ -77,9 +78,12 @@ export const useBlockPhotos = (blockId: string) => {
           variant: "destructive"
         });
       } else {
-        // Add explicit null check before trying to use the data
-        const photosData = data && Array.isArray(data) ? data : [];
-        setPhotos(photosData as unknown as BlockPhoto[]);
+        // Cast data with proper type checking
+        let photosData: any[] = [];
+        if (data && Array.isArray(data)) {
+          photosData = data;
+        }
+        setPhotos(photosData as BlockPhoto[]);
         setError(null);
       }
     } catch (err) {
