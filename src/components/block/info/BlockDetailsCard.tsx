@@ -46,6 +46,16 @@ const BlockDetailsCard: React.FC<BlockDetailsCardProps> = ({ block }) => {
                 </div>
               </div>
             )}
+            
+            {block.Descrizione && (
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <h4 className="font-medium text-foreground">Descrizione</h4>
+                  <p className="text-sm text-muted-foreground">{decodeText(block.Descrizione)}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -67,6 +77,26 @@ const BlockDetailsCard: React.FC<BlockDetailsCardProps> = ({ block }) => {
                   <p className="text-sm text-muted-foreground">
                     {decodeText(block.Settore.Nome) || decodeText(block.Settore.Codice) || `Settore ${block.Settore.Id}`}
                   </p>
+                </div>
+              </div>
+            )}
+            
+            {block.Indirizzo && (
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <h4 className="font-medium text-foreground">Indirizzo</h4>
+                  <p className="text-sm text-muted-foreground">{decodeText(block.Indirizzo)}</p>
+                </div>
+              </div>
+            )}
+            
+            {block.Note && (
+              <div className="flex items-start gap-3">
+                <Calendar className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <h4 className="font-medium text-foreground">Note</h4>
+                  <p className="text-sm text-muted-foreground">{decodeText(block.Note)}</p>
                 </div>
               </div>
             )}

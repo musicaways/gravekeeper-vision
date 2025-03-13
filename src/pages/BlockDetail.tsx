@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +17,6 @@ const BlockDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string | null>(null);
 
-  // Ensure the page scrolls to the top when component mounts or ID changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);

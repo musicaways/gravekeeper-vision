@@ -20,7 +20,14 @@ export const useBlockMap = (block: any) => {
 
         console.log("Fetching map for block:", block.Id);
 
-        // Query the CimiteroMappe table for the related cemetery map
+        // Se il blocco ha coordinate GPS, useremo quelle per la mappa
+        if (block.Latitudine && block.Longitudine) {
+          console.log("Block has GPS coordinates, using them for map display");
+          // La visualizzazione della mappa verrà gestita direttamente dal componente JavaScriptMap
+          return;
+        }
+
+        // Altrimenti, proviamo a trovare una mappa associata al cimitero
         const { data, error } = await supabase
           .from('CimiteroMappe')
           .select('Url')

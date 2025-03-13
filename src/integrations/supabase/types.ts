@@ -96,15 +96,24 @@ export type Database = {
           available_plots: number | null
           block_code: string | null
           Codice: string | null
+          DataCreazione: string | null
+          DataUltimaModifica: string | null
+          Descrizione: string | null
+          FotoCopertina: string | null
           geo_boundary: Json | null
           Id: number
           IdSettore: number | null
+          Indirizzo: string | null
+          Latitudine: number | null
+          Longitudine: number | null
           Nome: string | null
+          Note: string | null
           NumeroFile: number | null
           NumeroFileInterrate: number | null
           NumeroLoculi: number | null
           NumeroPartenza: number | null
           PassoNumeri: number | null
+          Servizi: Json | null
           TipoNumerazione: number | null
           total_plots: number | null
         }
@@ -113,15 +122,24 @@ export type Database = {
           available_plots?: number | null
           block_code?: string | null
           Codice?: string | null
+          DataCreazione?: string | null
+          DataUltimaModifica?: string | null
+          Descrizione?: string | null
+          FotoCopertina?: string | null
           geo_boundary?: Json | null
           Id?: number
           IdSettore?: number | null
+          Indirizzo?: string | null
+          Latitudine?: number | null
+          Longitudine?: number | null
           Nome?: string | null
+          Note?: string | null
           NumeroFile?: number | null
           NumeroFileInterrate?: number | null
           NumeroLoculi?: number | null
           NumeroPartenza?: number | null
           PassoNumeri?: number | null
+          Servizi?: Json | null
           TipoNumerazione?: number | null
           total_plots?: number | null
         }
@@ -130,15 +148,24 @@ export type Database = {
           available_plots?: number | null
           block_code?: string | null
           Codice?: string | null
+          DataCreazione?: string | null
+          DataUltimaModifica?: string | null
+          Descrizione?: string | null
+          FotoCopertina?: string | null
           geo_boundary?: Json | null
           Id?: number
           IdSettore?: number | null
+          Indirizzo?: string | null
+          Latitudine?: number | null
+          Longitudine?: number | null
           Nome?: string | null
+          Note?: string | null
           NumeroFile?: number | null
           NumeroFileInterrate?: number | null
           NumeroLoculi?: number | null
           NumeroPartenza?: number | null
           PassoNumeri?: number | null
+          Servizi?: Json | null
           TipoNumerazione?: number | null
           total_plots?: number | null
         }
@@ -219,6 +246,44 @@ export type Database = {
           url?: string
         }
         Relationships: []
+      }
+      BloccoMappe: {
+        Row: {
+          DataInserimento: string | null
+          Descrizione: string | null
+          Id: string
+          IdBlocco: number
+          NomeFile: string | null
+          TipoFile: string | null
+          Url: string
+        }
+        Insert: {
+          DataInserimento?: string | null
+          Descrizione?: string | null
+          Id?: string
+          IdBlocco: number
+          NomeFile?: string | null
+          TipoFile?: string | null
+          Url: string
+        }
+        Update: {
+          DataInserimento?: string | null
+          Descrizione?: string | null
+          Id?: string
+          IdBlocco?: number
+          NomeFile?: string | null
+          TipoFile?: string | null
+          Url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "BloccoMappe_IdBlocco_fkey"
+            columns: ["IdBlocco"]
+            isOneToOne: false
+            referencedRelation: "Blocco"
+            referencedColumns: ["Id"]
+          },
+        ]
       }
       Cimitero: {
         Row: {

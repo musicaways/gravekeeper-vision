@@ -1,7 +1,6 @@
 
 import React from "react";
-import BlockDetailsCard from "@/components/block/info/BlockDetailsCard";
-import BlockMapDisplay from "@/components/block/map/BlockMapDisplay";
+import BlockInfoCard from "@/components/block/info/BlockInfoCard";
 
 interface BlockInfoTabContentProps {
   block: any;
@@ -10,8 +9,7 @@ interface BlockInfoTabContentProps {
 const BlockInfoTabContent: React.FC<BlockInfoTabContentProps> = ({ block }) => {
   return (
     <div className="space-y-6">
-      <BlockDetailsCard block={block} />
-      <BlockMapDisplay block={block} />
+      <BlockInfoCard block={block} />
     </div>
   );
 };
